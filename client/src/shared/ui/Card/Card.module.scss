@@ -9,6 +9,8 @@
 
 .normal {
     background: var(--dark-bg-redesigned);
+    border: 1px solid var(--color-border-light);
+    box-shadow: var(--shadow-xs);
 }
 
 .light {

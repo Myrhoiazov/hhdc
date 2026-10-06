@@ -2,9 +2,10 @@
     display: flex;
     align-items: center;
     padding: 8px 16px;
+    background: var(--color-surface);
     border: 1px solid var(--card-border-redesigned);
     border-radius: var(--radius-sm-redesigned);
-    transition: all 0.3s ease;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast);
 }
 
 .s {
@@ -33,6 +34,7 @@
 }
 
 .focused {
+    box-shadow: var(--focus-ring);
     border-color: var(--primary-redesigned);
 }
 
