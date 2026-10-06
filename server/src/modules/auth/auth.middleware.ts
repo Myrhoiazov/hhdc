@@ -1,82 +1,49 @@
-import { NextFunction, Request, Response } from "express";
-import { merge } from "lodash";
-import { getUserByOpaqueSessionToken } from "./auth.token.service";
-import { UserRole } from "@prisma/client";
+import type { Request, RequestHandler } from 'express';
+import { ApiError } from '../../common/http';
+import { sessionSecret, hashSession, csrfForSession, tokensEqual, loadUser, publicUser, CurrentUser } from './auth.service';
+import prisma from '../../../prisma/prisma-client';
 
-import { verifyTelegramInitData } from './telegram-miniapp/telegram-miniapp-init-data.service';
-import { findMiniAppIdentityByTelegramUserId } from './telegram-miniapp/telegram-miniapp-identity.service';
+export const COOKIE_NAME = 'hhdc_session';
 
-const cookieName = () => process.env.COOKIE_NAME || 'ddc_refresh';
+export const currentUser = (req: Request): CurrentUser => req.res!.locals.user;
 
-export const isAuthenticated = async (req: Request, res: Response, next: NextFunction) => {
-    const initData = req.header('x-telegram-init-data');
-    if (initData !== undefined) {
-        const token = process.env.TELEGRAM_TOKEN?.trim();
-        const verified = token && verifyTelegramInitData(initData, token);
-        if (!verified || !verified.ok) return res.status(401).json({ message: 'Unauthorized' });
-        const identity = await findMiniAppIdentityByTelegramUserId(verified.telegramUserId);
-        if (!identity?.user.isEnabled || identity.user.role !== UserRole.ADMIN) {
-            return res.status(403).json({ message: 'Forbidden' });
-        }
-        req.user = identity.user;
-        req.authMethod = 'telegram-miniapp';
-        return next();
-    }
-    const sessionToken = req.cookies[cookieName()];
+export const hasPermission = (permissions: string[], permission: string) => permissions.includes(permission);
 
-    if (!sessionToken) {
-        return res.status(401).json({ message: "Unauthorized" });
-    }
+const validateCsrf = (req: Request, expected: string) => {
+    const token = req.get('X-CSRF-Token') ?? '';
+    if (!tokensEqual(token, expected)) throw new ApiError(403, 'CSRF_FAILED', 'Invalid CSRF token');
+};
 
+export const authenticated: RequestHandler = async (req, res, next) => {
     try {
-        const session = await getUserByOpaqueSessionToken(sessionToken)
-        if (!session?.user) {
-            return res.status(401).json({ message: "Unauthorized" });
+        const token = req.cookies[COOKIE_NAME];
+        if (typeof token !== 'string') throw new ApiError(401, 'UNAUTHENTICATED', 'Login required');
+        
+        const session = await prisma.session.findUnique({ where: { tokenHash: hashSession(token) } });
+        if (!session || session.expiresAt.getTime() <= Date.now()) {
+            throw new ApiError(401, 'SESSION_EXPIRED', 'Login required');
         }
-
-        merge(req, { user: session.user, token: sessionToken });
-
-        return next();
-    } catch (error) {
-        console.error("Authentication error:", error);
-        return res.status(500).json({ message: "Internal server error" });
+        
+        const user = await loadUser(session.userId);
+        if (!user?.isActive) throw new ApiError(401, 'ACCOUNT_DISABLED', 'Login required');
+        
+        res.locals.user = publicUser(user);
+        res.locals.csrfToken = csrfForSession(token, sessionSecret());
+        
+        if (!['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
+            validateCsrf(req, res.locals.csrfToken);
+        }
+        
+        next();
+    } catch (error) { 
+        next(error); 
     }
-}
-
-type AsyncRequestHandler = (req: Request, res: Response, next: NextFunction) => unknown;
-
-export const asyncHandler = (fn: AsyncRequestHandler) => (req: Request, res: Response, next: NextFunction): void => {
-    Promise.resolve(fn(req, res, next)).catch(next);
 };
 
-
-export const requireRole = (...roles: UserRole[]) => (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-) => {
-    if (!req.user || !roles.includes(req.user.role)) {
-        res.status(403).json({ message: "Forbidden" });
-        return;
+export const permitted = (permission: string): RequestHandler => (req, _res, next) => {
+    const user = currentUser(req);
+    if (!user || !hasPermission(user.permissions, permission)) {
+        return next(new ApiError(403, 'FORBIDDEN', 'Permission required'));
     }
     next();
 };
-
-export const requireOwnerOrRole = (...roles: UserRole[]) => (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-) => {
-    const targetUserId = Number(req.params.id);
-    if (!req.user || !Number.isInteger(targetUserId)) {
-        res.status(403).json({ message: "Forbidden" });
-        return;
-    }
-    if (req.user.id !== targetUserId && !roles.includes(req.user.role)) {
-        res.status(403).json({ message: "Forbidden" });
-        return;
-    }
-    next();
-};
-
-export const isToken = isAuthenticated;

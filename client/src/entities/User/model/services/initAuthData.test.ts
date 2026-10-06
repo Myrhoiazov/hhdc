@@ -12,11 +12,11 @@ beforeEach(() => {
 describe('initAuthData', () => {
     test('fetches the profile, dispatches setAuthData, and fulfills with the user', async () => {
         const user = { id: '1', username: 'denis', email: 'denis@example.com', role: 'admin' };
-        extra.apiPrivate.get.mockResolvedValue({ data: user });
+        extra.apiPrivate.get.mockResolvedValue({ data: { data: { user, csrfToken: 'fake-token' } } });
 
         const result = await initAuthData()(dispatch, () => ({}) as never, extra as never);
 
-        expect(extra.apiPrivate.get).toHaveBeenCalledWith('/profile');
+        expect(extra.apiPrivate.get).toHaveBeenCalledWith('/auth/me');
         expect(dispatch).toHaveBeenCalledWith(userActions.setAuthData(user as never));
         expect(result.meta.requestStatus).toBe('fulfilled');
         expect(result.payload).toEqual(user);
@@ -29,7 +29,7 @@ describe('initAuthData', () => {
 
         expect(dispatch).not.toHaveBeenCalledWith(userActions.setAuthData(expect.anything()));
         expect(result.meta.requestStatus).toBe('rejected');
-        expect(result.payload).toBe('');
+        expect(result.payload).toBe('Unknown profile error');
     });
 
     test('rejects when the API call fails', async () => {

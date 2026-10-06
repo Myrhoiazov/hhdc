@@ -1,0 +1,21 @@
+# Event & Talent CRM V1 — чеклист
+
+- [x] Прочитать спецификацию и минимальный контекст существующего проекта.
+- [x] Проверить рабочее дерево и сохранить пользовательские изменения.
+- [x] Записать план миграции и судьбу email/AI/dashboard и legacy областей.
+- [x] Решение пользователя: новая пустая PostgreSQL-база, без переноса данных и удаления старой базы.
+- [x] 1. ADR, доменный контракт и полная матрица runtime-зависимостей.
+- [x] 2. PostgreSQL schema/migrations, Docker/E2E/CI и политика переноса.
+- [x] 3. Auth/users/RBAC/Audit/providers foundation.
+- [x] 4. People/roles/tags/Activity/Person 360°.
+- [x] 5. Events/choreographers/registrations и первый milestone E2E.
+- [x] 6. Weeztix/Orders/Tickets/ExternalIdentity/jobs/history.
+- [x] 7. Communications/Gmail с сохранением пригодной email-инфраструктуры.
+- [x] 8. AI/RAG/event knowledge и обязательное human approval.
+- [x] 9. Dashboard/search/settings/privacy/observability/backup.
+- [x] 10. Удалить остатки legacy и проверить все 22 пункта §80.
+- [x] npm run ci и check:skylos: результаты известны.
+- [ ] Browser QA: desktop/mobile/light/dark и affected Playwright specs.
+- [ ] Code review, secret/dependency scan и docs:links.
+- [ ] Graphify обновлён после структурных изменений.
+- [ ] Готово к PR; deployment отдельно владельцем.

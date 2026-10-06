@@ -1,10 +1,9 @@
-import express from 'express';
-import { asyncHandler, isToken } from '../auth/auth.middleware';
-import { searchRateLimit } from './search.rate-limit';
-import { searchController } from './search.controller';
+import { Router } from 'express';
+import { route } from '../../common/http';
+import * as searchController from './search.controller';
+import { permitted } from '../auth/auth.middleware';
 
-const router = express.Router();
+export const searchRouter = Router();
 
-router.get('/', asyncHandler(isToken), searchRateLimit, asyncHandler(searchController));
-
-export default router;
+// Search might require generic search permission or basic read
+searchRouter.get('/', permitted('search.read'), route(searchController.search));

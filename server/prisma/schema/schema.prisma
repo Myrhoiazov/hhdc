@@ -1,57 +1,646 @@
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [vector]
 }
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
-model Comment {
-  id        Int      @id @default(autoincrement())
-  text      String?  @db.Text
-  clientId  Int?     @map("client_Id")
-  createdAt DateTime @default(now())
-  userId    Int?     @map("user_Id")
-  client    Client?  @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  author    User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([clientId], map: "comments_client_Id_fkey")
-  @@index([userId], map: "comments_user_Id_fkey")
-  @@map("comments")
+enum PersonSource {
+  MANUAL
+  WEEZTIX
+  EMAIL
+  IMPORT
+  SYSTEM
 }
 
-model Transaction {
-  id            Int             @id @default(autoincrement())
-  type          TransactionType
-  amount        Float
-  category      ExpenseCategory
-  description   String?         @db.VarChar(250)
-  date          DateTime        @default(now())
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  paymentMethod PaymentMethod   @default(CASH)
-
-  @@map("transactions")
+enum PersonStatus {
+  ACTIVE
+  ARCHIVED
 }
 
-enum TransactionType {
-  INCOME
-  EXPENSE
+enum PersonRoleType {
+  CUSTOMER
+  PARTICIPANT
+  CHOREOGRAPHER
+  STAFF
 }
 
-enum PaymentMethod {
-  CASH
-  CARD
-  BANK_TRANSFER
+enum EventStatus {
+  DRAFT
+  PUBLISHED
+  ACTIVE
+  COMPLETED
+  CANCELLED
+  ARCHIVED
 }
 
-enum ExpenseCategory {
-  KOMUNALKA
-  AUTO
-  PRODUCTS
-  HEALTH
-  HUIS
-  PHARMACY
-  OTHER
+enum ChoreographerStatus {
+  INVITED
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum RegistrationStatus {
+  PENDING
+  CONFIRMED
+  CHECKED_IN
+  CANCELLED
+  NO_SHOW
+}
+
+enum RegistrationSource {
+  MANUAL
+  WEEZTIX
+  IMPORT
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  CANCELLED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum TicketStatus {
+  VALID
+  USED
+  CANCELLED
+  REFUNDED
+  TRANSFERRED
+}
+
+enum ProviderType {
+  TICKETING
+  EMAIL
+  AI
+  STORAGE
+  PAYMENT
+}
+
+enum ProviderName {
+  WEEZTIX
+  GMAIL
+  OPENAI
+  OLLAMA
+}
+
+enum ProviderStatus {
+  DISCONNECTED
+  CONNECTED
+  ERROR
+  DISABLED
+}
+
+enum ConversationStatus {
+  OPEN
+  WAITING
+  RESOLVED
+  SPAM
+  ARCHIVED
+}
+
+enum MessageDirection {
+  INBOUND
+  OUTBOUND
+}
+
+enum MessageChannel {
+  EMAIL
+}
+
+enum AiDraftStatus {
+  GENERATED
+  EDITED
+  APPROVED
+  REJECTED
+  SENDING
+  SENT
+  FAILED
+}
+
+enum KnowledgeScope {
+  GLOBAL
+  EVENT
+}
+
+enum KnowledgeStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
+
+enum JobStatus {
+  PENDING
+  RUNNING
+  SUCCEEDED
+  FAILED
+}
+
+enum JobType {
+  WEEZTIX_SYNC
+  EMAIL_SYNC
+  AI_DRAFT
+  KNOWLEDGE_EMBED
+}
+
+model User {
+  id            String         @id @default(uuid()) @db.Uuid
+  email         String         @unique
+  passwordHash  String
+  name          String
+  isActive      Boolean        @default(true)
+  createdAt     DateTime       @default(now()) @db.Timestamptz(6)
+  updatedAt     DateTime       @updatedAt @db.Timestamptz(6)
+  roles         UserRole[]
+  sessions      Session[]
+  conversations Conversation[]
+}
+
+model Session {
+  id        String   @id @default(uuid()) @db.Uuid
+  tokenHash String   @unique
+  userId    String   @db.Uuid
+  expiresAt DateTime @db.Timestamptz(6)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([expiresAt])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @db.Uuid
+  tokenHash String    @unique
+  expiresAt DateTime  @db.Timestamptz(6)
+  usedAt    DateTime? @db.Timestamptz(6)
+  createdAt DateTime  @default(now()) @db.Timestamptz(6)
+}
+
+model Role {
+  id          String           @id @default(uuid()) @db.Uuid
+  name        String           @unique
+  description String?
+  permissions RolePermission[]
+  users       UserRole[]
+}
+
+model Permission {
+  id          String           @id @default(uuid()) @db.Uuid
+  key         String           @unique
+  description String?
+  roles       RolePermission[]
+}
+
+model UserRole {
+  userId String @db.Uuid
+  roleId String @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role   Role   @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+}
+
+model RolePermission {
+  roleId       String     @db.Uuid
+  permissionId String     @db.Uuid
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+}
+
+model Person {
+  id                       String               @id @default(uuid()) @db.Uuid
+  firstName                String
+  lastName                 String
+  displayName              String
+  email                    String?
+  phone                    String?
+  birthDate                DateTime?            @db.Date
+  language                 String?
+  country                  String?
+  notes                    String?
+  source                   PersonSource         @default(MANUAL)
+  status                   PersonStatus         @default(ACTIVE)
+  createdAt                DateTime             @default(now()) @db.Timestamptz(6)
+  updatedAt                DateTime             @updatedAt @db.Timestamptz(6)
+  roles                    PersonRole[]
+  tags                     PersonTag[]
+  registrations            Registration[]
+  choreographerAssignments EventChoreographer[]
+  orders                   Order[]
+  tickets                  Ticket[]
+  conversations            Conversation[]
+  activities               Activity[]
+
+  @@index([email])
+  @@index([phone])
+  @@index([status, createdAt])
+}
+
+model PersonRole {
+  id        String         @id @default(uuid()) @db.Uuid
+  personId  String         @db.Uuid
+  role      PersonRoleType
+  createdAt DateTime       @default(now()) @db.Timestamptz(6)
+  person    Person         @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@unique([personId, role])
+}
+
+model Tag {
+  id          String      @id @default(uuid()) @db.Uuid
+  name        String
+  slug        String      @unique
+  description String?
+  createdAt   DateTime    @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime    @updatedAt @db.Timestamptz(6)
+  people      PersonTag[]
+}
+
+model PersonTag {
+  personId  String   @db.Uuid
+  tagId     String   @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  person    Person   @relation(fields: [personId], references: [id], onDelete: Cascade)
+  tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([personId, tagId])
+}
+
+model Event {
+  id                 String               @id @default(uuid()) @db.Uuid
+  name               String
+  slug               String               @unique
+  description        String?
+  status             EventStatus          @default(DRAFT)
+  startAt            DateTime             @db.Timestamptz(6)
+  endAt              DateTime             @db.Timestamptz(6)
+  timezone           String
+  venueName          String?
+  address            String?
+  city               String?
+  country            String?
+  capacity           Int?
+  createdAt          DateTime             @default(now()) @db.Timestamptz(6)
+  updatedAt          DateTime             @updatedAt @db.Timestamptz(6)
+  registrations      Registration[]
+  choreographers     EventChoreographer[]
+  orders             Order[]
+  tickets            Ticket[]
+  conversations      Conversation[]
+  knowledgeDocuments KnowledgeDocument[]
+  activities         Activity[]
+
+  @@index([status, startAt])
+  @@index([startAt])
+}
+
+model EventChoreographer {
+  id          String              @id @default(uuid()) @db.Uuid
+  eventId     String              @db.Uuid
+  personId    String              @db.Uuid
+  roleTitle   String
+  bioOverride String?
+  status      ChoreographerStatus @default(INVITED)
+  notes       String?
+  createdAt   DateTime            @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime            @updatedAt @db.Timestamptz(6)
+  event       Event               @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  person      Person              @relation(fields: [personId], references: [id], onDelete: Restrict)
+
+  @@unique([eventId, personId])
+}
+
+model Registration {
+  id                 String             @id @default(uuid()) @db.Uuid
+  eventId            String             @db.Uuid
+  personId           String             @db.Uuid
+  ticketId           String?            @unique @db.Uuid
+  status             RegistrationStatus @default(PENDING)
+  registrationSource RegistrationSource @default(MANUAL)
+  notes              String?
+  createdAt          DateTime           @default(now()) @db.Timestamptz(6)
+  updatedAt          DateTime           @updatedAt @db.Timestamptz(6)
+  event              Event              @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  person             Person             @relation(fields: [personId], references: [id], onDelete: Restrict)
+  ticket             Ticket?            @relation(fields: [ticketId], references: [id], onDelete: SetNull)
+
+  @@unique([eventId, personId])
+  @@index([personId])
+  @@index([status])
+}
+
+model ProviderConnection {
+  id                   String             @id @default(uuid()) @db.Uuid
+  type                 ProviderType
+  provider             ProviderName
+  name                 String
+  status               ProviderStatus     @default(DISCONNECTED)
+  credentialsEncrypted String?
+  settings             Json               @default("{}")
+  lastSyncAt           DateTime?          @db.Timestamptz(6)
+  lastAttemptAt        DateTime?          @db.Timestamptz(6)
+  lastSuccessAt        DateTime?          @db.Timestamptz(6)
+  lastFailureAt        DateTime?          @db.Timestamptz(6)
+  lastError            String?
+  createdAt            DateTime           @default(now()) @db.Timestamptz(6)
+  updatedAt            DateTime           @updatedAt @db.Timestamptz(6)
+  orders               Order[]
+  tickets              Ticket[]
+  messages             Message[]
+  externalIdentities   ExternalIdentity[]
+  jobs                 Job[]
+  syncRuns             SyncRun[]
+}
+
+model Order {
+  id                   String              @id @default(uuid()) @db.Uuid
+  eventId              String?             @db.Uuid
+  buyerPersonId        String?             @db.Uuid
+  providerConnectionId String?             @db.Uuid
+  externalId           String?
+  status               OrderStatus         @default(PENDING)
+  currency             String              @default("EUR") @db.VarChar(3)
+  subtotal             Decimal             @db.Decimal(14, 2)
+  fees                 Decimal             @db.Decimal(14, 2)
+  total                Decimal             @db.Decimal(14, 2)
+  orderedAt            DateTime            @db.Timestamptz(6)
+  rawData              Json?
+  createdAt            DateTime            @default(now()) @db.Timestamptz(6)
+  updatedAt            DateTime            @updatedAt @db.Timestamptz(6)
+  event                Event?              @relation(fields: [eventId], references: [id], onDelete: SetNull)
+  buyer                Person?             @relation(fields: [buyerPersonId], references: [id], onDelete: SetNull)
+  providerConnection   ProviderConnection? @relation(fields: [providerConnectionId], references: [id], onDelete: Restrict)
+  items                OrderItem[]
+  tickets              Ticket[]
+  payments             Payment[]
+
+  @@unique([providerConnectionId, externalId])
+  @@index([buyerPersonId])
+  @@index([orderedAt])
+  @@index([eventId, status])
+}
+
+model OrderItem {
+  id         String   @id @default(uuid()) @db.Uuid
+  orderId    String   @db.Uuid
+  name       String
+  quantity   Int
+  unitPrice  Decimal  @db.Decimal(14, 2)
+  totalPrice Decimal  @db.Decimal(14, 2)
+  externalId String?
+  rawData    Json?
+  createdAt  DateTime @default(now()) @db.Timestamptz(6)
+  order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  tickets    Ticket[]
+
+  @@unique([orderId, externalId])
+}
+
+model Ticket {
+  id                   String              @id @default(uuid()) @db.Uuid
+  orderId              String              @db.Uuid
+  orderItemId          String?             @db.Uuid
+  eventId              String?             @db.Uuid
+  holderPersonId       String?             @db.Uuid
+  providerConnectionId String?             @db.Uuid
+  externalId           String?
+  ticketType           String
+  barcode              String?
+  status               TicketStatus        @default(VALID)
+  rawData              Json?
+  createdAt            DateTime            @default(now()) @db.Timestamptz(6)
+  updatedAt            DateTime            @updatedAt @db.Timestamptz(6)
+  order                Order               @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderItem            OrderItem?          @relation(fields: [orderItemId], references: [id], onDelete: SetNull)
+  event                Event?              @relation(fields: [eventId], references: [id], onDelete: SetNull)
+  holder               Person?             @relation(fields: [holderPersonId], references: [id], onDelete: SetNull)
+  providerConnection   ProviderConnection? @relation(fields: [providerConnectionId], references: [id], onDelete: Restrict)
+  registration         Registration?
+
+  @@unique([providerConnectionId, externalId])
+  @@index([holderPersonId])
+  @@index([status])
+  @@index([eventId, status])
+}
+
+model Payment {
+  id         String    @id @default(uuid()) @db.Uuid
+  orderId    String    @db.Uuid
+  amount     Decimal   @db.Decimal(14, 2)
+  currency   String    @db.VarChar(3)
+  status     String
+  externalId String?
+  paidAt     DateTime? @db.Timestamptz(6)
+  createdAt  DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt  DateTime  @updatedAt @db.Timestamptz(6)
+  order      Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@unique([orderId, externalId])
+}
+
+model ExternalIdentity {
+  id                   String             @id @default(uuid()) @db.Uuid
+  providerConnectionId String             @db.Uuid
+  entityType           String
+  entityId             String             @db.Uuid
+  externalId           String
+  metadata             Json?
+  createdAt            DateTime           @default(now()) @db.Timestamptz(6)
+  updatedAt            DateTime           @updatedAt @db.Timestamptz(6)
+  providerConnection   ProviderConnection @relation(fields: [providerConnectionId], references: [id], onDelete: Cascade)
+
+  @@unique([providerConnectionId, entityType, externalId])
+  @@index([entityType, entityId])
+}
+
+model Conversation {
+  id             String             @id @default(uuid()) @db.Uuid
+  personId       String?            @db.Uuid
+  eventId        String?            @db.Uuid
+  subject        String
+  status         ConversationStatus @default(OPEN)
+  priority       String             @default("NORMAL")
+  assignedUserId String?            @db.Uuid
+  lastMessageAt  DateTime           @default(now()) @db.Timestamptz(6)
+  createdAt      DateTime           @default(now()) @db.Timestamptz(6)
+  updatedAt      DateTime           @updatedAt @db.Timestamptz(6)
+  person         Person?            @relation(fields: [personId], references: [id], onDelete: SetNull)
+  event          Event?             @relation(fields: [eventId], references: [id], onDelete: SetNull)
+  assignedUser   User?              @relation(fields: [assignedUserId], references: [id], onDelete: SetNull)
+  messages       Message[]
+  drafts         AiDraft[]
+
+  @@index([personId])
+  @@index([eventId])
+  @@index([status, lastMessageAt])
+}
+
+model Message {
+  id                   String              @id @default(uuid()) @db.Uuid
+  conversationId       String              @db.Uuid
+  direction            MessageDirection
+  channel              MessageChannel      @default(EMAIL)
+  sender               String
+  recipient            String
+  subject              String?
+  bodyText             String
+  bodyHtml             String?
+  externalId           String?
+  providerConnectionId String?             @db.Uuid
+  receivedAt           DateTime?           @db.Timestamptz(6)
+  sentAt               DateTime?           @db.Timestamptz(6)
+  rawData              Json?
+  classification       Json?
+  createdAt            DateTime            @default(now()) @db.Timestamptz(6)
+  conversation         Conversation        @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  providerConnection   ProviderConnection? @relation(fields: [providerConnectionId], references: [id], onDelete: Restrict)
+  drafts               AiDraft[]
+  attachments          MessageAttachment[]
+
+  @@unique([providerConnectionId, externalId])
+  @@index([conversationId, createdAt])
+}
+
+model MessageAttachment {
+  id          String   @id @default(uuid()) @db.Uuid
+  messageId   String   @db.Uuid
+  filename    String
+  mimeType    String
+  sizeBytes   Int
+  storagePath String
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+  message     Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+}
+
+model AiDraft {
+  id                 String        @id @default(uuid()) @db.Uuid
+  conversationId     String        @db.Uuid
+  sourceMessageId    String        @db.Uuid
+  status             AiDraftStatus @default(GENERATED)
+  language           String
+  intent             String
+  confidence         Float?
+  model              String
+  promptVersion      String
+  content            String
+  contextSnapshot    Json
+  createdBy          String        @default("SYSTEM")
+  approvedBy         String?       @db.Uuid
+  approvedAt         DateTime?     @db.Timestamptz(6)
+  sendIdempotencyKey String?       @unique
+  sendError          String?
+  createdAt          DateTime      @default(now()) @db.Timestamptz(6)
+  updatedAt          DateTime      @updatedAt @db.Timestamptz(6)
+  conversation       Conversation  @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sourceMessage      Message       @relation(fields: [sourceMessageId], references: [id], onDelete: Restrict)
+
+  @@index([conversationId, status])
+}
+
+model KnowledgeDocument {
+  id         String           @id @default(uuid()) @db.Uuid
+  title      String
+  scope      KnowledgeScope   @default(GLOBAL)
+  eventId    String?          @db.Uuid
+  content    String
+  status     KnowledgeStatus  @default(DRAFT)
+  sourceType String           @default("MANUAL")
+  sourceUrl  String?
+  createdAt  DateTime         @default(now()) @db.Timestamptz(6)
+  updatedAt  DateTime         @updatedAt @db.Timestamptz(6)
+  event      Event?           @relation(fields: [eventId], references: [id], onDelete: SetNull)
+  chunks     KnowledgeChunk[]
+
+  @@index([scope, eventId, status])
+}
+
+model KnowledgeChunk {
+  id         String                 @id @default(uuid()) @db.Uuid
+  documentId String                 @db.Uuid
+  content    String
+  position   Int
+  embedding  Unsupported("vector")?
+  metadata   Json                   @default("{}")
+  createdAt  DateTime               @default(now()) @db.Timestamptz(6)
+  document   KnowledgeDocument      @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@unique([documentId, position])
+}
+
+model Activity {
+  id          String   @id @default(uuid()) @db.Uuid
+  personId    String?  @db.Uuid
+  eventId     String?  @db.Uuid
+  actorUserId String?  @db.Uuid
+  type        String
+  entityType  String
+  entityId    String?  @db.Uuid
+  metadata    Json     @default("{}")
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+  person      Person?  @relation(fields: [personId], references: [id], onDelete: SetNull)
+  event       Event?   @relation(fields: [eventId], references: [id], onDelete: SetNull)
+
+  @@index([personId, createdAt])
+  @@index([eventId, createdAt])
+}
+
+model AuditLog {
+  id          String   @id @default(uuid()) @db.Uuid
+  actorUserId String?  @db.Uuid
+  action      String
+  entityType  String
+  entityId    String?  @db.Uuid
+  before      Json?
+  after       Json?
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([actorUserId, createdAt])
+  @@index([entityType, entityId])
+}
+
+model Job {
+  id                   String              @id @default(uuid()) @db.Uuid
+  type                 JobType
+  status               JobStatus           @default(PENDING)
+  providerConnectionId String?             @db.Uuid
+  payload              Json                @default("{}")
+  attempts             Int                 @default(0)
+  maxAttempts          Int                 @default(3)
+  runAfter             DateTime            @default(now()) @db.Timestamptz(6)
+  startedAt            DateTime?           @db.Timestamptz(6)
+  finishedAt           DateTime?           @db.Timestamptz(6)
+  error                String?
+  createdAt            DateTime            @default(now()) @db.Timestamptz(6)
+  updatedAt            DateTime            @updatedAt @db.Timestamptz(6)
+  providerConnection   ProviderConnection? @relation(fields: [providerConnectionId], references: [id], onDelete: SetNull)
+
+  @@index([status, runAfter])
+}
+
+model SyncRun {
+  id                   String             @id @default(uuid()) @db.Uuid
+  providerConnectionId String             @db.Uuid
+  type                 JobType
+  status               JobStatus          @default(RUNNING)
+  startedAt            DateTime           @default(now()) @db.Timestamptz(6)
+  finishedAt           DateTime?          @db.Timestamptz(6)
+  createdCount         Int                @default(0)
+  updatedCount         Int                @default(0)
+  skippedCount         Int                @default(0)
+  failedCount          Int                @default(0)
+  errorSummary         String?
+  metadata             Json               @default("{}")
+  providerConnection   ProviderConnection @relation(fields: [providerConnectionId], references: [id], onDelete: Restrict)
+
+  @@index([providerConnectionId, startedAt])
 }

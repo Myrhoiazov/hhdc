@@ -1,22 +1,19 @@
 name: hhdc-e2e
-
 services:
   e2e-db:
-    image: mysql:8.0
+    image: pgvector/pgvector:pg17
     environment:
-      MYSQL_DATABASE: ddc_e2e
-      MYSQL_USER: ddc_e2e
-      MYSQL_PASSWORD: ddc_e2e_password
-      MYSQL_ROOT_PASSWORD: ddc_e2e_root_password
+      POSTGRES_DB: hhdc_crm_e2e
+      POSTGRES_USER: hhdc_e2e
+      POSTGRES_PASSWORD: ${E2E_DATABASE_PASSWORD:?Set E2E_DATABASE_PASSWORD}
     ports:
-      - "127.0.0.1:13306:3306"
+      - "127.0.0.1:55434:5432"
     volumes:
-      - e2e_mysql_data:/var/lib/mysql
+      - e2e_postgres_crm_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 3s
       timeout: 5s
       retries: 20
-
 volumes:
-  e2e_mysql_data:
+  e2e_postgres_crm_data:
