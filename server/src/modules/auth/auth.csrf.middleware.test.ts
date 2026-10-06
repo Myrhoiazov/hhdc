@@ -58,6 +58,26 @@ test('GET requests are never subject to CSRF checks', () => {
     assert.equal(calls.status, undefined);
 });
 
+test('allows the loopback alias of the configured local frontend origin', () => {
+    const previousMode = process.env.MODE;
+    const previousClientUrl = process.env.CLIENT_URL;
+    process.env.MODE = 'development';
+    process.env.CLIENT_URL = 'http://localhost:3011';
+    try {
+        const { res, calls } = fakeRes();
+        csrfProtection(fakeReq({
+            path: '/clients',
+            headers: { origin: 'http://127.0.0.1:3011' },
+        }), res, () => {});
+        assert.deepEqual(calls.body, { message: 'CSRF token invalid' });
+    } finally {
+        if (previousMode === undefined) delete process.env.MODE;
+        else process.env.MODE = previousMode;
+        if (previousClientUrl === undefined) delete process.env.CLIENT_URL;
+        else process.env.CLIENT_URL = previousClientUrl;
+    }
+});
+
 test('exempts a non-empty Telegram header on a protected API route', () => {
     const req = fakeReq({ path: '/clients', headers: { 'x-telegram-init-data': 'signed-data' } });
     const { res, calls } = fakeRes();

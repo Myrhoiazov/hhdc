@@ -5,11 +5,18 @@ const unsafeMethods = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 
 const cookieName = () => process.env.COOKIE_NAME || 'ddc_refresh';
 
-const allowedOrigins = () => [
-    process.env.CLIENT_URL,
-    process.env.PUBLIC_SITE_URL,
-    process.env.MODE === 'development' ? 'http://localhost:3000' : undefined,
-].filter((origin): origin is string => Boolean(origin));
+const allowedOrigins = () => {
+    const configuredClientOrigin = process.env.CLIENT_URL;
+    return [
+        configuredClientOrigin,
+        process.env.PUBLIC_SITE_URL,
+        ...(process.env.MODE === 'development' ? [
+            'http://localhost:3000',
+            configuredClientOrigin?.replace('localhost', '127.0.0.1'),
+            configuredClientOrigin?.replace('127.0.0.1', 'localhost'),
+        ] : []),
+    ].filter((origin, index, origins): origin is string => Boolean(origin) && origins.indexOf(origin) === index);
+};
 
 // /auth/login/2fa/* run before any Session exists (same as /auth/login itself) —
 // there's no authenticated state yet for a cross-site request to hijack, and the

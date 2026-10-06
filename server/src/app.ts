@@ -22,10 +22,15 @@ const app = express();
 const server = createServer(app);
 const isDev = env.MODE === 'development';
 
+const configuredClientOrigin = env.CLIENT_URL;
 const allowedClientOrigins = [
-    env.CLIENT_URL,
-    ...(isDev ? ['http://localhost:3000'] : []),
-].filter((origin): origin is string => Boolean(origin));
+    configuredClientOrigin,
+    ...(isDev ? [
+        'http://localhost:3000',
+        configuredClientOrigin?.replace('localhost', '127.0.0.1'),
+        configuredClientOrigin?.replace('127.0.0.1', 'localhost'),
+    ] : []),
+].filter((origin, index, origins): origin is string => Boolean(origin) && origins.indexOf(origin) === index);
 
 if (!isDev) {
     app.set('trust proxy', 1);
