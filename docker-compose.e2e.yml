@@ -1,0 +1,22 @@
+name: hhdc-e2e
+
+services:
+  e2e-db:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: ddc_e2e
+      MYSQL_USER: ddc_e2e
+      MYSQL_PASSWORD: ddc_e2e_password
+      MYSQL_ROOT_PASSWORD: ddc_e2e_root_password
+    ports:
+      - "127.0.0.1:13306:3306"
+    volumes:
+      - e2e_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 3s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  e2e_mysql_data:

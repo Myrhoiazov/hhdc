@@ -1,0 +1,10 @@
+{
+    "name": "ddc-telegram-mini-app",
+    "private": true,
+    "scripts": {
+        "build": "node scripts/build.mjs --target both",
+        "build:client": "node scripts/build.mjs --target client",
+        "build:server": "node scripts/build.mjs --target server",
+        "typecheck": "tsc --noEmit -p tsconfig.json"
+    }
+}

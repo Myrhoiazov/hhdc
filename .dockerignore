@@ -1,0 +1,23 @@
+# Applies to the frontend build context (repo root, needed only to reach
+# docker/client/nginx/default.conf alongside client/). The backend has its own
+# context (./server) and its own .dockerignore — none of this repo's server/
+# tree is needed to build the frontend image.
+server
+
+docs
+backups
+photo
+plugins
+scripts
+.git
+.claude
+.github
+.DS_Store
+*.md
+.deploy.env*
+
+client/node_modules
+client/build
+client/storybook-static
+client/coverage
+client/.DS_Store

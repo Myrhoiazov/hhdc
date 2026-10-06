@@ -1,0 +1,84 @@
+.fields {
+    display: grid;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.TwoFactorForm {
+    width: 100%;
+    max-width: 460px;
+    background: var(--sidebar-bg-redesigned);
+    border: 1px solid var(--card-border-redesigned);
+    border-radius: var(--radius-lg-redesigned);
+    box-shadow: 0 20px 55px rgb(17 19 24 / 9%);
+
+    .header {
+        margin: 24px 0 32px;
+        text-align: center;
+    }
+
+    .input {
+        height: 50px;
+        font-size: 20px;
+        text-align: center;
+        background: var(--sidebar-hover-bg-redesigned);
+        border-radius: var(--radius-md-redesigned);
+        border-color: var(--card-border-redesigned);
+        letter-spacing: 8px;
+
+        &:focus-within {
+            background: var(--sidebar-bg-redesigned);
+            box-shadow: 0 0 0 3px var(--primary-soft-bg-redesigned);
+            border-color: var(--primary-redesigned);
+        }
+    }
+
+    .submitBtn {
+        min-height: 50px;
+        font-weight: 700;
+        color: var(--primary-contrast-redesigned);
+        background: var(--primary-redesigned);
+        border-radius: var(--radius-md-redesigned);
+        box-shadow: 0 10px 24px rgb(17 19 24 / 16%);
+        margin-top: 8px;
+
+        &:hover {
+            box-shadow: 0 14px 28px rgb(17 19 24 / 22%);
+            opacity: 1;
+            transform: translateY(-1px);
+        }
+    }
+
+    .back {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--sidebar-text-redesigned);
+    }
+
+    @media (width <= 520px) {
+        padding: 0;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+    }
+}
+
+.error {
+    margin: 12px 0;
+    padding: 11px 14px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--danger-text-redesigned);
+    background: var(--danger-bg-redesigned);
+    border-radius: var(--radius-sm-redesigned);
+}
+
+.success {
+    margin: 12px 0;
+    padding: 11px 14px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--success-text-redesigned);
+    background: var(--success-bg-redesigned);
+    border-radius: var(--radius-sm-redesigned);
+}

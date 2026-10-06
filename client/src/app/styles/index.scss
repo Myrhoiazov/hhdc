@@ -1,0 +1,60 @@
+@use 'reset';
+@use 'variables/global';
+@use 'themes/default';
+@use 'themes/dark';
+@use 'themes/orange';
+
+.app {
+    min-height: 100vh;
+    font: var(--font-m);
+    color: var(--primary-color);
+    background: #f4f6f1;
+}
+
+.app_redesigned {
+    min-height: 100vh;
+    font: var(--font-m-redesigned);
+    color: var(--text-redesigned);
+    background: var(--bg-redesigned);
+}
+
+.content-page {
+    display: flex;
+    min-height: calc(100vh - var(--navbar-height));
+    background: var(--bg-redesigned);
+
+    @media (width <= 768px) {
+        // Sidebar is fixed overlay on mobile, content takes full width
+        display: block;
+    }
+}
+
+*::-webkit-scrollbar {
+    width: 12px; /* ширина scrollbar */
+    height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+    background: var(--light-bg-redesigned); /* цвет дорожки */
+}
+
+*::-webkit-scrollbar-thumb {
+    border: 1px solid var(--accent-redesigned); /* padding вокруг плашки */
+    border-radius: 20px; /* закругления плашки */
+    background-color: var(--icon-redesigned); /* цвет плашки */
+}
+
+.app *::-webkit-scrollbar {
+    width: 12px; /* ширина scrollbar */
+    height: 8px;
+}
+
+.app *::-webkit-scrollbar-track {
+    background: var(--card-bg); /* цвет дорожки */
+}
+
+.app *::-webkit-scrollbar-thumb {
+    border: 2px solid var(--primary-color); /* padding вокруг плашки */
+    border-radius: 20px; /* закругления плашки */
+    background-color: var(--inverted-primary-color); /* цвет плашки */
+}

@@ -1,0 +1,74 @@
+enum AiSimulationStage {
+  CLASSIFICATION
+  QUERY_EXPANSION
+  RETRIEVAL_EMBEDDING
+  RERANK
+  DRAFT
+}
+
+// One row per "Симуляция письма" panel run — never written to by the real inbound-email
+// pipeline (ai_email_messages/ai_email_classifications/ai_email_drafts stay untouched). Captures
+// enough of the input/output to compare prompts and providers over time without needing to
+// re-run history: classificationJson/knowledgeJson/draftJson snapshot the full pipeline output so
+// a saved run can be inspected later even if the AiPrompt it used is since edited or deleted (see
+// the denormalized *PromptName columns for the same reason).
+model AiSimulationRun {
+  id                        Int              @id @default(autoincrement())
+  fromAddress               String?          @map("from_address") @db.VarChar(320)
+  subject                   String           @db.VarChar(500)
+  body                      String           @db.Text
+  topK                      Int?             @map("top_k")
+  noKnowledge               Boolean          @default(false) @map("no_knowledge")
+  forceDraft                Boolean          @default(false) @map("force_draft")
+  noQueryExpansion          Boolean          @default(false) @map("no_query_expansion")
+  noRerank                  Boolean          @default(false) @map("no_rerank")
+  classificationPromptId    Int?             @map("classification_prompt_id")
+  classificationPromptName  String?          @map("classification_prompt_name") @db.VarChar(191)
+  draftBodyPromptId         Int?             @map("draft_body_prompt_id")
+  draftBodyPromptName       String?          @map("draft_body_prompt_name") @db.VarChar(191)
+  draftProvider             AiDraftProvider? @map("draft_provider")
+  draftModel                String?          @map("draft_model") @db.VarChar(191)
+  classificationSpam        Boolean?         @map("classification_spam")
+  classificationNeedsReply  Boolean?         @map("classification_needs_reply")
+  classificationConfidence  Float?           @map("classification_confidence")
+  classificationJson        Json?            @map("classification_json")
+  knowledgeJson             Json?            @map("knowledge_json")
+  draftJson                 Json?            @map("draft_json")
+  deterministicSpamReason   String?          @map("deterministic_spam_reason") @db.VarChar(191)
+  draftSkippedReason        String?          @map("draft_skipped_reason") @db.VarChar(191)
+  createdById                Int?            @map("created_by_id")
+  createdAt                 DateTime         @default(now()) @map("created_at")
+
+  metrics   AiSimulationRunMetric[]
+  createdBy User?                   @relation("AiSimulationRunCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([draftProvider, draftModel])
+  @@index([createdById])
+  @@map("ai_simulation_runs")
+}
+
+// A stage that makes several LLM calls in one run (reranking's bi-encoder fallback re-embeds
+// every candidate chunk) is stored as ONE row with callCount > 1 and summed duration — not one
+// row per candidate, which would make cross-run comparison noisy without adding value. `meta`
+// carries stage-specific extras (currently just RERANK's `nativeRerankUsed`/`candidateCount`).
+model AiSimulationRunMetric {
+  id               Int               @id @default(autoincrement())
+  runId            Int               @map("run_id")
+  stage            AiSimulationStage
+  provider         AiDraftProvider
+  model            String            @db.VarChar(191)
+  callCount        Int               @default(1) @map("call_count")
+  durationMs       Int               @map("duration_ms")
+  promptTokens     Int?              @map("prompt_tokens")
+  completionTokens Int?              @map("completion_tokens")
+  totalTokens      Int?              @map("total_tokens")
+  meta             Json?
+  createdAt        DateTime          @default(now()) @map("created_at")
+
+  run AiSimulationRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+
+  @@index([runId])
+  @@index([stage, provider, model])
+  @@map("ai_simulation_run_metrics")
+}

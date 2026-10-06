@@ -1,0 +1,163 @@
+enum AiEmailDirection {
+  INBOUND
+  OUTBOUND
+}
+
+enum AiEmailStatus {
+  RECEIVED
+  NORMALIZED
+  CLASSIFIED
+  IGNORED_SPAM
+  FAILED
+}
+
+enum AiEmailDraftStatus {
+  GENERATED
+  EDITED
+  APPROVED
+  REJECTED
+  SPAM
+  SENDING
+  SENT
+  FAILED
+}
+
+enum AiEmailApprovalAction {
+  APPROVE
+  EDIT
+  REJECT
+  SPAM
+}
+
+model AiEmailMessage {
+  id                   Int             @id @default(autoincrement())
+  sourceEmailMessageId Int?            @unique @map("source_email_message_id")
+  messageId            String?         @map("message_id")
+  threadKey            String?         @map("thread_key")
+  direction            AiEmailDirection @default(INBOUND)
+  sender               String
+  recipients           Json
+  subject              String?
+  normalizedBody       String          @map("normalized_body") @db.Text
+  receivedAt           DateTime        @map("received_at")
+  status               AiEmailStatus   @default(RECEIVED)
+  createdAt            DateTime        @default(now()) @map("created_at")
+  updatedAt            DateTime        @updatedAt @map("updated_at")
+
+  classifications AiEmailClassification[]
+  drafts          AiEmailDraft[]
+
+  @@index([status, receivedAt])
+  @@map("ai_email_messages")
+}
+
+model AiEmailClassification {
+  id             Int           @id @default(autoincrement())
+  emailId        Int           @map("email_id")
+  spam           Boolean
+  needsReply     Boolean       @map("needs_reply")
+  language       String        @db.VarChar(16)
+  intent         String        @db.VarChar(32)
+  confidence     Float
+  reason         String        @db.VarChar(240)
+  model          String        @db.VarChar(191)
+  promptVersion  String        @map("prompt_version") @db.VarChar(64)
+  createdAt      DateTime      @default(now()) @map("created_at")
+
+  email AiEmailMessage @relation(fields: [emailId], references: [id], onDelete: Cascade)
+
+  @@index([emailId, createdAt])
+  @@unique([emailId, promptVersion])
+  @@map("ai_email_classifications")
+}
+
+model AiEmailDraft {
+  provider          AiDraftProvider    @default(OLLAMA)
+  generationErrorCode String?           @map("generation_error_code") @db.VarChar(64)
+  generationErrorMessage String?        @map("generation_error_message") @db.VarChar(500)
+  id                Int                @id @default(autoincrement())
+  emailId           Int                @map("email_id")
+  version           Int
+  subject           String             @db.VarChar(500)
+  body              String             @db.Text
+  replyLanguage     String             @map("reply_language") @db.VarChar(16)
+  confidence        Float
+  needsManualAnswer Boolean            @map("needs_manual_answer")
+  model             String             @db.VarChar(191)
+  promptVersion     String             @map("prompt_version") @db.VarChar(64)
+  status            AiEmailDraftStatus @default(GENERATED)
+  sendIdempotencyKey String?           @unique @map("send_idempotency_key") @db.VarChar(191)
+  sendAttempts      Int                @default(0) @map("send_attempts")
+  sentEmailMessageId Int?              @map("sent_email_message_id")
+  sentAt            DateTime?          @map("sent_at")
+  sendError         String?            @map("send_error") @db.VarChar(500)
+  // RAG v2 diagnostics (intent/subintent/entities/retrieval plan/used knowledge/validation
+  // warnings/confidence level). NULL for drafts produced by the v1 pipeline.
+  ragTrace          Json?              @map("rag_trace")
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @updatedAt @map("updated_at")
+
+  email             AiEmailMessage     @relation(fields: [emailId], references: [id], onDelete: Cascade)
+  knowledgeRefs     AiEmailKnowledgeRef[]
+  approvals         AiEmailApproval[]
+
+  @@unique([emailId, version])
+  @@index([emailId, status, createdAt])
+  @@map("ai_email_drafts")
+}
+
+model AiEmailKnowledgeRef {
+  id           Int          @id @default(autoincrement())
+  draftId      Int          @map("draft_id")
+  knowledgeId  String       @map("knowledge_id") @db.VarChar(191)
+  sourceUrl    String       @map("source_url") @db.VarChar(500)
+  score        Float
+  createdAt    DateTime     @default(now()) @map("created_at")
+
+  draft        AiEmailDraft @relation(fields: [draftId], references: [id], onDelete: Cascade)
+
+  @@unique([draftId, knowledgeId])
+  @@index([knowledgeId])
+  @@map("ai_email_knowledge_refs")
+}
+
+enum AiPromptSlot {
+  DRAFT_BODY
+  CLASSIFICATION
+}
+
+// User-editable, DB-backed system prompts for the two LLM calls in ollama.client.ts
+// (classifyEmail / generateDraft). Only the instructions text is stored here — the dynamic
+// per-email data (FROM/SUBJECT/BODY, or ПИСЬМО_КЛИЕНТА/ДАННЫЕ_CRM/ЗНАНИЯ) is always appended by
+// the application after this content, never editable, so a saved prompt can never omit the
+// actual email the model is supposed to act on. At most one row per slot has isActive=true; the
+// active row is what real production classify/draft calls use. No active row for a slot falls
+// back to the hardcoded default in prompt-library.service.ts, so an empty table changes nothing.
+model AiPrompt {
+  id        Int          @id @default(autoincrement())
+  slot      AiPromptSlot
+  name      String       @db.VarChar(191)
+  content   String       @db.Text
+  tags      Json         @default("[]")
+  isActive  Boolean      @default(false) @map("is_active")
+  createdAt DateTime     @default(now()) @map("created_at")
+  updatedAt DateTime     @updatedAt @map("updated_at")
+
+  @@index([slot, isActive])
+  @@map("ai_prompts")
+}
+
+model AiEmailApproval {
+  id          Int                   @id @default(autoincrement())
+  draftId     Int                   @map("draft_id")
+  draftVersion Int                  @map("draft_version")
+  action      AiEmailApprovalAction
+  actorId     String                @map("actor_id") @db.VarChar(191)
+  editedBody  String?               @map("edited_body") @db.Text
+  createdAt   DateTime              @default(now()) @map("created_at")
+
+  draft       AiEmailDraft          @relation(fields: [draftId], references: [id], onDelete: Cascade)
+
+  @@index([draftId, createdAt])
+  @@map("ai_email_approvals")
+}

@@ -1,0 +1,203 @@
+model MollieAccount {
+  id                    Int       @id @default(autoincrement())
+  userId                Int       @unique @map("user_Id")
+  accessTokenEncrypted  String    @db.Text
+  refreshTokenEncrypted String    @db.Text
+  expiresAt             DateTime
+  scope                 String?   @db.Text
+  isActive              Boolean   @default(true)
+  lastRefreshedAt       DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([isActive, updatedAt])
+  @@map("mollie_accounts")
+}
+
+model MollieOAuthState {
+  id        Int      @id @default(autoincrement())
+  state     String   @unique @db.VarChar(191)
+  userId    Int      @map("user_Id")
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("mollie_oauth_states")
+}
+
+model MollieIncidentResolution {
+  id           Int      @id @default(autoincrement())
+  incidentKey  String   @unique @db.VarChar(191)
+  incidentType String
+  sourceId     Int
+  resolvedById Int      @map("resolvedBy_Id")
+  note         String?  @db.Text
+  resolvedAt   DateTime @default(now())
+
+  resolvedBy User @relation(fields: [resolvedById], references: [id], onDelete: Cascade)
+
+  @@index([incidentType, sourceId])
+  @@index([resolvedById])
+  @@map("mollie_incident_resolutions")
+}
+
+model Customer {
+  id                Int             @id @default(autoincrement())
+  mollieId          String?         @unique // cst_xxx
+  email             String?         @unique
+  givenName         String?
+  familyName        String?
+  city              String?
+  country           String?
+  postalCode        String?
+  streetAndNumber   String?
+  consumerAccount   String?
+  consumerName      String?
+  consumerBic       String?
+  payerName         String?
+  payerRelation     String?         @default("unknown")
+  linkSource        String          @default("unlinked")
+  locale            String?
+  preferredLanguage ClientLanguage?
+  clientId          Int?            @map("client_Id")
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  client        Client?              @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  clientLinks   CustomerClientLink[]
+  mandates      Mandate[]
+  subscriptions Subscription[]
+  payments      Payment[]
+
+  @@index([clientId], map: "customers_client_Id_fkey")
+}
+
+model CustomerClientLink {
+  id            Int      @id @default(autoincrement())
+  customerId    Int
+  clientId      Int
+  payerRelation String?  @default("unknown")
+  linkSource    String   @default("unlinked")
+  isPrimary     Boolean  @default(false)
+  notes         String?  @db.Text
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  client   Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@unique([customerId, clientId], map: "customer_client_links_customer_client_key")
+  @@index([clientId], map: "customer_client_links_client_Id_fkey")
+  @@map("customer_client_links")
+}
+
+model Mandate {
+  id               Int       @id @default(autoincrement())
+  mollieId         String?   @unique // mdt_xxx
+  status           String
+  method           String
+  signatureDate    DateTime?
+  customerId       Int
+  mandateReference String? // 'Id customer'
+  customer         Customer  @relation(fields: [customerId], references: [id])
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  subscriptions Subscription[]
+}
+
+model Subscription {
+  id              Int       @id @default(autoincrement())
+  mollieId        String?   @unique // sub_xxx
+  description     String // 'product description'
+  amountValue     Decimal // 80.00
+  amountCurrency  String // 'EUR'
+  interval        String
+  metadata        String?
+  startDate       DateTime?
+  nextPaymentDate DateTime?
+  status          String
+  mandateId       Int?
+  times           Int?
+  mandate         Mandate?  @relation(fields: [mandateId], references: [id])
+  customerId      Int
+  customer        Customer  @relation(fields: [customerId], references: [id])
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  payments           Payment[]
+  reminderDeliveries PaymentReminderDelivery[]
+}
+
+model Payment {
+  id                Int       @id @default(autoincrement())
+  mollieId          String?   @unique // tr_xxx
+  amountValue       Decimal
+  amountCurrency    String
+  refundedAmount    Decimal   @default(0)
+  chargedBackAmount Decimal   @default(0)
+  adjustmentAt      DateTime?
+  description       String?
+  method            String
+  status            String
+  checkoutUrl       String?   @db.Text
+  isCancelable      Boolean   @default(false)
+  paidAt            DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  customerId Int?
+  customer   Customer? @relation(fields: [customerId], references: [id])
+
+  subscriptionId Int?
+  subscription   Subscription? @relation(fields: [subscriptionId], references: [id])
+  invoiceId      Int?
+  invoice        Invoice?      @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  events         MollieEvent[]
+
+  @@index([invoiceId])
+}
+
+model InvoiceMolliePaymentLink {
+  id           Int       @id @default(autoincrement())
+  invoiceId    Int
+  mollieId     String    @unique // pl_xxx
+  paymentUrl   String    @db.Text
+  webhookToken String    @unique @db.VarChar(191)
+  amountCents  Int
+  expiresAt    DateTime?
+  archived     Boolean   @default(false)
+  paidAt       DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Restrict)
+
+  @@index([invoiceId, archived, expiresAt])
+  @@map("invoice_mollie_payment_links")
+}
+
+model MollieEvent {
+  id               Int       @id @default(autoincrement())
+  molliePaymentId  String
+  eventType        String    @default("payment.webhook")
+  paymentStatus    String?
+  processingStatus String    @default("received")
+  dedupeKey        String?   @unique
+  payload          Json?
+  errorMessage     String?   @db.Text
+  receivedAt       DateTime  @default(now())
+  processedAt      DateTime?
+  paymentId        Int?
+  payment          Payment?  @relation(fields: [paymentId], references: [id], onDelete: SetNull)
+
+  @@index([molliePaymentId, receivedAt])
+  @@index([paymentId])
+  @@index([processingStatus])
+  @@map("mollie_events")
+}

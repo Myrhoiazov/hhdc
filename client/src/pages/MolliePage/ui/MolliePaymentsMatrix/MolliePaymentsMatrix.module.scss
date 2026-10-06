@@ -1,0 +1,310 @@
+.matrixPage {
+    width: 100%;
+    min-width: 0;
+}
+
+.header {
+    min-width: 0;
+}
+
+.subtitle {
+    color: var(--sidebar-text-redesigned);
+    margin-top: 4px;
+}
+
+.toolbar {
+    display: grid;
+    align-items: end;
+    width: 100%;
+    padding: 12px;
+    background: var(--sidebar-bg-redesigned);
+    border: 1px solid var(--card-border-redesigned);
+    border-radius: var(--radius-lg-redesigned);
+    gap: 12px;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+}
+
+.summary {
+    display: flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 0 8px;
+    font-size: 13px;
+    color: var(--sidebar-text-redesigned);
+    gap: 14px;
+    grid-column: 1 / -1;
+    white-space: nowrap;
+}
+
+.summary b {
+    color: var(--sidebar-text-hover-redesigned);
+}
+
+.stateCard {
+    background: var(--sidebar-bg-redesigned);
+    border: 1px solid var(--card-border-redesigned);
+    border-radius: var(--radius-lg-redesigned);
+}
+
+.upcomingCard {
+    background: var(--sidebar-bg-redesigned);
+    border: 1px solid var(--card-border-redesigned);
+    border-radius: var(--radius-lg-redesigned);
+}
+
+.upcomingHeader {
+    min-width: 0;
+}
+
+.upcomingSummary {
+    display: flex;
+    font-size: 13px;
+    color: var(--sidebar-text-redesigned);
+    gap: 16px;
+}
+
+.upcomingSummary b,
+.upcomingAmount {
+    font-weight: 800;
+    color: var(--sidebar-text-hover-redesigned);
+}
+
+.upcomingList {
+    border: 1px solid var(--card-border-redesigned);
+    border-radius: var(--radius-md-redesigned);
+    overflow: hidden;
+}
+
+.upcomingRow {
+    display: grid;
+    align-items: center;
+    padding: 11px 12px;
+    gap: 12px;
+    grid-template-columns: minmax(210px, 1.2fr) 110px 110px minmax(180px, 1fr) 100px;
+}
+
+.upcomingRow + .upcomingRow {
+    border-top: 1px solid var(--card-border-redesigned);
+}
+
+.upcomingIdentity {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    gap: 2px;
+}
+
+.mandateStatus {
+    padding: 3px 8px;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: var(--radius-pill-redesigned);
+    justify-self: start;
+}
+
+.valid {
+    color: var(--success-text-redesigned);
+    background: var(--success-bg-redesigned);
+}
+
+.invalid {
+    color: var(--danger-text-redesigned);
+    background: var(--danger-bg-redesigned);
+}
+
+.tableViewport {
+    width: 100%;
+    background: var(--sidebar-bg-redesigned);
+    border: 1px solid var(--card-border-redesigned);
+    border-radius: var(--radius-lg-redesigned);
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+}
+
+.row {
+    display: grid;
+    align-items: stretch;
+}
+
+.row + .row {
+    border-top: 1px solid var(--card-border-redesigned);
+}
+
+.tableHeader {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--sidebar-group-label-redesigned);
+    text-transform: uppercase;
+    background: var(--sidebar-bg-redesigned);
+    letter-spacing: 0.03em;
+}
+
+.personCell,
+.monthCell,
+.monthHeader,
+.totalCell,
+.totalHeader {
+    min-width: 0;
+    padding: 12px;
+    border-right: 1px solid var(--card-border-redesigned);
+}
+
+.stickyCell {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background: var(--sidebar-bg-redesigned);
+    box-shadow: 8px 0 16px rgb(17 19 24 / 5%);
+}
+
+.tableHeader .stickyCell {
+    z-index: 4;
+}
+
+.personCell {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.personLink {
+    font-weight: 700;
+    color: var(--sidebar-text-hover-redesigned);
+    overflow: hidden;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.personLink:hover {
+    text-decoration: underline;
+}
+
+.personMeta {
+    font-size: 12px;
+    color: var(--sidebar-text-redesigned);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.personMetaLink {
+    font-size: 12px;
+    color: var(--sidebar-text-redesigned);
+    overflow: hidden;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.personMetaLink:hover {
+    color: var(--sidebar-text-hover-redesigned);
+    text-decoration: underline;
+}
+
+.monthHeader,
+.totalHeader,
+.monthCell,
+.totalCell {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.monthHeader {
+    flex-direction: column;
+    gap: 2px;
+}
+
+.monthHeader small {
+    font-size: 10px;
+    font-weight: 500;
+}
+
+.monthCell {
+    flex-direction: column;
+    min-height: 62px;
+    color: var(--sidebar-group-label-redesigned);
+    gap: 3px;
+}
+
+.monthCell small {
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.paid {
+    color: color-mix(in srgb, var(--success-text-redesigned) 78%, var(--sidebar-text-hover-redesigned));
+    background: color-mix(in srgb, var(--success-text-redesigned) 10%, transparent);
+}
+
+.issue {
+    color: color-mix(in srgb, var(--danger-text-redesigned) 76%, var(--sidebar-text-hover-redesigned));
+    background: color-mix(in srgb, var(--danger-text-redesigned) 8%, transparent);
+}
+
+.paid.issue {
+    box-shadow: inset 0 -3px color-mix(in srgb, var(--danger-text-redesigned) 55%, transparent);
+}
+
+.totalCell,
+.totalHeader {
+    font-weight: 800;
+    border-right: 0;
+}
+
+.empty {
+    padding: 28px;
+    color: var(--sidebar-text-redesigned);
+    text-align: center;
+}
+
+@media (width <= 1100px) {
+    .summary {
+        flex-wrap: wrap;
+    }
+
+    .upcomingRow {
+        grid-template-columns: minmax(210px, 1fr) 100px 110px 90px;
+    }
+
+    .upcomingRow > :nth-child(4) {
+        display: none;
+    }
+}
+
+@media (width <= 700px) {
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .upcomingHeader {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .upcomingRow {
+        grid-template-columns: 1fr auto;
+    }
+
+    .upcomingRow > :nth-child(4),
+    .upcomingRow > :nth-child(5) {
+        display: none;
+    }
+
+    .toolbar {
+        grid-template-columns: 1fr;
+    }
+
+    .summary {
+        grid-column: auto;
+    }
+}

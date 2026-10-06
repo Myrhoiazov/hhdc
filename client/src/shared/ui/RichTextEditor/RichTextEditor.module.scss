@@ -1,0 +1,72 @@
+.wrapper {
+    width: 100%;
+}
+
+.toolbar {
+    display: flex;
+    padding: 4px;
+    background: color-mix(in srgb, var(--primary-color) 3%, transparent);
+    border: 1px solid color-mix(in srgb, var(--primary-color) 16%, transparent);
+    border-radius: 8px 8px 0 0;
+    border-bottom: none;
+    gap: 4px;
+}
+
+.toolbarBtn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 30px;
+    height: 30px;
+    padding: 0 6px;
+    font-size: 13px;
+    color: var(--primary-color);
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+
+    &:hover {
+        background: color-mix(in srgb, var(--primary-color) 8%, transparent);
+    }
+}
+
+.toolbarBtnActive {
+    background: color-mix(in srgb, var(--primary-color) 14%, transparent);
+}
+
+.editor {
+    border: 1px solid color-mix(in srgb, var(--primary-color) 16%, transparent);
+    border-radius: 0 0 8px 8px;
+
+    :global(.ProseMirror) {
+        min-height: 160px;
+        padding: 10px 12px;
+        font-size: 14px;
+        color: var(--primary-color);
+        font-family: var(--font-family-main);
+        outline: none;
+
+        p {
+            margin: 0 0 8px;
+        }
+
+        ul,
+        ol {
+            margin: 0 0 8px;
+            padding-left: 20px;
+        }
+
+        a {
+            color: var(--accent-redesigned, #00c8ff);
+        }
+    }
+
+    :global(.ProseMirror p.is-editor-empty:first-child::before) {
+        height: 0;
+        color: color-mix(in srgb, var(--primary-color) 45%, transparent);
+        content: attr(data-placeholder);
+        float: left;
+        pointer-events: none;
+    }
+}

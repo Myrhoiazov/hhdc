@@ -1,0 +1,18 @@
+FROM node:20-alpine
+
+# python3/make/g++ are required to build the native argon2 module on alpine.
+RUN apk add --no-cache openssl python3 make g++
+
+WORKDIR /app
+
+COPY package*.json ./
+COPY tsconfig.json ./
+COPY prisma.config.ts ./
+COPY prisma ./prisma/
+
+RUN npm install
+RUN npx prisma generate --schema ./prisma/schema
+
+EXPOSE 8080
+
+CMD ["sh", "-c", "npm install && npx prisma generate --schema ./prisma/schema && npm run start:dev"]

@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+        "baseUrl": "./src",
+        "outDir": "./build",
+        "sourceMap": true,
+        "noImplicitAny": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true
+    },
+    "ts-node": {
+        "files": true
+    },
+    "include": ["src/**/*", "src/types/**/*.d.ts", "prisma/**/*", "scripts/knowledge-v2.ts"],
+    "exclude": ["node_modules", "build"]
+}

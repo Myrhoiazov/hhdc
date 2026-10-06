@@ -1,0 +1,65 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: ${DB_CONTAINER_NAME:?DB_CONTAINER_NAME не задан — см. .env.example}
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?DB_ROOT_PASSWORD не задан — см. .env.example}
+      MYSQL_DATABASE: ${DB_NAME:?DB_NAME не задан — см. .env.example}
+      MYSQL_USER: ${DB_USER:?DB_USER не задан — см. .env.example}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD не задан — см. .env.example}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "127.0.0.1:${DB_PORT:?DB_PORT не задан — см. .env.example}:3306"
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 10s
+      retries: 15
+    networks:
+      - hhdc-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: ${REDIS_CONTAINER_NAME:?REDIS_CONTAINER_NAME не задан — см. .env.example}
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:?REDIS_PASSWORD не задан — см. .env.example}
+    ports:
+      - "127.0.0.1:${REDIS_PORT:?REDIS_PORT не задан — см. .env.example}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "--no-auth-warning", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - hhdc-network
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ${OLLAMA_CONTAINER_NAME:-hhdc-ollama}
+    restart: unless-stopped
+    mem_limit: ${OLLAMA_MEM_LIMIT:-2g}
+    cpus: ${OLLAMA_CPU_LIMIT:-1.5}
+    volumes:
+      - ollama_data:/root/.ollama
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 10s
+      timeout: 10s
+      retries: 12
+    networks:
+      - hhdc-network
+
+volumes:
+  mysql_data:
+  redis_data:
+  ollama_data:
+  uploads_data:
+  private_uploads_data:
+
+networks:
+  hhdc-network:
+    driver: bridge

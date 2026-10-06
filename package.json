@@ -1,0 +1,31 @@
+{
+  "name": "hhdc",
+  "private": true,
+  "scripts": {
+    "start": "node scripts/start-development.js",
+    "deploy": "bash scripts/deploy-docker.sh",
+    "docker:rebuild": "docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build",
+    "graphify:specs": "bash scripts/graphify-update-docs.sh",
+    "docs:links": "bash scripts/check-markdown-links.sh",
+    "check:skylos": "bash scripts/check-skylos.sh",
+    "test": "npm --prefix client test",
+    "e2e": "npm run e2e:setup && playwright test",
+    "e2e:ui": "npm run e2e:setup && playwright test --ui",
+    "e2e:headed": "npm run e2e:setup && playwright test --headed",
+    "e2e:setup": "bash scripts/e2e-setup.sh",
+    "e2e:down": "docker compose -f docker-compose.e2e.yml down --volumes",
+    "ci": "npm --prefix client ci && npm --prefix client run lint:ts && npm --prefix client run lint:scss && npm --prefix client test && npm --prefix client run build:prod && npm --prefix server ci && npm --prefix server run build && npm --prefix server run test:ci && npm run docs:links",
+    "graph:update": "graphify extract . --code-only --no-cluster --out . && graphify tree --graph graphify-out/graph.json --output docs/spec/PROJECT_TREE.html --label \"HHDC Admin\" && graphify extract server/src --code-only --no-cluster --out graphify-out/server-src && graphify tree --graph graphify-out/server-src/graphify-out/graph.json --output docs/spec/SERVER_SRC_TREE.html --label \"HHDC Admin Server src\" && graphify extract client/src --code-only --no-cluster --out graphify-out/client-src && graphify tree --graph graphify-out/client-src/graphify-out/graph.json --output docs/spec/CLIENT_SRC_TREE.html --label \"HHDC Admin Client src\""
+  },
+  "scriptDescriptions": {
+    "graph:update": "Обновляет Graphify HTML-деревья проекта: общий граф, server/src и client/src. Запускай после изменений структуры файлов, импортов или крупных рефакторингов.",
+    "test": "Ручной прогон клиентских тестов (Jest) без остальных шагов CI — npm --prefix client test. Для серверных тестов используй domain-скрипты из server/ (test:auth, test:mollie и т.д.), единого server-wide test-скрипта нет.",
+    "ci": "Зеркалит GitHub Actions CI локально: client lint/test/build + server build/test + docs-links. Требует настроенного CLIENT_API_URL (см. README) для build:prod. Гоняй перед push — PR обязателен без исключений, сюрпризов от CI быть не должно.",
+    "docs:links": "Проверяет отслеживаемые Markdown-файлы на битые ссылки (тот же job, что и docs-links в CI).",
+    "check:skylos": "Гоняет Skylos (dead code / security / secrets / quality / SCA) по всему репозиторию — тот же контракт, что и job skylos-check в CI. Требует Python 3.10+ и `pip install skylos` (см. README). Phase A: informational, не входит в npm run ci и не блокирует merge.",
+    "docker:rebuild": "Пересобирает и перезапускает локальный dev-стек (frontend/backend образы + db/redis/ollama) в фоне — docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build. Только для локальной разработки; для прод-деплоя используй npm run deploy."
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0"
+  }
+}

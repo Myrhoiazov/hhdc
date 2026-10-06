@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Environment and local secrets
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Build, cache, and coverage output
+/build/
+/storybook-static/
+/coverage/
+/.cache/
+/.eslintcache
+*.tsbuildinfo
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS and editor files
+.DS_Store
+.idea/
+.vscode/

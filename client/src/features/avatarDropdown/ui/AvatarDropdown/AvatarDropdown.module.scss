@@ -1,0 +1,10 @@
+.AvatarDropdown {
+    display: flex;
+}
+
+.avatar {
+    padding: 4px;
+    background: var(--sidebar-hover-bg-redesigned);
+    border: 1px solid var(--card-border-redesigned);
+    box-shadow: 0 0 0 3px var(--sidebar-bg-redesigned);
+}

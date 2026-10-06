@@ -1,0 +1,30 @@
+.Textarea {
+    margin-bottom: 20px;
+}
+
+.placeholder {
+    display: inline-block;
+    margin-bottom: 10px;
+}
+
+.input {
+    display: block;
+    width: 100%;
+    height: 200px;
+    padding: 8px 16px;
+    background: transparent;
+    border: 1px solid var(--primary-color);
+    border-radius: 5px;
+    outline: none;
+    resize: none;
+}
+
+.fullWidth {
+    width: 100%;
+}
+
+.focused {
+    .input {
+        border-color: var(--accent-redesigned);
+    }
+}

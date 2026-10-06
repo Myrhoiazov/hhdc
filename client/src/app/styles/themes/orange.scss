@@ -1,0 +1,53 @@
+.app_orange_theme {
+    --bg-color: #faf4fb;
+    --inverted-bg-color: #bd5012;
+    --primary-color: #9a1a0e;
+    --secondary-color: #d01f0e;
+    --inverted-primary-color: #dbd5dc;
+    --inverted-secondary-color: #faf4fb;
+
+    // redesigned
+    --dark-bg-redesigned: #fff3d6;
+    --bg-redesigned: #f0c048;
+    --light-bg-redesigned: #f2d791;
+    --text-redesigned: #1b1311;
+    --hint-redesigned: #b8b2a2;
+    --cancel-redesigned: #ff5e5e;
+    --save-redesigned: #52fa81;
+    --icon-redesigned: #4875f0;
+    --accent-redesigned: #1d59ff;
+
+    // skeleton
+    --skeleton-color: #fff;
+    --skeleton-shadow: rgba(0 0 0 / 20%);
+
+    // code
+    --code-bg: #fff;
+
+    // card
+    --card-bg: #d5d5d7;
+
+    // listbox
+    --listbox-bg: #d5d5d7;
+
+    // primary accent (redesigned — Sero-derived)
+    --primary-redesigned: #6c5ce7;
+    --primary-hover-redesigned: #5b4bd6;
+    --primary-contrast-redesigned: #fff;
+    --primary-soft-bg-redesigned: rgb(108 92 231 / 12%);
+
+    // sidebar (redesigned)
+    --sidebar-bg-redesigned: #fff;
+    --sidebar-border-redesigned: #f2d791;
+    --sidebar-text-redesigned: #7a6a52;
+    --sidebar-text-hover-redesigned: #1b1311;
+    --sidebar-hover-bg-redesigned: rgb(29 89 255 / 6%);
+    --sidebar-group-label-redesigned: #b8ad8e;
+
+    // semantic (redesigned)
+    --card-border-redesigned: #f2d791;
+    --success-bg-redesigned: #e3fbe9;
+    --success-text-redesigned: #1a7f37;
+    --danger-bg-redesigned: #ffe3e3;
+    --danger-text-redesigned: #d01f0e;
+}

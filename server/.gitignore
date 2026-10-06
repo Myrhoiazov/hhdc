@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+
+# Environment and local secrets
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Build and generated output
+/build/
+/dist/
+/coverage/
+/src/generated/prisma/
+*.tsbuildinfo
+
+# Runtime uploads and private files
+/public/upload/
+/src/public/upload/
+/private-uploads/
+
+# Logs
+/src/logs/
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Local data
+*.sqlite
+*.sqlite3
+*.db
+
+# OS and editor files
+.DS_Store
+.idea/
+.vscode/

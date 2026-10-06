@@ -1,0 +1,24 @@
+.Icon {
+    transition: all var(--transition-base);
+
+    &.fill {
+        fill: var(--inverted-primary-color);
+    }
+
+    &.stroke {
+        stroke: var(--primary-color);
+    }
+
+    &:hover {
+        opacity: 0.8;
+    }
+}
+
+.button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: none;
+    background-color: transparent;
+    cursor: pointer !important;
+}

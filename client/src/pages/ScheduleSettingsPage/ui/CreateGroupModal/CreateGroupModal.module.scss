@@ -1,0 +1,211 @@
+.modal {
+    display: flex;
+    flex-direction: column;
+    width: min(560px, calc(100vw - 56px));
+    max-width: 95vw;
+    max-height: 90vh;
+    color: var(--sidebar-text-hover-redesigned);
+    background: var(--sidebar-bg-redesigned);
+    gap: 0;
+}
+
+.title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--sidebar-text-hover-redesigned);
+    text-align: center;
+    letter-spacing: 0.04em;
+    margin-bottom: 24px;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--sidebar-text-redesigned);
+}
+
+.req {
+    color: var(--danger-text-redesigned);
+}
+
+.input,
+.select,
+.inputSmall {
+    width: 100%;
+    padding: 10px 14px;
+    font-size: 14px;
+    color: var(--sidebar-text-hover-redesigned);
+    background: var(--sidebar-bg-redesigned);
+    border: 1px solid var(--card-border-redesigned);
+    border-radius: var(--radius-sm-redesigned);
+    transition: border-color 0.15s;
+    outline: none;
+}
+
+.inputSmall {
+    width: 120px;
+}
+
+.input:focus,
+.select:focus,
+.inputSmall:focus {
+    border-color: var(--primary-redesigned);
+}
+
+.row {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 24px;
+}
+
+.levelGroup {
+    display: flex;
+    gap: 8px;
+}
+
+.levelBtn {
+    padding: 8px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--sidebar-text-redesigned);
+    background: var(--sidebar-bg-redesigned);
+    border: 1px solid var(--card-border-redesigned);
+    border-radius: var(--radius-pill-redesigned);
+    transition: all 0.15s;
+    cursor: pointer;
+
+    &:hover {
+        color: var(--primary-redesigned);
+        border-color: var(--primary-redesigned);
+    }
+}
+
+.levelActive {
+    color: var(--primary-redesigned);
+    background: var(--primary-soft-bg-redesigned);
+    border-color: var(--primary-redesigned);
+}
+
+.slotsBox {
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    background: var(--sidebar-hover-bg-redesigned);
+    border: 1px solid var(--card-border-redesigned);
+    border-radius: var(--radius-md-redesigned);
+    gap: 12px;
+    margin-top: 4px;
+}
+
+.slotsHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.addSlotBtn {
+    padding: 4px 12px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--primary-redesigned);
+    background: none;
+    border: 1px solid var(--primary-redesigned);
+    border-radius: var(--radius-sm-redesigned);
+    transition: background 0.15s;
+    cursor: pointer;
+
+    &:hover {
+        background: var(--primary-soft-bg-redesigned);
+    }
+}
+
+.slotRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.daySelect {
+    padding: 8px 10px;
+    font-size: 13px;
+    color: var(--sidebar-text-hover-redesigned);
+    background: var(--sidebar-bg-redesigned);
+    border: 1px solid var(--card-border-redesigned);
+    border-radius: var(--radius-sm-redesigned);
+    flex: 1;
+    outline: none;
+
+    &:focus {
+        border-color: var(--primary-redesigned);
+    }
+}
+
+.timeInput {
+    width: 110px;
+    padding: 8px 10px;
+    font-size: 13px;
+    color: var(--sidebar-text-hover-redesigned);
+    background: var(--sidebar-bg-redesigned);
+    border: 1px solid var(--card-border-redesigned);
+    border-radius: var(--radius-sm-redesigned);
+    outline: none;
+
+    &:focus {
+        border-color: var(--primary-redesigned);
+    }
+}
+
+.removeSlot {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 28px;
+    height: 28px;
+    font-size: 18px;
+    line-height: 1;
+    color: var(--danger-text-redesigned);
+    background: var(--danger-bg-redesigned);
+    border: none;
+    border-radius: var(--radius-sm-redesigned);
+    cursor: pointer;
+
+    &:hover {
+        opacity: 0.8;
+    }
+}
+
+.submitBtn {
+    width: 100%;
+    padding: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--primary-contrast-redesigned);
+    background: var(--primary-redesigned);
+    border: none;
+    border-radius: var(--radius-sm-redesigned);
+    transition: opacity 0.15s;
+    cursor: pointer;
+    margin-top: 24px;
+
+    &:hover {
+        opacity: 0.85;
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+}

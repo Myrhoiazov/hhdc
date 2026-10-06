@@ -1,0 +1,27 @@
+.LangSwitcher {
+    display: flex;
+    align-items: center;
+    height: 40px;
+    padding: 4px;
+    background: var(--sidebar-bg-redesigned);
+    border: 1px solid var(--card-border-redesigned);
+    border-radius: var(--radius-md-redesigned);
+    gap: 2px;
+}
+
+.langButton {
+    min-width: 34px;
+    height: 30px;
+    padding: 0 8px;
+    font: 700 12px/1 var(--font-family-main);
+    color: var(--sidebar-text-hover-redesigned);
+    background: transparent;
+    border: 0;
+    border-radius: var(--radius-sm-redesigned);
+    cursor: pointer;
+}
+
+.active {
+    color: var(--primary-contrast-redesigned);
+    background: var(--primary-redesigned);
+}

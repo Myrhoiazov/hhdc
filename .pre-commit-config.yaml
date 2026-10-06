@@ -1,0 +1,16 @@
+# Skylos pre-commit configuration.
+#
+# Fast staged-only local hook. Full repository scans still run via
+# `npm run check:skylos` and the GitHub Actions `skylos-check` job.
+
+repos:
+  - repo: local
+    hooks:
+      - id: skylos-gate
+        name: Skylos Staged Gate
+        entry: skylos
+        language: system
+        pass_filenames: false
+        require_serial: true
+        args: ["agent", "pre-commit", "."]
+        stages: [pre-commit]

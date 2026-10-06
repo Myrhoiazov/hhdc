@@ -1,0 +1,30 @@
+.menu {
+    position: absolute;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    min-width: 190px;
+    padding: 6px;
+    background: #111318;
+    border: 1px solid #2a2d35;
+    border-radius: 14px;
+    box-shadow: 0 16px 36px rgb(17 19 24 / 24%);
+    transition: all 0.2s ease-out;
+}
+
+.item {
+    width: 100%;
+    padding: 11px 12px;
+    color: #fff;
+    text-align: left;
+    background: none;
+    border: none;
+    border-radius: 9px;
+    cursor: pointer;
+    outline: none;
+
+    &:disabled {
+        color: rgb(255 255 255 / 42%);
+        cursor: not-allowed;
+    }
+}

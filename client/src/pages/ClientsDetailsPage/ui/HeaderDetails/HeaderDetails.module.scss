@@ -1,0 +1,14 @@
+.HeaderDetails {
+    width: 100%;
+    background-color: transparent;
+
+    .btn {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+
+        svg {
+            fill: var(--sidebar-text-hover-redesigned);
+        }
+    }
+}

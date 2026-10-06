@@ -1,0 +1,68 @@
+@import 'https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400;700&display=swap';
+
+:root {
+    --font-family-main: 'Montserrat', 'Times New Roman', serif;
+
+    // s
+    --font-size-s: 12px;
+    --font-line-s: 20px;
+    --font-s: var(--font-size-s) / var(--font-line-s) var(--font-family-main);
+
+    // m
+    --font-size-m: 16px;
+    --font-line-m: 24px;
+    --font-m: var(--font-size-m) / var(--font-line-m) var(--font-family-main);
+
+    // l
+    --font-size-l: 24px;
+    --font-line-l: 32px;
+    --font-l: var(--font-size-l) / var(--font-line-l) var(--font-family-main);
+
+    // xl
+    --font-size-xl: 32px;
+    --font-line-xl: 40px;
+    --font-xl: var(--font-size-xl) / var(--font-line-xl) var(--font-family-main);
+
+    // Размеры
+    --navbar-height: 90px;
+    --sidebar-width: 288px;
+    --sidebar-width-collapsed: 76px;
+
+    // z - Индексы
+    --modal-z-index: 1000;
+    --overlay-z-index: 100;
+
+    // Цвета
+    --overlay-color: rgba(0 0 0 / 60%);
+    --red-light: #f77;
+    --red-dark: #ce0505;
+    --blue: #00c8ff;
+
+    // redesigned
+
+    // s
+    --font-s-redesigned: var(--font-size-s) / var(--font-line-s) var(--font-family-main);
+
+    // m
+    --font-m-redesigned: var(--font-size-m) / var(--font-line-m) var(--font-family-main);
+
+    // l
+    --font-l-redesigned: var(--font-size-l) / var(--font-line-l) var(--font-family-main);
+
+    // xl
+    --font-xl-redesigned: var(--font-size-xl) / var(--font-line-xl) var(--font-family-main);
+
+    // transition
+    --transition-base: 0.3s ease;
+
+    // ::shadow
+    --shadow-light: rgb(0 0 0 / 4%) 0px 3px 5px;
+    --shadow-accent: rgb(99 99 99 / 20%) 0px 2px 8px 0px;
+    --border-radius-s: 0.3125rem;
+
+    // radius scale (redesigned)
+    --radius-sm-redesigned: 8px;
+    --radius-md-redesigned: 12px;
+    --radius-lg-redesigned: 14px;
+    --radius-pill-redesigned: 9999px;
+}

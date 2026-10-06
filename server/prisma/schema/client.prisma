@@ -1,0 +1,61 @@
+enum ClientLanguage {
+  EN
+  NL
+  RU
+}
+
+model Client {
+  id                Int                  @id @default(autoincrement())
+  firstName         String?
+  lastName          String?
+  birthday          String?
+  phoneNumber       String?
+  email             String?
+  branchId          Int?                 @map("branch_Id")
+  image             String?
+  createdAt         DateTime?            @default(now())
+  expiresAt         DateTime?
+  anamnesis         String?              @db.VarChar(250)
+  social            String?              @db.VarChar(250)
+  description       String?              @db.VarChar(250)
+  image_3d          Boolean              @default(false)
+  document          Boolean              @default(false)
+  preferredLanguage ClientLanguage       @default(RU)
+  statuses          ClientStatus[]
+  comments          Comment[]
+  mollieCustomers   Customer[]
+  mollieLinks       CustomerClientLink[]
+  invoices          Invoice[]
+  groupMemberships  ClientDanceGroup[]
+  emailMessages     EmailMessage[]
+  branch            Branch?              @relation(fields: [branchId], references: [id], onDelete: SetNull)
+
+  @@index([branchId], map: "clients_branch_Id_fkey")
+  @@map("clients")
+}
+
+model ClientDanceGroup {
+  clientId  Int      @map("client_id")
+  groupId   Int      @map("group_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  client Client     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  group  DanceGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@id([clientId, groupId])
+  @@index([groupId])
+  @@map("client_dance_groups")
+}
+
+model ClientStatus {
+  id           Int           @id @default(autoincrement())
+  clientId     Int           @map("client_Id")
+  loyaltyLevel LoyaltyLevel?
+  notes        String?       @db.Text
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  client       Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([clientId], map: "client_status_client_Id_fkey")
+  @@map("client_status")
+}

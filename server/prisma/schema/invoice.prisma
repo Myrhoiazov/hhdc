@@ -1,0 +1,167 @@
+enum InvoiceStatus {
+  DRAFT
+  ISSUED
+  PARTIALLY_PAID
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+enum InvoiceDocumentType {
+  INVOICE
+  CREDIT_NOTE
+  DEBIT_NOTE
+}
+
+enum InvoiceDeliveryType {
+  INITIAL
+  RESEND
+  REMINDER_BEFORE_DUE
+  REMINDER_OVERDUE
+}
+
+enum InvoiceDeliveryStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+model Invoice {
+  id                  Int                 @id @default(autoincrement())
+  number              String              @unique
+  documentType        InvoiceDocumentType @default(INVOICE)
+  status              InvoiceStatus       @default(DRAFT)
+  clientId            Int?
+  businessBrandId     Int?
+  parentInvoiceId     Int?
+  billToName          String
+  billToEmail         String?
+  issueDate           DateTime
+  dueDate             DateTime?
+  paidAt              DateTime?
+  currency            String              @default("EUR")
+  totalCents          Int
+  issuerName          String
+  issuerAddress       String?
+  issuerEmail         String?
+  issuerPhone         String?
+  issuerWebsite       String?
+  issuerLegalName     String?
+  issuerKvkNumber     String?
+  issuerVatNumber     String?
+  issuerLogoUrl       String?             @db.Text
+  issuerPrimaryColor  String?
+  bankName            String?
+  iban                String?
+  paymentReference    String?
+  note                String?             @db.Text
+  showPaymentButton   Boolean             @default(true)
+  showPaymentQr       Boolean             @default(true)
+  paidAmountCents     Int                 @default(0)
+  creditedAmountCents Int                 @default(0)
+  balanceDueCents     Int
+  createdById         Int?
+  updatedById         Int?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+
+  client             Client?                    @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  businessBrand      BusinessBrand?             @relation(fields: [businessBrandId], references: [id], onDelete: SetNull)
+  parentInvoice      Invoice?                   @relation("InvoiceAdjustments", fields: [parentInvoiceId], references: [id], onDelete: Restrict)
+  adjustments        Invoice[]                  @relation("InvoiceAdjustments")
+  items              InvoiceItem[]
+  payments           InvoicePayment[]
+  molliePayments     Payment[]
+  molliePaymentLinks InvoiceMolliePaymentLink[]
+  deliveries         InvoiceDelivery[]
+  auditLogs          InvoiceAuditLog[]
+  createdBy          User?                      @relation("InvoiceCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy          User?                      @relation("InvoiceUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@index([clientId])
+  @@index([businessBrandId])
+  @@index([parentInvoiceId])
+  @@index([status, issueDate])
+  @@map("invoices")
+}
+
+model InvoiceDelivery {
+  id             Int                   @id @default(autoincrement())
+  invoiceId      Int
+  type           InvoiceDeliveryType
+  status         InvoiceDeliveryStatus @default(PENDING)
+  recipientEmail String
+  subject        String
+  publicToken    String                @unique
+  paymentUrl     String?               @db.Text
+  errorMessage   String?               @db.Text
+  sentAt         DateTime?
+  firstViewedAt  DateTime?
+  lastViewedAt   DateTime?
+  viewCount      Int                   @default(0)
+  createdById    Int?
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+
+  invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Restrict)
+  createdBy User?   @relation("InvoiceDeliveryCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([invoiceId, createdAt])
+  @@index([status, createdAt])
+  @@index([type, createdAt])
+  @@map("invoice_deliveries")
+}
+
+model InvoiceItem {
+  id             Int     @id @default(autoincrement())
+  invoiceId      Int
+  groupId        Int?
+  description    String
+  period         String?
+  quantity       Int     @default(1)
+  unitPriceCents Int
+  totalCents     Int
+
+  invoice Invoice     @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  group   DanceGroup? @relation(fields: [groupId], references: [id], onDelete: SetNull)
+
+  @@index([invoiceId])
+  @@index([groupId])
+  @@map("invoice_items")
+}
+
+model InvoicePayment {
+  id          Int      @id @default(autoincrement())
+  invoiceId   Int
+  amountCents Int
+  paidAt      DateTime @default(now())
+  method      String   @default("OTHER")
+  reference   String?
+  note        String?  @db.Text
+  createdById Int?
+  createdAt   DateTime @default(now())
+
+  invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Restrict)
+  createdBy User?   @relation("InvoicePaymentCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([invoiceId, paidAt])
+  @@index([createdById])
+  @@map("invoice_payments")
+}
+
+model InvoiceAuditLog {
+  id        Int      @id @default(autoincrement())
+  invoiceId Int
+  action    String
+  oldValues Json?
+  newValues Json?
+  actorId   Int?
+  createdAt DateTime @default(now())
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Restrict)
+  actor   User?   @relation("InvoiceAuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([invoiceId, createdAt])
+  @@index([actorId])
+  @@map("invoice_audit_logs")
+}

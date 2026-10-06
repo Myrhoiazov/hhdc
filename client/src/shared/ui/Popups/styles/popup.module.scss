@@ -1,0 +1,45 @@
+.popup {
+    position: relative;
+}
+
+.menu {
+    overflow: hidden;
+}
+
+.trigger {
+    margin: 0;
+    padding: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    outline: none;
+}
+
+.active {
+    color: #111318;
+    background: #b8ff1c;
+}
+
+.optionsBottomLeft {
+    top: calc(100% + 8px);
+    right: 0;
+}
+
+.optionsBottomRight {
+    top: calc(100% + 8px);
+    left: 0;
+}
+
+.optionsTopRight {
+    bottom: calc(100% + 8px);
+    left: 0;
+}
+
+.optionsTopLeft {
+    right: 0;
+    bottom: calc(100% + 8px);
+}
+
+.disabled {
+    opacity: 0.7;
+}

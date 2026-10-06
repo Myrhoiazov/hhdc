@@ -1,0 +1,12 @@
+.UserCard {
+    width: 100%;
+    padding: 20px;
+}
+
+.loading,
+.error {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 300px;
+}

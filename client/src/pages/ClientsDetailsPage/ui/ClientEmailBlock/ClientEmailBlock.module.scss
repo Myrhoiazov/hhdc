@@ -1,0 +1,44 @@
+.card {
+    border: 1px solid color-mix(in srgb, var(--sidebar-text-hover-redesigned) 14%, transparent);
+    border-radius: 12px;
+}
+
+.layout {
+    align-items: stretch;
+}
+
+.list {
+    width: 280px;
+    max-height: 360px;
+    border: 1px solid color-mix(in srgb, var(--sidebar-text-hover-redesigned) 10%, transparent);
+    border-radius: 8px;
+    flex-shrink: 0;
+    overflow-y: auto;
+}
+
+.loadMore {
+    display: flex;
+    justify-content: center;
+    padding: 8px;
+}
+
+.emptyState {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 0;
+    min-height: 200px;
+    border: 1px dashed color-mix(in srgb, var(--sidebar-text-hover-redesigned) 20%, transparent);
+    border-radius: 8px;
+    flex: 1;
+}
+
+@media (width <= 900px) {
+    .layout {
+        flex-direction: column;
+    }
+
+    .list {
+        width: 100%;
+    }
+}

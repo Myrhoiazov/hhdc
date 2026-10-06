@@ -1,0 +1,112 @@
+.modal {
+    display: flex;
+    flex-direction: column;
+    width: 560px;
+    max-width: 95vw;
+    max-height: 90vh;
+    padding: 32px;
+    color: var(--sidebar-text-hover-redesigned);
+    background: var(--sidebar-bg-redesigned);
+    border-radius: var(--radius-lg-redesigned);
+    gap: 0;
+    overflow-y: auto;
+}
+
+.title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--sidebar-text-hover-redesigned);
+    text-align: center;
+    letter-spacing: 0.04em;
+    margin-bottom: 24px;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 6px;
+}
+
+.row {
+    display: flex;
+    gap: 16px;
+}
+
+.label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--sidebar-text-redesigned);
+}
+
+.req {
+    color: var(--danger-text-redesigned);
+}
+
+.textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.input,
+.textarea {
+    width: 100%;
+    padding: 10px 14px;
+    font-size: 14px;
+    color: var(--sidebar-text-hover-redesigned);
+    background: var(--sidebar-bg-redesigned);
+    border: 1px solid var(--card-border-redesigned);
+    border-radius: var(--radius-sm-redesigned);
+    transition: border-color 0.15s;
+    font-family: inherit;
+    outline: none;
+
+    &:focus {
+        border-color: var(--primary-redesigned);
+    }
+}
+
+.checkboxLabel {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: var(--sidebar-text-redesigned);
+    cursor: pointer;
+    gap: 10px;
+}
+
+.checkbox {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary-redesigned);
+    cursor: pointer;
+}
+
+.submitBtn {
+    width: 100%;
+    padding: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--primary-contrast-redesigned);
+    background: var(--primary-redesigned);
+    border: none;
+    border-radius: var(--radius-sm-redesigned);
+    transition: opacity 0.15s;
+    cursor: pointer;
+    margin-top: 24px;
+
+    &:hover {
+        opacity: 0.85;
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+}

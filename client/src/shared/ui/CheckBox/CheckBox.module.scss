@@ -1,0 +1,9 @@
+.CheckBox {
+    display: flex;
+    align-items: center;
+    width: 24px;
+    height: 24px;
+    border: 1px solid var(--primary-color);
+    border-radius: 6px;
+    align-self: flex-start;
+}

@@ -1,0 +1,71 @@
+.app_dark_theme {
+    --bg-color: #000;
+    --inverted-bg-color: #e8e8ea;
+    --primary-color: #fff;
+    --secondary-color: #ababab;
+    --inverted-primary-color: #2b2b2b;
+    --inverted-secondary-color: #0452ff;
+
+    // redesigned
+    --dark-bg-redesigned: #090f11;
+    --bg-redesigned: #0c1214;
+    --light-bg-redesigned: #151c1f;
+    --text-redesigned: #dbdbdb;
+    --hint-redesigned: #555;
+    --cancel-redesigned: #d95757;
+    --save-redesigned: #6cd98b;
+    --icon-redesigned: #74a2b2;
+    --accent-redesigned: #5ed3f3;
+
+    // skeleton
+    --skeleton-color: #2a4365;
+    --skeleton-shadow: #2b2be8;
+
+    // code
+    --code-bg: #2a4365;
+
+    // card
+    --card-bg: #2a4365;
+
+    // listbox
+    --listbox-bg: #0d0d6b;
+
+    // primary accent (redesigned — Sero-derived)
+    --primary-redesigned: #8b7ff5;
+    --primary-hover-redesigned: #9d93f7;
+    --primary-contrast-redesigned: #fff;
+    --primary-soft-bg-redesigned: rgb(139 127 245 / 18%);
+
+    // sidebar (redesigned)
+    --sidebar-bg-redesigned: #111318;
+    --sidebar-border-redesigned: rgb(255 255 255 / 8%);
+    --sidebar-text-redesigned: rgb(255 255 255 / 65%);
+    --sidebar-text-hover-redesigned: #fff;
+    --sidebar-hover-bg-redesigned: rgb(255 255 255 / 7%);
+    --sidebar-group-label-redesigned: rgb(255 255 255 / 45%);
+
+    // semantic (redesigned)
+    --card-border-redesigned: rgb(255 255 255 / 8%);
+    --success-bg-redesigned: rgb(98 222 133 / 16%);
+    --success-text-redesigned: #7be396;
+    --danger-bg-redesigned: rgb(217 45 32 / 18%);
+    --danger-text-redesigned: #ff8577;
+
+    // style/direction palette (redesigned) — same fixed order as default.scss
+    --style-1-bg-redesigned: rgb(42 120 214 / 16%);
+    --style-1-text-redesigned: #3987e5;
+    --style-2-bg-redesigned: rgb(235 104 52 / 16%);
+    --style-2-text-redesigned: #d95926;
+    --style-3-bg-redesigned: rgb(27 175 122 / 16%);
+    --style-3-text-redesigned: #199e70;
+    --style-4-bg-redesigned: rgb(237 161 0 / 16%);
+    --style-4-text-redesigned: #c98500;
+    --style-5-bg-redesigned: rgb(232 123 164 / 16%);
+    --style-5-text-redesigned: #d55181;
+    --style-6-bg-redesigned: rgb(0 131 0 / 16%);
+    --style-6-text-redesigned: #009200;
+    --style-7-bg-redesigned: rgb(74 58 167 / 20%);
+    --style-7-text-redesigned: #9085e9;
+    --style-8-bg-redesigned: rgb(227 73 72 / 16%);
+    --style-8-text-redesigned: #e66767;
+}

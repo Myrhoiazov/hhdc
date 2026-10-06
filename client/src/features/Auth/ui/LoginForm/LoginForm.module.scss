@@ -1,0 +1,121 @@
+.fields {
+    display: grid;
+    gap: 20px;
+
+    p {
+        font-size: 13px;
+        font-weight: 600;
+        color: #444943;
+        margin-bottom: 4px;
+    }
+}
+
+.LoginForm {
+    width: 100%;
+    max-width: 460px;
+    background: #fff;
+    border: 1px solid #e3e6e0;
+    border-radius: 24px;
+    box-shadow: 0 20px 55px rgb(17 19 24 / 9%);
+
+    .header {
+        margin: 24px 0 32px;
+        text-align: center;
+
+        p {
+            color: #7b8177;
+            margin-top: 4px;
+        }
+    }
+
+    .input {
+        height: 50px;
+        background: #f8fafa;
+        border-radius: 12px;
+        border-color: #d8e1e3;
+
+        &:focus-within {
+            background: #fff;
+            box-shadow: 0 0 0 3px rgb(184 255 28 / 24%);
+            border-color: #111318;
+        }
+    }
+
+    .loginBtn {
+        min-height: 50px;
+        font-weight: 700;
+        color: #111318;
+        background: #b8ff1c;
+        border-radius: 12px;
+        box-shadow: 0 10px 24px rgb(17 19 24 / 16%);
+        margin-top: 28px;
+
+        &:hover {
+            box-shadow: 0 14px 28px rgb(17 19 24 / 22%);
+            opacity: 1;
+            transform: translateY(-1px);
+        }
+    }
+
+    .forgot {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #555b52;
+    }
+
+    .divider {
+        display: flex;
+        align-items: center;
+        margin: 24px 0 16px;
+        font-size: 13px;
+        color: #9aa19a;
+
+        &::before,
+        &::after {
+            height: 1px;
+            background: #e3e6e0;
+            content: '';
+            flex: 1;
+        }
+
+        span {
+            padding: 0 12px;
+        }
+    }
+
+    .telegramBtn {
+        min-height: 50px;
+        font-weight: 700;
+        color: #111318;
+        border-radius: 12px;
+        border-color: #d8e1e3;
+    }
+
+    @media (width <= 520px) {
+        padding: 0;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+    }
+}
+
+.logoWrap {
+    display: grid;
+    min-height: 54px;
+    place-items: center;
+}
+
+.captcha {
+    margin-top: 18px;
+}
+
+.error {
+    padding: 11px 14px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #a33b42;
+    background: #fff3f3;
+    border: 1px solid rgb(190 68 76 / 18%);
+    border-radius: 10px;
+    margin-top: 18px;
+}

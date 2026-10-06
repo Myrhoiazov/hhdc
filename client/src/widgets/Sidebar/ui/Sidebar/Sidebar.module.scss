@@ -1,0 +1,144 @@
+.Sidebar {
+    position: relative;
+    width: var(--sidebar-width);
+    height: calc(100vh - var(--navbar-height));
+    padding: 24px 12px 24px 18px;
+    background: var(--sidebar-bg-redesigned);
+    transition: width 0.3s;
+    border-right: 1px solid var(--sidebar-border-redesigned);
+    flex-shrink: 0;
+    overflow: visible;
+}
+
+// !important is needed here because this button also carries the shared Button
+// component's theme/size classes (equal CSS specificity), so the winner between
+// this file and Button.module.scss otherwise depends on unpredictable bundle order.
+.collapseBtn {
+    position: absolute;
+    top: 56px;
+    right: -14px;
+    z-index: 2;
+    width: 30px !important;
+    min-width: 30px !important;
+    height: 30px !important;
+    padding: 0 !important;
+    color: var(--sidebar-text-hover-redesigned) !important;
+    background: var(--sidebar-bg-redesigned) !important;
+    border: 1px solid var(--sidebar-border-redesigned) !important;
+    border-radius: 50% !important;
+    box-shadow: 0 4px 12px rgba(16 18 24 / 10%);
+
+    @media (width <= 768px) {
+        display: none;
+    }
+}
+
+.mobileClose {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+    color: var(--sidebar-text-hover-redesigned);
+    background: var(--sidebar-hover-bg-redesigned);
+    border: none;
+    border-radius: var(--radius-sm-redesigned);
+    transition: background 0.15s;
+    cursor: pointer;
+
+    &:hover { background: var(--sidebar-border-redesigned); }
+
+    @media (width <= 768px) {
+        display: flex;
+    }
+}
+
+.items {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 6px;
+}
+
+.sectionTitle {
+    margin: 0 12px;
+    padding: 10px 12px 8px;
+    font: 700 11px/1 var(--font-family-main);
+    color: var(--sidebar-group-label-redesigned);
+    text-transform: uppercase;
+    letter-spacing: 1.4px;
+
+    &:not(:first-child) {
+        border-top: 1px solid var(--sidebar-border-redesigned);
+        margin-top: 22px;
+        padding-top: 22px;
+    }
+}
+
+.footer {
+    display: none;
+}
+
+.collapsed {
+    width: var(--sidebar-width-collapsed);
+    padding-left: 10px;
+    padding-right: 10px;
+
+    .items {
+        align-items: center;
+        gap: 12px;
+    }
+}
+
+// ─── Mobile ───────────────────────────────────────────────────────────────────
+.backdrop {
+    display: none;
+
+    @media (width <= 768px) {
+        position: fixed;
+        z-index: 200;
+        display: block;
+        background: rgb(0 0 0 / 55%);
+        inset: 0;
+    }
+}
+
+@media (width <= 768px) {
+    .Sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 201;
+        display: flex;
+        flex-direction: column;
+        width: 280px !important;
+        height: 100vh;
+
+        // dvh keeps the footer above the mobile browser's collapsible URL bar
+        height: 100dvh;
+        transition: transform 0.3s ease;
+        border-top-right-radius: 0;
+        overflow-y: auto;
+        padding-top: 72px;
+        transform: translateX(-100%);
+    }
+
+    .Sidebar.mobileOpen {
+        transform: translateX(0);
+    }
+
+    .items {
+        align-items: stretch;
+    }
+
+    .footer {
+        display: flex;
+        justify-content: center;
+        margin-top: auto;
+        padding-top: 16px;
+    }
+}

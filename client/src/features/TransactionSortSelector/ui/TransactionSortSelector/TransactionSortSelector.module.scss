@@ -1,0 +1,22 @@
+.TransactionSortSelector {
+    background-color: transparent;
+    text-wrap: nowrap;
+
+    > div {
+        flex-wrap: nowrap;
+        width: auto;
+        gap: 8px;
+
+        > div {
+            width: auto;
+        }
+    }
+
+    @media (width <= 700px) {
+        width: 100%;
+
+        > div {
+            flex-wrap: wrap;
+        }
+    }
+}

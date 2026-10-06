@@ -1,0 +1,56 @@
+enum PaymentReminderStatus {
+  PENDING
+  SENT
+  FAILED
+  SKIPPED
+}
+
+model PaymentReminderSettings {
+  id                   Int      @id @default(1)
+  offsetDays           Int      @default(3)
+  sendHour             Int      @default(9)
+  sendMinute           Int      @default(0)
+  senderEmailAccountId Int?
+  enabled              Boolean  @default(true)
+  updatedById          Int?
+  updatedAt            DateTime @updatedAt
+
+  senderEmailAccount EmailAccount? @relation(fields: [senderEmailAccountId], references: [id], onDelete: SetNull)
+  updatedBy          User?         @relation("PaymentReminderSettingsUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@map("payment_reminder_settings")
+}
+
+model PaymentReminderDelivery {
+  id                Int                   @id @default(autoincrement())
+  subscriptionId    Int
+  targetPaymentDate DateTime
+  status            PaymentReminderStatus @default(PENDING)
+  language          ClientLanguage
+  recipientEmail    String
+  errorMessage      String?               @db.Text
+  sentAt            DateTime?
+  triggeredById     Int?
+  createdAt         DateTime              @default(now())
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  triggeredBy  User?        @relation("PaymentReminderTriggeredBy", fields: [triggeredById], references: [id], onDelete: SetNull)
+
+  @@unique([subscriptionId, targetPaymentDate])
+  @@index([status, createdAt])
+  @@map("payment_reminder_deliveries")
+}
+
+model PaymentReminderTemplate {
+  id          Int            @id @default(autoincrement())
+  language    ClientLanguage @unique
+  subject     String
+  bodyHtml    String         @db.Text
+  updatedById Int?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  updatedBy User? @relation("PaymentReminderTemplateUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@map("payment_reminder_templates")
+}

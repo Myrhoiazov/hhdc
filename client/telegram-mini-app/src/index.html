@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <title>DDC Admin</title>
+    <link rel="stylesheet" href="__APP_CSS__" />
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+    <header class="app-header">
+        <div>
+            <span class="eyebrow">Talent Center</span>
+            <h1>DDC Admin</h1>
+        </div>
+        <span class="live-mark" aria-label="CRM подключена"><i></i> CRM</span>
+    </header>
+    <nav id="nav" class="tab-bar" aria-label="Разделы Mini App">
+        <button type="button" data-screen="dashboard" aria-current="page">Обзор</button>
+        <button type="button" data-screen="search">Ученики</button>
+        <button type="button" data-screen="new-student">Добавить</button>
+    </nav>
+    <main id="app" tabindex="-1" aria-live="polite"></main>
+    <script src="__APP_JS__"></script>
+</body>
+</html>

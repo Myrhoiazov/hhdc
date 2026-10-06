@@ -1,0 +1,125 @@
+.MollieClientListItem {
+    .icon {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+}
+
+.info {
+    display: grid;
+    align-items: center;
+    width: 100%;
+    gap: 24px;
+    grid-template-columns: 52px minmax(200px, 1fr) minmax(220px, 1.3fr) minmax(300px, 1.4fr);
+}
+
+.clickable {
+    margin: -4px -8px;
+    padding: 4px 8px;
+    border-radius: var(--radius-sm-redesigned);
+    transition: background 0.15s ease;
+    cursor: pointer;
+
+    &:hover {
+        background: var(--sidebar-hover-bg-redesigned);
+    }
+}
+
+.id {
+    color: var(--sidebar-group-label-redesigned);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.identity {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    gap: 10px;
+}
+
+.avatar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 28px;
+    height: 28px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--primary-redesigned);
+    background: var(--primary-soft-bg-redesigned);
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.name,
+.email {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.name {
+    font-weight: 600;
+    color: var(--sidebar-text-hover-redesigned);
+}
+
+.email {
+    color: var(--sidebar-text-redesigned);
+}
+
+.badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.badge {
+    padding: 4px 9px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 16px;
+    color: var(--sidebar-text-redesigned);
+    background: var(--sidebar-hover-bg-redesigned);
+    border-radius: var(--radius-pill-redesigned);
+    white-space: nowrap;
+}
+
+.active {
+    color: var(--success-text-redesigned);
+    background: var(--success-bg-redesigned);
+}
+
+.studentLink {
+    color: var(--primary-redesigned);
+    background: var(--primary-soft-bg-redesigned);
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+.warning {
+    color: var(--danger-text-redesigned);
+    background: var(--danger-bg-redesigned);
+}
+
+@media (width <= 1100px) {
+    .info {
+        gap: 12px;
+        grid-template-columns: 44px 1fr;
+    }
+
+    .email,
+    .badges {
+        grid-column: 1 / -1;
+    }
+}
+
+.SMALL {
+    width: 230px;
+    cursor: pointer;
+}

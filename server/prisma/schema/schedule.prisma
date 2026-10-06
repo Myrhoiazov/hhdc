@@ -1,0 +1,100 @@
+enum GroupLevel {
+  START
+  FAN
+  PRO
+}
+
+model Choreographer {
+  id          Int     @id @default(autoincrement())
+  firstName   String
+  lastName    String
+  firstNameUa String?
+  lastNameUa  String?
+  firstNameEn String?
+  lastNameEn  String?
+
+  phone      String?
+  email      String?
+  birthday   String?
+  experience Int?
+  category   GroupLevel?
+
+  photo            String?
+  mainPhoto        String?
+  additionalPhotos String?
+
+  description         String? @db.Text
+  templateDescription String? @db.Text
+  showOnSite          Boolean @default(true)
+
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  groups    DanceGroup[]
+
+  @@map("choreographers")
+}
+
+model Hall {
+  id        Int          @id @default(autoincrement())
+  name      String
+  capacity  Int?
+  createdAt DateTime     @default(now())
+  groups    DanceGroup[]
+
+  @@map("halls")
+}
+
+model DanceGroup {
+  id               Int        @id @default(autoincrement())
+  name             String
+  style            String
+  level            GroupLevel @default(START)
+  maxParticipants  Int        @default(20)
+  lessonPriceCents Int        @default(0)
+  choreographerId  Int
+  hallId           Int?
+  branchId         Int?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  choreographer     Choreographer      @relation(fields: [choreographerId], references: [id])
+  hall              Hall?              @relation(fields: [hallId], references: [id])
+  branch            Branch?            @relation(fields: [branchId], references: [id])
+  slots             ScheduleSlot[]
+  invoiceItems      InvoiceItem[]
+  clientMemberships ClientDanceGroup[]
+
+  @@map("dance_groups")
+}
+
+model ScheduleSlot {
+  id        Int    @id @default(autoincrement())
+  groupId   Int
+  dayOfWeek String
+  startTime String
+  endTime   String
+
+  group DanceGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@map("schedule_slots")
+}
+
+model DanceStyle {
+  id            Int      @id @default(autoincrement())
+  name          String
+  nameUa        String?
+  nameEn        String?
+  description   String?  @db.Text
+  descriptionUa String?  @db.Text
+  descriptionEn String?  @db.Text
+  content       String?  @db.Text
+  contentUa     String?  @db.Text
+  contentEn     String?  @db.Text
+  image         String?
+  youtubeUrl    String?
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("dance_styles")
+}

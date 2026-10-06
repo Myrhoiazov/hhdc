@@ -1,0 +1,13 @@
+.UserFilters {
+    background-color: transparent;
+
+    .btn {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+
+        svg {
+            fill: var(--primary-color);
+        }
+    }
+}

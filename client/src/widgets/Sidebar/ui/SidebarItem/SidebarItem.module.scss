@@ -1,0 +1,109 @@
+.icon {
+    color: currentcolor;
+    flex-shrink: 0;
+}
+
+// The shared Icon component hard-codes fill/stroke via its "fill"/"stroke"
+// modifier class, tuned for icons on the old dark sidebar (near-white fill,
+// dark-gray stroke) — invisible or wrong-toned on the new light sidebar.
+// Re-point each to the item's own currentColor so icons always match their
+// label text (muted / hover / active).
+
+// These are the sidebar's own classes on purpose: Icon's class names are
+// hashed in the production build, so a selector naming them matches nothing
+// there. !important is needed since Icon's rule lives in a different CSS
+// module with no reliable load order relative to this one.
+.iconFill {
+    fill: currentcolor !important;
+}
+
+.iconStroke {
+    stroke: currentcolor !important;
+}
+
+.link {
+    font-size: 14px;
+    font-weight: 500;
+    opacity: 1;
+    transition: opacity 0.2s ease, width 0.2s ease;
+    flex: 1;
+    font-family: var(--font-family-main);
+    margin-left: 12px;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.chevron {
+    font-size: 12px;
+    color: currentcolor;
+    opacity: 0.4;
+    transition: opacity 0.15s ease;
+    flex-shrink: 0;
+    margin-left: 8px;
+}
+
+.nested {
+    min-height: 36px;
+    padding: 8px 12px 8px 38px;
+    font-size: 13px;
+    color: var(--sidebar-text-redesigned);
+
+    .link {
+        font-size: 13px;
+    }
+}
+
+.collapsed {
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    min-height: 44px;
+    padding: 0;
+    border-radius: var(--radius-md-redesigned);
+
+    .link {
+        display: none;
+        width: 0;
+        opacity: 0;
+        flex: 0 0 0;
+        margin-left: 0;
+    }
+
+    .chevron {
+        display: none;
+    }
+
+    &.active {
+        color: var(--primary-contrast-redesigned);
+        background: var(--primary-redesigned);
+    }
+}
+
+.item {
+    display: flex;
+    align-items: center;
+    min-height: 40px;
+    margin: 0;
+    padding: 10px 12px;
+    color: var(--sidebar-text-redesigned);
+    border-radius: var(--radius-sm-redesigned);
+    transition: background 0.16s ease, color 0.16s ease, box-shadow 0.16s ease;
+
+    &:hover {
+        color: var(--sidebar-text-hover-redesigned);
+        background: var(--sidebar-hover-bg-redesigned);
+
+        .chevron {
+            opacity: 1;
+        }
+    }
+
+    &.active {
+        color: var(--primary-contrast-redesigned);
+        background: var(--primary-redesigned);
+
+        .chevron {
+            opacity: 1;
+        }
+    }
+}

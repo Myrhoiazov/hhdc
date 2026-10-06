@@ -1,0 +1,39 @@
+# Skylos configuration for HHDC Admin.
+#
+# Read via `skylos --config-file pyproject.toml` in scripts/check-skylos.sh.
+# Keeping the config in pyproject.toml also satisfies Skylos repository-policy
+# checks such as SKY-R103.
+
+[tool.skylos]
+
+# SKY-L012 (symbol used but not exported from the module's static API surface)
+# is a systematic false positive in `client/`: cross-module imports go through
+# the `@/`-alias and FSD barrel `index.ts` re-exports (see CONTEXT.md,
+# Feature-Sliced Design), which Skylos cannot resolve without an alias-aware
+# resolver. Server imports are relative and stay covered, but the ignore list
+# cannot be scoped per-path in Skylos, so the rule is ignored repo-wide. See
+# docs/spec/SKYLOS_FINDINGS_CHECKLIST.md.
+ignore = ["SKY-L012", "SKY-D260", "SKY-D252", "SKY-D253", "SKY-D248", "SKY-D327", "SKY-D216", "SKY-D230", "SKY-S101", "SKY-T105", "SKY-L007", "SKY-Q402", "SKY-U001", "SKY-U003", "SKY-U004", "SKY-E003"]
+
+# SKY-D260 (homoglyph) is handled by the injection scanner, which filters
+# findings ONLY via the global `ignore` list. The rule fires on natural Russian
+# markdown mixed with Latin identifiers/code. Those files are intentionally
+# bilingual (docs, AGENTS, CONTEXT, README, extractedTranslations); the wording
+# has been visually reviewed once (see docs/spec/SKYLOS_FINDINGS_CHECKLIST.md).
+# Current findings were docs/translations/package.json, not source code.
+
+[tool.skylos.gate]
+
+# Phase A is still informational: scripts/check-skylos.sh runs the audit without
+# --gate, and GitHub Rulesets do not require skylos-check yet. These thresholds
+# make the repository-owned gate policy explicit for local/CI experiments while
+# the baseline is being burnished down.
+fail_on_critical = true
+max_critical = 0
+max_secrets = 0
+max_security = 0
+max_reliability = 0
+max_high = 5
+max_quality = 30
+max_ai_defects = 30
+strict = false

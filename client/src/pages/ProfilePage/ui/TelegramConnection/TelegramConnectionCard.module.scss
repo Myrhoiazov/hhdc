@@ -1,0 +1,52 @@
+.card {
+    background: var(--sidebar-bg-redesigned);
+    border: 1px solid var(--card-border-redesigned);
+    border-radius: var(--radius-lg-redesigned);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 100%;
+    gap: 16px;
+
+    @media (width <= 640px) {
+        flex-direction: column;
+    }
+}
+
+.subtitle {
+    color: var(--sidebar-text-redesigned);
+    margin-top: 4px;
+}
+
+// Filled badge with a matching-color border, not a color-mix ring — see
+// .claude/rules/code-style.md rule 3 (GroupCard/ChoreographerCard pattern).
+.badge {
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: 700;
+    border-radius: var(--radius-pill-redesigned);
+    white-space: nowrap;
+}
+
+.connected {
+    color: var(--success-text-redesigned);
+    background: var(--success-bg-redesigned);
+    border: 1px solid var(--success-text-redesigned);
+}
+
+.disconnected {
+    color: var(--sidebar-text-redesigned);
+    background: transparent;
+    border: 1px solid var(--card-border-redesigned);
+}
+
+.meta {
+    display: flex;
+    flex-direction: column;
+    font-size: 13px;
+    color: var(--sidebar-text-redesigned);
+    gap: 4px;
+}

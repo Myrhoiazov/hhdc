@@ -1,0 +1,130 @@
+.Navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: var(--navbar-height);
+    padding: 0 32px 0 38px;
+    background: var(--sidebar-bg-redesigned);
+    border-bottom: 1px solid var(--card-border-redesigned);
+
+    @media (width <= 768px) {
+        height: 76px;
+        padding: 0 16px;
+    }
+}
+
+.left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.logo {
+    display: block;
+    width: 92px;
+    max-height: 58px;
+    object-fit: contain;
+}
+
+.hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 6px;
+    background: var(--sidebar-hover-bg-redesigned);
+    border: none;
+    border-radius: var(--radius-sm-redesigned);
+    cursor: pointer;
+    flex-shrink: 0;
+    gap: 5px;
+
+    span {
+        display: block;
+        height: 2px;
+        background: var(--sidebar-text-hover-redesigned);
+        border-radius: 2px;
+        transition: 0.2s;
+    }
+
+    @media (width <= 768px) {
+        display: flex;
+    }
+}
+
+.actions {
+    flex-shrink: 0;
+}
+
+.addClientBtn {
+    display: flex;
+    align-items: center;
+    height: 40px;
+    flex-shrink: 0;
+    gap: 8px;
+
+    @media (width <= 900px) {
+        .addClientLabel {
+            display: none;
+        }
+    }
+}
+
+.addClientLabel {
+    white-space: nowrap;
+}
+
+// On mobile the language switcher lives in the sidebar footer instead.
+// Scoped under .actions so it outranks LangSwitcher's own `display` regardless of bundle order.
+.actions .langSwitcher {
+    @media (width <= 768px) {
+        display: none;
+    }
+}
+
+.notification {
+    position: relative;
+    display: grid;
+    width: 42px;
+    height: 42px;
+    color: var(--sidebar-text-hover-redesigned);
+    background: var(--sidebar-bg-redesigned);
+    border: 1px solid var(--card-border-redesigned);
+    border-radius: var(--radius-lg-redesigned);
+    cursor: pointer;
+    place-items: center;
+}
+
+.bell {
+    font-size: 23px;
+    line-height: 1;
+}
+
+.themeSwitcher {
+    display: grid;
+    width: 42px;
+    height: 42px;
+    background: var(--sidebar-bg-redesigned);
+    border: 1px solid var(--card-border-redesigned);
+    border-radius: var(--radius-lg-redesigned);
+    flex-shrink: 0;
+    place-items: center;
+}
+
+.badge {
+    position: absolute;
+    top: -8px;
+    right: -7px;
+    display: grid;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 4px;
+    font: 700 11px/1 var(--font-family-main);
+    color: var(--primary-contrast-redesigned);
+    background: var(--danger-text-redesigned);
+    border-radius: var(--radius-pill-redesigned);
+    box-shadow: 0 0 0 2px var(--sidebar-bg-redesigned);
+    place-items: center;
+}

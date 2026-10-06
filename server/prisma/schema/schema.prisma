@@ -1,0 +1,57 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  text      String?  @db.Text
+  clientId  Int?     @map("client_Id")
+  createdAt DateTime @default(now())
+  userId    Int?     @map("user_Id")
+  client    Client?  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  author    User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([clientId], map: "comments_client_Id_fkey")
+  @@index([userId], map: "comments_user_Id_fkey")
+  @@map("comments")
+}
+
+model Transaction {
+  id            Int             @id @default(autoincrement())
+  type          TransactionType
+  amount        Float
+  category      ExpenseCategory
+  description   String?         @db.VarChar(250)
+  date          DateTime        @default(now())
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  paymentMethod PaymentMethod   @default(CASH)
+
+  @@map("transactions")
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+  BANK_TRANSFER
+}
+
+enum ExpenseCategory {
+  KOMUNALKA
+  AUTO
+  PRODUCTS
+  HEALTH
+  HUIS
+  PHARMACY
+  OTHER
+}

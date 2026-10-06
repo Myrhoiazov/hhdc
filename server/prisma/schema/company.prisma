@@ -1,0 +1,63 @@
+model Branch {
+  id          Int          @id @default(autoincrement())
+  name        String
+  address     String?
+  city        String?
+  phone       String?
+  email       String?
+  description String?      @db.Text
+  isActive    Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  groups      DanceGroup[]
+  clients     Client[]
+
+  @@map("branches")
+}
+
+model LegalOrganization {
+  id                   Int      @id @default(autoincrement())
+  legalName            String
+  kvkNumber            String?
+  vatNumber            String?
+  registrationAddress  String?
+  postalCode           String?
+  city                 String?
+  countryCode          String   @default("NL")
+  email                String?
+  phone                String?
+  website              String?
+  bankName             String?
+  iban                 String?
+  mollieOrganizationId String?  @unique
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  brands BusinessBrand[]
+
+  @@map("legal_organizations")
+}
+
+model BusinessBrand {
+  id              Int      @id @default(autoincrement())
+  organizationId  Int
+  name            String
+  slug            String   @unique
+  logoUrl         String?  @db.Text
+  primaryColor    String   @default("#1d1d33")
+  email           String?
+  phone           String?
+  website         String?
+  address         String?
+  mollieProfileId String?
+  isDefault       Boolean  @default(false)
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  organization LegalOrganization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  invoices     Invoice[]
+
+  @@index([organizationId, isActive])
+  @@map("business_brands")
+}

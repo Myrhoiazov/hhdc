@@ -1,0 +1,130 @@
+.header, .actions, .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.header {
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.header h1, .card h2 {
+    margin: 0 0 6px;
+    color: var(--sidebar-text-hover-redesigned);
+}
+
+.header p {
+    margin: 0;
+    color: var(--sidebar-text-redesigned);
+}
+
+button {
+    padding: 10px 16px;
+    color: var(--sidebar-text-hover-redesigned);
+    background: transparent;
+    border: 1px solid var(--card-border-redesigned);
+    border-radius: var(--radius-sm-redesigned);
+    cursor: pointer;
+}
+
+.primary {
+    font-weight: 700;
+    color: var(--primary-contrast-redesigned);
+    background: var(--primary-redesigned);
+    border: none;
+}
+
+.danger {
+    color: var(--danger-text-redesigned);
+}
+
+.card {
+    padding: 22px;
+    background: var(--sidebar-hover-bg-redesigned);
+    border: 1px solid var(--card-border-redesigned);
+    border-radius: var(--radius-lg-redesigned);
+    margin-bottom: 18px;
+}
+
+.grid {
+    display: grid;
+    margin: 18px 0;
+    gap: 14px;
+    grid-template-columns: repeat(3, minmax(180px, 1fr));
+}
+
+.grid label {
+    display: flex;
+    flex-direction: column;
+    font-size: 13px;
+    font-weight: 600;
+    gap: 6px;
+}
+
+.grid input {
+    min-height: 40px;
+    padding: 8px 10px;
+    background: var(--sidebar-bg-redesigned);
+    border: 1px solid var(--card-border-redesigned);
+    border-radius: var(--radius-sm-redesigned);
+}
+
+.grid input[type="color"] {
+    padding: 3px;
+}
+
+.check {
+    flex-direction: row !important;
+    align-items: center;
+}
+
+.check input {
+    min-height: auto;
+}
+
+.logoPreview {
+    max-width: 180px;
+    max-height: 90px;
+    margin-bottom: 14px;
+    object-fit: contain;
+}
+
+.brands {
+    display: grid;
+    gap: 10px;
+}
+
+.brand {
+    padding: 12px;
+    background: var(--sidebar-bg-redesigned);
+    border-radius: var(--radius-sm-redesigned);
+}
+
+.brand img, .swatch {
+    width: 52px;
+    height: 52px;
+    border-radius: var(--radius-sm-redesigned);
+    object-fit: contain;
+}
+
+.brand div {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 4px;
+}
+
+.brand small {
+    color: var(--sidebar-text-redesigned);
+}
+
+@media (width <= 900px) {
+    .grid {
+        grid-template-columns: 1fr;
+    }
+
+    .brand {
+        flex-wrap: wrap;
+    }
+}

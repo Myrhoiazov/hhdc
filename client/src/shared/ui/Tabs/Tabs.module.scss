@@ -1,0 +1,18 @@
+.Tabs {
+    display: flex;
+    flex-wrap: wrap;
+    cursor: pointer;
+    gap: 8px;
+
+    .tab {
+        padding: 12px 20px;
+    }
+
+    @media (width <= 768px) {
+        gap: 8px;
+    }
+}
+
+.selected {
+    padding: 8px 16px;
+}

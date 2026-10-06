@@ -1,0 +1,124 @@
+services:
+  frontend:
+    container_name: hhdc-client-dev
+    image: hhdc-frontend:dev
+    build:
+      context: .
+      dockerfile: docker/client/Dockerfile.dev
+    restart: unless-stopped
+    working_dir: /app
+    environment:
+      NODE_ENV: development
+      HOST: 0.0.0.0
+      CHOKIDAR_USEPOLLING: "true"
+      WATCHPACK_POLLING: "true"
+      CLIENT_API_URL: ${CLIENT_API_URL:?CLIENT_API_URL не задан — см. .env.example}
+    volumes:
+      - ./client:/app
+      - client_node_modules:/app/node_modules
+    ports:
+      - "${FRONTEND_PORT:?FRONTEND_PORT не задан — см. .env.example}:3000"
+    depends_on:
+      - backend
+    networks:
+      - hhdc-network
+
+  backend:
+    container_name: hhdc-backend-dev
+    image: hhdc-backend:dev
+    build:
+      context: ./server
+      dockerfile: ../docker/server/Dockerfile.dev
+    restart: unless-stopped
+    working_dir: /app
+    environment:
+      MODE: development
+      PORT: 8080
+      DATABASE_URL: mysql://${DB_USER:?DB_USER не задан — см. .env.example}:${DB_PASSWORD:?DB_PASSWORD не задан — см. .env.example}@db:3306/${DB_NAME:?DB_NAME не задан — см. .env.example}
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      CLIENT_URL: ${CLIENT_URL:?CLIENT_URL не задан — см. .env.example}
+      PUBLIC_SITE_URL: ${PUBLIC_SITE_URL:?PUBLIC_SITE_URL не задан — см. .env.example}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:?JWT_ACCESS_SECRET не задан — см. .env.example}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?JWT_REFRESH_SECRET не задан — см. .env.example}
+      SECRET_SALT: ${SECRET_SALT:?SECRET_SALT не задан — см. .env.example}
+      CSRF_SECRET: ${CSRF_SECRET:?CSRF_SECRET не задан — см. .env.example}
+      VERIFY_MARKER_SECRET: ${VERIFY_MARKER_SECRET:?VERIFY_MARKER_SECRET не задан — см. .env.example}
+      COOKIE_NAME: ${COOKIE_NAME:?COOKIE_NAME не задан — см. .env.example}
+      COOKIE_NAME_MOLLIE: ${COOKIE_NAME_MOLLIE:?COOKIE_NAME_MOLLIE не задан — см. .env.example}
+      ACCESS_TOKEN_EXPIRATION: ${ACCESS_TOKEN_EXPIRATION:?ACCESS_TOKEN_EXPIRATION не задан — см. .env.example}
+      REFRESH_TOKEN_EXPIRATION: ${REFRESH_TOKEN_EXPIRATION:?REFRESH_TOKEN_EXPIRATION не задан — см. .env.example}
+      TWO_FACTOR_SENDER_EMAIL: ${TWO_FACTOR_SENDER_EMAIL}
+      TURNSTILE_SITE_KEY: ${TURNSTILE_SITE_KEY}
+      TURNSTILE_SECRET_KEY: ${TURNSTILE_SECRET_KEY}
+      MOLLIE_API_KEY: ${MOLLIE_API_KEY}
+      MOLLIE_CLIENT_ID: ${MOLLIE_CLIENT_ID}
+      MOLLIE_CLIENT_SECRET: ${MOLLIE_CLIENT_SECRET}
+      MOLLIE_REDIRECT_URI: ${MOLLIE_REDIRECT_URI}
+      MOLLIE_URI: ${MOLLIE_URI}
+      MOLLIE_WEBHOOK_URL: ${MOLLIE_WEBHOOK_URL}
+      INSTAGRAM_ID: ${INSTAGRAM_ID}
+      INSTAGRAM_WEB_HOOK: ${INSTAGRAM_WEB_HOOK}
+      INSTGRAM_MARKER: ${INSTGRAM_MARKER}
+      INSTGRAM_SECRET: ${INSTGRAM_SECRET}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID}
+      TELEGRAM_EMAIL_NOTIFY_CHAT_ID: ${TELEGRAM_EMAIL_NOTIFY_CHAT_ID:-}
+      TELEGRAM_APPROVER_IDS: ${TELEGRAM_APPROVER_IDS:-}
+      TELEGRAM_WEBHOOK_SECRET: ${TELEGRAM_WEBHOOK_SECRET:-}
+      TELEGRAM_TOKEN: ${TELEGRAM_TOKEN}
+      TELEGRAM_POLLING_ENABLED: ${TELEGRAM_POLLING_ENABLED:-false}
+      TELEGRAM_MINIAPP_URL: ${TELEGRAM_MINIAPP_URL:-}
+      TELEGRAM_BOT_USERNAME: ${TELEGRAM_BOT_USERNAME:-}
+      TELEGRAM_OIDC_CLIENT_ID: ${TELEGRAM_OIDC_CLIENT_ID}
+      TELEGRAM_OIDC_CLIENT_SECRET: ${TELEGRAM_OIDC_CLIENT_SECRET}
+      TELEGRAM_OIDC_REDIRECT_URI: ${TELEGRAM_OIDC_REDIRECT_URI}
+      OLLAMA_URL: ${OLLAMA_URL:-http://ollama:11434}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-}
+      OPENAI_DEFAULT_MODEL: ${OPENAI_DEFAULT_MODEL:-gpt-4o-mini}
+      OPENAI_ALLOWED_MODELS: ${OPENAI_ALLOWED_MODELS:-}
+      OPENAI_CONTEXT_LENGTH: ${OPENAI_CONTEXT_LENGTH:-16000}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen3:0.6b}
+      OLLAMA_EMBEDDING_MODEL: ${OLLAMA_EMBEDDING_MODEL:-bge-m3}
+      RAG_TOP_K: ${RAG_TOP_K:-4}
+      RAG_QUERY_EXPANSION_ENABLED: ${RAG_QUERY_EXPANSION_ENABLED:-false}
+      RAG_RERANK_ENABLED: ${RAG_RERANK_ENABLED:-false}
+      RAG_RERANK_MODEL: ${RAG_RERANK_MODEL:-qwen3-reranker:0.6b}
+      RAG_CHUNK_SIZE: ${RAG_CHUNK_SIZE:-700}
+      RAG_CHUNK_OVERLAP: ${RAG_CHUNK_OVERLAP:-100}
+      RAG_VERSION: ${RAG_VERSION:-v1}
+      RAG_KNOWLEDGE_PATH: ${RAG_KNOWLEDGE_PATH:-knowledge/ddc-knowledge-v2}
+      RAG_RULE_LIMIT: ${RAG_RULE_LIMIT:-3}
+      RAG_FACT_LIMIT: ${RAG_FACT_LIMIT:-4}
+      RAG_FAQ_LIMIT: ${RAG_FAQ_LIMIT:-2}
+      RAG_EXAMPLE_LIMIT: ${RAG_EXAMPLE_LIMIT:-2}
+      KNOWLEDGE_BASE_URL: ${KNOWLEDGE_BASE_URL:-}
+      KNOWLEDGE_ALLOWED_DOMAINS: ${KNOWLEDGE_ALLOWED_DOMAINS:-}
+      KNOWLEDGE_CANONICAL_LANGUAGE: ${KNOWLEDGE_CANONICAL_LANGUAGE:-nl}
+      LLM_CONTEXT_LENGTH: ${LLM_CONTEXT_LENGTH:-2048}
+      LLM_TEMPERATURE: ${LLM_TEMPERATURE:-0.2}
+      LLM_KEEP_ALIVE: ${LLM_KEEP_ALIVE:-0}
+      AI_MAX_CONCURRENCY: ${AI_MAX_CONCURRENCY:-1}
+      AI_EMAIL_CLASSIFICATION_ENABLED: ${AI_EMAIL_CLASSIFICATION_ENABLED:-false}
+      AI_EMAIL_DRAFT_ENABLED: ${AI_EMAIL_DRAFT_ENABLED:-false}
+      AI_EMAIL_SEND_ENABLED: ${AI_EMAIL_SEND_ENABLED:-false}
+      KNOWLEDGE_SYNC_ENABLED: ${KNOWLEDGE_SYNC_ENABLED:-false}
+    volumes:
+      - ./server:/app
+      - server_node_modules:/app/node_modules
+    ports:
+      - "${BACKEND_PORT:?BACKEND_PORT не задан — см. .env.example}:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - hhdc-network
+
+volumes:
+  client_node_modules:
+  server_node_modules:

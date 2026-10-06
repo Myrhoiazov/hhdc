@@ -1,0 +1,72 @@
+:root {
+    --bg-color: #e8e8ea;
+    --inverted-bg-color: #000;
+    --primary-color: #2b2b2b;
+    --secondary-color: #0449e0;
+    --inverted-primary-color: #f4fbf9;
+    --inverted-secondary-color: #049604;
+
+    // redesigned
+    --dark-bg-redesigned: #fff;
+    --bg-redesigned: #eff5f6;
+    --light-bg-redesigned: #e2eef1;
+    --text-redesigned: #141c1f;
+    --hint-redesigned: #adbcc0;
+    --cancel-redesigned: #f77;
+    --save-redesigned: #62de85;
+    --icon-redesigned: #5ed3f3;
+    --accent-redesigned: #00c8ff;
+
+    // skeleton
+    --skeleton-color: #fff;
+    --skeleton-shadow: rgba(0 0 0 / 20%);
+
+    // code
+    --code-bg: #fff;
+
+    // card
+    --card-bg: #d5d5d7;
+
+    // listbox
+    --listbox-bg: #d5d5d7;
+    --white: #fff;
+
+    // primary accent (redesigned — Sero-derived)
+    --primary-redesigned: #6c5ce7;
+    --primary-hover-redesigned: #5b4bd6;
+    --primary-contrast-redesigned: #fff;
+    --primary-soft-bg-redesigned: rgb(108 92 231 / 12%);
+
+    // sidebar (redesigned)
+    --sidebar-bg-redesigned: #fff;
+    --sidebar-border-redesigned: #ecedf0;
+    --sidebar-text-redesigned: #6b7280;
+    --sidebar-text-hover-redesigned: #15171c;
+    --sidebar-hover-bg-redesigned: rgb(17 19 24 / 5%);
+    --sidebar-group-label-redesigned: #9aa0a6;
+
+    // semantic (redesigned)
+    --card-border-redesigned: #ecedf0;
+    --success-bg-redesigned: #e7f7ec;
+    --success-text-redesigned: #1a7f37;
+    --danger-bg-redesigned: #fdeaea;
+    --danger-text-redesigned: #d92d20;
+
+    // style/direction palette (redesigned) — fixed categorical order, do not reorder
+    --style-1-bg-redesigned: #e5effa;
+    --style-1-text-redesigned: #2771ca;
+    --style-2-bg-redesigned: #fdede7;
+    --style-2-text-redesigned: #ce4914;
+    --style-3-bg-redesigned: #e4f5ef;
+    --style-3-text-redesigned: #15875e;
+    --style-4-bg-redesigned: #fdf4e0;
+    --style-4-text-redesigned: #916300;
+    --style-5-bg-redesigned: #fceff4;
+    --style-5-text-redesigned: #da2d6e;
+    --style-6-bg-redesigned: #e0f0e0;
+    --style-6-text-redesigned: #008300;
+    --style-7-bg-redesigned: #e9e7f4;
+    --style-7-text-redesigned: #4a3aa7;
+    --style-8-bg-redesigned: #fce9e9;
+    --style-8-text-redesigned: #df2f2d;
+}

@@ -1,0 +1,58 @@
+.MandateItem {
+    background: var(--card-bg);
+    border: 1px solid color-mix(in srgb, var(--primary-color) 10%, transparent);
+    border-radius: 14px;
+}
+
+.row {
+    display: grid;
+    align-items: center;
+    gap: 16px;
+    grid-template-columns: minmax(240px, 1fr) minmax(240px, auto) auto auto;
+}
+
+.main {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    gap: 4px;
+}
+
+.id {
+    font-weight: 600;
+    color: var(--primary-color);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.meta,
+.date {
+    font-size: 14px;
+    color: color-mix(in srgb, var(--primary-color) 62%, transparent);
+}
+
+.status {
+    padding: 4px 10px;
+    font-size: 13px;
+    color: var(--primary-color);
+    border: 1px solid color-mix(in srgb, var(--primary-color) 14%, transparent);
+    border-radius: 999px;
+    justify-self: end;
+}
+
+.valid {
+    color: color-mix(in srgb, var(--save-redesigned) 72%, var(--primary-color));
+    border-color: color-mix(in srgb, var(--save-redesigned) 44%, transparent);
+}
+
+@media (width <= 768px) {
+    .row {
+        gap: 8px;
+        grid-template-columns: 1fr;
+    }
+
+    .status {
+        justify-self: start;
+    }
+}

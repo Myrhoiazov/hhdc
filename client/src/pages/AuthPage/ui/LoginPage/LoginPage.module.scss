@@ -1,0 +1,272 @@
+.LoginPage {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    min-height: 100vh;
+    padding: 32px;
+    background:
+        radial-gradient(circle at 8% 10%, color-mix(in srgb, var(--primary-redesigned) 10%, transparent), transparent 25%),
+        #f4f6f1;
+    overflow: hidden;
+}
+
+.backgroundGlow {
+    position: absolute;
+    right: -180px;
+    bottom: -260px;
+    width: 620px;
+    height: 620px;
+    border: 1px solid rgb(17 19 24 / 7%);
+    border-radius: 50%;
+    box-shadow:
+        0 0 0 90px rgb(17 19 24 / 2%),
+        0 0 0 180px rgb(17 19 24 / 1%);
+    pointer-events: none;
+}
+
+.loginLayout {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    width: min(1080px, 100%);
+    min-height: 650px;
+    background: #fff;
+    border: 1px solid var(--card-border-redesigned);
+    border-radius: 28px;
+    box-shadow: 0 28px 80px rgb(17 19 24 / 13%);
+    grid-template-columns: minmax(340px, 0.9fr) minmax(420px, 1.1fr);
+    overflow: hidden;
+}
+
+.brandPanel {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 48px;
+    color: #fff;
+    background:
+        radial-gradient(circle at 82% 14%, color-mix(in srgb, var(--primary-redesigned) 18%, transparent), transparent 25%),
+        linear-gradient(180deg, #17191f 0%, #0d0f14 100%);
+    overflow: hidden;
+
+    &::after {
+        position: absolute;
+        right: -170px;
+        bottom: 90px;
+        width: 360px;
+        height: 360px;
+        background: transparent;
+        border: 1px solid color-mix(in srgb, var(--primary-redesigned) 24%, transparent);
+        border-radius: 50%;
+        box-shadow:
+            0 0 0 55px color-mix(in srgb, var(--primary-redesigned) 4%, transparent),
+            0 0 0 110px color-mix(in srgb, var(--primary-redesigned) 2%, transparent);
+        content: '';
+        pointer-events: none;
+    }
+}
+
+.brandHeader,
+.brandContent,
+.securityNote {
+    position: relative;
+    z-index: 1;
+}
+
+.brandHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.brandMark {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.08em;
+
+    &::before {
+        content: 'DDC';
+    }
+}
+
+.brandBadge {
+    width: fit-content;
+    padding: 9px 14px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--primary-contrast-redesigned);
+    text-transform: uppercase;
+    background: var(--primary-redesigned);
+    border-radius: 999px;
+    letter-spacing: 0.08em;
+}
+
+.brandContent {
+    max-width: 390px;
+
+    h1 {
+        margin: 12px 0 18px;
+        font-size: clamp(32px, 3.5vw, 48px);
+        line-height: 1.08;
+        letter-spacing: -0.04em;
+    }
+}
+
+.eyebrow {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--primary-redesigned);
+    text-transform: uppercase;
+    letter-spacing: 0.13em;
+}
+
+.description {
+    max-width: 350px;
+    font-size: 15px;
+    line-height: 1.7;
+    color: rgb(255 255 255 / 65%);
+}
+
+.featureGrid {
+    display: grid;
+    border-top: 1px solid rgb(255 255 255 / 12%);
+    margin-top: 32px;
+}
+
+.featureCard {
+    display: grid;
+    align-items: center;
+    padding: 12px 0;
+    font-size: 13px;
+    color: rgb(255 255 255 / 82%);
+    border-bottom: 1px solid rgb(255 255 255 / 12%);
+    grid-template-columns: 34px 1fr;
+}
+
+.featureIndex {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--primary-redesigned);
+}
+
+.featureCard:nth-child(1) .featureIndex::before {
+    content: '01';
+}
+
+.featureCard:nth-child(2) .featureIndex::before {
+    content: '02';
+}
+
+.featureCard:nth-child(3) .featureIndex::before {
+    content: '03';
+}
+
+.securityNote {
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+    color: rgb(255 255 255 / 62%);
+    gap: 10px;
+}
+
+.securityIcon {
+    display: grid;
+    width: 24px;
+    height: 24px;
+    color: var(--primary-contrast-redesigned);
+    background: var(--primary-redesigned);
+    border-radius: 50%;
+    place-items: center;
+
+    &::before {
+        content: '✓';
+    }
+}
+
+.formPanel {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 56px;
+    background: #f8f9f7;
+}
+
+.supportText {
+    font-size: 12px;
+    color: var(--sidebar-text-redesigned);
+    text-align: center;
+    margin-top: 24px;
+}
+
+@media (width <= 900px) {
+    .LoginPage {
+        padding: 20px;
+        overflow-y: auto;
+    }
+
+    .loginLayout {
+        display: block;
+        max-width: 560px;
+        min-height: auto;
+    }
+
+    .brandPanel {
+        min-height: 180px;
+        padding: 28px;
+    }
+
+    .brandContent {
+        h1 {
+            max-width: 400px;
+            font-size: 28px;
+            margin-bottom: 0;
+        }
+    }
+
+    .eyebrow,
+    .description,
+    .featureGrid,
+    .securityNote {
+        display: none;
+    }
+
+    .formPanel {
+        padding: 32px;
+    }
+}
+
+@media (width <= 520px) {
+    .LoginPage {
+        justify-content: flex-start;
+        padding: 0;
+        background: #f4f6f1;
+    }
+
+    .loginLayout {
+        width: 100%;
+        min-height: 100vh;
+        background: #f4f6f1;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    .brandPanel {
+        min-height: 150px;
+        padding: 24px;
+        border-radius: 0 0 28px 28px;
+    }
+
+    .brandContent h1 {
+        font-size: 24px;
+    }
+
+    .formPanel {
+        padding: 32px 20px 24px;
+    }
+}

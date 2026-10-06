@@ -1,0 +1,60 @@
+.ProfileCard {
+    background: var(--dark-bg-redesigned);
+    border-radius: 16px;
+    box-shadow: 0 1px 4px rgb(0 0 0 / 8%);
+    transition: box-shadow 0.25s ease;
+    overflow: hidden;
+}
+
+.loading,
+.error {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 240px;
+    background: var(--dark-bg-redesigned);
+    border-radius: 16px;
+}
+
+.inner {
+    padding: 24px 28px 28px;
+}
+
+.sectionHeader {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.sectionTitle {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--hint-redesigned);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.sectionLine {
+    height: 1px;
+    background: var(--bg-redesigned);
+    flex: 1;
+}
+
+.fieldsGrid {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: 1fr 1fr;
+
+    @media (width <= 580px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.fieldFull {
+    grid-column: 1 / -1;
+}
+
+.editing {
+    box-shadow: 0 0 0 2px rgb(4 73 224 / 20%), 0 4px 20px rgb(0 0 0 / 8%);
+}

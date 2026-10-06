@@ -1,0 +1,17 @@
+enum AiDraftProvider {
+  OLLAMA
+  OPENAI
+}
+
+model AiRuntimeSettings {
+  id          Int             @id @default(1)
+  draftProvider AiDraftProvider @default(OLLAMA) @map("draft_provider")
+  draftModel  String          @db.VarChar(191) @map("draft_model")
+  updatedById Int?            @map("updated_by_id")
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
+
+  updatedBy User? @relation("AiRuntimeSettingsUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@map("ai_runtime_settings")
+}

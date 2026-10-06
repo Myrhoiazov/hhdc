@@ -1,0 +1,121 @@
+.group {
+    margin: 0;
+}
+
+.icon {
+    color: currentcolor;
+    flex-shrink: 0;
+}
+
+// See SidebarItem.module.scss for why these overrides (and the !important)
+// are needed, and why they cannot target the shared Icon's own class names.
+.iconFill {
+    fill: currentcolor !important;
+}
+
+.iconStroke {
+    stroke: currentcolor !important;
+}
+
+.label {
+    font-size: 14px;
+    font-weight: 500;
+    flex: 1;
+    font-family: var(--font-family-main);
+    margin-left: 12px;
+    white-space: nowrap;
+}
+
+.arrow {
+    display: inline-block;
+    font-size: 12px;
+    color: currentcolor;
+    opacity: 0.4;
+    transition: transform 0.2s ease, opacity 0.15s ease;
+    flex-shrink: 0;
+    margin-left: 8px;
+}
+
+.arrowOpen {
+    opacity: 1;
+    transform: rotate(90deg);
+}
+
+.childrenWrapper {
+    display: grid;
+    transition: grid-template-rows 0.22s ease;
+    grid-template-rows: 0fr;
+    overflow: hidden;
+}
+
+.childrenOpen {
+    grid-template-rows: 1fr;
+}
+
+.children {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    gap: 2px;
+    margin-top: 4px;
+    overflow: hidden;
+    padding-left: 0;
+}
+
+.trigger {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 40px;
+    padding: 10px 12px;
+    color: var(--sidebar-text-redesigned);
+    text-align: left;
+    background: none;
+    border: none;
+    border-radius: var(--radius-sm-redesigned);
+    transition: background 0.16s ease, color 0.16s ease, box-shadow 0.16s ease;
+    cursor: pointer;
+
+    &:hover {
+        color: var(--sidebar-text-hover-redesigned);
+        background: var(--sidebar-hover-bg-redesigned);
+
+        .arrow {
+            opacity: 1;
+        }
+    }
+
+    &.active {
+        color: var(--primary-redesigned);
+        background: var(--primary-soft-bg-redesigned);
+
+        .icon {
+            color: var(--primary-redesigned);
+        }
+    }
+
+    &.open {
+        color: var(--sidebar-text-hover-redesigned);
+        background: var(--sidebar-hover-bg-redesigned);
+    }
+}
+
+.collapsedGroup {
+    display: flex;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+
+    .trigger {
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        min-height: 44px;
+        padding: 0;
+        border-radius: var(--radius-md-redesigned);
+
+        &.active {
+            background: var(--primary-soft-bg-redesigned);
+        }
+    }
+}
