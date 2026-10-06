@@ -25,7 +25,7 @@ describe('LoginPage', () => {
         // LoginForm is imported as its lazy/Suspense variant here (no Suspense
         // boundary wraps it in LoginPage itself — that's provided upstream by the
         // route), so the tree renders nothing until the dynamic import resolves.
-        expect(await screen.findByText('Ритм школы под вашим контролем')).toBeInTheDocument();
+        expect(await screen.findByText('High Heels Dance Camp')).toBeInTheDocument();
         expect(screen.getByPlaceholderText('name@company.com')).toBeInTheDocument();
     });
 });

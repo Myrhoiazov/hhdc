@@ -5,7 +5,7 @@
     p {
         font-size: 13px;
         font-weight: 600;
-        color: #444943;
+        color: var(--color-text-primary);
         margin-bottom: 4px;
     }
 }
@@ -13,8 +13,8 @@
 .LoginForm {
     width: 100%;
     max-width: 460px;
-    background: #fff;
-    border: 1px solid #e3e6e0;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-light);
     border-radius: 24px;
     box-shadow: 0 20px 55px rgb(17 19 24 / 9%);
 
@@ -23,29 +23,29 @@
         text-align: center;
 
         p {
-            color: #7b8177;
+            color: var(--color-text-secondary);
             margin-top: 4px;
         }
     }
 
     .input {
         height: 50px;
-        background: #f8fafa;
+        background: var(--color-surface-secondary);
         border-radius: 12px;
-        border-color: #d8e1e3;
+        border-color: var(--color-border);
 
         &:focus-within {
-            background: #fff;
-            box-shadow: 0 0 0 3px rgb(184 255 28 / 24%);
-            border-color: #111318;
+            background: var(--color-surface);
+            box-shadow: var(--focus-ring);
+            border-color: var(--color-text-primary);
         }
     }
 
     .loginBtn {
         min-height: 50px;
         font-weight: 700;
-        color: #111318;
-        background: #b8ff1c;
+        color: var(--color-on-brand);
+        background: var(--color-brand);
         border-radius: 12px;
         box-shadow: 0 10px 24px rgb(17 19 24 / 16%);
         margin-top: 28px;
@@ -60,7 +60,7 @@
     .forgot {
         font-size: 0.875rem;
         font-weight: 600;
-        color: #555b52;
+        color: var(--color-text-secondary);
     }
 
     .divider {
@@ -68,12 +68,12 @@
         align-items: center;
         margin: 24px 0 16px;
         font-size: 13px;
-        color: #9aa19a;
+        color: var(--color-text-tertiary);
 
         &::before,
         &::after {
             height: 1px;
-            background: #e3e6e0;
+            background: var(--color-border-light);
             content: '';
             flex: 1;
         }
@@ -86,9 +86,9 @@
     .telegramBtn {
         min-height: 50px;
         font-weight: 700;
-        color: #111318;
+        color: var(--color-text-primary);
         border-radius: 12px;
-        border-color: #d8e1e3;
+        border-color: var(--color-border);
     }
 
     @media (width <= 520px) {
@@ -103,6 +103,13 @@
     display: grid;
     min-height: 54px;
     place-items: center;
+}
+
+.logo {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--color-text-primary);
+    letter-spacing: -0.08em;
 }
 
 .captcha {

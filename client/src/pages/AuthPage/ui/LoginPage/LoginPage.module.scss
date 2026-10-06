@@ -7,8 +7,8 @@
     min-height: 100vh;
     padding: 32px;
     background:
-        radial-gradient(circle at 8% 10%, color-mix(in srgb, var(--primary-redesigned) 10%, transparent), transparent 25%),
-        #f4f6f1;
+        radial-gradient(circle at 8% 10%, color-mix(in srgb, var(--color-brand) 18%, transparent), transparent 25%),
+        var(--color-bg);
     overflow: hidden;
 }
 
@@ -48,8 +48,8 @@
     padding: 48px;
     color: #fff;
     background:
-        radial-gradient(circle at 82% 14%, color-mix(in srgb, var(--primary-redesigned) 18%, transparent), transparent 25%),
-        linear-gradient(180deg, #17191f 0%, #0d0f14 100%);
+        radial-gradient(circle at 82% 14%, color-mix(in srgb, var(--color-brand) 22%, transparent), transparent 25%),
+        linear-gradient(145deg, #171717 0%, #252a18 100%);
     overflow: hidden;
 
     &::after {
@@ -89,7 +89,7 @@
     letter-spacing: -0.08em;
 
     &::before {
-        content: 'DDC';
+        content: 'HHDC';
     }
 }
 
@@ -193,7 +193,7 @@
     justify-content: center;
     align-items: center;
     padding: 56px;
-    background: #f8f9f7;
+    background: var(--color-surface-secondary);
 }
 
 .supportText {
@@ -244,13 +244,13 @@
     .LoginPage {
         justify-content: flex-start;
         padding: 0;
-        background: #f4f6f1;
+        background: var(--color-bg);
     }
 
     .loginLayout {
         width: 100%;
         min-height: 100vh;
-        background: #f4f6f1;
+        background: var(--color-bg);
         border: none;
         border-radius: 0;
         box-shadow: none;
