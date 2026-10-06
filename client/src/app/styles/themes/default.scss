@@ -32,18 +32,18 @@
     --white: var(--color-surface);
 
     // primary accent (redesigned — Sero-derived)
-    --primary-redesigned: var(--color-dark);
-    --primary-hover-redesigned: var(--color-dark-tertiary);
-    --primary-contrast-redesigned: var(--color-on-dark);
-    --primary-soft-bg-redesigned: var(--color-surface-active);
+    --primary-redesigned: var(--color-brand);
+    --primary-hover-redesigned: var(--color-brand-hover);
+    --primary-contrast-redesigned: var(--color-on-brand);
+    --primary-soft-bg-redesigned: var(--color-brand-subtle);
 
     // sidebar (redesigned)
-    --sidebar-bg-redesigned: var(--color-dark);
-    --sidebar-border-redesigned: var(--color-dark-tertiary);
-    --sidebar-text-redesigned: var(--color-on-dark-secondary);
-    --sidebar-text-hover-redesigned: var(--color-on-dark);
-    --sidebar-hover-bg-redesigned: var(--color-dark-tertiary);
-    --sidebar-group-label-redesigned: var(--color-on-dark-secondary);
+    --sidebar-bg-redesigned: var(--color-surface);
+    --sidebar-border-redesigned: var(--color-border);
+    --sidebar-text-redesigned: var(--color-text-secondary);
+    --sidebar-text-hover-redesigned: var(--color-text-primary);
+    --sidebar-hover-bg-redesigned: var(--color-surface-hover);
+    --sidebar-group-label-redesigned: var(--color-text-tertiary);
 
     // semantic (redesigned)
     --card-border-redesigned: var(--color-border-light);
