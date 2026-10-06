@@ -1,3 +1,4 @@
+import { emitHistoryEvent } from '../outbox/outbox.service';
 import { Prisma } from '@prisma/client';
 import prisma from '../../../prisma/prisma-client';
 import { Request } from 'express';
@@ -95,5 +96,6 @@ export const activityService = {
                 userAgent: req.get('user-agent'),
             },
         });
+        await emitHistoryEvent(tx, input);
     }
 };

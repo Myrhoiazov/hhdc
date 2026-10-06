@@ -1,9 +1,11 @@
-import { Prisma } from '@prisma/client';
+import { createHash } from 'node:crypto';
+import { KnowledgeVisibility, Prisma } from '@prisma/client';
 import { z } from 'zod';
 import prisma from '../../../prisma/prisma-client';
 import { configuredAiProvider } from '../ai/registry';
 import { ApiError } from '../../common/http';
 import { chunkKnowledge } from './chunk';
+import { DEFAULT_VISIBILITY } from './visibility';
 
 const vectorText = (embedding: number[]) => JSON.stringify(z.array(z.number().finite()).min(1).parse(embedding));
 
@@ -32,28 +34,30 @@ export const reindexDocument = async (id: string) => {
 };
 
 export interface RetrievedKnowledge { id: string; documentId: string; title: string; content: string; score: number }
-const lexicalKnowledge = (query: string, eventId: string | null) => prisma.$queryRaw<RetrievedKnowledge[]>`
+const lexicalKnowledge = (query: string, eventId: string | null, visibility: string[]) => prisma.$queryRaw<RetrievedKnowledge[]>`
     SELECT c.id, c."documentId", d.title, c.content,
         ts_rank_cd(to_tsvector('simple', c.content), plainto_tsquery('simple', ${query}))::float AS score
     FROM "KnowledgeChunk" c JOIN "KnowledgeDocument" d ON d.id = c."documentId"
-    WHERE d.status = 'ACTIVE' AND (d.scope = 'GLOBAL' OR (d.scope = 'EVENT' AND d."eventId" = ${eventId}::uuid))
+    WHERE d.status = 'ACTIVE' AND d.visibility::text = ANY(${visibility})
+        AND (d.scope = 'GLOBAL' OR (d.scope = 'EVENT' AND d."eventId" = ${eventId}::uuid))
         AND to_tsvector('simple', c.content) @@ plainto_tsquery('simple', ${query})
     ORDER BY score DESC LIMIT 8`;
 
-const semanticKnowledge = async (query: string, eventId: string | null) => {
+const semanticKnowledge = async (query: string, eventId: string | null, visibility: string[]) => {
     const { provider } = await configuredAiProvider(true);
     const [embedding] = await provider.embed([query]);
     return prisma.$queryRaw<RetrievedKnowledge[]>`
         SELECT c.id, c."documentId", d.title, c.content, (1 - (c.embedding <=> ${vectorText(embedding)}::vector))::float AS score
         FROM "KnowledgeChunk" c JOIN "KnowledgeDocument" d ON d.id = c."documentId"
-        WHERE d.status = 'ACTIVE' AND (d.scope = 'GLOBAL' OR (d.scope = 'EVENT' AND d."eventId" = ${eventId}::uuid))
+        WHERE d.status = 'ACTIVE' AND d.visibility::text = ANY(${visibility})
+        AND (d.scope = 'GLOBAL' OR (d.scope = 'EVENT' AND d."eventId" = ${eventId}::uuid))
             AND c.embedding IS NOT NULL AND c.metadata->>'model' = ${provider.model}
         ORDER BY c.embedding <=> ${vectorText(embedding)}::vector LIMIT 8`;
 };
 
-export const retrieveKnowledge = async (query: string, eventId: string | null) => {
-    const lexical = await lexicalKnowledge(query, eventId);
-    const semantic = await semanticKnowledge(query, eventId).catch(() => [] as RetrievedKnowledge[]);
+export const retrieveKnowledge = async (query: string, eventId: string | null, visibility: KnowledgeVisibility[] = DEFAULT_VISIBILITY) => {
+    const lexical = await lexicalKnowledge(query, eventId, visibility);
+    const semantic = await semanticKnowledge(query, eventId, visibility).catch(() => [] as RetrievedKnowledge[]);
     const candidates = new Map<string, RetrievedKnowledge>();
     for (const list of [lexical, semantic.filter(item => item.score >= 0.5)]) {
         list.forEach((item, index) => {
@@ -67,4 +71,16 @@ export const retrieveKnowledge = async (query: string, eventId: string | null) =
 export const replaceTextChunks = async (tx: Prisma.TransactionClient, id: string, content: string) => {
     await tx.knowledgeChunk.deleteMany({ where: { documentId: id } });
     await tx.knowledgeChunk.createMany({ data: chunkKnowledge(content).map((text, position) => ({ documentId: id, content: text, position, metadata: {} })) });
+};
+
+export const contentHash = (content: string) => createHash('sha256').update(content).digest('hex');
+
+// Knowledge versioning (spec §59): every distinct content is kept as an immutable version.
+// Returns false when the content is unchanged, so callers can skip re-chunking/re-embedding.
+export const recordKnowledgeVersion = async (tx: Prisma.TransactionClient, documentId: string, content: string) => {
+    const hash = contentHash(content);
+    const latest = await tx.knowledgeDocumentVersion.findFirst({ where: { documentId }, orderBy: { version: 'desc' } });
+    if (latest?.contentHash === hash) return false;
+    await tx.knowledgeDocumentVersion.create({ data: { documentId, version: (latest?.version ?? 0) + 1, content, contentHash: hash } });
+    return true;
 };

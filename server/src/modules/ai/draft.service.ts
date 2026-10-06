@@ -38,10 +38,10 @@ export const generateDraft = async (conversationId: string, userId: string): Pro
     try {
         classification = await provider.generateStructured<{ intent: string; language: string; confidence: number }>(
             `Classify the following email:\n\n${inboundMessage.bodyText || inboundMessage.subject}`,
-            { schema: classificationSchema }
+            { schema: classificationSchema, systemPrompt: 'Classify the email. JSON keys: "intent" (UPPER_SNAKE_CASE category such as QUESTION, REFUND_REQUEST, TICKET_ISSUE), "language" (ISO 639-1 code), "confidence" (number from 0 to 1).' }
         );
     } catch (e) {
-        // Fallback for mocked providers
+        // Classification is advisory: the draft is still generated and reviewed by a human.
         classification = { intent: 'UNKNOWN', language: 'en', confidence: 0.5 };
     }
 

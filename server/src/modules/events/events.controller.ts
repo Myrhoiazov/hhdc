@@ -1,5 +1,8 @@
+import { z } from 'zod';
+import { CreateSessionSchema, UpdateSessionSchema } from './events.schemas';
 import { Request } from 'express';
 import { eventSchema } from './events.schemas';
+import { choreographerSchema, registrationSchema } from '../crm/schemas';
 import * as eventsService from './events.service';
 import { recordHistory } from '../audit/audit.service';
 import { ApiError, entityId, normalizePagination } from '../../common/http';
@@ -69,4 +72,47 @@ export const listEvents = async (req: Request) => {
     const { page, pageSize, skip } = normalizePagination(req.query);
     const { data, total } = await eventsService.listEvents(skip, pageSize);
     req.res!.json({ data, meta: { page, pageSize, total } });
+};
+
+
+export async function listSessions(req: Request) {
+    const { id } = z.object({ id: z.string().uuid() }).parse(req.params);
+    return eventsService.listSessions(id);
+}
+
+export async function createSession(req: Request) {
+    const { id } = z.object({ id: z.string().uuid() }).parse(req.params);
+    const data = CreateSessionSchema.parse(req.body);
+    return eventsService.createSession(id, data as any);
+}
+
+export async function updateSession(req: Request) {
+    const { id, sessionId } = z.object({ id: z.string().uuid(), sessionId: z.string().uuid() }).parse(req.params);
+    const data = UpdateSessionSchema.parse(req.body);
+    return eventsService.updateSession(id, sessionId, data);
+}
+
+export const createRegistration = async (req: Request) => {
+    const eventId = entityId(req);
+    await eventsService.requireEvent(eventId);
+    const input = registrationSchema.parse(req.body);
+    return prisma.$transaction(async tx => {
+        const registration = await tx.registration.create({ data: { eventId, personId: input.personId, status: input.status, notes: input.notes } });
+        await tx.personRole.upsert({ where: { personId_role: { personId: input.personId, role: 'PARTICIPANT' } }, create: { personId: input.personId, role: 'PARTICIPANT' }, update: {} });
+        await recordHistory(tx, req, { type: 'REGISTRATION_CREATED', entityType: 'Registration', entityId: registration.id, personId: input.personId, eventId });
+        return registration;
+    });
+};
+
+export const assignChoreographer = async (req: Request) => {
+    const eventId = entityId(req);
+    await eventsService.requireEvent(eventId);
+    const input = choreographerSchema.parse(req.body);
+    return prisma.$transaction(async tx => {
+        const assignment = await tx.eventChoreographer.create({ data: { eventId, personId: input.personId, roleTitle: input.roleTitle, status: input.status, bioOverride: input.bioOverride, notes: input.notes } });
+        await tx.personRole.upsert({ where: { personId_role: { personId: input.personId, role: 'CHOREOGRAPHER' } }, create: { personId: input.personId, role: 'CHOREOGRAPHER' }, update: {} });
+        const type = input.status === 'CONFIRMED' ? 'CHOREOGRAPHER_CONFIRMED' : 'CHOREOGRAPHER_ASSIGNED';
+        await recordHistory(tx, req, { type, entityType: 'EventChoreographer', entityId: assignment.id, personId: input.personId, eventId });
+        return assignment;
+    });
 };

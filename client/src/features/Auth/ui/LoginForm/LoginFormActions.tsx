@@ -21,9 +21,6 @@ export const LoginFormActions = ({ isLoading }: LoginFormActionsProps) => {
             >
                 {isLoading ? t('Выполняется вход...') : t('Войти')}
             </Button>
-            <Button theme={ButtonTheme.CLEAR} className={cls.forgot}>
-                {t('Забыли пароль?')}
-            </Button>
         </VStack>
     );
 };

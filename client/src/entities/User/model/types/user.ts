@@ -1,12 +1,10 @@
-import { RoleKey } from "@/entities/Role";
-
 export interface User {
     id: string;
-    username: string;
-    firstName?: string;
+    name: string;
     avatar?: string;
     email: string;
-    role: RoleKey
+    roles: string[];
+    permissions: string[];
 }
 
 export interface UserSchema {

@@ -4,7 +4,7 @@ This file is the operating contract for agents working in this repository. Keep 
 
 ## Purpose
 
-HHDC Admin is a TypeScript monorepo with a React 19 admin SPA in `client/`, an Express 5 API in `server/`, and Prisma 6 with MySQL. Read [README.md](README.md) for setup and [CONTEXT.md](CONTEXT.md) for the current event-admin domain.
+HHDC Admin is a TypeScript monorepo with a React 19 admin SPA in `client/`, an Express 5 API in `server/`, and Prisma 6. The Event & Talent CRM migration targets PostgreSQL and a fresh database. Read [README.md](README.md) for setup and [CONTEXT.md](CONTEXT.md) for the current domain.
 
 ## Sources of truth
 
@@ -13,6 +13,7 @@ HHDC Admin is a TypeScript monorepo with a React 19 admin SPA in `client/`, an E
 | Agent operating rules | **AGENTS.md** |
 | Setup and project entry | [README.md](README.md) |
 | Product and domain context | [CONTEXT.md](CONTEXT.md) |
+| Event & Talent CRM V1 requirements | [Event & Talent CRM specification](docs/spec/event-talent-crm-v1-spec.md) |
 | Graphify workflow | [docs/spec/GRAPHIFY_WORKFLOW.md](docs/spec/GRAPHIFY_WORKFLOW.md) |
 | UI conventions | [.claude/rules/code-style.md](.claude/rules/code-style.md) |
 | Execution procedures | `.agents/skills/*/SKILL.md` |
@@ -63,7 +64,7 @@ Task plans under `tasks/` are working material. Do not treat old project-specifi
 
 ## Domain guardrails
 
-HHDC is an internal administration product for the High Heels Dance Camp event. New product language must describe event clients, participants, contacts, communications, payments, content, users, roles, and settings. Do not introduce school concepts such as students, classes, choreographers, branches, lessons, or attendance into new work. Existing legacy modules may still contain inherited names; treat them as migration surface and avoid extending that vocabulary.
+HHDC is an internal Event & Talent CRM for High Heels Dance Camp. Person is the central identity; CUSTOMER, PARTICIPANT, CHOREOGRAPHER and STAFF are roles of the same Person. Event-specific participation belongs to Registration and choreographer assignments to EventChoreographer. Use the V1 specification for orders, tickets, communications, AI, knowledge, providers, activity and audit. School students, classes, branches, lessons and attendance are migration surfaces to remove, not workflows to extend. Preserve and adapt useful email, AI and dashboard capabilities. The user chose a fresh PostgreSQL database; do not import old data or delete existing MySQL databases/volumes.
 
 ## Git
 

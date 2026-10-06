@@ -1,0 +1,27 @@
+import { memo } from 'react';
+import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { getDashboard, listAudit, listProviders } from '@/entities/crm';
+import { useResource } from '@/shared/lib/useResource/useResource';
+import { CrmLayout, RequestState } from './common';
+import cls from './CrmPage.module.scss';
+
+export const DashboardPage = memo(() => {
+    const { t } = useTranslation();
+    const dashboard = useResource(getDashboard);
+    return <CrmLayout title="Dashboard"><RequestState error={dashboard.error} loading={dashboard.loading} /><div className={cls.grid}>
+        {Object.entries(dashboard.data || {}).map(([name, count]) => <section className={cls.panel} key={name}><h2>{t(name)}</h2><strong>{count}</strong></section>)}
+    </div><section className={cls.panel}><h2>{t('Event operations')}</h2><Link to="/people">{t('Manage people')}</Link><Link to="/events">{t('Manage events')}</Link><Link to="/email">{t('Open inbox')}</Link></section></CrmLayout>;
+});
+
+export const AuditPage = memo(() => {
+    const { t } = useTranslation();
+    const audit = useResource(listAudit);
+    return <CrmLayout title="Audit log"><RequestState error={audit.error} loading={audit.loading} /><section className={cls.panel}>{audit.data?.data.map(item => <div className={cls.row} key={item.id}><span>{t(item.action)}</span><span>{item.entityType}</span><time>{new Date(item.createdAt).toLocaleString()}</time></div>)}</section></CrmLayout>;
+});
+
+export const ProvidersPage = memo(() => {
+    const { t } = useTranslation();
+    const providers = useResource(listProviders);
+    return <CrmLayout title="Providers"><RequestState error={providers.error} loading={providers.loading} /><section className={cls.panel}>{providers.data?.data.map(item => <div className={cls.row} key={item.id}><span>{item.name}</span><span>{item.provider}</span><span>{t(item.status)}</span></div>)}{providers.data?.total === 0 && <p>{t('No providers connected')}</p>}</section></CrmLayout>;
+});

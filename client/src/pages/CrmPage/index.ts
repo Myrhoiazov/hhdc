@@ -1,0 +1,12 @@
+export { PeoplePage, PersonPage } from './ui/PeoplePage';
+export { EventsPage, EventPage } from './ui/EventsPage';
+export { DashboardPage, AuditPage, ProvidersPage } from './ui/DashboardPage';
+export { CommunicationsPage } from './ui/CommunicationsPage';
+export { KnowledgePage } from './ui/KnowledgePage';
+export { UsersPage } from './ui/UsersPage';
+export { AutomationsPage } from './ui/AutomationsPage';
+export { FinancePage } from './ui/FinancePage';
+export { AssistantPage } from './ui/AssistantPage';
+export { OperationsPage } from './ui/OperationsPage';
+export { DuplicatesPage, CampaignsPage } from './ui/DataPage';
+export { PlatformPage } from './ui/PlatformPage';

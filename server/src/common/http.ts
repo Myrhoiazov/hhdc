@@ -15,6 +15,15 @@ export const route = (handler: (request: Request) => Promise<unknown>): RequestH
     }
 };
 
+// For paginated collections: the handler's `{ data, meta }` is the response body itself.
+export const listRoute = (handler: (request: Request) => Promise<{ data: unknown; meta: unknown }>): RequestHandler => async (req, res, next) => {
+    try {
+        res.json(await handler(req));
+    } catch (error) {
+        next(error);
+    }
+};
+
 export const requestId: RequestHandler = (_req, res, next) => {
     res.locals.requestId = randomUUID();
     res.setHeader('X-Request-Id', res.locals.requestId);

@@ -20,6 +20,3 @@ export {
     UserSchema,
     User,
 } from './model/types/user';
-
-export { UserCard } from './ui/UserCard/UserCard';
-export { UsersList } from './ui/UsersList/UsersList';

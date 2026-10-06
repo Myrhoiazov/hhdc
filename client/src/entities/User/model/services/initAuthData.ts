@@ -2,6 +2,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { ThunkConfig } from '@/app/providers/StoreProvider';
 import { User } from '../types/user';
 import { userActions } from '../slice/userSlice';
+import { csrfActions } from '@/shared/api/api';
 
 export const initAuthData = createAsyncThunk<User, void, ThunkConfig<string>>(
     'user/initAuthData',
@@ -9,13 +10,10 @@ export const initAuthData = createAsyncThunk<User, void, ThunkConfig<string>>(
         const { rejectWithValue, extra, dispatch } = thunkApi;
 
         try {
-            const { data } = await extra.apiPrivate.get<User>('/profile');
-            if (!data) {
-                return rejectWithValue('');
-            }
-
-            dispatch(userActions.setAuthData(data));
-            return data;
+            const { data } = await extra.apiPrivate.get<{ data: { user: User; csrfToken: string } }>('/auth/me');
+            csrfActions.set(data.data.csrfToken);
+            dispatch(userActions.setAuthData(data.data.user));
+            return data.data.user;
         } catch (error: unknown) {
             console.log("error: ", error);
 

@@ -4,9 +4,10 @@ import { User, UserSchema } from '../types/user';
 
 const user: User = {
     id: '1',
-    username: 'denis',
+    name: 'denis',
     email: 'denis@example.com',
-    role: 'admin' as User['role'],
+    roles: ['ADMIN'],
+    permissions: [],
 };
 
 describe('userSlice', () => {

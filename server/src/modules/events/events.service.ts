@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import prisma from '../../../prisma/prisma-client';
 import { ApiError } from '../../common/http';
 import { Event, Prisma } from '@prisma/client';
@@ -37,3 +38,111 @@ export const listEvents = async (skip: number, take: number) => {
     ]);
     return { data, total };
 };
+
+export async function listSessions(eventId: string) {
+    return prisma.eventSession.findMany({
+        where: { eventId },
+        include: { room: true, choreographers: { include: { choreographer: true } } },
+        orderBy: { startAt: 'asc' }
+    });
+}
+
+export async function createSession(eventId: string, data: { name: string, description?: string, startAt: Date, endAt: Date, capacity?: number, roomId?: string, choreographerIds?: string[] }) {
+    await ensureNoConflicts(eventId, data);
+    return prisma.$transaction(async (tx) => {
+        const { choreographerIds, ...rest } = data;
+        const session = await tx.eventSession.create({
+            data: {
+                name: rest.name,
+                description: rest.description,
+                startAt: rest.startAt,
+                endAt: rest.endAt,
+                capacity: rest.capacity,
+                roomId: rest.roomId,
+                eventId
+            }
+        });
+        
+        if (choreographerIds && choreographerIds.length > 0) {
+            await tx.eventSessionChoreographer.createMany({
+                data: choreographerIds.map((id: string) => ({
+                    sessionId: session.id,
+                    choreographerId: id
+                }))
+            });
+        }
+        
+        return session;
+    });
+}
+
+export async function updateSession(eventId: string, sessionId: string, data: z.infer<typeof import('./events.schemas').UpdateSessionSchema>) {
+    const existing = await prisma.eventSession.findUnique({ where: { id: sessionId, eventId }, include: { choreographers: true } });
+    if (!existing) throw new ApiError(404, 'NOT_FOUND', 'Session not found');
+
+    const checkData = {
+        roomId: data.roomId !== undefined ? data.roomId : existing.roomId,
+        startAt: data.startAt || existing.startAt,
+        endAt: data.endAt || existing.endAt,
+        choreographerIds: data.choreographerIds !== undefined ? data.choreographerIds : existing.choreographers.map(c => c.choreographerId)
+    };
+    
+    await ensureNoConflicts(eventId, checkData as any, sessionId);
+
+    return prisma.$transaction(async (tx) => {
+        const { choreographerIds, ...rest } = data;
+        
+        const session = await tx.eventSession.update({
+            where: { id: sessionId },
+            data: rest
+        });
+
+        if (choreographerIds !== undefined) {
+            await tx.eventSessionChoreographer.deleteMany({ where: { sessionId } });
+            if (choreographerIds.length > 0) {
+                await tx.eventSessionChoreographer.createMany({
+                    data: choreographerIds.map(id => ({
+                        sessionId,
+                        choreographerId: id
+                    }))
+                });
+            }
+        }
+        
+        return session;
+    });
+}
+
+async function ensureNoConflicts(eventId: string, data: { roomId?: string | null, startAt: Date, endAt: Date, choreographerIds?: string[] }, excludeSessionId?: string) {
+    if (data.roomId) {
+        const roomConflicts = await prisma.eventSession.findFirst({
+            where: {
+                roomId: data.roomId,
+                id: { not: excludeSessionId },
+                startAt: { lt: data.endAt },
+                endAt: { gt: data.startAt }
+            }
+        });
+        if (roomConflicts) {
+            throw new ApiError(409, 'CONFLICT', `Room is already booked for this time (Session: ${roomConflicts.name})`);
+        }
+    }
+
+    if (data.choreographerIds && data.choreographerIds.length > 0) {
+        const choreographerConflicts = await prisma.eventSessionChoreographer.findFirst({
+            where: {
+                choreographerId: { in: data.choreographerIds },
+                session: {
+                    id: { not: excludeSessionId },
+                    startAt: { lt: data.endAt },
+                    endAt: { gt: data.startAt }
+                }
+            },
+            include: { session: true }
+        });
+
+        if (choreographerConflicts) {
+            throw new ApiError(409, 'CONFLICT', `Choreographer is already assigned to an overlapping session (Session: ${choreographerConflicts.session.name})`);
+        }
+    }
+}

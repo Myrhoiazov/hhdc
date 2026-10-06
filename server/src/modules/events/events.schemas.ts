@@ -14,3 +14,21 @@ export const eventSchema = z.object({
     country: z.string().optional().nullable(),
     capacity: z.number().int().nonnegative().optional().nullable(),
 });
+
+
+export const CreateSessionSchemaBase = z.object({
+    name: z.string().min(1),
+    description: z.string().optional(),
+    roomId: z.string().uuid().optional(),
+    startAt: z.coerce.date(),
+    endAt: z.coerce.date(),
+    capacity: z.number().int().positive().optional(),
+    choreographerIds: z.array(z.string().uuid()).optional()
+});
+export const CreateSessionSchema = CreateSessionSchemaBase.refine(data => data.endAt > data.startAt, {
+    message: "End time must be after start time",
+    path: ["endAt"]
+});
+
+
+export const UpdateSessionSchema = CreateSessionSchemaBase.partial();

@@ -3,8 +3,8 @@ import { render } from '@testing-library/react';
 import { createReduxStore, ReduxStoreWithManager } from '@/app/providers/StoreProvider';
 import { DynamicModuleLoader, ReducersList } from './DynamicModuleLoader';
 
-const dummyReducer = (state = { value: 1 }) => state;
-const reducers: ReducersList = { profile: dummyReducer };
+const dummyReducer = (state = { email: '', password: '', isLoading: false }) => state;
+const reducers: ReducersList = { loginForm: dummyReducer };
 
 function setup(removeAfterUnmount?: boolean) {
     const store = createReduxStore() as ReduxStoreWithManager;
@@ -26,18 +26,18 @@ describe('DynamicModuleLoader', () => {
 
     test('mounts the given reducer into the store on mount', () => {
         const { store } = setup();
-        expect(store.reducerManager.getReducerMap().profile).toBe(dummyReducer);
+        expect(store.reducerManager.getReducerMap().loginForm).toBe(dummyReducer);
     });
 
     test('removes the reducer on unmount by default', () => {
         const { store, unmount } = setup();
         unmount();
-        expect(store.reducerManager.getReducerMap().profile).toBeUndefined();
+        expect(store.reducerManager.getReducerMap().loginForm).toBeUndefined();
     });
 
     test('keeps the reducer mounted on unmount when removeAfterUnmount is false', () => {
         const { store, unmount } = setup(false);
         unmount();
-        expect(store.reducerManager.getReducerMap().profile).toBe(dummyReducer);
+        expect(store.reducerManager.getReducerMap().loginForm).toBe(dummyReducer);
     });
 });

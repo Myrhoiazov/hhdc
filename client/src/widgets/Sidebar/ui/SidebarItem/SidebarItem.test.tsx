@@ -21,7 +21,7 @@ function renderItem(itemOverrides: Partial<SidebarItemType> = {}, options: { aut
         preloadedState: {
             user: {
                 _inited: true,
-                authData: authed ? { id: '1', username: 'denis', email: 'd@example.com', role: 'ADMIN' as never } : undefined,
+                authData: authed ? { id: '1', name: 'denis', email: 'd@example.com', roles: ['ADMIN'], permissions: [] } : undefined,
             },
         },
     });

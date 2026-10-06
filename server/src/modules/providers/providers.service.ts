@@ -17,7 +17,7 @@ export const providerSchema = z.object({
         sender: z.string().email().optional(), 
         eventId: z.string().uuid().optional(), 
         baseUrl: z.string().url().optional(), 
-        externalEventId: z.string().max(200).optional() 
+        externalEventId: z.string().max(200).optional(),
     }).strict().optional(),
 }).strict();
 
@@ -65,7 +65,9 @@ export const validateProviderType = (provider: ProviderName, type: ProviderType)
         WEEZTIX: 'TICKETING', 
         GMAIL: 'EMAIL', 
         OPENAI: 'AI', 
-        OLLAMA: 'AI' 
+        OLLAMA: 'AI',
+        MOLLIE: 'PAYMENT',
+        GOOGLE_DRIVE: 'STORAGE',
     };
     if (allowed[provider] !== type) {
         throw new ApiError(400, 'PROVIDER_TYPE_MISMATCH', 'Provider does not support this type');

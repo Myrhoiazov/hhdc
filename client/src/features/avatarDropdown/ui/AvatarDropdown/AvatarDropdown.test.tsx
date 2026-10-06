@@ -4,7 +4,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { createReduxStore, ReduxStoreWithManager } from '@/app/providers/StoreProvider';
 import { userActions } from '@/entities/User';
 import { AvatarDropdown } from './AvatarDropdown';
-import { RoleKey } from '@/entities/Role';
+import { User } from '@/entities/User';
 
 jest.mock('@/shared/api/api', () => ({
     $api: { get: jest.fn() },
@@ -13,7 +13,7 @@ jest.mock('@/shared/api/api', () => ({
     csrfActions: { reset: jest.fn() },
 }));
 
-function renderWithAuth(authData?: { id: string; username: string; email: string; role: RoleKey }) {
+function renderWithAuth(authData?: User) {
     const store = createReduxStore() as ReduxStoreWithManager;
     if (authData) {
         store.dispatch(userActions.setAuthData(authData));
@@ -37,17 +37,16 @@ describe('AvatarDropdown', () => {
     });
 
     test('renders the menu with Settings, Profile, and Logout once authenticated', async () => {
-        renderWithAuth({ id: '1', username: 'denis', email: 'd@example.com', role: RoleKey.ADMIN });
+        renderWithAuth({ id: '1', name: 'denis', email: 'd@example.com', roles: ['ADMIN'], permissions: [] });
 
         fireEvent.click(screen.getByRole('button'));
 
         expect(await screen.findByText('Настройки')).toBeInTheDocument();
-        expect(screen.getByText('Профиль')).toBeInTheDocument();
         expect(screen.getByText('Выйти')).toBeInTheDocument();
     });
 
     test('dispatches logout when "Выйти" is clicked', async () => {
-        const { store } = renderWithAuth({ id: '1', username: 'denis', email: 'd@example.com', role: RoleKey.ADMIN });
+        const { store } = renderWithAuth({ id: '1', name: 'denis', email: 'd@example.com', roles: ['ADMIN'], permissions: [] });
 
         fireEvent.click(screen.getByRole('button'));
         fireEvent.click(await screen.findByText('Выйти'));

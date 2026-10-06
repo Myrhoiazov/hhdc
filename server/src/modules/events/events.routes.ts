@@ -10,3 +10,9 @@ eventsRouter.post('/', permitted('events.write'), route(controller.createEvent))
 eventsRouter.patch('/:id', permitted('events.write'), route(controller.updateEvent));
 eventsRouter.get('/:id', permitted('events.read'), route(controller.getEvent));
 
+
+eventsRouter.get('/:id/sessions', permitted('events.read'), route(controller.listSessions));
+eventsRouter.post('/:id/sessions', permitted('events.write'), route(controller.createSession));
+eventsRouter.patch('/:id/sessions/:sessionId', permitted('events.write'), route(controller.updateSession));
+eventsRouter.post('/:id/registrations', permitted('events.write'), route(controller.createRegistration));
+eventsRouter.post('/:id/choreographers', permitted('events.write'), route(controller.assignChoreographer));

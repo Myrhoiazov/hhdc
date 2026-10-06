@@ -1,19 +1,22 @@
 # HHDC Admin — Project Context
 
-This is the short context that agents should use for new work. It describes the target product, while explicitly marking inherited implementation that still needs migration.
+The target contract is the [Event & Talent CRM V1 specification](docs/spec/event-talent-crm-v1-spec.md). This project is being migrated to PostgreSQL and a new empty database, as explicitly requested by the owner. Preserve existing MySQL storage; no old data is imported.
 
 ## Product
 
 HHDC Admin is an internal administration workspace for High Heels Dance Camp, a dance event. It supports event operations: client and contact records, event communications, email, payments, content and documents, users, roles, and settings.
 
-It is an event administration product, not a dance-school CRM. There are no new student, class, lesson, attendance, choreographer, or branch workflows.
+Person is the central identity. CUSTOMER, PARTICIPANT, CHOREOGRAPHER and STAFF are roles of the same Person. EventChoreographer is an event assignment, Registration is participation, and ticket buyers can differ from ticket holders. School students, classes, lessons, attendance and branches are obsolete workflows to remove.
 
 ## Domain language
 
 | Term | Meaning |
 |---|---|
 | Event | A High Heels Dance Camp edition or related event activity. |
-| Client | A participant, lead, contact, partner, supplier, or other event-facing person or organisation. |
+| Person | One identity with multiple business roles; replaces legacy Client. |
+| Registration | A Person participating in an Event. |
+| EventChoreographer | A Person with the CHOREOGRAPHER role assigned to an Event. |
+| Order / Ticket | Normalized ticketing records; buyer and holder are separate relationships. |
 | Event edition | A dated camp instance with its venue, programme, capacity, and operational settings. |
 | Communication | An inbound or outbound email, note, template, or team conversation connected to event work. |
 | Payment | A transaction, invoice, refund, or payment-provider operation for an event client. |
@@ -26,12 +29,12 @@ Use these terms in new UI, API names, tests, and documentation. Avoid school voc
 The repository is a TypeScript monorepo:
 
 - `client/` — React 19, Redux Toolkit, custom webpack, SCSS Modules, and i18next.
-- `server/` — Express 5, Prisma 6, MySQL 8, Zod validation, and domain modules under `server/src/modules/`.
+- `server/` — Express 5, Prisma 6, Zod validation, and domain modules under `server/src/modules/`; target storage is PostgreSQL with UUID, TIMESTAMPTZ, JSONB and exact Decimal money.
 - `docker/` — development and production images and nginx configuration.
 - `e2e/` — Playwright setup and browser flows.
 - `plugins/` — local ESLint plugins.
 
-The codebase is being migrated from an earlier DDC school-oriented product. Legacy clients, schedule, invoice, Mollie, Telegram, and AI-email modules can still exist in the implementation. They are compatibility surfaces, not the target domain model. New work must follow the HHDC event language and should avoid adding new school-specific dependencies.
+The codebase is being migrated from an earlier DDC school-oriented product. Remove legacy clients, school schedule, billing, Mollie, Telegram and Instagram runtime paths and their unused dependencies as replacements become operational. Preserve and adapt useful email, AI, knowledge and dashboard capabilities. Do not hide obsolete code with TypeScript exclusions. The first milestone is login → dashboard → Person → role → Event → choreographer assignment → registration → Activity/Audit.
 
 ## Client architecture
 
@@ -55,7 +58,7 @@ Authentication, users, clients, company/settings, communication, email, payments
 
 ## Integrations and operations
 
-Email uses IMAP/SMTP configuration. Payment-provider and Telegram integrations are inherited capabilities and must be changed only when the current event workflow requires them. Local development uses Docker Compose and a local MySQL database; never use development data for E2E runs.
+Existing email transports and AI adapters are reusable migration inputs. Target providers are Weeztix, Gmail, OpenAI and Ollama behind adapters; credentials are encrypted and never returned through normal APIs. AI drafts require persisted human approval before sending. Knowledge uses GLOBAL/EVENT scopes and hybrid PostgreSQL/pgvector retrieval. Activity and immutable AuditLog are separate histories. E2E uses an isolated PostgreSQL database and synthetic data.
 
 ## Documentation
 

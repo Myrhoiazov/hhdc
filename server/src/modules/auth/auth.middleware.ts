@@ -2,6 +2,7 @@ import type { Request, RequestHandler } from 'express';
 import { ApiError } from '../../common/http';
 import { sessionSecret, hashSession, csrfForSession, tokensEqual, loadUser, publicUser, CurrentUser } from './auth.service';
 import prisma from '../../../prisma/prisma-client';
+import { hashApiKey, isApiKeyUsable, looksLikeApiKey } from '../platform/api-keys';
 
 export const COOKIE_NAME = 'hhdc_session';
 
@@ -14,8 +15,33 @@ const validateCsrf = (req: Request, expected: string) => {
     if (!tokensEqual(token, expected)) throw new ApiError(403, 'CSRF_FAILED', 'Invalid CSRF token');
 };
 
+export const recordSecurityEvent = (req: Request, type: string, metadata: Record<string, string> = {}) => {
+    const data = { type, userId: req.res?.locals?.user?.id ?? null, ipAddress: req.ip, metadata: { ...metadata, method: req.method, path: req.path } };
+    void prisma.securityEvent.create({ data }).catch((): void => undefined);
+};
+
+// Integration API keys (spec §75): a Bearer key acts with the key's own permission list.
+// Keys are not cookies, so CSRF does not apply; they never impersonate a Person.
+const authenticateApiKey = async (req: Request, key: string): Promise<CurrentUser> => {
+    const apiKey = looksLikeApiKey(key) ? await prisma.apiKey.findUnique({ where: { keyHash: hashApiKey(key) } }) : null;
+    if (!apiKey || !isApiKeyUsable(apiKey)) {
+        recordSecurityEvent(req, 'SUSPICIOUS_API_KEY');
+        throw new ApiError(401, 'INVALID_API_KEY', 'API key is invalid, expired or revoked');
+    }
+    void prisma.apiKey.update({ where: { id: apiKey.id }, data: { lastUsedAt: new Date() } }).catch((): void => undefined);
+    const permissions = Array.isArray(apiKey.permissions) ? apiKey.permissions.filter((item): item is string => typeof item === 'string') : [];
+    return { id: apiKey.createdBy, email: '', name: `API key ${apiKey.prefix}`, roles: ['API_KEY'], permissions };
+};
+
+const bearerToken = (req: Request) => /^Bearer (.+)$/.exec(req.get('authorization') ?? '')?.[1];
+
 export const authenticated: RequestHandler = async (req, res, next) => {
     try {
+        const bearer = bearerToken(req);
+        if (bearer) {
+            res.locals.user = await authenticateApiKey(req, bearer);
+            return next();
+        }
         const token = req.cookies[COOKIE_NAME];
         if (typeof token !== 'string') throw new ApiError(401, 'UNAUTHENTICATED', 'Login required');
         
@@ -43,6 +69,7 @@ export const authenticated: RequestHandler = async (req, res, next) => {
 export const permitted = (permission: string): RequestHandler => (req, _res, next) => {
     const user = currentUser(req);
     if (!user || !hasPermission(user.permissions, permission)) {
+        recordSecurityEvent(req, 'PERMISSION_DENIED', { permission });
         return next(new ApiError(403, 'FORBIDDEN', 'Permission required'));
     }
     next();

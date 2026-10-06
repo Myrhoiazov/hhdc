@@ -1,15 +1,15 @@
 import { Router, Request } from 'express';
-import { KnowledgeScope, KnowledgeStatus } from '@prisma/client';
+import { KnowledgeScope, KnowledgeStatus, KnowledgeVisibility } from '@prisma/client';
 import { z } from 'zod';
 import prisma from '../../../prisma/prisma-client';
 import { currentUser, permitted } from '../auth/auth.middleware';
 import { ApiError, entityId, route } from '../../common/http';
 import { normalizePagination } from '../../common/http';
-import { reindexDocument, replaceTextChunks } from './service';
+import { recordKnowledgeVersion, reindexDocument, replaceTextChunks } from './service';
 
 const knowledgeSchema = z.object({ title: z.string().trim().min(1).max(300), content: z.string().trim().min(1).max(200000),
     scope: z.nativeEnum(KnowledgeScope).default('GLOBAL'), eventId: z.string().uuid().nullable().optional(),
-    status: z.nativeEnum(KnowledgeStatus).default('DRAFT'), sourceType: z.literal('MANUAL').default('MANUAL') }).strict();
+    status: z.nativeEnum(KnowledgeStatus).default('DRAFT'), visibility: z.nativeEnum(KnowledgeVisibility).default('INTERNAL'), sourceType: z.literal('MANUAL').default('MANUAL') }).strict();
 const assertScope = (scope: string, eventId?: string | null) => {
     if ((scope === 'EVENT') !== Boolean(eventId)) throw new ApiError(400, 'KNOWLEDGE_SCOPE_MISMATCH', 'Event knowledge requires an event; global knowledge must not specify one');
 };
@@ -22,7 +22,8 @@ const saveKnowledge = async (req: Request, id?: string) => {
     return prisma.$transaction(async tx => {
         const document = id ? await tx.knowledgeDocument.update({ where: { id }, data: input })
             : await tx.knowledgeDocument.create({ data: knowledgeSchema.parse(input) as any });
-        if (!existing || input.content !== undefined) await replaceTextChunks(tx, document.id, document.content);
+        const changed = await recordKnowledgeVersion(tx, document.id, document.content);
+        if (changed) await replaceTextChunks(tx, document.id, document.content);
         await tx.auditLog.create({ data: { actorUserId: currentUser(req).id, action: id ? 'KNOWLEDGE_UPDATED' : 'KNOWLEDGE_CREATED', entityType: 'KnowledgeDocument', entityId: document.id } });
         return document;
     });
@@ -49,5 +50,8 @@ knowledgeRouter.delete('/:id', permitted('knowledge.manage'), route(async req =>
     await tx.knowledgeDocument.delete({ where: { id } });
     await tx.auditLog.create({ data: { actorUserId: currentUser(req).id, action: 'KNOWLEDGE_DELETED', entityType: 'KnowledgeDocument', entityId: id } });
     return { deleted: true };
+})));
+knowledgeRouter.get('/:id/versions', permitted('knowledge.read'), route(req => prisma.knowledgeDocumentVersion.findMany({
+    where: { documentId: entityId(req) }, orderBy: { version: 'desc' }, take: 50, select: { id: true, version: true, contentHash: true, createdAt: true },
 })));
 knowledgeRouter.post('/:id/reindex', permitted('knowledge.manage'), route(req => reindexDocument(entityId(req))));

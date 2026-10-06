@@ -1,21 +1,18 @@
 import { StateSchema } from '@/app/providers/StoreProvider';
-import { RoleKey } from '@/entities/Role';
-import { RoutePath } from '@/shared/config/routeConfig/routeConfig';
 import { getSidebarItems } from './getSidebarItems';
 
-const stateFor = (role: RoleKey) => ({
-    user: { _inited: true, authData: { id: '1', username: 'denis', email: 'd@example.com', role } },
-}) as StateSchema;
-
-const companyChildPaths = (role: RoleKey) => (
-    getSidebarItems(stateFor(role)).find((item) => item.path === RoutePath.company)?.children?.map((child) => child.path)
-);
-
-test('admin sees the notifications item in the company group', () => {
-    expect(companyChildPaths(RoleKey.ADMIN)).toContain(RoutePath.notifications);
+const stateFor = (permissions: string[]): StateSchema => ({ user: { _inited: true, authData: { id: '1', name: 'Owner', email: 'owner@example.test', roles: ['OWNER'], permissions } }, ui: { scroll: {} } });
+test('shows event CRM navigation without obsolete school or payment routes', () => {
+    const items = getSidebarItems(stateFor([]));
+    expect(items.map(item => item.path)).toEqual(['/', '/people', '/events', '/email', '/knowledge-base']);
 });
-
-test('manager does not see the notifications item', () => {
-    expect(companyChildPaths(RoleKey.MANAGER)).not.toContain(RoutePath.notifications);
-    expect(companyChildPaths(RoleKey.MANAGER)).toContain(RoutePath.payment_reminders);
+test('settings links follow permissions', () => {
+    const items = getSidebarItems(stateFor(['users.manage', 'audit.read']));
+    expect(items.find(item => item.path === '/settings')?.children?.map(item => item.path)).toEqual(['/settings', '/settings/audit']);
+});
+test('V2 sections appear only with the matching permission', () => {
+    const paths = (permissions: string[]) => getSidebarItems(stateFor(permissions)).map(item => item.path);
+    expect(paths(['finance.read'])).toContain('/finance');
+    expect(paths(['automation.read', 'ai.use'])).toEqual(expect.arrayContaining(['/automations', '/assistant']));
+    expect(paths(['people.read'])).not.toContain('/finance');
 });

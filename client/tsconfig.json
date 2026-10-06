@@ -6,7 +6,8 @@
         "target": "ES2016",
         "jsx": "react-jsx",
         "allowJs": true,
-        "moduleResolution": "node",
+        "moduleResolution": "bundler",
+        "skipLibCheck": true,
         "baseUrl": ".",
         "strict": true,
         "paths": {

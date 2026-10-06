@@ -1,10 +1,9 @@
 import { StateSchema } from '@/app/providers/StoreProvider';
-import { RoleKey } from '@/entities/Role';
 import { getUserAuthData } from './getUserAuthData';
 
 describe('getUserAuthData', () => {
     test('returns the authenticated user data', () => {
-        const authData = { id: '1', username: 'denis', email: 'denis@example.com', role: RoleKey.ADMIN };
+        const authData = { id: '1', name: 'denis', email: 'denis@example.com', roles: ['ADMIN'], permissions: [] };
         const state: DeepPartial<StateSchema> = { user: { authData, _inited: true } };
 
         expect(getUserAuthData(state as StateSchema)).toEqual(authData);

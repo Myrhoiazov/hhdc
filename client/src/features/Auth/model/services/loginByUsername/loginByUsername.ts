@@ -2,6 +2,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { User, userActions } from '@/entities/User';
 import { ThunkConfig } from '@/app/providers/StoreProvider';
 import axios from 'axios';
+import { csrfActions } from '@/shared/api/api';
 
 interface LoginByEmailProps {
     email: string;
@@ -28,7 +29,7 @@ export const loginByUsername = createAsyncThunk<LoginResponse, LoginByEmailProps
     async (authData, thunkAPI) => {
         const { dispatch, extra, rejectWithValue, } = thunkAPI
         try {
-            const response = await extra.api.post<LoginResponse>('/auth/login', authData);
+            const response = await extra.api.post<{data: {user: User; csrfToken: string}}>('/auth/login', authData);
 
             if (!response.data) {
                 throw new Error('No data received');
@@ -36,11 +37,9 @@ export const loginByUsername = createAsyncThunk<LoginResponse, LoginByEmailProps
 
             // A 2FA challenge is not a completed login — authData must stay empty
             // until /login/2fa/verify actually confirms the code.
-            if (!('requiresTwoFactor' in response.data)) {
-                dispatch(userActions.setAuthData(response.data));
-            }
-
-            return response.data;
+            csrfActions.set(response.data.data.csrfToken);
+            dispatch(userActions.setAuthData(response.data.data.user));
+            return response.data.data.user;
 
         } catch (error) {
             if (axios.isAxiosError(error)) {

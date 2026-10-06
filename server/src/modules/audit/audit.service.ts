@@ -1,6 +1,7 @@
 import prisma from '../../../prisma/prisma-client';
 import { Prisma } from '@prisma/client';
 import { Request } from 'express';
+import { emitHistoryEvent } from '../outbox/outbox.service';
 
 export interface AuditLogInput {
     actorUserId?: string;
@@ -62,4 +63,5 @@ export const recordHistory = async (tx: Prisma.TransactionClient, req: Request, 
     await tx.auditLog.create({ 
         data: auditData(req, input.type, input.entityType, input.entityId) 
     });
+    await emitHistoryEvent(tx, input);
 };

@@ -1,34 +1,16 @@
-import config from './config/config';
+import 'dotenv/config';
 import server from './app';
 import prisma from '../prisma/prisma-client';
-import { startInvoiceReminderCron } from './modules/invoices/invoices.reminders.service';
-import { startEmailSyncCron } from './modules/communication/email/email-sync-cron.service';
-import { startPaymentReminderCron } from './modules/payment-reminders/payment-reminders.cron.service';
-import { startAuthSecurityCleanupCron } from './modules/auth/auth.security-cleanup.service';
-import { startAiEmailClassificationCron, startAiEmailDraftCron, startAiEmailSendCron, startTelegramApprovalPolling } from './modules/ai-email-assistant';
+import { startBackgroundWorkers } from './modules/outbox/outbox.worker';
 
 const start = async () => {
-    try {
-        server.listen(config.port, (error?: Error) => {
-            if (error) {
-                console.error('Error starting server:', error);
-                return;
-            }
-            console.log(`Server is running on port ${config.port}`);
-            startInvoiceReminderCron();
-            startEmailSyncCron();
-            startPaymentReminderCron();
-            startAuthSecurityCleanupCron();
-            startAiEmailClassificationCron();
-            startAiEmailDraftCron();
-            startAiEmailSendCron();
-            startTelegramApprovalPolling();
-        });
-    } catch (e) {
-        console.error('error message:', e instanceof Error ? e.message : e);
-        prisma.$disconnect();
-        process.exit(1);
-    }
+    if (!process.env.SESSION_SECRET || process.env.SESSION_SECRET.length < 32) throw new Error('SESSION_SECRET must contain at least 32 characters');
+    await prisma.$connect();
+    server.listen(Number(process.env.PORT ?? 3001), () => console.log('HHDC CRM server started'));
+    // Set BACKGROUND_WORKERS=off on web instances when a dedicated worker process (worker.ts) runs.
+    if (process.env.BACKGROUND_WORKERS !== 'off') startBackgroundWorkers();
 };
-
-start();
+const stop = () => server.close(() => { void prisma.$disconnect().then(() => process.exit(0)); });
+process.on('SIGTERM', stop);
+process.on('SIGINT', stop);
+void start().catch((e) => { console.error('CRM startup failed', e); process.exitCode = 1; });

@@ -1,105 +1,24 @@
 import express from 'express';
-import path from 'path';
-import { createServer } from 'http';
-import bodyParser from 'body-parser';
+import { createServer } from 'node:http';
 import cookieParser from 'cookie-parser';
-import compression from 'compression';
-import morgan from 'morgan';
 import cors from 'cors';
 import helmet from 'helmet';
-import dotenv from 'dotenv';
 import routes from './routes';
-import errorMiddleware from './common/errors/error.middleware';
-import { csrfProtection } from './modules/auth/auth.csrf.middleware';
-import { queryStats } from './common/middleware/query-stats.middleware';
-import { logger } from './common/logger';
-import { env } from 'process';
-import { verifyRequestSignature } from './modules/communication/instagram/instagram.controller';
+import { errors, requestId } from './common/http';
 
-dotenv.config();
-const ROOT_DIR = process.cwd();
-const app = express();
-const server = createServer(app);
-const isDev = env.MODE === 'development';
-
-const configuredClientOrigin = env.CLIENT_URL;
-const allowedClientOrigins = [
-    configuredClientOrigin,
-    ...(isDev ? [
-        'http://localhost:3000',
-        configuredClientOrigin?.replace('localhost', '127.0.0.1'),
-        configuredClientOrigin?.replace('127.0.0.1', 'localhost'),
-    ] : []),
-].filter((origin, index, origins): origin is string => Boolean(origin) && origins.indexOf(origin) === index);
-
-if (!isDev) {
-    app.set('trust proxy', 1);
-}
-
-app.use(helmet({
-    contentSecurityPolicy: {
-        useDefaults: true,
-        directives: {
-            defaultSrc: ["'self'"],
-            baseUri: ["'self'"],
-            objectSrc: ["'none'"],
-            scriptSrc: ["'self'", 'https://telegram.org'],
-            styleSrc: ["'self'", "'unsafe-inline'"],
-            imgSrc: ["'self'", 'data:', 'blob:', 'https:'],
-            fontSrc: ["'self'", 'data:'],
-            connectSrc: ["'self'", ...allowedClientOrigins, 'https://api.mollie.com', 'https://*.mollie.com'],
-            frameSrc: ["'self'", 'blob:'],
-            frameAncestors: ["'self'"],
-            formAction: ["'self'"],
-            upgradeInsecureRequests: isDev ? null : [],
-        },
-    },
-    crossOriginEmbedderPolicy: false,
-    crossOriginResourcePolicy: { policy: 'cross-origin' },
-    hsts: isDev ? false : {
-        maxAge: 15552000,
-        includeSubDomains: true,
-        preload: false,
-    },
-    referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
-}));
-
-app.use(morgan('combined', {
-    stream: {
-        write: message => logger.info(message.trim())
-    }
-}));
-app.use(queryStats);
-app.use(bodyParser.json({
-    limit: '1mb',
-    verify: (req, res, buf) => {
-        const expressReq = req as express.Request;
-        if (expressReq.originalUrl.startsWith('/api/v1/instagram/webhook')) {
-            verifyRequestSignature(expressReq, res as express.Response, buf);
-        }
-    },
-}));
+export const app = express();
+app.use(helmet());
+app.use(cors({ origin: process.env.CLIENT_URL ?? 'http://localhost:3000', credentials: true }));
+app.use(express.json({ limit: '1mb' }));
 app.use(cookieParser());
-
-const corsOptions = {
-    origin: allowedClientOrigins,
-    credentials: true
-};
-
-app.use(cors(corsOptions));
-app.use(bodyParser.urlencoded({ extended: true, limit: '1mb' }));
-app.use(compression());
-app.use(express.static(path.join(ROOT_DIR, 'public'), {
-    maxAge: 31557600000,
-    setHeaders: (res, filePath) => {
-        if (filePath.endsWith(path.join('telegram-admin', 'index.html'))) {
-            res.setHeader('Cache-Control', 'no-cache');
-        }
-    },
-}));
-
-app.use('/api/v1', csrfProtection);
-app.use('/api/v1', routes());
-app.use(errorMiddleware);
-
-export default server;
+app.use(requestId);
+app.use((req, res, next) => {
+    const startedAt = Date.now();
+    res.on('finish', () => console.log(JSON.stringify({ requestId: res.locals.requestId, userId: res.locals.user?.id, method: req.method, route: req.route?.path ?? req.path, status: res.statusCode, duration: Date.now() - startedAt })));
+    next();
+});
+app.get('/api/v1/health', (_req, res) => { res.json({ data: { status: 'ok' } }); });
+app.use('/api/v1', routes);
+app.use((_req, res) => { res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Route not found', requestId: res.locals.requestId } }); });
+app.use(errors);
+export default createServer(app);
