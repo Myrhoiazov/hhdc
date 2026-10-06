@@ -1,54 +1,73 @@
 .app_dark_theme {
-    --bg-color: #000;
-    --inverted-bg-color: #e8e8ea;
-    --primary-color: #fff;
-    --secondary-color: #ababab;
-    --inverted-primary-color: #2b2b2b;
-    --inverted-secondary-color: #0452ff;
+    --color-bg: #111;
+    --color-bg-secondary: #171717;
+    --color-surface: #1f1f1d;
+    --color-surface-secondary: #252523;
+    --color-surface-tertiary: #292927;
+    --color-surface-hover: #292927;
+    --color-surface-active: #343430;
+    --color-text-primary: #fff;
+    --color-text-secondary: #bdbdb5;
+    --color-text-tertiary: #92928b;
+    --color-text-disabled: #666660;
+    --color-border: rgb(255 255 255 / 14%);
+    --color-border-light: rgb(255 255 255 / 9%);
+    --color-border-strong: rgb(255 255 255 / 22%);
+    --color-divider: rgb(255 255 255 / 11%);
+    --color-success-bg: rgb(35 134 54 / 18%);
+    --color-warning-bg: rgb(199 132 0 / 18%);
+    --color-error-bg: rgb(216 59 59 / 18%);
+    --color-info-bg: rgb(57 119 214 / 18%);
+    --bg-color: var(--color-bg);
+    --inverted-bg-color: var(--color-surface);
+    --primary-color: var(--color-text-primary);
+    --secondary-color: var(--color-text-secondary);
+    --inverted-primary-color: var(--color-dark);
+    --inverted-secondary-color: var(--color-info);
 
     // redesigned
-    --dark-bg-redesigned: #090f11;
-    --bg-redesigned: #0c1214;
-    --light-bg-redesigned: #151c1f;
-    --text-redesigned: #dbdbdb;
-    --hint-redesigned: #555;
-    --cancel-redesigned: #d95757;
-    --save-redesigned: #6cd98b;
-    --icon-redesigned: #74a2b2;
-    --accent-redesigned: #5ed3f3;
+    --dark-bg-redesigned: var(--color-surface);
+    --bg-redesigned: var(--color-bg);
+    --light-bg-redesigned: var(--color-bg-secondary);
+    --text-redesigned: var(--color-text-primary);
+    --hint-redesigned: var(--color-text-tertiary);
+    --cancel-redesigned: var(--color-error);
+    --save-redesigned: var(--color-success);
+    --icon-redesigned: var(--color-info);
+    --accent-redesigned: var(--color-brand);
 
     // skeleton
-    --skeleton-color: #2a4365;
-    --skeleton-shadow: #2b2be8;
+    --skeleton-color: var(--color-surface-tertiary);
+    --skeleton-shadow: rgb(255 255 255 / 10%);
 
     // code
-    --code-bg: #2a4365;
+    --code-bg: var(--color-surface-tertiary);
 
     // card
-    --card-bg: #2a4365;
+    --card-bg: var(--color-surface);
 
     // listbox
-    --listbox-bg: #0d0d6b;
+    --listbox-bg: var(--color-surface);
 
     // primary accent (redesigned — Sero-derived)
-    --primary-redesigned: #8b7ff5;
-    --primary-hover-redesigned: #9d93f7;
-    --primary-contrast-redesigned: #fff;
-    --primary-soft-bg-redesigned: rgb(139 127 245 / 18%);
+    --primary-redesigned: var(--color-brand);
+    --primary-hover-redesigned: var(--color-brand-hover);
+    --primary-contrast-redesigned: var(--color-on-brand);
+    --primary-soft-bg-redesigned: rgb(217 255 67 / 18%);
 
     // sidebar (redesigned)
-    --sidebar-bg-redesigned: #111318;
-    --sidebar-border-redesigned: rgb(255 255 255 / 8%);
-    --sidebar-text-redesigned: rgb(255 255 255 / 65%);
-    --sidebar-text-hover-redesigned: #fff;
-    --sidebar-hover-bg-redesigned: rgb(255 255 255 / 7%);
-    --sidebar-group-label-redesigned: rgb(255 255 255 / 45%);
+    --sidebar-bg-redesigned: var(--color-dark);
+    --sidebar-border-redesigned: rgb(255 255 255 / 10%);
+    --sidebar-text-redesigned: var(--color-on-dark-secondary);
+    --sidebar-text-hover-redesigned: var(--color-on-dark);
+    --sidebar-hover-bg-redesigned: var(--color-dark-tertiary);
+    --sidebar-group-label-redesigned: var(--color-on-dark-secondary);
 
     // semantic (redesigned)
-    --card-border-redesigned: rgb(255 255 255 / 8%);
-    --success-bg-redesigned: rgb(98 222 133 / 16%);
+    --card-border-redesigned: var(--color-border-light);
+    --success-bg-redesigned: var(--color-success-bg);
     --success-text-redesigned: #7be396;
-    --danger-bg-redesigned: rgb(217 45 32 / 18%);
+    --danger-bg-redesigned: var(--color-error-bg);
     --danger-text-redesigned: #ff8577;
 
     // style/direction palette (redesigned) — same fixed order as default.scss

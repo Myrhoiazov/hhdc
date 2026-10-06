@@ -1,56 +1,56 @@
 :root {
-    --bg-color: #e8e8ea;
-    --inverted-bg-color: #000;
-    --primary-color: #2b2b2b;
-    --secondary-color: #0449e0;
-    --inverted-primary-color: #f4fbf9;
-    --inverted-secondary-color: #049604;
+    --bg-color: var(--color-bg);
+    --inverted-bg-color: var(--color-dark);
+    --primary-color: var(--color-text-primary);
+    --secondary-color: var(--color-info);
+    --inverted-primary-color: var(--color-text-inverse);
+    --inverted-secondary-color: var(--color-success);
 
     // redesigned
-    --dark-bg-redesigned: #fff;
-    --bg-redesigned: #eff5f6;
-    --light-bg-redesigned: #e2eef1;
-    --text-redesigned: #141c1f;
-    --hint-redesigned: #adbcc0;
-    --cancel-redesigned: #f77;
-    --save-redesigned: #62de85;
-    --icon-redesigned: #5ed3f3;
-    --accent-redesigned: #00c8ff;
+    --dark-bg-redesigned: var(--color-surface);
+    --bg-redesigned: var(--color-bg);
+    --light-bg-redesigned: var(--color-bg-secondary);
+    --text-redesigned: var(--color-text-primary);
+    --hint-redesigned: var(--color-text-tertiary);
+    --cancel-redesigned: var(--color-error);
+    --save-redesigned: var(--color-success);
+    --icon-redesigned: var(--color-info);
+    --accent-redesigned: var(--color-brand);
 
     // skeleton
-    --skeleton-color: #fff;
-    --skeleton-shadow: rgba(0 0 0 / 20%);
+    --skeleton-color: var(--color-surface);
+    --skeleton-shadow: rgb(0 0 0 / 20%);
 
     // code
-    --code-bg: #fff;
+    --code-bg: var(--color-surface);
 
     // card
-    --card-bg: #d5d5d7;
+    --card-bg: var(--color-surface);
 
     // listbox
-    --listbox-bg: #d5d5d7;
-    --white: #fff;
+    --listbox-bg: var(--color-surface);
+    --white: var(--color-surface);
 
     // primary accent (redesigned — Sero-derived)
-    --primary-redesigned: #6c5ce7;
-    --primary-hover-redesigned: #5b4bd6;
-    --primary-contrast-redesigned: #fff;
-    --primary-soft-bg-redesigned: rgb(108 92 231 / 12%);
+    --primary-redesigned: var(--color-dark);
+    --primary-hover-redesigned: var(--color-dark-tertiary);
+    --primary-contrast-redesigned: var(--color-on-dark);
+    --primary-soft-bg-redesigned: var(--color-surface-active);
 
     // sidebar (redesigned)
-    --sidebar-bg-redesigned: #fff;
-    --sidebar-border-redesigned: #ecedf0;
-    --sidebar-text-redesigned: #6b7280;
-    --sidebar-text-hover-redesigned: #15171c;
-    --sidebar-hover-bg-redesigned: rgb(17 19 24 / 5%);
-    --sidebar-group-label-redesigned: #9aa0a6;
+    --sidebar-bg-redesigned: var(--color-dark);
+    --sidebar-border-redesigned: var(--color-dark-tertiary);
+    --sidebar-text-redesigned: var(--color-on-dark-secondary);
+    --sidebar-text-hover-redesigned: var(--color-on-dark);
+    --sidebar-hover-bg-redesigned: var(--color-dark-tertiary);
+    --sidebar-group-label-redesigned: var(--color-on-dark-secondary);
 
     // semantic (redesigned)
-    --card-border-redesigned: #ecedf0;
-    --success-bg-redesigned: #e7f7ec;
-    --success-text-redesigned: #1a7f37;
-    --danger-bg-redesigned: #fdeaea;
-    --danger-text-redesigned: #d92d20;
+    --card-border-redesigned: var(--color-border-light);
+    --success-bg-redesigned: var(--color-success-bg);
+    --success-text-redesigned: var(--color-success);
+    --danger-bg-redesigned: var(--color-error-bg);
+    --danger-text-redesigned: var(--color-error);
 
     // style/direction palette (redesigned) — fixed categorical order, do not reorder
     --style-1-bg-redesigned: #e5effa;

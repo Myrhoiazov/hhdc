@@ -1,12 +1,18 @@
-/* SCSS HEX */
-$persian-pink: #f577c1ff;
-$erin: #0afa4cff;
-$amaranth-pink: #e397c1ff;
-$mexican-pink: #e91a8dff;
-$eerie-black: #242424ff;
-$lavender-pink: #fab8dfff;
-$hot-pink: #f566baff;
-$raisin-black: #2d1e26ff;
-$hollywood-cerise: #eb2393ff;
-$erin-2: #01fe47ff;
-$dark-blue: #0a1f3dff;
+/* HHDC brand palette. Runtime consumers use the semantic CSS tokens in global.scss. */
+$brand: #d9ff43;
+$brand-hover: #c9f22e;
+$brand-active: #b9df24;
+$brand-soft: #f1ffc0;
+$ink: #171717;
+$ink-secondary: #1f1f1d;
+$ink-tertiary: #292927;
+$canvas: #f6f6f1;
+$surface: #fff;
+$surface-secondary: #f8f8f4;
+$border: #deded7;
+$text-secondary: #666660;
+$text-tertiary: #92928b;
+$success: #238636;
+$warning: #c78400;
+$error: #d83b3b;
+$info: #3977d6;

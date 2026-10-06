@@ -1,53 +1,39 @@
+/* Compatibility class: HHDC uses one canonical token system across themes. */
 .app_orange_theme {
-    --bg-color: #faf4fb;
-    --inverted-bg-color: #bd5012;
-    --primary-color: #9a1a0e;
-    --secondary-color: #d01f0e;
-    --inverted-primary-color: #dbd5dc;
-    --inverted-secondary-color: #faf4fb;
-
-    // redesigned
-    --dark-bg-redesigned: #fff3d6;
-    --bg-redesigned: #f0c048;
-    --light-bg-redesigned: #f2d791;
-    --text-redesigned: #1b1311;
-    --hint-redesigned: #b8b2a2;
-    --cancel-redesigned: #ff5e5e;
-    --save-redesigned: #52fa81;
-    --icon-redesigned: #4875f0;
-    --accent-redesigned: #1d59ff;
-
-    // skeleton
-    --skeleton-color: #fff;
-    --skeleton-shadow: rgba(0 0 0 / 20%);
-
-    // code
-    --code-bg: #fff;
-
-    // card
-    --card-bg: #d5d5d7;
-
-    // listbox
-    --listbox-bg: #d5d5d7;
-
-    // primary accent (redesigned — Sero-derived)
-    --primary-redesigned: #6c5ce7;
-    --primary-hover-redesigned: #5b4bd6;
-    --primary-contrast-redesigned: #fff;
-    --primary-soft-bg-redesigned: rgb(108 92 231 / 12%);
-
-    // sidebar (redesigned)
-    --sidebar-bg-redesigned: #fff;
-    --sidebar-border-redesigned: #f2d791;
-    --sidebar-text-redesigned: #7a6a52;
-    --sidebar-text-hover-redesigned: #1b1311;
-    --sidebar-hover-bg-redesigned: rgb(29 89 255 / 6%);
-    --sidebar-group-label-redesigned: #b8ad8e;
-
-    // semantic (redesigned)
-    --card-border-redesigned: #f2d791;
-    --success-bg-redesigned: #e3fbe9;
-    --success-text-redesigned: #1a7f37;
-    --danger-bg-redesigned: #ffe3e3;
-    --danger-text-redesigned: #d01f0e;
+    --bg-color: var(--color-bg);
+    --inverted-bg-color: var(--color-dark);
+    --primary-color: var(--color-text-primary);
+    --secondary-color: var(--color-info);
+    --inverted-primary-color: var(--color-text-inverse);
+    --inverted-secondary-color: var(--color-success);
+    --dark-bg-redesigned: var(--color-surface);
+    --bg-redesigned: var(--color-bg);
+    --light-bg-redesigned: var(--color-bg-secondary);
+    --text-redesigned: var(--color-text-primary);
+    --hint-redesigned: var(--color-text-tertiary);
+    --cancel-redesigned: var(--color-error);
+    --save-redesigned: var(--color-success);
+    --icon-redesigned: var(--color-info);
+    --accent-redesigned: var(--color-brand);
+    --skeleton-color: var(--color-surface);
+    --skeleton-shadow: rgb(0 0 0 / 20%);
+    --code-bg: var(--color-surface);
+    --card-bg: var(--color-surface);
+    --listbox-bg: var(--color-surface);
+    --white: var(--color-surface);
+    --primary-redesigned: var(--color-dark);
+    --primary-hover-redesigned: var(--color-dark-tertiary);
+    --primary-contrast-redesigned: var(--color-on-dark);
+    --primary-soft-bg-redesigned: var(--color-surface-active);
+    --sidebar-bg-redesigned: var(--color-dark);
+    --sidebar-border-redesigned: var(--color-dark-tertiary);
+    --sidebar-text-redesigned: var(--color-on-dark-secondary);
+    --sidebar-text-hover-redesigned: var(--color-on-dark);
+    --sidebar-hover-bg-redesigned: var(--color-dark-tertiary);
+    --sidebar-group-label-redesigned: var(--color-on-dark-secondary);
+    --card-border-redesigned: var(--color-border-light);
+    --success-bg-redesigned: var(--color-success-bg);
+    --success-text-redesigned: var(--color-success);
+    --danger-bg-redesigned: var(--color-error-bg);
+    --danger-text-redesigned: var(--color-error);
 }
