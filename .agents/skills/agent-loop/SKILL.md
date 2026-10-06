@@ -50,7 +50,7 @@ Classify the request:
 
 - **Tiny:** obvious one-file or config/copy change. Skip written planning and execute a tight loop.
 - **Standard:** feature or bugfix touching several files. Use planning.
-- **Risky:** auth/security, invoices, payments (Mollie), email workflows, organizations/brands, schema changes, release/publish work, or broad styling. Use planning and, when user-facing, browser QA.
+- **Risky:** auth/security, payments, email workflows, schema changes, integrations, release/publish work, or broad styling. Use planning and, when user-facing, browser QA.
 
 Check:
 
@@ -119,7 +119,7 @@ From the root, before considering the loop green: `npm run ci` (mirrors GitHub A
 Standing scans:
 
 - Secret/media scan: ensure staged files do not include `.env`, credentials, private uploads, `.DS_Store`, or `node_modules/`.
-- Brand scan when public copy changed: confirm `Talent Center DDC` / `DDC NL` terminology from `CONTEXT.md`.
+- Brand scan when public copy changed: confirm `High Heels Dance Camp` / `HHDC` terminology from `CONTEXT.md`.
 
 Completion criterion: every relevant check passes or the remaining failure is documented as a blocker.
 

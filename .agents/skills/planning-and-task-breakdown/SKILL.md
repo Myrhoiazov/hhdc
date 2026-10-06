@@ -35,9 +35,9 @@ Keep task scope small. Break tasks that touch unrelated areas, span client and s
 
 Call out risks when the work touches:
 
-- Domain terms from `CONTEXT.md` (client, student, group, schedule, choreographer, branch, invoice, Mollie payment, etc.).
+- Domain terms from `CONTEXT.md` (event client, participant, contact, event edition, communication, payment, email, user, role, setting, etc.).
 - Auth/security, sessions, CSRF, 2FA, or rate limiting — see the local auth/security roadmap (gitignored `docs/roadmap/`, not part of the repo).
-- Invoices, Mollie payments, or payment reminders — see the local invoices/payments roadmaps (gitignored `docs/roadmap/`).
+- Payments, refunds, or payment reminders — confirm the current event workflow and provider contract before changing them.
 - Organizations or brands — see the local organizations/brands roadmap (gitignored `docs/roadmap/`).
 - Prisma schema changes (require `npm run prisma:generate` and a migration).
 - `.env`, credentials, private uploads, or `node_modules/`.

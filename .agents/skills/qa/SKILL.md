@@ -5,7 +5,7 @@ description: Interactive QA for HHDC Admin where the user reports bugs or issues
 
 # HHDC Admin QA Session
 
-Run an interactive QA session for the HHDC Admin platform. The user describes problems, you clarify lightly, inspect the relevant client/server context, and file GitHub issues that are durable, user-focused, and use the language from `CONTEXT.md` (client, student, group, schedule, choreographer, branch, invoice, Mollie payment, email, user, role, setting, etc.).
+Run an interactive QA session for the HHDC Admin platform. The user describes problems, you clarify lightly, inspect the relevant client/server context, and file GitHub issues that are durable, user-focused, and use the language from `CONTEXT.md` (event client, participant, contact, event edition, communication, payment, email, user, role, setting, etc.).
 
 ## For each issue the user raises
 

@@ -49,9 +49,9 @@ Select the most specific type:
 
 Use the affected module/component (folder) name (lowercase, kebab-case):
 
-- Client domain: `clients`, `students`, `groups`, `schedule`, `choreographers`, `branches`
+- Event domain: `clients`, `contacts`, `events`, `schedule`, `communications`
 - Client core: `auth`, `settings`, `users`, `roles`
-- Invoicing/payments: `invoices`, `mollie`, `payment-reminders`
+- Payments: `invoices`, `payments`, `payment-reminders`
 - Email: `email`
 - Cross-cutting: `api`, `styles`, `prisma`, `server`, `client`, `agents`, `ci`, `config`, `release`
 

@@ -11,7 +11,7 @@ When exploring the codebase, read `AGENTS.md` and `CONTEXT.md` so test names and
 
 ## What a good test is
 
-Tests verify behavior through public interfaces, not implementation details. Code can change entirely; tests shouldn't. A good test reads like a specification — "client can search students by name" tells you exactly what capability exists — and survives refactors because it doesn't care about internal structure.
+Tests verify behavior through public interfaces, not implementation details. Code can change entirely; tests shouldn't. A good test reads like a specification — "admin can search event clients by name" tells you exactly what capability exists — and survives refactors because it doesn't care about internal structure.
 
 See [tests.md](tests.md) for examples and [mocking.md](mocking.md) for mocking guidelines.
 

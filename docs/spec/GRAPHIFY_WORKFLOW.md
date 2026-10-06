@@ -16,7 +16,7 @@ Graphify serves two distinct purposes in this repo:
 | What | Why | Consumed by |
 | ------------------------------------------------- | ------------------------------- | -------------------------------------------- |
 | Unified root graph (`graphify-out/graph.json`)    | Agent context (MCP), deep client↔server links | `.mcp.json` |
-| Three separate HTML trees                         | Fast visual navigation          | `docs/spec/PROJECT_TREE.html`, `docs/spec/SERVER_SRC_TREE.html`, `docs/spec/CLIENT_SRC_TREE.html` |
+| Local generated graph and wiki                    | Fast codebase navigation       | `graphify-out/` (ignored) |
 
 Official project:
 [graphify-labs/graphify](https://github.com/graphify-labs/graphify)
@@ -25,21 +25,7 @@ Detailed working notes (Russian): `TASK.md` at the repo root.
 
 ## Generated Artifacts
 
-Tracked HTML outputs:
-
-```text
-docs/spec/PROJECT_TREE.html      # whole repository
-docs/spec/SERVER_SRC_TREE.html   # server/src
-docs/spec/CLIENT_SRC_TREE.html   # client/src
-```
-
-Tracked schema description (input for the Prisma semantic pass, see below):
-
-```text
-docs/schema.md                   # markdown rendering of server/prisma/schema/*.prisma
-```
-
-Ignored working cache (all matched by the `.gitignore` pattern `graphify-out/`, at any depth):
+Graphify writes only an ignored working cache (all matched by the `.gitignore` pattern `graphify-out/`, at any depth):
 
 ```text
 graphify-out/                    # root: graph.json, GRAPH_REPORT.md, graph.html, wiki/
@@ -57,10 +43,9 @@ npm run graphify:specs           # = bash scripts/graphify-update-docs.sh
 
 One script, three runs:
 
-1. root (`--mode deep`) → refreshes `graphify-out/graph.json` (MCP) and
-   `docs/spec/PROJECT_TREE.html`;
-2. `server/src` → `docs/spec/SERVER_SRC_TREE.html`;
-3. `client/src` → `docs/spec/CLIENT_SRC_TREE.html`.
+1. root (`--mode deep`) → refreshes `graphify-out/graph.json` (MCP) and the local wiki;
+2. `server/src` → refreshes the server graph cache;
+3. `client/src` → refreshes the client graph cache.
 
 Nested trees use exactly `src/` (not the whole `server/` / `client/`) so that
 `prisma/migrations`, `build` and `node_modules` never reach the visual tree.
@@ -133,13 +118,9 @@ the same `graphify-out/graph.json`, so regenerating it updates context for eithe
 
 ## Prisma Models in the Graph
 
-If Prisma models are missing from `GRAPH_REPORT.md`: regenerate
-`docs/schema.md` from `server/prisma/schema/*.prisma`, then re-run
-`npm run graphify:specs` — the semantic pass picks the models up and creates
-`EXTRACTED` edges `docs/schema.md → *.prisma`. With the local 7b model the
-extraction works but stays coarse (schema-level concepts, not every field).
-
-Keep `docs/schema.md` in sync whenever a `.prisma` file changes.
+If Prisma models are missing from `GRAPH_REPORT.md`, rerun
+`npm run graphify:specs`; the semantic pass reads the models directly from
+`server/prisma/schema/*.prisma`.
 
 ## Exclusions
 
@@ -154,10 +135,10 @@ verified that nested `src/` runs produce no junk.
   (fast AST pass). **Deliberately not installed by default**: it changes git
   behavior for every commit, and with a local Ollama backend a semantic hook
   would cost minutes per commit.
-- Three HTML trees — manually via `npm run graphify:specs` on significant
-  architectural changes (new module, new Prisma domain, `features/` redesign).
-  Running it on every commit is wasteful: deep mode is expensive, and the
-  trees are a human-readable snapshot, not the agent's working context.
+- The root graph and local wiki — manually via `npm run graphify:specs` on
+  significant architectural changes (new module, new Prisma domain,
+  `features/` redesign). Running it on every commit is wasteful: deep mode is
+  expensive, and generated output is a local agent context cache.
 
 ## Project Policy
 

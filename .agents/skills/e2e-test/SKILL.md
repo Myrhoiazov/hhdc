@@ -35,9 +35,9 @@ Completion criterion: a reachable base URL is known, or the blocker is documente
 Choose the flows affected by the diff first. When unsure, include:
 
 - The login/session flow if auth changed.
-- The client/student or dance-group flow if the domain changed.
-- The schedule/calendar flow if scheduling changed.
-- The invoice/payment flow if invoicing or Mollie changed.
+- The event-client or contact flow if the domain changed.
+- The event-edition/calendar flow if scheduling changed.
+- The payment flow if payments or the provider integration changed.
 - The email workflow if message/account handling changed.
 - Any changed page under `client/src/pages/` or feature under `client/src/features/`.
 
