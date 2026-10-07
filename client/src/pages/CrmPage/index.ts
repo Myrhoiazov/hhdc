@@ -1,6 +1,7 @@
 export { PeoplePage, PersonPage } from './ui/PeoplePage';
 export { EventsPage, EventPage } from './ui/EventsPage';
-export { DashboardPage, AuditPage, ProvidersPage } from './ui/DashboardPage';
+export { DashboardPage, AuditPage } from './ui/DashboardPage';
+export { ProvidersPage } from './ui/ProvidersPage';
 export { CommunicationsPage } from './ui/CommunicationsPage';
 export { KnowledgePage } from './ui/KnowledgePage';
 export { UsersPage } from './ui/UsersPage';

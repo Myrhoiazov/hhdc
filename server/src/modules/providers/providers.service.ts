@@ -18,6 +18,12 @@ export const providerSchema = z.object({
         eventId: z.string().uuid().optional(), 
         baseUrl: z.string().url().optional(), 
         externalEventId: z.string().max(200).optional(),
+        imapHost: z.string().trim().min(1).max(255).optional(),
+        imapPort: z.number().int().min(1).max(65535).optional(),
+        imapSecure: z.boolean().optional(),
+        smtpHost: z.string().trim().min(1).max(255).optional(),
+        smtpPort: z.number().int().min(1).max(65535).optional(),
+        smtpSecure: z.boolean().optional(),
     }).strict().optional(),
 }).strict();
 
@@ -64,6 +70,7 @@ export const validateProviderType = (provider: ProviderName, type: ProviderType)
     const allowed: Record<string, string> = { 
         WEEZTIX: 'TICKETING', 
         GMAIL: 'EMAIL', 
+        IMAP: 'EMAIL',
         OPENAI: 'AI', 
         OLLAMA: 'AI',
         MOLLIE: 'PAYMENT',

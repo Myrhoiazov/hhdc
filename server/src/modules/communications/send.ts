@@ -1,20 +1,26 @@
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import prisma from '../../../prisma/prisma-client';
-import { GmailEmailProvider } from '../../integrations/email/gmail';
+import { createEmailProvider } from '../../integrations/email/factory';
 import { ApiError } from '../../common/http';
 import { decryptCredentials } from '../providers/providers.service';
 import { assertDraftCanSend } from '../ai/approval';
+import type { EmailAttachment } from '../../integrations/email/EmailProvider';
+import { attachmentSummary } from './attachments';
 
 export const replySchema = z.object({ content: z.string().trim().min(1).max(20000), providerConnectionId: z.string().uuid(), draftId: z.string().uuid().optional() }).strict();
 type Reply = z.infer<typeof replySchema>;
 
 export const emailProvider = async (id: string) => {
     const connection = await prisma.providerConnection.findUnique({ where: { id } });
-    if (!connection || connection.provider !== 'GMAIL' || connection.status === 'DISABLED') throw new ApiError(400, 'EMAIL_PROVIDER_UNAVAILABLE', 'Select an enabled Gmail provider');
+    if (!connection || connection.type !== 'EMAIL' || connection.status === 'DISABLED') throw new ApiError(400, 'EMAIL_PROVIDER_UNAVAILABLE', 'Select an enabled email provider');
     const credentials = connection.credentialsEncrypted ? decryptCredentials(connection.credentialsEncrypted) : {};
-    return { connection, provider: new GmailEmailProvider(credentials) };
+    return { connection, provider: createEmailProvider({ provider: connection.provider, credentials, settings: connection.settings }) };
 };
+
+export const buildReplySubject = (subject: string): string => (/^re:/i.test(subject.trim()) ? subject.trim() : `Re: ${subject}`.trim());
+
+const inboundMetadata = z.object({ threadId: z.string().optional(), messageId: z.string().nullable().optional(), replyTo: z.string().email().nullable().optional() });
 
 const claimDraft = async (id: string, conversationId: string, content: string) => {
     const draft = await prisma.aiDraft.findUnique({ where: { id } });
@@ -25,11 +31,12 @@ const claimDraft = async (id: string, conversationId: string, content: string) =
     if (!result.count) throw new ApiError(409, 'DRAFT_ALREADY_CLAIMED', 'Draft is already being sent');
 };
 
-const recordSent = async (input: { conversationId: string; reply: Reply; userId: string; sender: string; recipient: string; externalId: string }) => prisma.$transaction(async tx => {
+const recordSent = async (input: { conversationId: string; reply: Reply; userId: string; sender: string; recipient: string; externalId: string; attachments: EmailAttachment[] }) => prisma.$transaction(async tx => {
     const message = await tx.message.create({ data: {
         conversationId: input.conversationId, providerConnectionId: input.reply.providerConnectionId,
         direction: 'OUTBOUND', sender: input.sender, recipient: input.recipient, bodyText: input.reply.content,
-        externalId: input.externalId, sentAt: new Date(),
+        externalId: input.externalId, sentAt: new Date(), isRead: true,
+        rawData: { attachments: attachmentSummary(input.attachments) },
     } });
     const conversation = await tx.conversation.update({ where: { id: input.conversationId }, data: { status: 'WAITING', lastMessageAt: new Date() } });
     if (input.reply.draftId) await tx.aiDraft.update({ where: { id: input.reply.draftId }, data: { status: 'SENT' } });
@@ -38,7 +45,7 @@ const recordSent = async (input: { conversationId: string; reply: Reply; userId:
     return message;
 });
 
-export const sendReply = async (conversationId: string, reply: Reply, userId: string) => {
+export const sendReply = async (conversationId: string, reply: Reply, userId: string, attachments: EmailAttachment[] = []) => {
     const conversation = await prisma.conversation.findUnique({ where: { id: conversationId }, include: { person: true, messages: { where: { direction: 'INBOUND' }, orderBy: { receivedAt: 'desc' }, take: 1 } } });
     if (!conversation) throw new ApiError(404, 'CONVERSATION_NOT_FOUND', 'Conversation not found');
     const inbound = conversation.messages[0];
@@ -46,17 +53,20 @@ export const sendReply = async (conversationId: string, reply: Reply, userId: st
     const { connection, provider } = await emailProvider(reply.providerConnectionId);
     const settings = z.object({ sender: z.string().email() }).parse(connection.settings);
     if (reply.draftId) await claimDraft(reply.draftId, conversationId, reply.content);
-    const metadata = z.object({ threadId: z.string().optional(), messageId: z.string().nullable().optional() }).parse(inbound.rawData ?? {});
+    const metadata = inboundMetadata.parse(inbound.rawData ?? {});
+    // Standard mail-client behaviour: answer Reply-To when the sender set one, otherwise From.
+    const recipient = metadata.replyTo ?? inbound.sender;
     let sent: { externalId: string };
     try {
-        sent = await provider.sendMessage({ sender: settings.sender, recipient: inbound.sender, subject: `Re: ${conversation.subject}`,
+        sent = await provider.sendMessage({ sender: settings.sender, recipient, subject: buildReplySubject(conversation.subject),
             content: reply.content, threadId: metadata.threadId, replyToMessageId: metadata.messageId ?? undefined,
-            messageId: reply.draftId ? `<${reply.draftId}@hhdc-crm.local>` : undefined });
+            messageId: reply.draftId ? `<${reply.draftId}@hhdc-crm.local>` : undefined,
+            ...(attachments.length ? { attachments } : {}) });
     } catch {
-        // SENDING is deliberately retained: a timed-out request may have reached Gmail.
+        // SENDING is deliberately retained: a timed-out request may have reached the mailbox provider.
         // Reconciliation must confirm the provider message before another attempt.
         if (reply.draftId) await prisma.aiDraft.update({ where: { id: reply.draftId }, data: { sendError: 'Provider did not confirm delivery; reconciliation required' } });
         throw new ApiError(502, 'EMAIL_SEND_UNCONFIRMED', 'Provider did not confirm delivery; check the mailbox before retrying');
     }
-    return recordSent({ conversationId, reply, userId, sender: settings.sender, recipient: inbound.sender, externalId: sent.externalId });
+    return recordSent({ conversationId, reply, userId, sender: settings.sender, recipient, externalId: sent.externalId, attachments });
 };

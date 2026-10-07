@@ -26,7 +26,6 @@ export const assignChoreographer = async (eventId: string, personId: string) =>
     (await $apiPrivate.post(`/events/${eventId}/choreographers`, { personId, roleTitle: 'Choreographer', status: 'CONFIRMED' })).data;
 export const getDashboard = async () => read<Record<string, number>>('/dashboard');
 export const listAudit = async () => list<Record<string, string>>('/audit');
-export const listProviders = async () => list<Record<string, string>>('/providers');
 export const listUsers = async () => list<{id: string; name: string; email: string; isActive: boolean; roles: {role: {key: string}}[]}>('/users');
 export const createUser = async (input: {name: string; email: string; password: string; roles: string[]}) => $apiPrivate.post('/users', input);
 export const updateUser = async (id: string, input: {isActive: boolean}) => $apiPrivate.patch(`/users/${id}`, input);

@@ -38,6 +38,17 @@
     }
 }
 
+.check {
+    display: flex;
+    align-items: center;
+    min-height: 40px;
+    align-self: end;
+    gap: 8px;
+}
+
+/* Spans the whole form grid: hints, action buttons and errors. */
+.wide { grid-column: 1 / -1; }
+
 .row {
     display: flex;
     justify-content: space-between;

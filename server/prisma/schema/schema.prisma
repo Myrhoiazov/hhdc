@@ -115,6 +115,7 @@ enum ProviderType {
 enum ProviderName {
   WEEZTIX
   GMAIL
+  IMAP
   OPENAI
   OLLAMA
   MOLLIE
@@ -578,6 +579,9 @@ model Message {
   sentAt               DateTime?           @db.Timestamptz(6)
   rawData              Json?
   classification       Json?
+  // Read state of the mailbox message: an inbound message stays unread until someone opens
+  // the conversation; outbound messages are recorded as already read.
+  isRead               Boolean             @default(false)
   createdAt            DateTime            @default(now()) @db.Timestamptz(6)
   conversation         Conversation        @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   providerConnection   ProviderConnection? @relation(fields: [providerConnectionId], references: [id], onDelete: Restrict)

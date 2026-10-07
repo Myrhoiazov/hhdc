@@ -5,6 +5,7 @@ import { currentUser, permitted } from '../auth/auth.middleware';
 import { ApiError, entityId, route } from '../../common/http';
 import { sendReply } from '../communications/send';
 import { generateDraft } from './draft.service';
+import { assertDraftCanApprove } from './approval';
 
 export const aiRouter = Router();
 
@@ -17,6 +18,7 @@ aiRouter.post('/conversations/:id/ai-draft', permitted('ai.use'), route(async re
 aiRouter.post('/ai-drafts/:id/approve', permitted('ai.use'), route(async req => {
     const draftId = entityId(req);
     const userId = currentUser(req).id;
+    const input = z.object({ content: z.string().trim().min(1).max(20000) }).strict().parse(req.body);
     
     // Find draft
     const draft = await prisma.aiDraft.findUnique({
@@ -25,9 +27,7 @@ aiRouter.post('/ai-drafts/:id/approve', permitted('ai.use'), route(async req => 
     });
     
     if (!draft) throw new ApiError(404, 'DRAFT_NOT_FOUND', 'Draft not found');
-    if (draft.status !== 'GENERATED' && draft.status !== 'REJECTED') {
-        throw new ApiError(409, 'INVALID_DRAFT_STATUS', 'Draft cannot be approved');
-    }
+    assertDraftCanApprove(draft.status);
     
     const inbound = draft.conversation.messages[0];
     if (!inbound) throw new ApiError(400, 'NO_REPLY_RECIPIENT', 'No incoming message to reply to');
@@ -37,7 +37,7 @@ aiRouter.post('/ai-drafts/:id/approve', permitted('ai.use'), route(async req => 
     const approvedDraft = await prisma.$transaction(async tx => {
         const updated = await tx.aiDraft.update({
             where: { id: draftId },
-            data: { status: 'APPROVED', approvedBy: userId, approvedAt: new Date() }
+            data: { status: 'APPROVED', content: input.content, approvedBy: userId, approvedAt: new Date() }
         });
         await tx.auditLog.create({
             data: { actorUserId: userId, action: 'AI_DRAFT_APPROVED', entityType: 'AiDraft', entityId: draftId }
@@ -48,7 +48,7 @@ aiRouter.post('/ai-drafts/:id/approve', permitted('ai.use'), route(async req => 
     // Then send the reply
     const message = await sendReply(
         draft.conversationId, 
-        { content: draft.content, providerConnectionId: inbound.providerConnectionId, draftId },
+        { content: input.content, providerConnectionId: inbound.providerConnectionId, draftId },
         userId
     );
     
@@ -77,4 +77,3 @@ aiRouter.post('/ai-drafts/:id/reject', permitted('ai.use'), route(async req => {
     });
     return updated;
 }));
-

@@ -2,8 +2,10 @@ import { OutboxEvent } from '@prisma/client';
 import { z } from 'zod';
 import prisma from '../../../prisma/prisma-client';
 import { logger } from '../../common/logger';
+import { notifyEmailReceived } from '../../integrations/telegram/notify';
 import { handleDomainEvent } from '../automations/engine';
 import { deliverCampaign } from '../campaigns/campaigns.service';
+import { syncEmailWhenDue } from '../communications/sync';
 import { sendTemplatedEmail } from '../communications/transactional';
 import { WEBHOOK_EVENTS } from '../webhooks/webhook-signing';
 import { enqueueWebhookDeliveries, processDueWebhookDeliveries } from '../webhooks/webhooks.service';
@@ -22,6 +24,8 @@ const COMMAND_HANDLERS: Record<string, CommandHandler> = {
 const publishDomainEvent = async (event: OutboxEvent, payload: Payload) => {
     await handleDomainEvent(event.topic, payload);
     if ((WEBHOOK_EVENTS as readonly string[]).includes(event.topic)) await enqueueWebhookDeliveries(event.topic, JSON.parse(JSON.stringify(payload)), event.id);
+    // Last, so an event retried after a failed handler does not announce the same email twice.
+    if (event.topic === 'email.received') await notifyEmailReceived(payload);
 };
 
 const processEvent = async (event: OutboxEvent) => {
@@ -50,6 +54,8 @@ const tick = async () => {
     try {
         await processOutbox();
         await processDueWebhookDeliveries();
+        // Not awaited: a slow mailbox must not hold up outbox and webhook delivery.
+        void syncEmailWhenDue().catch(error => logger.error(`[worker] email sync failed: ${error instanceof Error ? error.message : 'unknown error'}`));
     } catch (error) {
         logger.error(`[worker] tick failed: ${error instanceof Error ? error.message : 'unknown error'}`);
     } finally {
@@ -57,7 +63,7 @@ const tick = async () => {
     }
 };
 
-// Polls the outbox and due webhook deliveries; returns a function that stops the loop.
+// Polls the outbox, due webhook deliveries and connected mailboxes; returns a function that stops the loop.
 export const startBackgroundWorkers = (intervalMs = Number(process.env.WORKER_POLL_MS ?? 5000)) => {
     const timer = setInterval(() => { void tick(); }, intervalMs);
     timer.unref();

@@ -1,54 +1,53 @@
-import { memo, useCallback, useState } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { approveDraft, Conversation, Draft, generateDraft, getConversation, listConversations, listProviders, rejectDraft, replyToConversation } from '@/entities/crm';
+import { ConversationFilters, listProviders } from '@/entities/crm';
+import { Button, ButtonTheme } from '@/shared/ui/Button';
 import { useResource } from '@/shared/lib/useResource/useResource';
-import { Button } from '@/shared/ui/Button';
-import { CrmLayout, Field, RequestState } from './common';
-import cls from './CrmPage.module.scss';
+import { useConversationPages } from '../model/useConversationPages';
+import { CrmLayout, RequestState } from './common';
+import { AccountOverview, MailboxNavigation } from './email/MailboxNavigation';
+import { EmailWorkspace } from './email/EmailWorkspace';
+import { ComposeEmailModal } from './email/ComposeEmailModal';
+import cls from './CommunicationsPage.module.scss';
 
-const DraftReview = memo(({ draft, refresh }: { draft: Draft; refresh: () => void }) => {
-    const { t } = useTranslation();
-    const [content, setContent] = useState(draft.content);
-    const [error, setError] = useState('');
-    const [busy, setBusy] = useState(false);
-    const review = async (approve: boolean) => {
-        setBusy(true);
-        try { await (approve ? approveDraft(draft.id, content) : rejectDraft(draft.id)); refresh(); }
-        catch (cause) { setError(cause instanceof Error ? cause.message : t('Request failed')); }
-        finally { setBusy(false); }
-    };
-    return <section className={cls.panel}><h3>{t('AI draft')} · {t(draft.status)}</h3><Field label="Draft content"><textarea rows={8} value={content} onChange={event => setContent(event.target.value)} /></Field><div className={cls.roles}><Button disabled={busy || !['GENERATED', 'EDITED'].includes(draft.status)} onClick={() => void review(true)}>{t('Approve')}</Button><Button disabled={busy} onClick={() => void review(false)}>{t('Reject')}</Button></div><RequestState error={error} loading={false} /></section>;
-});
-
-const ConversationReply = memo(({ conversation, refresh }: { conversation: Conversation; refresh: () => void }) => {
-    const { t } = useTranslation();
-    const providers = useResource(listProviders);
-    const [content, setContent] = useState('');
-    const [provider, setProvider] = useState('');
-    const [error, setError] = useState('');
-    const [busy, setBusy] = useState(false);
-    const perform = async (generate: boolean) => {
-        setBusy(true); setError('');
-        try { await (generate ? generateDraft(conversation.id) : replyToConversation(conversation.id, content, provider)); setContent(''); refresh(); }
-        catch (cause) { setError(cause instanceof Error ? cause.message : t('Request failed')); }
-        finally { setBusy(false); }
-    };
-    return <section className={cls.panel}><h3>{t('Reply')}</h3><Field label="Email provider"><select value={provider} onChange={event => setProvider(event.target.value)}><option value="">{t('Select provider')}</option>{providers.data?.data.filter(item => item.type === 'EMAIL').map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></Field>
-        <Field label="Message"><textarea rows={8} value={content} onChange={event => setContent(event.target.value)} /></Field><div className={cls.roles}><Button disabled={busy || !content.trim() || !provider} onClick={() => void perform(false)}>{t('Send reply')}</Button><Button disabled={busy} onClick={() => void perform(true)}>{t('Generate AI draft')}</Button></div><RequestState error={error} loading={false} />
-    </section>;
-});
-
-const ConversationThread = memo(({ id }: { id: string }) => {
-    const { t } = useTranslation();
-    const load = useCallback(() => getConversation(id), [id]);
-    const thread = useResource(load);
-    const refresh = () => void thread.refresh();
-    return <><RequestState error={thread.error} loading={thread.loading} />{thread.data && <><section className={cls.panel}><h2>{thread.data.subject}</h2><p>{thread.data.person?.displayName || thread.data.person?.email} · {thread.data.event?.name}</p>{thread.data.messages?.map(message => <article key={message.id} className={cls.panel}><strong>{t(message.direction)}</strong><p style={{ whiteSpace: 'pre-wrap' }}>{message.bodyText}</p><time>{new Date(message.createdAt).toLocaleString()}</time></article>)}</section>{thread.data.drafts?.map(draft => <DraftReview key={draft.id} draft={draft} refresh={refresh} />)}<ConversationReply conversation={thread.data} refresh={refresh} /></>}</>;
-});
+type MailView = 'letters' | 'accounts';
 
 export const CommunicationsPage = memo(() => {
     const { t } = useTranslation();
-    const conversations = useResource(listConversations);
-    const [selected, setSelected] = useState('');
-    return <CrmLayout title="Communications"><RequestState error={conversations.error} loading={conversations.loading} /><section className={cls.panel}><h2>{t('Inbox')}</h2>{conversations.data?.data.map(item => <div key={item.id} className={cls.row}><Button onClick={() => setSelected(item.id)}>{item.subject}</Button><span>{t(item.status)}</span><span>{item.person?.email}</span></div>)}{conversations.data?.total === 0 && <p>{t('No conversations yet')}</p>}</section>{selected && <ConversationThread key={selected} id={selected} />}</CrmLayout>;
+    const [composeOpen, setComposeOpen] = useState(false);
+    const providers = useResource(listProviders);
+    const [view, setView] = useState<MailView>('letters');
+    const [providerId, setProviderId] = useState('');
+    const [query, setQuery] = useState('');
+    const filters = useMemo<ConversationFilters>(() => ({
+        ...(providerId ? { providerConnectionId: providerId } : {}),
+        ...(query.trim() ? { q: query.trim() } : {}),
+    }), [providerId, query]);
+    const conversations = useConversationPages(filters);
+    const emailProviders = (providers.data?.data ?? []).filter(
+        (provider) => provider.type === 'EMAIL' && provider.status !== 'DISABLED',
+    );
+
+    const { refresh } = conversations;
+    const onEmailSent = useCallback(() => { setComposeOpen(false); refresh(); }, [refresh]);
+
+    return <CrmLayout title="Email">
+        <div className={cls.EmailPage}>
+            <div className={cls.pageActions}>
+                <Button theme={ButtonTheme.BACKGROUND_INVERTED} disabled={!emailProviders.length}
+                    onClick={() => setComposeOpen(true)}>{t('New email')}</Button>
+            </div>
+            <MailboxNavigation view={view} providers={emailProviders} onViewChange={setView} />
+            <RequestState error={providers.error || conversations.error} loading={providers.loading || conversations.loading} />
+            {view === 'accounts'
+                ? <AccountOverview providers={emailProviders} />
+                : <EmailWorkspace conversations={conversations.data} total={conversations.total} hasMore={conversations.hasMore}
+                        loadingMore={conversations.loading && conversations.data.length > 0} onLoadMore={conversations.loadMore} providers={emailProviders}
+                        providerId={providerId} query={query} onProviderChange={setProviderId} onQueryChange={setQuery}
+                        onConversationRemoved={conversations.refresh}
+                        onConversationRead={conversations.markRead} />}
+            <ComposeEmailModal isOpen={composeOpen} providers={emailProviders} preferredProviderId={providerId}
+                onClose={() => setComposeOpen(false)} onSent={onEmailSent} />
+        </div>
+    </CrmLayout>;
 });

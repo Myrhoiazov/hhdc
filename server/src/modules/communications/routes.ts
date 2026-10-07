@@ -6,20 +6,44 @@ import { currentUser, permitted } from '../auth/auth.middleware';
 import { ApiError, entityId, route } from '../../common/http';
 import { normalizePagination } from '../../common/http';
 import { replySchema, sendReply } from './send';
+import { composeEmail, composeSchema } from './compose';
+import { acceptAttachments, toAttachments } from './attachments';
+import { buildConversationWhere, parseConversationQuery } from './conversation-query';
+import { applyConversationDisposition } from './disposition';
+import { markConversationRead } from './read';
 
 
 export const communicationsRouter = Router();
+
+// The list payload exposes unread as a plain number instead of Prisma's _count shape.
+const withUnreadCount = <T extends { _count: { messages: number } }>(conversation: T) => {
+    const { _count, ...rest } = conversation;
+    return { ...rest, unreadCount: _count.messages };
+};
+
 communicationsRouter.get('/', permitted('communications.read'), async (req, res, next) => {
     try {
         const { page, pageSize, skip } = normalizePagination(req.query);
-        const filters = z.object({ status: z.nativeEnum(ConversationStatus).optional(), eventId: z.string().uuid().optional() }).parse(req.query);
-        const [data, total] = await prisma.$transaction([
-            prisma.conversation.findMany({ where: filters, skip, take: pageSize, orderBy: { lastMessageAt: 'desc' }, include: { person: true, event: true } }),
+        const filters = buildConversationWhere(parseConversationQuery(req.query));
+        const [rows, total] = await prisma.$transaction([
+            prisma.conversation.findMany({
+                where: filters,
+                skip,
+                take: pageSize,
+                orderBy: { lastMessageAt: 'desc' },
+                include: {
+                    person: true,
+                    event: true,
+                    messages: { orderBy: { createdAt: 'desc' }, take: 1 },
+                    _count: { select: { messages: { where: { isRead: false } } } },
+                },
+            }),
             prisma.conversation.count({ where: filters }),
         ]);
-        res.json({ data, meta: { page, pageSize, total } });
+        res.json({ data: rows.map(withUnreadCount), meta: { page, pageSize, total } });
     } catch (error) { next(error); }
 });
+communicationsRouter.post('/', permitted('communications.reply'), acceptAttachments, route(req => composeEmail(composeSchema.parse(req.body), currentUser(req).id, { attachments: toAttachments(req.files) })));
 communicationsRouter.get('/:id', permitted('communications.read'), route(async req => {
     const data = await prisma.conversation.findUnique({ where: { id: entityId(req) }, include: {
         person: { include: { roles: true, tags: { include: { tag: true } } } }, event: true,
@@ -36,5 +60,10 @@ communicationsRouter.patch('/:id', permitted('communications.reply'), route(asyn
         return data;
     });
 }));
-communicationsRouter.post('/:id/reply', permitted('communications.reply'), route(req => sendReply(entityId(req), replySchema.parse(req.body), currentUser(req).id)));
-
+communicationsRouter.post('/:id/reply', permitted('communications.reply'), acceptAttachments, route(req => sendReply(entityId(req), replySchema.parse(req.body), currentUser(req).id, toAttachments(req.files))));
+communicationsRouter.post('/:id/read', permitted('communications.read'), route(async req => markConversationRead(entityId(req))));
+communicationsRouter.post('/:id/disposition', permitted('communications.write'), route(async req => {
+    const { disposition } = z.object({ disposition: z.enum(['SPAM', 'TRASH']) }).strict().parse(req.body);
+    await applyConversationDisposition(entityId(req), disposition, currentUser(req).id);
+    return { success: true };
+}));
