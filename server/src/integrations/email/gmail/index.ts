@@ -10,25 +10,32 @@ const rawMessageSchema = z.object({ id: z.string(), threadId: z.string(), raw: z
 const sendResultSchema = z.object({ id: z.string(), threadId: z.string().optional() });
 
 const assertSafeHeaders = (input: SendEmailInput) => {
-    for (const value of [input.sender, input.recipient, input.subject, input.replyToMessageId, input.messageId]) {
+    for (const value of [input.sender, input.senderName, input.recipient, input.subject, input.replyToMessageId, input.messageId]) {
         if (value && /[\r\n]/.test(value)) throw new Error('Invalid email header');
     }
 };
 
-// A letter with files needs a multipart body, which is left to a MIME library.
+// A letter with files or an HTML version needs a multipart body, which is left to a MIME library.
 export const buildRawEmailWithAttachments = async (input: SendEmailInput): Promise<string> => {
     assertSafeHeaders(input);
     const mime = await new MailComposer({
-        from: z.string().email().parse(input.sender), to: z.string().email().parse(input.recipient),
-        subject: input.subject, text: input.content, messageId: input.messageId,
+        from: input.senderName ? { name: input.senderName, address: z.string().email().parse(input.sender) } : z.string().email().parse(input.sender),
+        to: z.string().email().parse(input.recipient),
+        subject: input.subject, text: input.content, html: input.html, messageId: input.messageId,
         inReplyTo: input.replyToMessageId, references: input.replyToMessageId, attachments: input.attachments,
     }).compile().build();
     return mime.toString('base64url');
 };
 
+// A display name is sent as an RFC 2047 encoded word, so any alphabet survives the header.
+const encodedFrom = (input: SendEmailInput): string => {
+    const address = z.string().email().parse(input.sender);
+    return input.senderName ? `=?UTF-8?B?${Buffer.from(input.senderName).toString('base64')}?= <${address}>` : address;
+};
+
 export const buildRawEmail = (input: SendEmailInput): string => {
     assertSafeHeaders(input);
-    const headers = [`From: ${z.string().email().parse(input.sender)}`, `To: ${z.string().email().parse(input.recipient)}`,
+    const headers = [`From: ${encodedFrom(input)}`, `To: ${z.string().email().parse(input.recipient)}`,
         `Subject: =?UTF-8?B?${Buffer.from(input.subject).toString('base64')}?=`, 'MIME-Version: 1.0',
         'Content-Type: text/plain; charset=UTF-8', 'Content-Transfer-Encoding: base64'];
     if (input.replyToMessageId) headers.push(`In-Reply-To: ${input.replyToMessageId}`, `References: ${input.replyToMessageId}`);
@@ -126,7 +133,7 @@ export class GmailEmailProvider implements EmailProvider {
         return { messages, skipped: ids.length - messages.length, cursor: nextCursor(messages, cursor) };
     }
     async sendMessage(input: SendEmailInput) {
-        const raw = input.attachments?.length ? await buildRawEmailWithAttachments(input) : buildRawEmail(input);
+        const raw = input.attachments?.length || input.html ? await buildRawEmailWithAttachments(input) : buildRawEmail(input);
         const result = sendResultSchema.parse(await this.request('messages/send', {
             method: 'POST', body: JSON.stringify({ raw, threadId: input.threadId }),
         }));

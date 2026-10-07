@@ -30,3 +30,10 @@ test('a provider the server cannot verify is stored as connected', () => {
     expect(input.status).toBe('CONNECTED');
     expect(buildProviderInput(mailbox, values).status).toBeUndefined();
 });
+
+test('a mailbox footer is saved as written and can be cleared', () => {
+    const footer = '<p><b>Kind regards,</b></p>';
+    expect(buildProviderInput(mailbox, { ...values, signatureHtml: ` ${footer} ` }).settings?.signatureHtml).toBe(footer);
+    expect(buildProviderInput(mailbox, { ...values, signatureHtml: '' }).settings?.signatureHtml).toBe('');
+    expect(buildProviderInput(mailbox, values).settings).not.toHaveProperty('signatureHtml');
+});

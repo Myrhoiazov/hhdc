@@ -53,3 +53,17 @@ test('attached files travel with the letter and are recorded with it', async () 
     assert.deepEqual(sent[0].attachments, attachments);
     assert.deepEqual(recorded[0].attachments, attachments);
 });
+
+test('a mailbox footer is sent as HTML, with a text version, while the stored letter keeps the written text', async () => {
+    const sent: SendEmailInput[] = [];
+    const recorded: SentEmail[] = [];
+    const deps: ComposeEmailDeps = {
+        ...fakeDeps(async mail => { sent.push(mail); return { externalId: 'x' }; }, recorded),
+        openMailbox: async () => ({ sender: 'info@hhdc.test', signatureHtml: '<p><b>Kind regards,</b></p><p>HHDC Team</p>', send: async mail => { sent.push(mail); return { externalId: 'x' }; } }),
+    };
+    await composeEmail(input, 'user-1', { deps });
+
+    assert.equal(sent[0].content, 'Hello Anna\n\nKind regards,\nHHDC Team');
+    assert.equal(sent[0].html, '<div>Hello Anna</div>\n<br>\n<p><b>Kind regards,</b></p><p>HHDC Team</p>');
+    assert.equal(recorded[0].content, 'Hello Anna');
+});

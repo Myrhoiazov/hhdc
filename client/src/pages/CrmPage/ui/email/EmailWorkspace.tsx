@@ -1,5 +1,5 @@
 import { memo, useCallback, useState } from 'react';
-import { Conversation, markConversationRead, ProviderConnection } from '@/entities/crm';
+import { Conversation, markConversationRead, PromptVersion, ProviderConnection } from '@/entities/crm';
 import { classNames } from '@/shared/lib/classNames/classNames';
 import { ConversationList, InboxToolbar } from './InboxList';
 import { ConversationDetail } from './ConversationDetail';
@@ -12,6 +12,8 @@ interface EmailWorkspaceProps {
     loadingMore: boolean;
     onLoadMore: () => void;
     providers: ProviderConnection[];
+    aiProviders: ProviderConnection[];
+    replyPrompts: PromptVersion[];
     providerId: string;
     query: string;
     onProviderChange: (id: string) => void;
@@ -21,7 +23,7 @@ interface EmailWorkspaceProps {
 }
 
 export const EmailWorkspace = memo((props: EmailWorkspaceProps) => {
-    const { conversations, total, hasMore, loadingMore, onLoadMore, providers, providerId, query, onProviderChange, onQueryChange, onConversationRemoved, onConversationRead } = props;
+    const { conversations, total, hasMore, loadingMore, onLoadMore, providers, aiProviders, replyPrompts, providerId, query, onProviderChange, onQueryChange, onConversationRemoved, onConversationRead } = props;
     const [selectedId, setSelectedId] = useState('');
     const hasSelection = Boolean(selectedId);
     // Opening a thread reads it: the CRM list and the mailbox learn about it right away.
@@ -35,7 +37,7 @@ export const EmailWorkspace = memo((props: EmailWorkspaceProps) => {
         <div className={classNames(cls.workspace, { [cls.threadOpen]: hasSelection })}>
             <ConversationList conversations={conversations} total={total} hasMore={hasMore} loadingMore={loadingMore}
                 selectedId={selectedId} onSelect={selectConversation} onLoadMore={onLoadMore} />
-            <ConversationDetail id={selectedId} providers={providers} preferredProviderId={providerId}
+            <ConversationDetail id={selectedId} providers={providers} aiProviders={aiProviders} replyPrompts={replyPrompts} preferredProviderId={providerId}
                 onBack={() => setSelectedId('')} onRemoved={() => { setSelectedId(''); onConversationRemoved(); }} />
         </div>
     </>;

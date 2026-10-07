@@ -1,103 +1,91 @@
-import { z } from 'zod';
+import type { AiDraft, Prisma } from '@prisma/client';
 import prisma from '../../../prisma/prisma-client';
-import { configuredAiProvider } from './registry';
-import { retrieveKnowledge } from '../knowledge/service';
 import { ApiError } from '../../common/http';
-import { AiDraft } from '@prisma/client';
+import { normalizeEmail, type NormalizedEmailInput } from './email-classification';
+import type { CrmContactProjection } from './email-draft.types';
+import { loadCrmContext } from './crm-context';
+import { runEmailAssistant, type EmailAssistantRun } from './email-assistant';
+import type { AiSelection } from './registry';
 
-const classificationSchema = z.object({
-    intent: z.string().describe('The main intent or category of the email (e.g., QUESTION, REFUND, TICKET_ISSUE)'),
-    language: z.string().describe('The ISO 639-1 language code (e.g., en, ru)'),
-    confidence: z.number().min(0).max(1).describe('Confidence score from 0.0 to 1.0')
-});
-
-export const generateDraft = async (conversationId: string, userId: string): Promise<AiDraft> => {
-    // 1. Fetch conversation and the latest inbound message
+const loadSource = async (conversationId: string, messageId?: string) => {
     const conversation = await prisma.conversation.findUnique({
         where: { id: conversationId },
-        include: {
-            person: true,
-            event: true,
-            messages: {
-                where: { direction: 'INBOUND' },
-                orderBy: { receivedAt: 'desc' },
-                take: 1
-            }
-        }
+        include: { person: true, messages: { where: { direction: 'INBOUND', ...(messageId ? { id: messageId } : {}) }, orderBy: { receivedAt: 'desc' }, take: 1 } },
     });
-
     if (!conversation) throw new ApiError(404, 'CONVERSATION_NOT_FOUND', 'Conversation not found');
-    
-    const inboundMessage = conversation.messages[0];
-    if (!inboundMessage) throw new ApiError(400, 'NO_INBOUND_MESSAGE', 'No inbound message to reply to');
-    
-    // 2. Classify intent
-    const { provider } = await configuredAiProvider(false);
-    
-    let classification: { intent: string; language: string; confidence: number };
-    try {
-        classification = await provider.generateStructured<{ intent: string; language: string; confidence: number }>(
-            `Classify the following email:\n\n${inboundMessage.bodyText || inboundMessage.subject}`,
-            { schema: classificationSchema, systemPrompt: 'Classify the email. JSON keys: "intent" (UPPER_SNAKE_CASE category such as QUESTION, REFUND_REQUEST, TICKET_ISSUE), "language" (ISO 639-1 code), "confidence" (number from 0 to 1).' }
-        );
-    } catch (e) {
-        // Classification is advisory: the draft is still generated and reviewed by a human.
-        classification = { intent: 'UNKNOWN', language: 'en', confidence: 0.5 };
-    }
-
-    // 3. Retrieve context (RAG)
-    const query = inboundMessage.bodyText ? inboundMessage.bodyText.substring(0, 500) : (inboundMessage.subject || '');
-    const knowledgeChunks = await retrieveKnowledge(query, conversation.eventId);
-    
-    const contextText = knowledgeChunks.map(c => `[${c.title}] ${c.content}`).join('\n\n');
-    
-    const promptVersion = '1.0';
-    const systemPrompt = `You are a helpful customer support assistant for High Heels Dance Camp.
-Reply to the customer's email in their language (${classification.language}).
-Use the following knowledge base information if helpful:
-${contextText}
-
-Customer Name: ${conversation.person.firstName} ${conversation.person.lastName}
-Event: ${conversation.event?.name || 'General'}`;
-
-    // 4. Generate the draft
-    const content = await provider.generateText(
-        `Write a polite and helpful reply to this email:\n\n${inboundMessage.bodyText || inboundMessage.subject}`,
-        systemPrompt
-    );
-
-    const contextSnapshot = {
-        classification,
-        knowledgeUsed: knowledgeChunks.map(c => c.id),
-        promptVersion
-    };
-
-    // 5. Save the draft
-    const draft = await prisma.aiDraft.create({
-        data: {
-            conversationId: conversation.id,
-            sourceMessageId: inboundMessage.id,
-            status: 'GENERATED',
-            language: classification.language,
-            intent: classification.intent,
-            confidence: classification.confidence,
-            model: provider.model || 'unknown',
-            promptVersion,
-            content,
-            contextSnapshot,
-            createdBy: userId
-        }
-    });
-
-    // 6. Audit logging
-    await prisma.auditLog.create({
-        data: {
-            actorUserId: userId,
-            action: 'AI_DRAFT_GENERATED',
-            entityType: 'AiDraft',
-            entityId: draft.id
-        }
-    });
-
-    return draft;
+    const message = conversation.messages[0];
+    if (!message) throw new ApiError(400, 'NO_INBOUND_MESSAGE', 'No inbound message to reply to');
+    return { conversation, message };
 };
+
+type DraftSource = Awaited<ReturnType<typeof loadSource>>;
+
+export const toNormalizedEmail = (message: DraftSource['message'], fallbackSubject: string): NormalizedEmailInput =>
+    normalizeEmail({ fromAddress: message.sender, subject: message.subject ?? fallbackSubject, text: message.bodyText, html: message.bodyHtml });
+
+const THREAD_MESSAGES = 6;
+const THREAD_MESSAGE_CHARS = 600;
+
+export interface ThreadMessage { direction: string; bodyText: string; createdAt: Date }
+
+// Earlier messages as "[date · who] text", oldest first, each cut to its opening lines.
+export const formatThread = (messages: ThreadMessage[]): string => [...messages]
+    .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
+    .map(message => `[${message.createdAt.toISOString().slice(0, 10)} · ${message.direction === 'OUTBOUND' ? 'HHDC team' : 'customer'}] ${message.bodyText.trim().slice(0, THREAD_MESSAGE_CHARS)}`)
+    .join('\n\n');
+
+const loadThread = async (source: DraftSource): Promise<string> => formatThread(await prisma.message.findMany({
+    where: { conversationId: source.conversation.id, id: { not: source.message.id }, createdAt: { lt: source.message.createdAt } },
+    orderBy: { createdAt: 'desc' }, take: THREAD_MESSAGES, select: { direction: true, bodyText: true, createdAt: true },
+}));
+
+// Only what the model needs to address the customer (spec §38: minimum-context principle).
+export const toContact = (person: DraftSource['conversation']['person']): CrmContactProjection | null => (person
+    ? { id: person.id, email: person.email, firstName: person.firstName || null, lastName: person.lastName || null, status: person.status }
+    : null);
+
+// The snapshot keeps the draft auditable after the knowledge base changes (spec §23).
+export const buildContextSnapshot = (run: EmailAssistantRun): Prisma.InputJsonObject => JSON.parse(JSON.stringify({
+    classification: run.classification,
+    rag: run.result?.trace ?? null,
+    knowledgeUsed: run.result?.knowledgeRefs ?? [],
+    needsStaffReview: run.result?.trace.needsStaffReview ?? true,
+    answerability: run.result?.trace.answerability ?? null,
+    warnings: run.result?.trace.warnings ?? [],
+    promptVersion: run.promptVersion,
+}));
+
+export interface DraftAuthor { createdBy: string; actorUserId: string | null }
+
+export const saveDraft = async (source: DraftSource, run: EmailAssistantRun, author: DraftAuthor): Promise<AiDraft> => {
+    if (!run.result) throw new ApiError(422, 'DRAFT_NOT_GENERATED', 'The assistant did not produce a draft for this email');
+    const { draft, trace } = run.result;
+    return prisma.$transaction(async tx => {
+        const saved = await tx.aiDraft.create({ data: {
+            conversationId: source.conversation.id, sourceMessageId: source.message.id, status: 'GENERATED',
+            language: trace.language, intent: trace.intent.toUpperCase(), confidence: draft.confidence,
+            model: run.model, promptVersion: run.promptVersion, content: draft.body,
+            contextSnapshot: buildContextSnapshot(run), createdBy: author.createdBy,
+        } });
+        await tx.auditLog.create({ data: { actorUserId: author.actorUserId, action: 'AI_DRAFT_GENERATED', entityType: 'AiDraft', entityId: saved.id } });
+        return saved;
+    });
+};
+
+// What a tester may swap for one draft: the provider/model and the reply-prompt version.
+export interface DraftOverrides { ai?: AiSelection; draftPromptId?: string }
+
+export const runAssistantForMessage = async (source: DraftSource, mode: 'advisory' | 'strict', overrides: DraftOverrides = {}): Promise<EmailAssistantRun> =>
+    runEmailAssistant({ ...toNormalizedEmail(source.message, source.conversation.subject), thread: await loadThread(source) }, toContact(source.conversation.person), {
+        eventId: source.conversation.eventId, mode, ai: overrides.ai, promptIds: { draftBody: overrides.draftPromptId },
+        loadCrm: source.conversation.personId ? () => loadCrmContext(source.conversation.personId as string) : undefined,
+    });
+
+// A person asked for a draft of the latest incoming message. Without overrides the provider's
+// own model answers with the active prompt.
+export const generateDraft = async (conversationId: string, userId: string, overrides: DraftOverrides = {}): Promise<AiDraft> => {
+    const source = await loadSource(conversationId);
+    return saveDraft(source, await runAssistantForMessage(source, 'advisory', overrides), { createdBy: userId, actorUserId: userId });
+};
+
+export const loadDraftSource = loadSource;

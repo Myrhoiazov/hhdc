@@ -24,6 +24,10 @@ export const providerSchema = z.object({
         smtpHost: z.string().trim().min(1).max(255).optional(),
         smtpPort: z.number().int().min(1).max(65535).optional(),
         smtpSecure: z.boolean().optional(),
+        // Shown to recipients next to the address: "High Heels Dance Camp <info@…>".
+        senderName: z.string().trim().max(120).optional(),
+        // HTML footer added to every email sent from this mailbox.
+        signatureHtml: z.string().max(20000).optional(),
     }).strict().optional(),
 }).strict();
 

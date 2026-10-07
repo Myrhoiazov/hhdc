@@ -1,0 +1,122 @@
+.tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.activeTab {
+    font-weight: 600;
+    color: var(--sidebar-text-hover-redesigned);
+    background: var(--primary-soft-bg-redesigned);
+    border-color: var(--primary-redesigned);
+}
+
+.badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.result {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--card-border-redesigned);
+    gap: 12px;
+    padding-top: 16px;
+
+    h3 {
+        margin: 8px 0 0;
+        font-size: 15px;
+    }
+}
+
+.draft,
+.knowledge pre {
+    margin: 0;
+    padding: 14px;
+    line-height: 1.55;
+    color: var(--sidebar-text-hover-redesigned);
+    background: var(--sidebar-hover-bg-redesigned);
+    border: 1px solid var(--card-border-redesigned);
+    border-radius: var(--radius-sm-redesigned);
+    font-family: inherit;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+}
+
+.warnings {
+    margin: 0;
+    font-size: 13px;
+    color: var(--danger-text-redesigned);
+    padding-left: 18px;
+}
+
+.knowledge {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    summary {
+        padding: 6px 0;
+        font-size: 13px;
+        cursor: pointer;
+    }
+
+    pre {
+        font-size: 13px;
+        margin-top: 6px;
+    }
+}
+
+.promptForm {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.metrics {
+    display: flex;
+    flex-direction: column;
+    font-size: 13px;
+    color: var(--sidebar-text-redesigned);
+    gap: 4px;
+
+    p {
+        margin: 0;
+    }
+}
+
+.tableScroll {
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    font-size: 14px;
+    border-collapse: collapse;
+
+    th,
+    td {
+        padding: 10px 12px;
+        text-align: left;
+        border-bottom: 1px solid var(--card-border-redesigned);
+        white-space: nowrap;
+    }
+
+    th {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--sidebar-group-label-redesigned);
+        text-transform: uppercase;
+    }
+}
+
+.rowLink {
+    max-width: 320px;
+    padding: 0;
+    color: var(--sidebar-text-hover-redesigned);
+    text-align: left;
+    overflow: hidden;
+    text-decoration: underline;
+    text-overflow: ellipsis;
+}

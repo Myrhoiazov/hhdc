@@ -15,7 +15,8 @@ export interface Message {
     rawData?: { attachments?: MessageAttachment[] } | null;
     createdAt: string;
 }
-export interface Draft { id: string; content: string; status: string }
+export interface DraftSnapshot { needsStaffReview?: boolean; answerability?: string | null; warnings?: string[] }
+export interface Draft { id: string; content: string; status: string; confidence?: number | null; contextSnapshot?: DraftSnapshot | null }
 export interface Conversation {
     id: string; subject: string; status: string; person?: Person; event?: Event;
     lastMessageAt?: string; messages?: Message[]; drafts?: Draft[];
@@ -46,8 +47,11 @@ export const markConversationRead = async (id: string): Promise<void> => {
     await $apiPrivate.post(`/conversations/${id}/read`);
 };
 export const replyToConversation = async (id: string, content: string, providerConnectionId: string, files: File[] = []) => $apiPrivate.post(`/conversations/${id}/reply`, withAttachments({ content, providerConnectionId }, files));
-export const generateDraft = async (id: string) => (await $apiPrivate.post<{data: Draft}>(`/conversations/${id}/ai-draft`)).data.data;
-export const approveDraft = async (id: string, content: string) => $apiPrivate.post(`/ai-drafts/${id}/approve`, { content });
+export interface DraftModelChoice { providerConnectionId?: string; model?: string; draftPromptId?: string }
+// `choice` sends this one draft to another connected provider or model; without it the provider's own model answers.
+export const generateDraft = async (id: string, choice: DraftModelChoice = {}) => (await $apiPrivate.post<{data: Draft}>(`/conversations/${id}/ai-draft`, choice)).data.data;
+// Approving sends the text as it stands in the reply field, with any attached files.
+export const approveDraft = async (id: string, content: string, files: File[] = []) => $apiPrivate.post(`/ai-drafts/${id}/approve`, withAttachments({ content }, files));
 export const rejectDraft = async (id: string) => $apiPrivate.post(`/ai-drafts/${id}/reject`);
 export interface ComposeEmailInput { providerConnectionId: string; recipient: string; subject: string; content: string }
 // Sends a new letter; the server stores it as a new conversation once the mailbox accepts it.

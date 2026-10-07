@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { z } from 'zod';
+import { requestTimeoutMs } from './http';
 import { OllamaProvider } from './ollama.provider';
 import { OpenAiProvider } from './openai.provider';
 
@@ -45,4 +46,10 @@ test('Ollama adapter sends the system prompt and parses chat and embedding respo
     assert.deepEqual(calls[0].body.messages, [{ role: 'system', content: 'Be brief' }, { role: 'user', content: 'Hi' }]);
     const embedder = new OllamaProvider('embed', { baseUrl: 'http://ollama.test' }, fakeFetch({ embeddings: [[0.1, 0.2]] }, []));
     assert.deepEqual(await embedder.embed(['a']), [[0.1, 0.2]]);
+});
+
+test('the AI request timeout can be raised for slow local models', () => {
+    assert.equal(requestTimeoutMs({}), 60_000);
+    assert.equal(requestTimeoutMs({ AI_REQUEST_TIMEOUT_MS: '180000' }), 180_000);
+    assert.equal(requestTimeoutMs({ AI_REQUEST_TIMEOUT_MS: 'soon' }), 60_000);
 });

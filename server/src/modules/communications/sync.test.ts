@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import type { EmailSyncPage, NormalizedEmail } from '../../integrations/email/EmailProvider';
-import { buildReplySubject } from './send';
+import { buildReplySubject, senderNameFor } from './send';
 import { cursorAfter, ingestPage, isNewSyncFailure } from './sync';
 
 const email = (externalId: string): NormalizedEmail => ({ externalId, threadId: 't', sender: 'a@example.test', recipient: 'info@hhdc.test', subject: 's', bodyText: '', receivedAt: new Date(0) });
@@ -31,4 +31,10 @@ test('reply subjects are not prefixed twice', () => {
 test('a mailbox that keeps failing is announced once, not on every retry', () => {
     assert.equal(isNewSyncFailure('CONNECTED'), true);
     assert.equal(isNewSyncFailure('ERROR'), false);
+});
+
+test('recipients see the mailbox sender name, or the connection name when none is set', () => {
+    assert.equal(senderNameFor({ senderName: ' HHDC Team ' }, 'Info mailbox'), 'HHDC Team');
+    assert.equal(senderNameFor({}, 'HIGH HEELS DANCE CAMP'), 'HIGH HEELS DANCE CAMP');
+    assert.equal(senderNameFor({ senderName: 'Bad "Name" <x@y.z>\r\nBcc: a@b.c' }, 'x'), 'Bad Name x@y.zBcc: a@b.c');
 });

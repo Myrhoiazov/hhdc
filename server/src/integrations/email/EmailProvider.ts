@@ -6,9 +6,13 @@ export interface EmailAttachment {
 
 export interface SendEmailInput {
     sender: string;
+    // Display name of the sender; without it mail clients show the part of the address before @.
+    senderName?: string;
     recipient: string;
     subject: string;
     content: string;
+    // HTML version of the body; when present the email is sent as text + HTML alternatives.
+    html?: string;
     threadId?: string;
     replyToMessageId?: string;
     messageId?: string;

@@ -5,7 +5,8 @@ import type { EmailAttachment, SendEmailInput } from '../../integrations/email/E
 import { ApiError } from '../../common/http';
 import { attachmentSummary } from './attachments';
 import { resolveContact } from './ingest';
-import { emailProvider } from './send';
+import { emailProvider, mailboxSettings, senderNameFor } from './send';
+import { renderEmailBody } from './email-body';
 
 export const composeSchema = z.object({
     providerConnectionId: z.string().uuid(),
@@ -18,6 +19,8 @@ export type ComposeEmail = z.infer<typeof composeSchema>;
 
 interface Mailbox {
     sender: string;
+    senderName?: string;
+    signatureHtml?: string;
     send(input: SendEmailInput): Promise<{ externalId: string; threadId?: string }>;
 }
 
@@ -37,9 +40,10 @@ export const composeEmail = async (input: ComposeEmail, userId: string, options:
     const { attachments = [], deps = productionDeps } = options;
     const mailbox = await deps.openMailbox(input.providerConnectionId);
     const messageId = deps.newMessageId();
+    const body = renderEmailBody(input.content, mailbox.signatureHtml);
     let sent: { externalId: string; threadId?: string };
     try {
-        sent = await mailbox.send({ sender: mailbox.sender, recipient: input.recipient, subject: input.subject, content: input.content, messageId,
+        sent = await mailbox.send({ sender: mailbox.sender, ...(mailbox.senderName ? { senderName: mailbox.senderName } : {}), recipient: input.recipient, subject: input.subject, content: body.text, ...(body.html ? { html: body.html } : {}), messageId,
             ...(attachments.length ? { attachments } : {}) });
     } catch {
         throw new ApiError(502, 'EMAIL_SEND_UNCONFIRMED', 'Provider did not confirm delivery; check the mailbox before retrying');
@@ -50,8 +54,9 @@ export const composeEmail = async (input: ComposeEmail, userId: string, options:
 
 const openMailbox: ComposeEmailDeps['openMailbox'] = async providerConnectionId => {
     const { connection, provider } = await emailProvider(providerConnectionId);
-    const { sender } = z.object({ sender: z.string().email() }).parse(connection.settings);
-    return { sender, send: input => provider.sendMessage(input) };
+    const settings = mailboxSettings.parse(connection.settings);
+    const { sender, signatureHtml } = settings;
+    return { sender, senderName: senderNameFor(settings, connection.name), signatureHtml, send: input => provider.sendMessage(input) };
 };
 
 const record: ComposeEmailDeps['record'] = (email, userId) => prisma.$transaction(async tx => {

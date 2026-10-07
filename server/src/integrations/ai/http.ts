@@ -1,4 +1,10 @@
-const TIMEOUT_MS = 60_000;
+const DEFAULT_TIMEOUT_MS = 60_000;
+
+// A local model on CPU can need minutes for a long prompt; AI_REQUEST_TIMEOUT_MS raises the bound.
+export const requestTimeoutMs = (env: NodeJS.ProcessEnv = process.env): number => {
+    const configured = Number(env.AI_REQUEST_TIMEOUT_MS);
+    return Number.isInteger(configured) && configured >= 1_000 ? configured : DEFAULT_TIMEOUT_MS;
+};
 
 export interface JsonRequest { url: string; body: unknown; headers?: Record<string, string>; fetchImpl: typeof fetch; label: string }
 
@@ -6,7 +12,7 @@ export interface JsonRequest { url: string; body: unknown; headers?: Record<stri
 // never surfaced (they can echo prompts that contain personal data).
 export const postJson = async ({ url, body, headers, fetchImpl, label }: JsonRequest): Promise<unknown> => {
     const response = await fetchImpl(url, {
-        method: 'POST', signal: AbortSignal.timeout(TIMEOUT_MS),
+        method: 'POST', signal: AbortSignal.timeout(requestTimeoutMs()),
         headers: { 'content-type': 'application/json', ...headers }, body: JSON.stringify(body),
     });
     if (!response.ok) throw new Error(`${label} request failed (${response.status})`);

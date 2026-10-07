@@ -3,8 +3,12 @@ export interface StructuredOutputOptions<T> {
   systemPrompt?: string;
 }
 
+export interface AiUsage { promptTokens?: number; completionTokens?: number }
+
 export interface AiProvider {
   model: string;
+  // Called after every chat completion with the token counts the provider reported.
+  onUsage?: (usage: AiUsage) => void;
   generateText(prompt: string, systemPrompt?: string): Promise<string>;
   generateStructured<T>(prompt: string, options: StructuredOutputOptions<T>): Promise<T>;
   embed(texts: string[]): Promise<number[][]>;

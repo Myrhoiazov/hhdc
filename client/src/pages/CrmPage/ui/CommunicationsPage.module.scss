@@ -679,9 +679,9 @@
     min-height: 36px;
     padding: 6px 14px;
     font-size: 13px;
-    color: var(--primary-redesigned);
-    background: var(--primary-soft-bg-redesigned);
-    border: 1px dashed var(--primary-redesigned);
+    color: var(--sidebar-text-hover-redesigned);
+    background: var(--sidebar-bg-redesigned);
+    border: 1px dashed var(--sidebar-text-redesigned);
     border-radius: var(--radius-sm-redesigned);
     cursor: pointer;
 
@@ -786,4 +786,49 @@
         font-weight: 500;
         color: var(--sidebar-text-redesigned);
     }
+}
+
+.draftAssessment {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+
+    small {
+        color: var(--sidebar-text-redesigned);
+    }
+}
+
+.badgeReview {
+    color: var(--danger-text-redesigned);
+    background: var(--danger-bg-redesigned);
+}
+
+.modelPicker {
+    display: flex;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+
+    label {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    span {
+        font-size: 12px;
+        color: var(--sidebar-text-redesigned);
+    }
+
+}
+
+.modelControl {
+    min-width: 180px;
+    min-height: 36px;
+    padding: 6px 10px;
+    color: var(--sidebar-text-hover-redesigned);
+    background: var(--sidebar-hover-bg-redesigned);
+    border: 1px solid var(--card-border-redesigned);
+    border-radius: var(--radius-sm-redesigned);
 }

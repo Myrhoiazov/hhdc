@@ -7,6 +7,7 @@ import { decryptCredentials } from '../providers/providers.service';
 import { assertDraftCanSend } from '../ai/approval';
 import type { EmailAttachment } from '../../integrations/email/EmailProvider';
 import { attachmentSummary } from './attachments';
+import { renderEmailBody } from './email-body';
 
 export const replySchema = z.object({ content: z.string().trim().min(1).max(20000), providerConnectionId: z.string().uuid(), draftId: z.string().uuid().optional() }).strict();
 type Reply = z.infer<typeof replySchema>;
@@ -17,6 +18,13 @@ export const emailProvider = async (id: string) => {
     const credentials = connection.credentialsEncrypted ? decryptCredentials(connection.credentialsEncrypted) : {};
     return { connection, provider: createEmailProvider({ provider: connection.provider, credentials, settings: connection.settings }) };
 };
+
+// What sending needs from a mailbox connection: the From address and its optional HTML footer.
+export const mailboxSettings = z.object({ sender: z.string().email(), senderName: z.string().optional(), signatureHtml: z.string().optional() });
+
+// The name recipients see: the one set on the mailbox, otherwise the name of the connection.
+export const senderNameFor = (settings: { senderName?: string }, connectionName: string): string | undefined =>
+    (settings.senderName?.trim() || connectionName.trim()).replace(/[\r\n"<>]/g, '') || undefined;
 
 export const buildReplySubject = (subject: string): string => (/^re:/i.test(subject.trim()) ? subject.trim() : `Re: ${subject}`.trim());
 
@@ -51,15 +59,16 @@ export const sendReply = async (conversationId: string, reply: Reply, userId: st
     const inbound = conversation.messages[0];
     if (!inbound) throw new ApiError(400, 'NO_REPLY_RECIPIENT', 'No incoming message to reply to');
     const { connection, provider } = await emailProvider(reply.providerConnectionId);
-    const settings = z.object({ sender: z.string().email() }).parse(connection.settings);
+    const settings = mailboxSettings.parse(connection.settings);
+    const body = renderEmailBody(reply.content, settings.signatureHtml);
     if (reply.draftId) await claimDraft(reply.draftId, conversationId, reply.content);
     const metadata = inboundMetadata.parse(inbound.rawData ?? {});
     // Standard mail-client behaviour: answer Reply-To when the sender set one, otherwise From.
     const recipient = metadata.replyTo ?? inbound.sender;
     let sent: { externalId: string };
     try {
-        sent = await provider.sendMessage({ sender: settings.sender, recipient, subject: buildReplySubject(conversation.subject),
-            content: reply.content, threadId: metadata.threadId, replyToMessageId: metadata.messageId ?? undefined,
+        sent = await provider.sendMessage({ sender: settings.sender, senderName: senderNameFor(settings, connection.name), recipient, subject: buildReplySubject(conversation.subject),
+            content: body.text, ...(body.html ? { html: body.html } : {}), threadId: metadata.threadId, replyToMessageId: metadata.messageId ?? undefined,
             messageId: reply.draftId ? `<${reply.draftId}@hhdc-crm.local>` : undefined,
             ...(attachments.length ? { attachments } : {}) });
     } catch {

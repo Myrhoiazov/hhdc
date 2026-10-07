@@ -6,6 +6,8 @@ import { currentUser, permitted } from '../auth/auth.middleware';
 import { auditData } from '../audit/audit.service';
 import { askAssistant } from './assistant.service';
 import { confirmProposal, createProposal, proposalInputSchema, rejectProposal } from './proposals';
+import { DEFAULT_PROMPT_CONTENT } from './email-prompts';
+import { getSimulationRun, listSimulationRuns, simulateEmail, simulationSchema } from './simulation';
 
 const LOW_CONFIDENCE = 0.6;
 
@@ -83,6 +85,10 @@ aiPlatformRouter.get('/ai/review-queue', permitted('ai.use'), route(reviewQueue)
 aiPlatformRouter.post('/ai/actions', permitted('ai.actions.propose'), route(propose));
 aiPlatformRouter.post('/ai/actions/:id/confirm', permitted('ai.actions.confirm'), route(req => confirmProposal(entityId(req), currentUser(req).id)));
 aiPlatformRouter.post('/ai/actions/:id/reject', permitted('ai.actions.confirm'), route(req => rejectProposal(entityId(req), currentUser(req).id)));
+aiPlatformRouter.post('/ai/email-simulation', permitted('ai.manage'), route(req => simulateEmail(simulationSchema.parse(req.body), currentUser(req).id)));
+aiPlatformRouter.get('/ai/email-simulations', permitted('ai.manage'), listRoute(req => listSimulationRuns(req.query)));
+aiPlatformRouter.get('/ai/email-simulations/:id', permitted('ai.manage'), route(req => getSimulationRun(entityId(req))));
+aiPlatformRouter.get('/ai/email-prompts/defaults', permitted('ai.manage'), route(async () => DEFAULT_PROMPT_CONTENT));
 aiPlatformRouter.get('/ai/prompts', permitted('ai.manage'), route(() => prisma.promptDefinition.findMany({ orderBy: [{ key: 'asc' }, { version: 'desc' }], take: 200 })));
 aiPlatformRouter.post('/ai/prompts', permitted('ai.manage'), route(createPromptVersion));
 aiPlatformRouter.post('/ai/prompts/:id/activate', permitted('ai.manage'), route(activatePrompt));

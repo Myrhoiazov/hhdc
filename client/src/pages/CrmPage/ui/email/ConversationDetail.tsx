@@ -1,6 +1,6 @@
 import { memo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { applyConversationDisposition, Conversation, ConversationDisposition, getConversation, Message, ProviderConnection } from '@/entities/crm';
+import { applyConversationDisposition, Conversation, ConversationDisposition, getConversation, Message, PromptVersion, ProviderConnection } from '@/entities/crm';
 import { formatFileSize } from '../../model/attachments';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button, ButtonTheme } from '@/shared/ui/Button';
@@ -62,9 +62,17 @@ const EmptyThread = memo(() => {
     return <section className={cls.threadEmpty}><span aria-hidden="true">✉</span><h2>{t('Select a conversation')}</h2><p>{t('Choose a message from the inbox to read and reply.')}</p></section>;
 });
 
-const LoadedConversationDetail = memo(({ id, providers, preferredProviderId, onBack, onRemoved }: {
-    id: string; providers: ProviderConnection[]; preferredProviderId: string; onBack: () => void; onRemoved: () => void;
-}) => {
+interface DetailProps {
+    id: string;
+    providers: ProviderConnection[];
+    aiProviders: ProviderConnection[];
+    replyPrompts: PromptVersion[];
+    preferredProviderId: string;
+    onBack: () => void;
+    onRemoved: () => void;
+}
+
+const LoadedConversationDetail = memo(({ id, providers, aiProviders, replyPrompts, preferredProviderId, onBack, onRemoved }: DetailProps) => {
     const load = useCallback(() => getConversation(id), [id]);
     const thread = useResource(load);
     return <section className={cls.threadPanel}>
@@ -72,14 +80,10 @@ const LoadedConversationDetail = memo(({ id, providers, preferredProviderId, onB
         {thread.data && <>
             <ThreadHeader conversation={thread.data} onBack={onBack} onRemoved={onRemoved} />
             <div className={cls.messageStream}>{thread.data.messages?.map((message) => <MessageCard key={message.id} message={message} />)}</div>
-            <ConversationComposer key={thread.data.id} conversation={thread.data} providers={providers}
+            <ConversationComposer key={thread.data.id} conversation={thread.data} providers={providers} aiProviders={aiProviders} replyPrompts={replyPrompts}
                 preferredProviderId={preferredProviderId} refresh={() => void thread.refresh()} />
         </>}
     </section>;
 });
 
-export const ConversationDetail = memo(({ id, providers, preferredProviderId, onBack, onRemoved }: {
-    id: string; providers: ProviderConnection[]; preferredProviderId: string; onBack: () => void; onRemoved: () => void;
-}) => id
-    ? <LoadedConversationDetail id={id} providers={providers} preferredProviderId={preferredProviderId} onBack={onBack} onRemoved={onRemoved} />
-    : <EmptyThread />);
+export const ConversationDetail = memo((props: DetailProps) => (props.id ? <LoadedConversationDetail {...props} /> : <EmptyThread />));

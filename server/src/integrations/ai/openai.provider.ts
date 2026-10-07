@@ -1,12 +1,16 @@
 import { z } from 'zod';
 import { JSON_ONLY_INSTRUCTION, parseStructured, postJson } from './http';
-import { AiProvider, StructuredOutputOptions } from './provider';
+import { AiProvider, AiUsage, StructuredOutputOptions } from './provider';
 
-const chatSchema = z.object({ choices: z.array(z.object({ message: z.object({ content: z.string() }) })).min(1) });
+const chatSchema = z.object({
+  choices: z.array(z.object({ message: z.object({ content: z.string() }) })).min(1),
+  usage: z.object({ prompt_tokens: z.number().optional(), completion_tokens: z.number().optional() }).optional(),
+});
 const embeddingSchema = z.object({ data: z.array(z.object({ index: z.number(), embedding: z.array(z.number()) })) });
 
 export class OpenAiProvider implements AiProvider {
   private readonly baseUrl: string;
+  onUsage?: (usage: AiUsage) => void;
 
   constructor(public model: string, private readonly credentials: Record<string, string> = {}, private readonly fetchImpl: typeof fetch = fetch) {
     this.baseUrl = (credentials.baseUrl ?? 'https://api.openai.com/v1').replace(/\/$/, '');
@@ -20,7 +24,9 @@ export class OpenAiProvider implements AiProvider {
   private async chat(prompt: string, systemPrompt: string | undefined, json: boolean): Promise<string> {
     const messages = [...(systemPrompt ? [{ role: 'system', content: systemPrompt }] : []), { role: 'user', content: prompt }];
     const body = { model: this.model, messages, ...(json ? { response_format: { type: 'json_object' } } : {}) };
-    return chatSchema.parse(await this.request('/chat/completions', body)).choices[0].message.content;
+    const reply = chatSchema.parse(await this.request('/chat/completions', body));
+    this.onUsage?.({ promptTokens: reply.usage?.prompt_tokens, completionTokens: reply.usage?.completion_tokens });
+    return reply.choices[0].message.content;
   }
 
   generateText(prompt: string, systemPrompt?: string): Promise<string> {

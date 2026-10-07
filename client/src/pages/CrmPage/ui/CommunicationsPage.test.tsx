@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { createReduxStore, ReduxStoreWithManager } from '@/app/providers/StoreProvider';
-import { applyConversationDisposition, composeEmail, Conversation, replyToConversation, generateDraft, getConversation, listConversations, listProviders, markConversationRead } from '@/entities/crm';
+import { applyConversationDisposition, approveDraft, composeEmail, Conversation, rejectDraft, replyToConversation, generateDraft, getConversation, listConversations, listPrompts, listProviders, markConversationRead } from '@/entities/crm';
 import { CommunicationsPage } from './CommunicationsPage';
 
 jest.mock('@/entities/crm', () => ({
@@ -16,9 +16,11 @@ jest.mock('@/entities/crm', () => ({
     applyConversationDisposition: jest.fn(),
     markConversationRead: jest.fn(),
     composeEmail: jest.fn(),
+    listPrompts: jest.fn(),
 }), { virtual: true });
 
 const mailboxA = { id: 'mail-a', name: 'DDC NL', type: 'EMAIL', provider: 'IMAP', status: 'CONNECTED', settings: {} };
+const aiProvider = { id: 'ai-1', name: 'Ollama (local)', type: 'AI', provider: 'OLLAMA', status: 'CONNECTED', settings: { model: 'qwen3:1.7b' } };
 const mailboxB = { id: 'mail-b', name: 'Camp EU', type: 'EMAIL', provider: 'GMAIL', status: 'CONNECTED', settings: {} };
 const conversation: Conversation = {
     id: 'conversation-a', subject: 'Ticket question', status: 'OPEN', lastMessageAt: '2026-10-07T10:00:00.000Z',
@@ -34,9 +36,16 @@ const renderPage = () => {
 
 beforeEach(() => {
     jest.mocked(listProviders).mockResolvedValue({ data: [mailboxA, mailboxB], total: 2 });
+    jest.mocked(listPrompts).mockResolvedValue([]);
     jest.mocked(listConversations).mockResolvedValue({ data: [conversation], total: 1 });
     jest.mocked(getConversation).mockResolvedValue(conversation);
     jest.mocked(generateDraft).mockResolvedValue({ id: 'draft-a', content: 'AI answer', status: 'GENERATED' });
+    jest.mocked(generateDraft).mockClear();
+    jest.mocked(approveDraft).mockReset();
+    jest.mocked(approveDraft).mockResolvedValue({} as never);
+    jest.mocked(rejectDraft).mockReset();
+    jest.mocked(rejectDraft).mockResolvedValue({} as never);
+    jest.mocked(replyToConversation).mockReset();
     jest.mocked(markConversationRead).mockReset();
     jest.mocked(markConversationRead).mockResolvedValue(undefined);
     jest.mocked(composeEmail).mockReset();
@@ -53,15 +62,45 @@ test('email workspace filters conversations by connected account', async () => {
     await waitFor(() => expect(listConversations).toHaveBeenLastCalledWith({ providerConnectionId: 'mail-b' }, 1, 25));
 });
 
-test('email workspace opens a thread and places an AI draft in the reply editor', async () => {
+test('an AI draft lands in the reply field and sending it approves the edited text', async () => {
     renderPage();
 
     fireEvent.click(await screen.findByRole('button', { name: /Ticket question/ }));
     await waitFor(() => expect(screen.getAllByText('Can I join?').length).toBeGreaterThan(1));
     fireEvent.click(screen.getByRole('button', { name: 'Generate AI draft' }));
 
-    expect(await screen.findByDisplayValue('AI answer')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Approve and send' })).toBeInTheDocument();
+    const reply = await screen.findByLabelText('Reply message');
+    await waitFor(() => expect(reply).toHaveValue('AI answer'));
+    expect(generateDraft).toHaveBeenCalledWith('conversation-a', {});
+    fireEvent.change(reply, { target: { value: 'AI answer, edited' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Send reply' }));
+
+    await waitFor(() => expect(approveDraft).toHaveBeenCalledWith('draft-a', 'AI answer, edited', []));
+    expect(replyToConversation).not.toHaveBeenCalled();
+});
+
+test('a draft can be generated on a chosen provider and model, and discarded', async () => {
+    jest.mocked(listProviders).mockResolvedValue({ data: [mailboxA, mailboxB, aiProvider], total: 3 });
+    renderPage();
+
+    fireEvent.click(await screen.findByRole('button', { name: /Ticket question/ }));
+    fireEvent.change(await screen.findByLabelText('AI model for this reply (testing)'), { target: { value: 'ai-1' } });
+    expect(screen.getByLabelText('Model')).toHaveAttribute('placeholder', 'qwen3:1.7b');
+    fireEvent.change(screen.getByLabelText('Model'), { target: { value: 'gpt-4o-mini' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Generate AI draft' }));
+
+    await waitFor(() => expect(generateDraft).toHaveBeenCalledWith('conversation-a', { providerConnectionId: 'ai-1', model: 'gpt-4o-mini' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Discard AI draft' }));
+    await waitFor(() => expect(rejectDraft).toHaveBeenCalledWith('draft-a'));
+    await waitFor(() => expect(screen.getByLabelText('Reply message')).toHaveValue(''));
+});
+
+test('without a connected AI provider there is no model picker', async () => {
+    renderPage();
+
+    fireEvent.click(await screen.findByRole('button', { name: /Ticket question/ }));
+    await screen.findByLabelText('Reply message');
+    expect(screen.queryByLabelText('AI model for this reply (testing)')).not.toBeInTheDocument();
 });
 
 test('email workspace confirms and moves a conversation to spam', async () => {
@@ -238,4 +277,47 @@ test('the list tells sent, new and opened letters apart', async () => {
     expect(freshItem).toHaveTextContent('Incoming');
     expect(freshItem).toHaveTextContent('New');
     expect(screen.getByRole('button', { name: 'Ticket question' })).toHaveTextContent('Opened');
+});
+
+test('an AI draft says when a person has to check it', async () => {
+    jest.mocked(getConversation).mockResolvedValue({ ...conversation, drafts: [{
+        id: 'draft-r', content: 'Draft text', status: 'GENERATED', confidence: 0.3,
+        contextSnapshot: { needsStaffReview: true, warnings: ['no_current_facts'] },
+    }] });
+    renderPage();
+
+    fireEvent.click(await screen.findByRole('button', { name: /Ticket question/ }));
+
+    expect(await screen.findByText('Needs staff review')).toBeInTheDocument();
+    expect(screen.getByText('Confidence: 30%')).toBeInTheDocument();
+    expect(screen.getByText('no_current_facts')).toBeInTheDocument();
+});
+
+test('a draft can be written with a saved reply prompt that is not active yet', async () => {
+    jest.mocked(listProviders).mockResolvedValue({ data: [mailboxA, mailboxB, aiProvider], total: 3 });
+    jest.mocked(listPrompts).mockResolvedValue([
+        { id: 'prompt-2', key: 'email_draft_body', version: 2, purpose: 'Shorter tone', systemPrompt: 'Answer briefly.', status: 'DRAFT', createdAt: '2026-10-07T10:00:00.000Z' },
+        { id: 'prompt-c', key: 'email_classification', version: 1, purpose: 'Classifier', systemPrompt: 'Classify.', status: 'ACTIVE', createdAt: '2026-10-07T10:00:00.000Z' },
+    ]);
+    renderPage();
+
+    fireEvent.click(await screen.findByRole('button', { name: /Ticket question/ }));
+    const prompt = await screen.findByLabelText('Reply prompt');
+    expect(screen.getByRole('option', { name: 'v2 · Shorter tone (DRAFT)' })).toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: /Classifier/ })).not.toBeInTheDocument();
+    fireEvent.change(prompt, { target: { value: 'prompt-2' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Generate AI draft' }));
+
+    await waitFor(() => expect(generateDraft).toHaveBeenCalledWith('conversation-a', { draftPromptId: 'prompt-2' }));
+});
+
+test('people who cannot read prompt versions still get the reply form', async () => {
+    jest.mocked(listProviders).mockResolvedValue({ data: [mailboxA, mailboxB, aiProvider], total: 3 });
+    jest.mocked(listPrompts).mockRejectedValue(new Error('Permission required'));
+    renderPage();
+
+    fireEvent.click(await screen.findByRole('button', { name: /Ticket question/ }));
+    await screen.findByLabelText('AI model for this reply (testing)');
+    expect(screen.queryByLabelText('Reply prompt')).not.toBeInTheDocument();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
 });

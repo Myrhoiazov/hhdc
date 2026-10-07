@@ -20,6 +20,11 @@ const FieldInput = memo(({ field, saved, editing }: { field: ProviderField; save
     if (field.input === 'checkbox') {
         return <label className={cls.check}><input name={field.name} type="checkbox" defaultChecked={Boolean(initial)} /><FieldLabel label={field.label} /></label>;
     }
+    if (field.input === 'textarea') {
+        return <div className={cls.wide}><Field label={field.label}>
+            <textarea name={field.name} rows={8} spellCheck={false} defaultValue={initial === undefined ? '' : String(initial)} />
+        </Field></div>;
+    }
     // Saved secrets are never returned by the API: when editing they stay blank and optional.
     const secret = field.target === 'credentials';
     return <Field label={field.label}>

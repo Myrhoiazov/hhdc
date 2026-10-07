@@ -1142,6 +1142,28 @@ model AiEvaluationCase {
   createdAt DateTime @default(now()) @db.Timestamptz(6)
 }
 
+// One run of the email assistant on a pasted email from the simulation panel: what was asked,
+// what each stage decided, and what it cost. Nothing here is ever sent to a customer.
+model AiSimulationRun {
+  id            String   @id @default(uuid()) @db.Uuid
+  userId        String   @db.Uuid
+  fromAddress   String
+  subject       String
+  body          String
+  status        String
+  provider      String?
+  model         String?
+  promptVersion String?
+  result        Json?
+  metrics       Json     @default("[]")
+  totalTokens   Int      @default(0)
+  durationMs    Int
+  error         String?
+  createdAt     DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([createdAt])
+}
+
 model AiFeedback {
   id              String   @id @default(uuid()) @db.Uuid
   aiDraftId       String?  @db.Uuid

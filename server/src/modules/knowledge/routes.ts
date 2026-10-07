@@ -6,6 +6,7 @@ import { currentUser, permitted } from '../auth/auth.middleware';
 import { ApiError, entityId, route } from '../../common/http';
 import { normalizePagination } from '../../common/http';
 import { recordKnowledgeVersion, reindexDocument, replaceTextChunks } from './service';
+import { syncKnowledgeBaseV2 } from './kb-v2/kb-sync';
 
 const knowledgeSchema = z.object({ title: z.string().trim().min(1).max(300), content: z.string().trim().min(1).max(200000),
     scope: z.nativeEnum(KnowledgeScope).default('GLOBAL'), eventId: z.string().uuid().nullable().optional(),
@@ -23,7 +24,7 @@ const saveKnowledge = async (req: Request, id?: string) => {
         const document = id ? await tx.knowledgeDocument.update({ where: { id }, data: input })
             : await tx.knowledgeDocument.create({ data: knowledgeSchema.parse(input) as any });
         const changed = await recordKnowledgeVersion(tx, document.id, document.content);
-        if (changed) await replaceTextChunks(tx, document.id, document.content);
+        if (changed) await replaceTextChunks(tx, document);
         await tx.auditLog.create({ data: { actorUserId: currentUser(req).id, action: id ? 'KNOWLEDGE_UPDATED' : 'KNOWLEDGE_CREATED', entityType: 'KnowledgeDocument', entityId: document.id } });
         return document;
     });
@@ -43,6 +44,9 @@ knowledgeRouter.get('/:id', permitted('knowledge.read'), route(async req => {
     if (!document) throw new ApiError(404, 'KNOWLEDGE_NOT_FOUND', 'Knowledge document not found');
     return document;
 }));
+knowledgeRouter.post('/sync-v2', permitted('knowledge.manage'), route(req => syncKnowledgeBaseV2({
+    overwrite: z.object({ overwrite: z.boolean().default(false) }).strict().parse(req.body ?? {}).overwrite, actorUserId: currentUser(req).id,
+})));
 knowledgeRouter.post('/', permitted('knowledge.manage'), route(req => saveKnowledge(req)));
 knowledgeRouter.patch('/:id', permitted('knowledge.manage'), route(req => saveKnowledge(req, entityId(req))));
 knowledgeRouter.delete('/:id', permitted('knowledge.manage'), route(async req => prisma.$transaction(async tx => {

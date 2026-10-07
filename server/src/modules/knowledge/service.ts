@@ -4,7 +4,9 @@ import { z } from 'zod';
 import prisma from '../../../prisma/prisma-client';
 import { configuredAiProvider } from '../ai/registry';
 import { ApiError } from '../../common/http';
-import { chunkKnowledge } from './chunk';
+import { documentChunks, KB_V2_MARKER, type ChunkSource } from './kb-v2/kb-chunks';
+import type { KbV2Store, StoredChunkV2 } from './kb-v2/kb-store.types';
+import type { KnowledgeChunkMetadataV2 } from './kb-v2/kb-v2.types';
 import { DEFAULT_VISIBILITY } from './visibility';
 
 const vectorText = (embedding: number[]) => JSON.stringify(z.array(z.number().finite()).min(1).parse(embedding));
@@ -15,13 +17,14 @@ export const reindexDocument = async (id: string) => {
     const job = await prisma.job.create({ data: { type: 'KNOWLEDGE_EMBED', status: 'RUNNING', startedAt: new Date(), payload: { documentId: id } } });
     try {
         const { provider } = await configuredAiProvider(true);
-        const content = chunkKnowledge(document.content);
-        const embeddings = await provider.embed(content);
+        const content = documentChunks(document);
+        const embeddings = await provider.embed(content.map(chunk => chunk.content));
         if (embeddings.length !== content.length) throw new Error('Embedding count mismatch');
         await prisma.$transaction(async tx => {
             await tx.knowledgeChunk.deleteMany({ where: { documentId: id } });
-            for (const [position, text] of content.entries()) {
-                const chunk = await tx.knowledgeChunk.create({ data: { documentId: id, content: text, position, metadata: { model: provider.model } } });
+            for (const [position, item] of content.entries()) {
+                const metadata = { ...item.metadata, model: provider.model } as Prisma.InputJsonObject;
+                const chunk = await tx.knowledgeChunk.create({ data: { documentId: id, content: item.content, position, metadata } });
                 await tx.$executeRaw`UPDATE "KnowledgeChunk" SET embedding = ${vectorText(embeddings[position])}::vector WHERE id = ${chunk.id}::uuid`;
             }
             await tx.job.update({ where: { id: job.id }, data: { status: 'SUCCEEDED', finishedAt: new Date() } });
@@ -68,10 +71,34 @@ export const retrieveKnowledge = async (query: string, eventId: string | null, v
     return [...candidates.values()].sort((a, b) => b.score - a.score).slice(0, 6);
 };
 
-export const replaceTextChunks = async (tx: Prisma.TransactionClient, id: string, content: string) => {
-    await tx.knowledgeChunk.deleteMany({ where: { documentId: id } });
-    await tx.knowledgeChunk.createMany({ data: chunkKnowledge(content).map((text, position) => ({ documentId: id, content: text, position, metadata: {} })) });
+export const replaceTextChunks = async (tx: Prisma.TransactionClient, document: ChunkSource) => {
+    await tx.knowledgeChunk.deleteMany({ where: { documentId: document.id } });
+    await tx.knowledgeChunk.createMany({ data: documentChunks(document).map((chunk, position) => (
+        { documentId: document.id, content: chunk.content, position, metadata: chunk.metadata as Prisma.InputJsonObject }
+    )) });
 };
+
+interface StoredChunkRow { id: string; content: string; embedding: string; metadata: unknown }
+
+const isChunkMetadata = (value: unknown): value is KnowledgeChunkMetadataV2 => typeof value === 'object' && value !== null
+    && typeof (value as Record<string, unknown>).chunkId === 'string' && typeof (value as Record<string, unknown>).documentId === 'string';
+
+const toStoredChunk = (row: StoredChunkRow): StoredChunkV2[] => (isChunkMetadata(row.metadata)
+    ? [{ id: row.id, content: row.content, embedding: z.array(z.number()).parse(JSON.parse(row.embedding)), metadata: row.metadata }]
+    : []);
+
+// The layered (RAG v2) corpus: embedded chunks of active documents that carry v2 metadata and
+// were embedded with the model the query will be embedded with.
+export const listKbV2Chunks = async (embeddingModel: string, visibility: KnowledgeVisibility[] = DEFAULT_VISIBILITY): Promise<StoredChunkV2[]> => {
+    const rows = await prisma.$queryRaw<StoredChunkRow[]>`
+        SELECT c.id, c.content, c.embedding::text AS embedding, c.metadata
+        FROM "KnowledgeChunk" c JOIN "KnowledgeDocument" d ON d.id = c."documentId"
+        WHERE d.status = 'ACTIVE' AND d.visibility::text = ANY(${visibility}) AND c.embedding IS NOT NULL
+            AND c.metadata->>'kb' = ${KB_V2_MARKER} AND c.metadata->>'model' = ${embeddingModel}`;
+    return rows.flatMap(toStoredChunk);
+};
+
+export const createKbV2Store = (embeddingModel: string): KbV2Store => ({ listActiveChunks: () => listKbV2Chunks(embeddingModel) });
 
 export const contentHash = (content: string) => createHash('sha256').update(content).digest('hex');
 

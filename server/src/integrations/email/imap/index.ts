@@ -22,7 +22,7 @@ export const imapConfigSchema = z.object({
 export type ImapConfig = z.infer<typeof imapConfigSchema>;
 
 export interface MailboxSnapshot extends ImapMailboxState { messages: RawImapMessage[] }
-export interface OutgoingMail { from: string; to: string; subject: string; text: string; inReplyTo?: string; references?: string; messageId?: string; attachments?: EmailAttachment[] }
+export interface OutgoingMail { from: string | { name: string; address: string }; to: string; subject: string; text: string; html?: string; inReplyTo?: string; references?: string; messageId?: string; attachments?: EmailAttachment[] }
 export interface ImapMoveRequest { messages: RemoteEmailRef[]; disposition: EmailDisposition }
 export interface ImapMarkReadRequest { messages: RemoteEmailRef[] }
 
@@ -145,9 +145,14 @@ const markMessagesRead: ImapTransports['markRead'] = async (config, request) => 
 export const networkTransports: ImapTransports = { verify: verifyTransports, readInbox, send: sendMail, move: moveMessages, markRead: markMessagesRead };
 
 const rejectHeaderInjection = (input: SendEmailInput) => {
-    for (const value of [input.sender, input.recipient, input.subject, input.replyToMessageId, input.messageId]) {
+    for (const value of [input.sender, input.senderName, input.recipient, input.subject, input.replyToMessageId, input.messageId]) {
         if (value && /[\r\n]/.test(value)) throw new Error('Invalid email header');
     }
+};
+
+const fromHeader = (input: SendEmailInput): OutgoingMail['from'] => {
+    const address = z.string().email().parse(input.sender);
+    return input.senderName ? { name: input.senderName, address } : address;
 };
 
 const normalizeAll = async (messages: RawImapMessage[], mailboxAddress: string) => {
@@ -180,9 +185,10 @@ export class ImapEmailProvider implements EmailProvider {
     async sendMessage(input: SendEmailInput) {
         rejectHeaderInjection(input);
         const sent = await this.transports.send(this.config, {
-            from: z.string().email().parse(input.sender), to: z.string().email().parse(input.recipient),
+            from: fromHeader(input), to: z.string().email().parse(input.recipient),
             subject: input.subject, text: input.content,
             inReplyTo: input.replyToMessageId, references: input.replyToMessageId, messageId: input.messageId,
+            ...(input.html ? { html: input.html } : {}),
             ...(input.attachments?.length ? { attachments: input.attachments } : {}),
         });
         return { externalId: sent.messageId, threadId: input.threadId };

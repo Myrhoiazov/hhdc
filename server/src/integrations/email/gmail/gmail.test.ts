@@ -111,3 +111,9 @@ test('a Gmail letter with a file is a multipart message that carries the file', 
     assert.match(mime, new RegExp(Buffer.from('100 EUR').toString('base64')));
     await assert.rejects(buildRawEmailWithAttachments({ ...letter, subject: 'x\r\nBcc: y@example.test', attachments: [] }), /Invalid email header/);
 });
+
+test('a Gmail letter carries the sender name next to the address', () => {
+    const raw = Buffer.from(buildRawEmail({ sender: 'info@hhdc.test', senderName: 'High Heels Dance Camp', recipient: 'anna@example.test', subject: 'Hi', content: 'Hello' }), 'base64url').toString();
+    assert.match(raw, new RegExp(`^From: =\\?UTF-8\\?B\\?${Buffer.from('High Heels Dance Camp').toString('base64')}\\?= <info@hhdc\\.test>`, 'm'));
+    assert.throws(() => buildRawEmail({ sender: 'info@hhdc.test', senderName: 'HHDC\r\nBcc: x@example.test', recipient: 'anna@example.test', subject: 'Hi', content: 'Hello' }), /Invalid email header/);
+});
