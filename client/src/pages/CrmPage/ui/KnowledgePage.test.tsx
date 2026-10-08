@@ -1,16 +1,16 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { createReduxStore, ReduxStoreWithManager } from '@/app/providers/StoreProvider';
 import {
-    activatePrompt, createPromptVersion, EmailSimulation, getDefaultEmailPrompts, listEvents, listKnowledge, listPrompts,
+    activatePrompt, createPromptVersion, deleteKnowledge, EmailSimulation, getDefaultEmailPrompts, listEvents, listKnowledge, listPrompts,
     getSimulationRun, listProviders, listSimulationRuns, simulateEmail, syncKnowledgeV2,
 } from '@/entities/crm';
 import { KnowledgePage } from './KnowledgePage';
 
 jest.mock('@/entities/crm', () => ({
     EMAIL_PROMPT_KEYS: ['email_classification', 'email_draft_body'],
-    listKnowledge: jest.fn(),
+    listKnowledge: jest.fn(), LIST_PAGE_SIZE: 25,
     listEvents: jest.fn(),
     saveKnowledge: jest.fn(),
     deleteKnowledge: jest.fn(),
@@ -156,4 +156,32 @@ test('past simulations are listed and a run opens with its email, draft and metr
     expect(run).toHaveTextContent('Где будет проходить HHDC 2027?');
     expect(run).toHaveTextContent('Здравствуйте! HHDC 2027 пройдёт в Apollohal, Amsterdam.');
     expect(run).toHaveTextContent('CLASSIFICATION · OLLAMA/qwen3:1.7b · 5972 ms · 263→341 tokens');
+});
+
+const knowledgeDocument = (id: string, title: string) => ({ id, title, scope: 'GLOBAL', content: 'Be warm and short.', status: 'ACTIVE', sourceType: 'KB_V2', updatedAt: '2026-10-08T10:00:00Z' });
+const NO_KNOWLEDGE_FILTERS = { q: '', scope: '', status: '' };
+
+test('knowledge documents are a table with filters and pages; a title opens the editor', async () => {
+    jest.mocked(listKnowledge).mockResolvedValue({ data: [knowledgeDocument('k1', 'HHDC tone of voice')], total: 48 });
+    renderPage();
+
+    const list = await screen.findByRole('region', { name: 'Knowledge documents' });
+    fireEvent.click(await within(list).findByRole('button', { name: 'HHDC tone of voice' }));
+    expect(within(screen.getByRole('form', { name: 'Edit document' })).getByLabelText('Content')).toHaveValue('Be warm and short.');
+
+    fireEvent.click(within(list).getByRole('button', { name: 'Next page' }));
+    await waitFor(() => expect(listKnowledge).toHaveBeenLastCalledWith(NO_KNOWLEDGE_FILTERS, 2));
+    fireEvent.change(screen.getByLabelText('Status', { selector: 'select:not([name])' }), { target: { value: 'DRAFT' } });
+    await waitFor(() => expect(listKnowledge).toHaveBeenLastCalledWith({ ...NO_KNOWLEDGE_FILTERS, status: 'DRAFT' }, 1));
+});
+
+test('a knowledge document is deleted only after a second press', async () => {
+    jest.mocked(listKnowledge).mockResolvedValue({ data: [knowledgeDocument('k1', 'HHDC tone of voice')], total: 1 });
+    jest.mocked(deleteKnowledge).mockResolvedValue({} as never);
+    renderPage();
+
+    fireEvent.click(await screen.findByRole('button', { name: /^Delete document/ }));
+    expect(deleteKnowledge).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'Delete for good' }));
+    await waitFor(() => expect(deleteKnowledge).toHaveBeenCalledWith('k1'));
 });

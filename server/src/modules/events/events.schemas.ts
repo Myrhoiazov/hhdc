@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { blankAsMissing } from '../../common/filters';
 
 export const eventSchema = z.object({
     name: z.string().min(1),
@@ -35,7 +36,6 @@ export const UpdateSessionSchema = CreateSessionSchemaBase.partial();
 
 // Filters of the events list. Paging fields travel in the same query and are read separately;
 // an empty value means "no filter".
-const blankAsMissing = (value: unknown) => (value === '' ? undefined : value);
 export const eventFiltersSchema = z.object({
     q: z.preprocess(blankAsMissing, z.string().trim().max(200).optional()),
     status: z.preprocess(blankAsMissing, z.enum(['DRAFT', 'PUBLISHED', 'ACTIVE', 'COMPLETED', 'CANCELLED', 'ARCHIVED']).optional()),

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { PersonRoleType, PersonSource, PersonStatus } from '@prisma/client';
+import { blankAsMissing } from '../../common/filters';
 
 const text = z.string().trim().max(500);
 const optionalText = text.nullable().optional();
@@ -23,7 +24,6 @@ export const roleSchema = z.object({
 
 // Filters of the people list. Paging fields travel in the same query and are read separately;
 // an empty value means "no filter".
-const blankAsMissing = (value: unknown) => (value === '' ? undefined : value);
 export const peopleFiltersSchema = z.object({
     q: z.preprocess(blankAsMissing, z.string().trim().max(200).optional()),
     role: z.preprocess(blankAsMissing, z.nativeEnum(PersonRoleType).optional()),

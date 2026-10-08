@@ -3,6 +3,7 @@ import { Prisma } from '@prisma/client';
 import { Request } from 'express';
 import { z } from 'zod';
 import { emitHistoryEvent } from '../outbox/outbox.service';
+import { blankAsMissing, dayFilter } from '../../common/filters';
 
 export interface AuditLogInput {
     actorUserId?: string;
@@ -69,8 +70,7 @@ export const recordHistory = async (tx: Prisma.TransactionClient, req: Request, 
 
 // Filters of the audit page. Paging fields travel in the same query and are read separately;
 // an empty value means "no filter".
-const blankAsMissing = (value: unknown) => (value === '' ? undefined : value);
-const day = z.preprocess(blankAsMissing, z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional());
+const day = dayFilter;
 export const auditFiltersSchema = z.object({
     q: z.preprocess(blankAsMissing, z.string().trim().max(100).optional()),
     entityType: z.preprocess(blankAsMissing, z.string().trim().max(100).optional()),

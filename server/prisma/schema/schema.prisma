@@ -217,6 +217,20 @@ model User {
   notifications Notification[]
   savedViews    SavedView[]
   eventAccess   UserEventAccess[]
+  telegramNotificationChanges TelegramNotificationSetting[]
+}
+
+// The switch of one Telegram notification. The list of notifications and their defaults lives in
+// code: a row exists only after somebody changed a switch.
+model TelegramNotificationSetting {
+  key         String   @id @db.VarChar(64)
+  enabled     Boolean
+  updatedById String?  @db.Uuid
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(6)
+  updatedBy   User?    @relation(fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@index([updatedById])
 }
 
 model Session {

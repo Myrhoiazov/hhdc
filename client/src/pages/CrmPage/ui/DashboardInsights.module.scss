@@ -1,31 +1,3 @@
-.tiles {
-    display: grid;
-    gap: 16px;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-}
-
-.tile {
-    display: flex;
-    flex-direction: column;
-    padding: 20px 24px;
-    background: var(--sidebar-bg-redesigned);
-    border: 1px solid var(--card-border-redesigned);
-    border-radius: var(--radius-md-redesigned);
-    gap: 8px;
-}
-
-.tileLabel {
-    font-size: 13px;
-    color: var(--sidebar-text-redesigned);
-}
-
-.tileValue {
-    font-size: 30px;
-    font-weight: 700;
-    line-height: 1.1;
-    color: var(--sidebar-text-hover-redesigned);
-}
-
 .year {
     border-bottom: 1px solid var(--card-border-redesigned);
 
@@ -64,20 +36,6 @@
     }
 }
 
-/* One hue for magnitude. The bar grows from the left edge: square there, rounded at the data end. */
-.barTrack {
-    display: block;
-    min-width: 0;
-}
-
-.bar {
-    display: block;
-    min-width: 2px;
-    height: 12px;
-    background: var(--style-1-text-redesigned);
-    border-radius: 0 4px 4px 0;
-}
-
 .countryRow {
     display: grid;
     align-items: center;
@@ -91,78 +49,18 @@
     }
 }
 
-.columnHead {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--sidebar-group-label-redesigned);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-}
-
-.number {
-    text-align: right;
-    font-variant-numeric: tabular-nums;
-}
-
-.secondary {
-    color: var(--sidebar-text-redesigned);
-}
-
-/* The report of one event: a heading, tiles and charts stacked with the same rhythm as the page. */
-.report {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.split {
-    display: grid;
-    align-items: start;
-    gap: 16px;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
-}
-
-.barRow {
-    display: grid;
-    align-items: center;
-    padding: 8px 4px;
-    border-bottom: 1px solid var(--card-border-redesigned);
-    gap: 4px 16px;
-    grid-template-columns: minmax(110px, 180px) minmax(60px, 1fr) minmax(40px, auto) minmax(90px, auto);
-
-    &:last-of-type {
-        border-bottom: 0;
-    }
-}
-
-.barName {
-    overflow-wrap: anywhere;
-}
-
 @media (width <= 760px) {
     .yearSummary {
         grid-template-columns: 1fr 1fr;
-    }
-
-    .yearSummary .barTrack {
-        grid-column: 1 / -1;
     }
 
     .countryRow {
         grid-template-columns: 1fr auto;
     }
 
-    .countryRow .barTrack {
+    /* On a narrow screen the bar takes a line of its own. */
+    .wideBar {
         grid-column: 1 / -1;
-    }
-
-    .barRow {
-        grid-template-columns: 1fr auto auto;
-    }
-
-    .barRow .barTrack {
-        grid-column: 1 / -1;
-        grid-row: 2;
     }
 
     .optional {

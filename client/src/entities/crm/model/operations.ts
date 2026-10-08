@@ -79,3 +79,14 @@ export const LEDGER_PAGE_SIZE = 25;
 export const listLedgerPage = async (filters: LedgerFilters, pageNumber: number) =>
     page<LedgerEntry>(`/finance/ledger?${new URLSearchParams({ ...filters, page: String(pageNumber), pageSize: String(LEDGER_PAGE_SIZE) }).toString()}`);
 export const getLedgerSummary = async (filters: LedgerFilters) => read<LedgerSummary>(`/finance/ledger/summary?${new URLSearchParams({ ...filters }).toString()}`);
+
+// Which messages the bot sends to Telegram, one switch per notification.
+export const NOTIFICATION_GROUPS = ['SALES', 'EMAIL', 'PEOPLE_AND_FINANCE'] as const;
+export type NotificationGroup = typeof NOTIFICATION_GROUPS[number];
+export interface NotificationSetting {
+    key: string; group: NotificationGroup; title: string; enabled: boolean; configured: boolean;
+    updatedAt: string | null; updatedBy: { id: string; name: string; email: string } | null;
+}
+export const listNotificationSettings = async () => read<NotificationSetting[]>('/telegram-notifications');
+export const setNotificationEnabled = async (key: string, enabled: boolean) =>
+    (await $apiPrivate.put<{ data: NotificationSetting }>(`/telegram-notifications/${key}`, { enabled })).data.data;

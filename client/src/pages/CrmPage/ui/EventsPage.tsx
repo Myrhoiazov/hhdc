@@ -2,7 +2,7 @@ import { memo, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { getEvent, listTicketTypes } from '@/entities/crm';
+import { Event, getEvent, listTicketTypes } from '@/entities/crm';
 import { getUserAuthData } from '@/entities/User';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { CrmLayout, RequestState } from './common';
@@ -26,13 +26,32 @@ const EventTicketTypes = memo(({ eventId }: { eventId: string }) => {
     </section>;
 });
 
+const EventDates = memo(({ event }: { event: Event }) => (
+    <section className={cls.panel}>
+        <p>{new Date(event.startAt).toLocaleString()} — {new Date(event.endAt).toLocaleString()}</p>
+        <p>{event.timezone} · {event.venueName}</p>
+    </section>
+));
+
+// Sales and expenses are money: both are shown only to staff who may see finance.
+const EventMoney = memo(({ eventId, permissions }: { eventId: string; permissions: string[] }) => {
+    if (!permissions.includes('finance.read')) return null;
+    return <><EventSalesPanel eventId={eventId} /><EventExpenses eventId={eventId} canEdit={permissions.includes('events.write')} /></>;
+});
+
 export const EventPage = memo(() => {
     const { id = '' } = useParams();
     const load = useCallback(() => getEvent(id), [id]);
     const event = useResource(load);
     const permissions = useSelector(getUserAuthData)?.permissions ?? [];
     return <CrmLayout title={event.data?.name || 'Event'}><RequestState error={event.error} loading={event.loading} />
-        {event.data && <><EventSectionNav /><section className={cls.panel}><p>{new Date(event.data.startAt).toLocaleString()} — {new Date(event.data.endAt).toLocaleString()}</p><p>{event.data.timezone} · {event.data.venueName}</p></section><EventSalesPanel eventId={id} />{permissions.includes('finance.read') && <EventExpenses eventId={id} canEdit={permissions.includes('events.write')} />}<EventTicketTypes eventId={id} /><EventPeople event={event.data} onSaved={() => void event.refresh()} /></>}
-        {event.data && <EventDocuments eventId={id} />}
+        {event.data && <>
+            <EventSectionNav />
+            <EventDates event={event.data} />
+            <EventMoney eventId={id} permissions={permissions} />
+            <EventTicketTypes eventId={id} />
+            <EventPeople event={event.data} onSaved={() => void event.refresh()} />
+            <EventDocuments eventId={id} />
+        </>}
     </CrmLayout>;
 });

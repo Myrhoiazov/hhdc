@@ -7,6 +7,7 @@ import { ApiError, entityId, route } from '../../common/http';
 import { normalizePagination } from '../../common/http';
 import { recordKnowledgeVersion, reindexDocument, replaceTextChunks } from './service';
 import { syncKnowledgeBaseV2 } from './kb-v2/kb-sync';
+import { knowledgeFiltersSchema, knowledgeWhere } from './list';
 
 const knowledgeSchema = z.object({ title: z.string().trim().min(1).max(300), content: z.string().trim().min(1).max(200000),
     scope: z.nativeEnum(KnowledgeScope).default('GLOBAL'), eventId: z.string().uuid().nullable().optional(),
@@ -34,8 +35,8 @@ export const knowledgeRouter = Router();
 knowledgeRouter.get('/', permitted('knowledge.read'), async (req, res, next) => {
     try {
         const { page, pageSize, skip } = normalizePagination(req.query);
-        const filters = z.object({ eventId: z.string().uuid().optional(), scope: z.nativeEnum(KnowledgeScope).optional() }).parse(req.query);
-        const [data, total] = await prisma.$transaction([prisma.knowledgeDocument.findMany({ where: filters, skip, take: pageSize, orderBy: { updatedAt: 'desc' } }), prisma.knowledgeDocument.count({ where: filters })]);
+        const where = knowledgeWhere(knowledgeFiltersSchema.parse(req.query));
+        const [data, total] = await prisma.$transaction([prisma.knowledgeDocument.findMany({ where, skip, take: pageSize, orderBy: [{ updatedAt: 'desc' }, { id: 'asc' }] }), prisma.knowledgeDocument.count({ where })]);
         res.json({ data, meta: { page, pageSize, total } });
     } catch (error) { next(error); }
 });

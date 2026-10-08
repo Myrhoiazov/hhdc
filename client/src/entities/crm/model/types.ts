@@ -15,7 +15,7 @@ export interface Person {
     _count?: { orders: number };
     removal?: PersonRemoval;
 }
-export type RemovalBlocker = 'WEEZTIX' | 'PURCHASES' | 'EVENTS' | 'FINANCE' | 'CHOREOGRAPHER' | 'NOT_FROM_EMAIL';
+export type RemovalBlocker = 'WEEZTIX' | 'PURCHASES' | 'EVENTS' | 'FINANCE' | 'CHOREOGRAPHER' | 'MAILINGS' | 'NOT_FROM_EMAIL';
 export interface PersonRemoval { allowed: boolean; blockers: RemovalBlocker[] }
 export interface Event {
     id: string;

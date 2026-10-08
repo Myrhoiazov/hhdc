@@ -98,7 +98,7 @@ test('only a contact that a mailbox created can be deleted, and only after a sec
     expect(await screen.findAllByRole('button', { name: /^Delete contact/ })).toHaveLength(1);
     fireEvent.click(screen.getByRole('button', { name: /^Delete contact/ }));
     expect(deletePerson).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByRole('button', { name: /^Confirm deleting/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Delete for good' }));
     await waitFor(() => expect(deletePerson).toHaveBeenCalledWith('p1'));
     await waitFor(() => expect(listPeoplePage).toHaveBeenCalledTimes(2));
 });
@@ -112,7 +112,7 @@ test('cancelling keeps the contact, and a refusal of the server is shown', async
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
     expect(deletePerson).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole('button', { name: /^Delete contact/ }));
-    fireEvent.click(screen.getByRole('button', { name: /^Confirm deleting/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Delete for good' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('it has purchases');
 });
 

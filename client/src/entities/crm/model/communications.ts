@@ -26,8 +26,10 @@ export interface ConversationFilters { providerConnectionId?: string; q?: string
 // A client is a person with at least one purchase.
 export const isClient = (person?: Person | null): boolean => (person?._count?.orders ?? 0) > 0;
 export interface KnowledgeDocument {
-    id: string; title: string; scope: string; content: string; status: string; eventId?: string | null;
+    id: string; title: string; scope: string; content: string; status: string; eventId?: string | null; sourceType?: string; updatedAt?: string;
 }
+export interface KnowledgeFilters { q: string; scope: string; status: string }
+export const KNOWLEDGE_PAGE_SIZE = 25;
 // A letter with files is sent as multipart form data; without files it stays plain JSON.
 const withAttachments = (fields: Record<string, string>, files: File[]): Record<string, string> | FormData => {
     if (!files.length) return fields;
@@ -65,8 +67,9 @@ export type ConversationDisposition = 'SPAM' | 'TRASH';
 export const applyConversationDisposition = async (id: string, disposition: ConversationDisposition): Promise<void> => {
     await $apiPrivate.post(`/conversations/${id}/disposition`, { disposition });
 };
-export const listKnowledge = async (): Promise<PageResult<KnowledgeDocument>> => {
-    const result = (await $apiPrivate.get<{data: KnowledgeDocument[]; meta: {total: number}}>('/knowledge')).data;
+export const listKnowledge = async (filters: KnowledgeFilters, page: number): Promise<PageResult<KnowledgeDocument>> => {
+    const query = new URLSearchParams({ ...filters, page: String(page), pageSize: String(KNOWLEDGE_PAGE_SIZE) }).toString();
+    const result = (await $apiPrivate.get<{data: KnowledgeDocument[]; meta: {total: number}}>(`/knowledge?${query}`)).data;
     return { data: result.data, total: result.meta.total };
 };
 export const saveKnowledge = async (input: Partial<KnowledgeDocument>, id?: string) => id ? $apiPrivate.patch(`/knowledge/${id}`, input) : $apiPrivate.post('/knowledge', input);

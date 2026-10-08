@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { currentUser, permitted } from '../auth/auth.middleware';
+import { expenseAddedMessage } from '../telegram-notifications/messages';
+import { announce } from '../telegram-notifications/announce';
 import { createEventExpense, expenseChangeSchema, expenseSchema, listEventExpenses, updateEventExpense } from '../finance/event-expenses';
 import { route } from '../../common/http';
 import * as controller from './events.controller';
@@ -25,7 +27,9 @@ eventsRouter.patch('/:id/sessions/:sessionId', permitted('events.write'), route(
 eventsRouter.get('/:id/expenses', permitted('finance.read'), route(async req => listEventExpenses(entityId(req))));
 eventsRouter.post('/:id/expenses', permitted('finance.read'), permitted('events.write'), route(async req => {
     req.res!.status(201);
-    return createEventExpense(entityId(req), expenseSchema.parse(req.body), currentUser(req).id);
+    const expense = await createEventExpense(entityId(req), expenseSchema.parse(req.body), currentUser(req).id);
+    void announce('EVENT_EXPENSE_ADDED', expenseAddedMessage({ category: expense.category, amount: expense.amount, currency: expense.currency, eventName: expense.event?.name ?? '' }));
+    return expense;
 }));
 eventsRouter.patch('/:id/expenses/:expenseId', permitted('finance.read'), permitted('events.write'), route(async req => {
     const expenseId = z.string().uuid().parse(req.params.expenseId);

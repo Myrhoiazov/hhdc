@@ -5,6 +5,7 @@ import { logger } from '../../common/logger';
 import { notifyEmailReceived } from '../../integrations/telegram/notify';
 import { prepareInboundDraftSafely } from '../ai/inbound-pipeline';
 import { sendTaskRemindersWhenDue } from '../choreographers/followup.service';
+import { announce } from '../telegram-notifications/announce';
 import { handleDomainEvent } from '../automations/engine';
 import { deliverCampaign } from '../campaigns/campaigns.service';
 import { syncEmailWhenDue } from '../communications/sync';
@@ -29,7 +30,7 @@ const publishDomainEvent = async (event: OutboxEvent, payload: Payload) => {
     if ((WEBHOOK_EVENTS as readonly string[]).includes(event.topic)) await enqueueWebhookDeliveries(event.topic, JSON.parse(JSON.stringify(payload)), event.id);
     // Last, so an event retried after a failed handler does not announce the same email twice.
     if (event.topic === 'email.received') {
-        await notifyEmailReceived(payload);
+        await announce('NEW_EMAIL', () => notifyEmailReceived(payload));
         prepareInboundDraftSafely(payload);
     }
 };

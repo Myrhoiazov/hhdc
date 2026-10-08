@@ -2,6 +2,7 @@ import { z } from 'zod';
 import prisma from '../../../prisma/prisma-client';
 import { EXPENSE_CATEGORIES } from './event-expenses';
 import { fromCents, toCents } from './refund-rules';
+import { dayFilter, optionalFilter } from '../../common/filters';
 
 // Every movement of money the CRM knows, as one list: payments of buyers, refunds and the costs
 // of events. The list is put together in memory from the three sources, then filtered, added up
@@ -18,20 +19,18 @@ export interface LedgerEntry {
     description: string | null; person: Named | null; event: Named | null; counted: boolean;
 }
 
-const DAY = /^\d{4}-\d{2}-\d{2}$/;
-const blank = (value: unknown) => (value === '' ? undefined : value);
-const optional = <T extends z.ZodTypeAny>(schema: T) => z.preprocess(blank, schema.optional());
+const optional = optionalFilter;
 
 export const ledgerFiltersSchema = z.object({
     q: optional(z.string().trim().max(200)), category: optional(z.enum(LEDGER_CATEGORIES)), eventId: optional(z.string().uuid()),
-    from: optional(z.string().regex(DAY)), to: optional(z.string().regex(DAY)),
+    from: dayFilter, to: dayFilter,
 });
 export type LedgerFilters = z.infer<typeof ledgerFiltersSchema>;
 
 // Money that came in or went out for good. A failed payment, a refund that is only requested and
 // a cancelled expense are listed, but they add nothing to the totals.
 const COUNTED: Record<LedgerKind, string[]> = {
-    PAYMENT: ['PAID', 'PARTIALLY_REFUNDED', 'REFUNDED'], REFUND: ['COMPLETED'], EXPENSE: ['PLANNED', 'APPROVED', 'PAID'],
+    PAYMENT: ['PAID', 'PARTIALLY_REFUNDED'], REFUND: ['COMPLETED'], EXPENSE: ['PLANNED', 'APPROVED', 'PAID'],
 };
 export const isCounted = (kind: LedgerKind, status: string): boolean => COUNTED[kind].includes(status);
 
@@ -92,11 +91,17 @@ export const toEntry = (source: EntrySource): LedgerEntry => ({
 
 const PERSON = { select: { id: true, displayName: true } } as const;
 const EVENT = { select: { id: true, name: true } } as const;
-const ORDER = { select: { event: EVENT } } as const;
+const ORDER = { select: { status: true, event: EVENT } } as const;
+
+// Weeztix reports a refund on the order, not on the payment: the payment stays "paid". Such a
+// payment is shown with the state of its order and adds nothing to the income.
+const WITHDRAWN_ORDERS = ['REFUNDED', 'CANCELLED'];
+export const paymentState = (paymentStatus: string, orderStatus: string | undefined): string =>
+    (orderStatus && WITHDRAWN_ORDERS.includes(orderStatus) ? orderStatus : paymentStatus);
 
 const loadPayments = async (): Promise<LedgerEntry[]> => {
     const rows = await prisma.payment.findMany({ select: { id: true, amount: true, currency: true, status: true, method: true, paidAt: true, createdAt: true, person: PERSON, order: ORDER } });
-    return rows.map(row => toEntry({ ...row, kind: 'PAYMENT', category: TICKETS, date: row.paidAt ?? row.createdAt, description: row.method, event: row.order?.event }));
+    return rows.map(row => toEntry({ ...row, kind: 'PAYMENT', category: TICKETS, status: paymentState(row.status, row.order?.status), date: row.paidAt ?? row.createdAt, description: row.method, event: row.order?.event }));
 };
 
 const loadRefunds = async (): Promise<LedgerEntry[]> => {

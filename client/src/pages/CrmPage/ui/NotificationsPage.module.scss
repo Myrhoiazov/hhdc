@@ -1,0 +1,112 @@
+.intro {
+    margin: 0;
+    color: var(--sidebar-text-redesigned);
+}
+
+.groupTitle {
+    margin: 0;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--sidebar-group-label-redesigned);
+    text-transform: uppercase;
+    letter-spacing: 1.4px;
+}
+
+.rows {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 16px 0;
+    gap: 16px;
+
+    &:not(:last-child) {
+        border-bottom: 1px solid var(--card-border-redesigned);
+    }
+
+    &:last-child {
+        padding-bottom: 0;
+    }
+}
+
+.rowText {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 0;
+    gap: 6px;
+}
+
+.rowTitle {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--sidebar-text-hover-redesigned);
+}
+
+.description {
+    font-size: 14px;
+    line-height: 1.45;
+    color: var(--sidebar-text-redesigned);
+}
+
+.meta {
+    font-size: 12px;
+    color: var(--sidebar-group-label-redesigned);
+    overflow-wrap: anywhere;
+}
+
+.warning {
+    padding: 12px 16px;
+    font-size: 14px;
+    color: var(--style-4-text-redesigned);
+    background: var(--style-4-bg-redesigned);
+    border: 1px solid var(--style-4-text-redesigned);
+    border-radius: var(--radius-sm-redesigned);
+}
+
+.switch {
+    position: relative;
+    width: 46px;
+    height: 26px;
+    padding: 0;
+    background: var(--sidebar-group-label-redesigned);
+    border: 0;
+    border-radius: var(--radius-pill-redesigned);
+    transition: background 0.15s;
+    cursor: pointer;
+    flex-shrink: 0;
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: progress;
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--primary-redesigned);
+        outline-offset: 2px;
+    }
+}
+
+.thumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    background: var(--primary-contrast-redesigned);
+    border-radius: 50%;
+    transition: transform 0.15s;
+}
+
+.switchOn {
+    background: var(--primary-redesigned);
+
+    .thumb {
+        transform: translateX(20px);
+    }
+}

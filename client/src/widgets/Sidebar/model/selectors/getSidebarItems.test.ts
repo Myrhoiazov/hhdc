@@ -16,3 +16,7 @@ test('V2 sections appear only with the matching permission', () => {
     expect(paths(['automation.read', 'ai.use'])).toEqual(expect.arrayContaining(['/automations', '/assistant']));
     expect(paths(['people.read'])).not.toContain('/finance');
 });
+test('notification settings are offered to staff who manage settings', () => {
+    const items = getSidebarItems(stateFor(['settings.manage']));
+    expect(items.find(item => item.path === '/settings')?.children?.map(item => item.path)).toEqual(['/settings/platform', '/settings/notifications']);
+});

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { expenseCategory, ledgerFiltersSchema, matchesLedger, newestFirst, summariseLedger, toEntry, type LedgerEntry } from './ledger';
+import { expenseCategory, isCounted, ledgerFiltersSchema, matchesLedger, newestFirst, paymentState, summariseLedger, toEntry, type LedgerEntry } from './ledger';
 
 const amount = (value: string) => ({ toFixed: () => value });
 const anna = { id: 'p1', displayName: 'Anna Berg' };
@@ -67,4 +67,13 @@ test('an empty filter in the address means no filter and an unknown category is 
     assert.deepEqual(Object.values(ledgerFiltersSchema.parse({ q: '', category: '', eventId: '', from: '', to: '', page: '2' })).filter(Boolean), []);
     assert.throws(() => ledgerFiltersSchema.parse({ category: 'BRIBES' }));
     assert.throws(() => ledgerFiltersSchema.parse({ from: '10.03.2026' }));
+});
+
+test('a payment of a refunded or cancelled order takes the state of the order and is not income', () => {
+    assert.equal(paymentState('PAID', 'REFUNDED'), 'REFUNDED');
+    assert.equal(paymentState('PAID', 'CANCELLED'), 'CANCELLED');
+    assert.equal(paymentState('PAID', 'PAID'), 'PAID');
+    assert.equal(paymentState('FAILED', undefined), 'FAILED');
+    assert.deepEqual([isCounted('PAYMENT', 'REFUNDED'), isCounted('PAYMENT', 'CANCELLED'), isCounted('PAYMENT', 'PAID')], [false, false, true]);
+    assert.equal(summariseLedger([payment('1', '100.00', '2026-01-01'), payment('2', '397.82', '2026-01-02', 'REFUNDED')]).income, '100.00');
 });

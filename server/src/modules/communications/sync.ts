@@ -4,6 +4,7 @@ import { ApiError } from '../../common/http';
 import { logger } from '../../common/logger';
 import type { EmailSyncPage, NormalizedEmail } from '../../integrations/email/EmailProvider';
 import { notifyEmailSyncFailed } from '../../integrations/telegram/notify';
+import { announce } from '../telegram-notifications/announce';
 import { ingestEmail } from './ingest';
 import { emailProvider } from './send';
 
@@ -103,7 +104,7 @@ export const syncEmailConnection = async (connectionId: string, deps: EmailSyncD
         return summary;
     } catch (error) {
         await failRun(run, error);
-        if (isNewSyncFailure(connection.status)) await notifyEmailSyncFailed(connectionId);
+        if (isNewSyncFailure(connection.status)) await announce('EMAIL_SYNC_FAILED', () => notifyEmailSyncFailed(connectionId));
         if (error instanceof ApiError) throw error;
         throw new ApiError(502, 'EMAIL_SYNC_FAILED', `Mailbox sync failed: ${errorText(error)}`);
     }

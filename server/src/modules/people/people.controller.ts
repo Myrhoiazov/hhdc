@@ -9,6 +9,9 @@ import { activityService } from '../activity/activity.service';
 import { peopleFiltersSchema, personSchema, roleSchema } from './people.schemas';
 import { createAuditLog, extractAuditContext } from '../audit/audit.service';
 import { deleteEmailPerson, removalByPerson } from './person-removal';
+import { currentUser } from '../auth/auth.middleware';
+import { contactDeletedMessage } from '../telegram-notifications/messages';
+import { announce } from '../telegram-notifications/announce';
 
 export const listPeople = async (req: Request) => {
     const { page, pageSize, skip } = normalizePagination(req.query);
@@ -30,6 +33,7 @@ export const getPerson = async (req: Request) => {
 export const deletePerson = async (req: Request) => {
     const deleted = await deleteEmailPerson(entityId(req));
     await createAuditLog({ action: 'PERSON_DELETED', entityType: 'Person', entityId: deleted.id, before: deleted }, extractAuditContext(req));
+    void announce('CONTACT_DELETED', contactDeletedMessage(currentUser(req).name || currentUser(req).email));
     return { deleted: true };
 };
 

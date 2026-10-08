@@ -3,13 +3,13 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { CountryRow, DashboardInsights, EventMoney, getDashboardInsights, YearMoney } from '@/entities/crm';
 import { useResource } from '@/shared/lib/useResource/useResource';
+import { Bar, chartStyles as chart, Tile } from './Charts';
 import { RequestState } from './common';
 import { listStyles as table } from './ListTable';
 import cls from './CrmPage.module.scss';
 import own from './DashboardInsights.module.scss';
 
 const COUNTRIES_SHOWN = 12;
-const PERCENT = 100;
 
 const useFormat = (currency: string) => {
     const { i18n } = useTranslation();
@@ -22,21 +22,9 @@ const useFormat = (currency: string) => {
     };
 };
 
-// Width of a bar as a share of the largest value shown next to it.
-const share = (value: number, largest: number): string => `${largest > 0 ? Math.max(0, (value / largest) * PERCENT) : 0}%`;
-
-export const Bar = memo(({ value, largest, title }: { value: number; largest: number; title: string }) => (
-    <span className={own.barTrack} title={title}><span className={own.bar} style={{ width: share(value, largest) }} /></span>
-));
-
-export const Tile = memo(({ label, children }: { label: string; children: ReactNode }) => {
-    const { t } = useTranslation();
-    return <div className={own.tile}><span className={own.tileLabel}>{t(label)}</span><span className={own.tileValue}>{children}</span></div>;
-});
-
 const Totals = memo(({ data }: { data: DashboardInsights }) => {
     const format = useFormat(data.currency);
-    return <div className={own.tiles}>
+    return <div className={chart.tiles}>
         <Tile label="Ticket income">{format.money(data.totals.revenue)}</Tile>
         <Tile label="Costs recorded">{format.money(data.totals.costs)}</Tile>
         <Tile label="Result">{format.money(data.totals.result)}</Tile>
@@ -75,8 +63,8 @@ const YearBlock = memo(({ year, largest, currency, open }: { year: YearMoney; la
     const format = useFormat(currency);
     return <details className={own.year} open={open}>
         <summary className={own.yearSummary}>
-            <span><span className={own.yearName}>{year.year}</span> <span className={own.secondary}>· {t('Events: {{count}}', { count: year.events.length })}</span></span>
-            <Bar value={Number(year.revenue)} largest={largest} title={`${year.year}: ${format.money(year.revenue)}`} />
+            <span><span className={own.yearName}>{year.year}</span> <span className={chart.secondary}>· {t('Events: {{count}}', { count: year.events.length })}</span></span>
+            <Bar className={own.wideBar} value={Number(year.revenue)} largest={largest} title={`${year.year}: ${format.money(year.revenue)}`} />
             <Figure label="Income">{format.money(year.revenue)}</Figure>
             <Figure label="Costs">{format.money(year.costs)}</Figure>
             <Figure label="Result">{format.money(year.result)}</Figure>
@@ -113,10 +101,10 @@ const CountryLine = memo(({ name, row, largest, currency }: CountryLineProps) =>
     const format = useFormat(currency);
     return <div className={own.countryRow} role="row">
         <span role="cell">{name}</span>
-        <Bar value={row.buyers} largest={largest} title={`${name}: ${format.count(row.buyers)}`} />
-        <span role="cell" className={own.number}>{format.count(row.buyers)}</span>
-        <span role="cell" className={`${own.number} ${own.secondary} ${own.optional}`}>{format.count(row.tickets)}</span>
-        <span role="cell" className={`${own.number} ${own.optional}`}>{format.money(row.revenue)}</span>
+        <Bar className={own.wideBar} value={row.buyers} largest={largest} title={`${name}: ${format.count(row.buyers)}`} />
+        <span role="cell" className={chart.number}>{format.count(row.buyers)}</span>
+        <span role="cell" className={`${chart.number} ${chart.secondary} ${own.optional}`}>{format.count(row.tickets)}</span>
+        <span role="cell" className={`${chart.number} ${own.optional}`}>{format.money(row.revenue)}</span>
     </div>;
 });
 
@@ -128,9 +116,9 @@ const Countries = memo(({ data }: { data: DashboardInsights }) => {
     return <section className={cls.panel} aria-label={t('Buyers by country')}>
         <h2>{t('Buyers by country')}</h2>
         <div role="table" aria-label={t('Buyers by country')}>
-            <div className={`${own.countryRow} ${own.columnHead}`} role="row">
-                <span role="columnheader">{t('Country')}</span><span role="columnheader">{t('Share of buyers')}</span><span role="columnheader" className={own.number}>{t('Buyers')}</span>
-                <span role="columnheader" className={`${own.number} ${own.optional}`}>{t('Tickets')}</span><span role="columnheader" className={`${own.number} ${own.optional}`}>{t('Income')}</span>
+            <div className={`${own.countryRow} ${chart.columnHead}`} role="row">
+                <span role="columnheader">{t('Country')}</span><span role="columnheader">{t('Share of buyers')}</span><span role="columnheader" className={chart.number}>{t('Buyers')}</span>
+                <span role="columnheader" className={`${chart.number} ${own.optional}`}>{t('Tickets')}</span><span role="columnheader" className={`${chart.number} ${own.optional}`}>{t('Income')}</span>
             </div>
             {shown.map(row => <CountryLine key={row.code} name={format.country(row.code)} row={row} largest={largest} currency={data.currency} />)}
             {rest && <CountryLine name={t('Other countries: {{count}}', { count: restCount })} row={rest} largest={largest} currency={data.currency} />}

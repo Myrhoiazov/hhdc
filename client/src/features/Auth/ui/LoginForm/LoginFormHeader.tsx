@@ -1,6 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Text } from '@/shared/ui/Text/Text';
-import { VStack } from '@/shared/ui/Stack';
+import logo from '@/shared/assets/logo/hhdc-logo.png';
 import cls from './LoginForm.module.scss';
 
 export const LoginFormHeader = () => {
@@ -8,11 +7,14 @@ export const LoginFormHeader = () => {
 
     return (
         <div className={cls.logoWrap}>
-            <div className={cls.logo} aria-label="High Heels Dance Camp">HHDC</div>
-            <VStack gap="4" align="center" className={cls.header}>
-                <Text size="m" title={t('Вход в административную панель')} bold />
-                <Text size="s" text={t('Управляйте подготовкой High Heels Dance Camp')} />
-            </VStack>
+            <div className={cls.brand}>
+                <img className={cls.logo} src={logo} alt="" />
+                <span className={cls.brandName}>{t('HHDC Event CRM')}</span>
+            </div>
+            <h1 className={cls.header}>
+                <span>{t('Welcome back!')}</span>
+                <span>{t('Please sign in')}</span>
+            </h1>
         </div>
     );
 };

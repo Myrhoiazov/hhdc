@@ -1,7 +1,7 @@
 import { memo, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LIST_PAGE_SIZE } from '@/entities/crm';
-import { Button } from '@/shared/ui/Button';
+import { Button, ButtonTheme } from '@/shared/ui/Button';
 import cls from './CrmPage.module.scss';
 import own from './ListTable.module.scss';
 
@@ -30,4 +30,27 @@ export const Pager = memo(({ page, total, onChange }: { page: number; total: num
         <span className={cls.muted}>{t('Page {{page}} of {{pages}}', { page, pages })}</span>
         <Button disabled={page >= pages} aria-label={t('Next page')} onClick={() => onChange(page + 1)}>→</Button>
     </nav>;
+});
+
+interface ConfirmDeleteProps { label: string; onDelete: () => Promise<void>; onError?: (message: string) => void }
+
+// Deleting cannot be undone, so the first press only asks and the second one deletes. A refusal
+// is handed to `onError`, or shown next to the buttons when nobody takes it.
+export const ConfirmDelete = memo(({ label, onDelete, onError }: ConfirmDeleteProps) => {
+    const { t } = useTranslation();
+    const [asking, setAsking] = useState(false);
+    const [busy, setBusy] = useState(false);
+    const [error, setError] = useState('');
+    const fail = (message: string) => { if (onError) { onError(message); setAsking(false); } else setError(message); };
+    const remove = async () => {
+        setBusy(true);
+        try { await onDelete(); }
+        catch (cause) { fail(cause instanceof Error ? cause.message : t('Unable to delete')); setBusy(false); }
+    };
+    if (!asking) return <Button theme={ButtonTheme.OUTLINE_RED} aria-label={label} onClick={() => setAsking(true)}>{t('Delete')}</Button>;
+    return <span className={cls.actions}>
+        <Button theme={ButtonTheme.OUTLINE_RED} disabled={busy} onClick={() => void remove()}>{t('Delete for good')}</Button>
+        <Button disabled={busy} onClick={() => { setAsking(false); setError(''); }}>{t('Cancel')}</Button>
+        {error && <span role="alert" className={cls.error}>{error}</span>}
+    </span>;
 });

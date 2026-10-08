@@ -9,6 +9,8 @@ import { WeeztixFormatError } from '../../integrations/ticketing/weeztix/weeztix
 import { syncWeeztixCatalog, unreadableNote, type CatalogSyncResult } from './weeztix-catalog.service';
 import { getWeeztixAccessToken, readWeeztixCompanyGuid, recordWeeztixSync } from './weeztix-connection.service';
 import { saveContactsFromOrders } from './weeztix-contacts.service';
+import { newSalesMessage, weeztixFailedMessage } from '../telegram-notifications/messages';
+import { announce } from '../telegram-notifications/announce';
 
 // Orders of Weeztix in the CRM: order → lines by ticket type → tickets → payments, and a
 // registration of the buyer for each event they hold a ticket to. Everything is matched by its
@@ -64,7 +66,7 @@ const saveOrder = async (tx: Db, context: SyncContext, order: WeeztixOrder): Pro
     const buyerId = existing?.buyerPersonId ?? context.lookup.buyers.get(order.email) ?? null;
     const shopName = context.lookup.shops.get(order.shopGuid) ?? null;
     const data = { status: order.status, currency: order.currency, subtotal: order.subtotal, fees: order.fees, total: order.total, buyerPersonId: buyerId,
-        shopName, answers: order.answers as unknown as Prisma.InputJsonArray, downloadUrl: order.downloadUrl,
+        shopName, answers: order.answers.map(answer => ({ ...answer })), downloadUrl: order.downloadUrl,
         rawData: { ...order.raw, _fingerprint: orderFingerprint(order, shopName) } as Prisma.InputJsonObject,
     };
     if (existing) {
@@ -93,11 +95,12 @@ interface TicketTarget { orderId: string; buyerId: string | null; lineIds: Map<s
 const saveTicket = async (tx: Db, context: SyncContext, target: TicketTarget, ticket: WeeztixTicket): Promise<SavedTicket> => {
     const type = context.lookup.types.get(ticket.typeGuid) as TicketTypeInfo;
     const where = { providerConnectionId_externalId: { providerConnectionId: context.connectionId, externalId: ticket.guid } };
-    const existing = await tx.ticket.findUnique({ where, select: { id: true, status: true } });
+    const existing = await tx.ticket.findUnique({ where, select: { id: true, status: true, holderPersonId: true } });
     const sale = { price: ticket.price, listPrice: ticket.listPrice, serviceFee: ticket.serviceFee, couponCode: ticket.couponCode, downloadUrl: ticket.downloadUrl, rawData: ticket.raw as Prisma.InputJsonObject };
     if (existing) {
         const status = nextTicketStatus(existing.status, ticket.status);
-        await tx.ticket.update({ where: { id: existing.id }, data: { ...sale, status } });
+        // A ticket stored before its buyer was known gets the buyer now; a holder set by staff is kept.
+        await tx.ticket.update({ where: { id: existing.id }, data: { ...sale, status, holderPersonId: existing.holderPersonId ?? target.buyerId } });
         return { id: existing.id, eventId: type.eventId, status, scanned: ticket.status === 'USED' };
     }
     const created = await tx.ticket.create({ data: {
@@ -117,11 +120,26 @@ const savePayments = async (tx: Db, saved: SavedOrder, order: WeeztixOrder): Pro
     }
 };
 
-// A registration made from a ticket that Weeztix has withdrawn is cancelled with it.
-const cancelWithdrawn = (tx: Db, tickets: SavedTicket[]) => tx.registration.updateMany({
-    where: { ticketId: { in: tickets.filter(ticket => !admits(ticket.status)).map(ticket => ticket.id) }, status: { in: ['PENDING', 'CONFIRMED'] }, registrationSource: 'WEEZTIX' },
-    data: { status: 'CANCELLED' },
+// Another ticket of the same person that still lets them into the event, bought in any order.
+const otherAdmission = (tx: Db, registration: { eventId: string; personId: string }, withdrawn: string[]) => tx.ticket.findFirst({
+    where: { eventId: registration.eventId, holderPersonId: registration.personId, status: { in: ADMISSIBLE }, id: { notIn: withdrawn } },
+    select: { id: true }, orderBy: { createdAt: 'asc' },
 });
+
+// A registration made from a ticket that Weeztix has withdrawn is cancelled with it, unless the
+// person holds another valid ticket to the event: then the registration moves to that ticket.
+const cancelWithdrawn = async (tx: Db, tickets: SavedTicket[]): Promise<void> => {
+    const withdrawn = tickets.filter(ticket => !admits(ticket.status)).map(ticket => ticket.id);
+    if (!withdrawn.length) return;
+    const registrations = await tx.registration.findMany({
+        where: { ticketId: { in: withdrawn }, status: { in: ['PENDING', 'CONFIRMED'] }, registrationSource: 'WEEZTIX' },
+        select: { id: true, eventId: true, personId: true },
+    });
+    for (const registration of registrations) {
+        const other = await otherAdmission(tx, registration, withdrawn);
+        await tx.registration.update({ where: { id: registration.id }, data: other ? { ticketId: other.id } : { status: 'CANCELLED' } });
+    }
+};
 
 // A ticket scanned at the door by a Weeztix scanner checks its registration in.
 const checkInScanned = (tx: Db, tickets: SavedTicket[]) => tx.registration.updateMany({
@@ -249,13 +267,18 @@ const running = new Set<string>();
 export const syncWeeztixSales = async (connectionId: string): Promise<{ catalog: CatalogSyncResult; sales: OrderSyncResult }> => {
     if (running.has(connectionId)) throw new ApiError(409, 'WEEZTIX_SYNC_RUNNING', 'Weeztix is being synced right now. Try again in a minute');
     running.add(connectionId);
+    const before = await prisma.providerConnection.findUnique({ where: { id: connectionId }, select: { name: true, lastError: true } });
     try {
         const catalog = await syncWeeztixCatalog(connectionId);
         const sales = await syncWeeztixOrders(connectionId);
         await recordWeeztixSync(connectionId, sales.firstError ?? unreadableNote(catalog.unreadable + sales.unreadable));
+        if (sales.created > 0) void announce('NEW_TICKET_SALES', newSalesMessage(sales.created));
         return { catalog, sales };
     } catch (error) {
-        await recordWeeztixSync(connectionId, (error instanceof Error ? error.message : 'Unknown error').slice(0, 300));
+        const reason = (error instanceof Error ? error.message : 'Unknown error').slice(0, 300);
+        await recordWeeztixSync(connectionId, reason);
+        // A connection that already failed is retried on every sweep; only the first failure is announced.
+        if (!before?.lastError) void announce('WEEZTIX_SYNC_FAILED', weeztixFailedMessage(before?.name ?? connectionId, reason));
         throw error;
     } finally {
         running.delete(connectionId);

@@ -8,6 +8,7 @@ import Mail from '@/shared/assets/icons/mail-20-20.svg';
 import Knowledge from '@/shared/assets/icons/content-hub.svg';
 import Euro from '@/shared/assets/icons/euro.svg';
 import Check from '@/shared/assets/icons/check.svg';
+import Bell from '@/shared/assets/icons/bell.svg';
 import Settings from '@/shared/assets/icons/crm-settings.svg';
 import { SidebarItemType } from '../types/sidebar';
 
@@ -35,6 +36,7 @@ export const getSidebarItems = createSelector(getUserAuthData, (user) => {
     if (permissions.includes('users.manage')) children.push({ path: RoutePath.settings, Icon: People, text: 'Users & Roles' });
     if (permissions.includes('providers.read')) children.push({ path: RoutePath.providers, Icon: Settings, text: 'Providers', iconColor: 'stroke' });
     if (permissions.includes('settings.manage')) children.push({ path: RoutePath.platform, Icon: Settings, text: 'Platform', iconColor: 'stroke' });
+    if (permissions.includes('settings.manage')) children.push({ path: RoutePath.notification_settings, Icon: Bell, text: 'Notifications', iconColor: 'stroke' });
     if (permissions.includes('audit.read')) children.push({ path: RoutePath.audit, Icon: Settings, text: 'Audit log', iconColor: 'stroke' });
     if (children.length) items.push({ path: '/settings', Icon: Settings, text: 'Settings', children, iconColor: 'stroke' });
     return items;

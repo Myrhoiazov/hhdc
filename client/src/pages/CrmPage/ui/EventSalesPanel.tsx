@@ -3,9 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { EventSales, getEventSales } from '@/entities/crm';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { RequestState } from './common';
-import { Bar, Tile } from './DashboardInsights';
+import { Bar, chartStyles as own, Tile } from './Charts';
 import cls from './CrmPage.module.scss';
-import own from './DashboardInsights.module.scss';
 
 const useFormat = (currency: string) => {
     const { i18n } = useTranslation();

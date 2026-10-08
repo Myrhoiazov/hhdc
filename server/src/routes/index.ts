@@ -29,6 +29,7 @@ import { automationsRouter } from '../modules/automations/automations.routes';
 import { financeRouter, inboundWebhooksRouter } from '../modules/finance/finance.routes';
 import { aiPlatformRouter } from '../modules/ai/platform.routes';
 import { platformRouter } from '../modules/platform/platform.routes';
+import { telegramNotificationsRouter } from '../modules/telegram-notifications/routes';
 
 const router = Router();
 router.use('/auth', authRouter);
@@ -51,6 +52,7 @@ router.use('/campaigns', campaignsRouter);
 router.use('/knowledge', knowledgeRouter);
 router.use('/tasks', tasksRouter);
 router.use('/notifications', notificationsRouter);
+router.use('/telegram-notifications', telegramNotificationsRouter);
 router.use('/jobs', jobsRouter);
 router.use('/documents', documentFileRoutes);
 router.use('/documents', documentRoutes);

@@ -5,11 +5,10 @@ import { Event, getLedgerSummary, LEDGER_CATEGORIES, LedgerCategory, LedgerCateg
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
 import { Field, RequestState, StatusBadge } from './common';
-import { Bar, Tile } from './DashboardInsights';
+import { Bar, chartStyles, Tile } from './Charts';
 import { REFUNDABLE, RefundRequestForm } from './FinanceRefunds';
 import { listStyles as table, Pager, useDelayed } from './ListTable';
 import cls from './CrmPage.module.scss';
-import tiles from './DashboardInsights.module.scss';
 import own from './FinanceLedger.module.scss';
 
 export type LedgerView = 'dates' | 'categories';
@@ -66,7 +65,7 @@ const LedgerFiltersBar = memo(({ filters, events, filtered, onChange, onReset }:
 
 const LedgerTiles = memo(({ summary }: { summary: LedgerSummary }) => {
     const text = useLedgerText(summary.currency);
-    return <div className={tiles.tiles}>
+    return <div className={chartStyles.tiles}>
         <Tile label="Received from buyers">{text.rounded(summary.income)}</Tile>
         <Tile label="Refunded">{text.rounded(summary.refunds)}</Tile>
         <Tile label="Costs recorded">{text.rounded(summary.expenses)}</Tile>

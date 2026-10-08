@@ -5,16 +5,18 @@ import { ApiError } from '../../common/http';
 // A contact that a mailbox created on its own can be deleted. Anything tied to Weeztix, to a
 // purchase, to an event or to money stays: deleting it would break the history behind it.
 
-export const REMOVAL_BLOCKERS = ['WEEZTIX', 'PURCHASES', 'EVENTS', 'FINANCE', 'CHOREOGRAPHER', 'NOT_FROM_EMAIL'] as const;
+export const REMOVAL_BLOCKERS = ['WEEZTIX', 'PURCHASES', 'EVENTS', 'FINANCE', 'CHOREOGRAPHER', 'MAILINGS', 'NOT_FROM_EMAIL'] as const;
 export type RemovalBlocker = typeof REMOVAL_BLOCKERS[number];
 export interface PersonRemoval { allowed: boolean; blockers: RemovalBlocker[] }
 
-const TIES = { orders: true, tickets: true, payments: true, refunds: true, registrations: true, choreographerAssignments: true, eventExpenses: true } as const;
+const TIES = { orders: true, tickets: true, payments: true, refunds: true, registrations: true, choreographerAssignments: true, eventExpenses: true, consents: true, deliveryLogs: true } as const;
 const TIES_SELECT = { id: true, source: true, choreographerProfile: { select: { personId: true } }, _count: { select: TIES } } as const;
 type PersonTies = Prisma.PersonGetPayload<{ select: typeof TIES_SELECT }>;
 
 export interface RemovalFacts {
     source: string; linkedToWeeztix: boolean; purchases: number; events: number; expenses: number; choreographer: boolean;
+    // Consents (an opt-out included) and letters of campaigns: deleting the person would erase them.
+    mailings: number;
 }
 
 export const removalFor = (facts: RemovalFacts): PersonRemoval => {
@@ -24,6 +26,7 @@ export const removalFor = (facts: RemovalFacts): PersonRemoval => {
         ['EVENTS', facts.events > 0],
         ['FINANCE', facts.expenses > 0],
         ['CHOREOGRAPHER', facts.choreographer],
+        ['MAILINGS', facts.mailings > 0],
         ['NOT_FROM_EMAIL', facts.source !== 'EMAIL' && facts.source !== 'WEEZTIX'],
     ];
     const blockers = checks.filter(([, blocked]) => blocked).map(([blocker]) => blocker);
@@ -36,7 +39,7 @@ const toFacts = (person: PersonTies, linked: Set<string>): RemovalFacts => {
         source: person.source, linkedToWeeztix: linked.has(person.id),
         purchases: count.orders + count.tickets + count.payments + count.refunds,
         events: count.registrations + count.choreographerAssignments,
-        expenses: count.eventExpenses, choreographer: Boolean(person.choreographerProfile),
+        expenses: count.eventExpenses, choreographer: Boolean(person.choreographerProfile), mailings: count.consents + count.deliveryLogs,
     };
 };
 
@@ -57,7 +60,7 @@ export const removalByPerson = async (ids: string[], db: Prisma.TransactionClien
 
 const REASONS: Record<RemovalBlocker, string> = {
     WEEZTIX: 'it is linked to Weeztix', PURCHASES: 'it has purchases', EVENTS: 'it takes part in events',
-    FINANCE: 'it has expenses', CHOREOGRAPHER: 'it has a choreographer profile', NOT_FROM_EMAIL: 'it was not created from an email',
+    FINANCE: 'it has expenses', CHOREOGRAPHER: 'it has a choreographer profile', MAILINGS: 'it has a consent or a mailing history', NOT_FROM_EMAIL: 'it was not created from an email',
 };
 
 export const blockedMessage = (blockers: RemovalBlocker[]): string =>
