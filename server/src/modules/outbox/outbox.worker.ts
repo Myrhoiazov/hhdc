@@ -4,6 +4,7 @@ import prisma from '../../../prisma/prisma-client';
 import { logger } from '../../common/logger';
 import { notifyEmailReceived } from '../../integrations/telegram/notify';
 import { prepareInboundDraftSafely } from '../ai/inbound-pipeline';
+import { sendTaskRemindersWhenDue } from '../choreographers/followup.service';
 import { handleDomainEvent } from '../automations/engine';
 import { deliverCampaign } from '../campaigns/campaigns.service';
 import { syncEmailWhenDue } from '../communications/sync';
@@ -59,6 +60,7 @@ const tick = async () => {
         await processOutbox();
         await processDueWebhookDeliveries();
         // Not awaited: a slow mailbox must not hold up outbox and webhook delivery.
+        void sendTaskRemindersWhenDue().catch(error => logger.error(`[worker] task reminders failed: ${error instanceof Error ? error.message : 'unknown error'}`));
         void syncEmailWhenDue().catch(error => logger.error(`[worker] email sync failed: ${error instanceof Error ? error.message : 'unknown error'}`));
     } catch (error) {
         logger.error(`[worker] tick failed: ${error instanceof Error ? error.message : 'unknown error'}`);

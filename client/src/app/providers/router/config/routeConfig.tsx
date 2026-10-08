@@ -1,6 +1,6 @@
 import { LoginPage } from '@/pages/AuthPage';
 import NotFoundPage from '@/pages/NotFoundPage';
-import { DashboardPage, PeoplePage, PersonPage, EventsPage, EventPage, AuditPage, ProvidersPage, UsersPage, CommunicationsPage, KnowledgePage, AutomationsPage, FinancePage, AssistantPage, OperationsPage, DuplicatesPage, CampaignsPage, PlatformPage } from '@/pages/CrmPage';
+import { DashboardPage, PeoplePage, PersonPage, EventsPage, EventPage, AuditPage, ProvidersPage, UsersPage, CommunicationsPage, KnowledgePage, AutomationsPage, FinancePage, AssistantPage, OperationsPage, DuplicatesPage, ChoreographersPage, ChoreographerPage, CampaignsPage, PlatformPage } from '@/pages/CrmPage';
 import { AppRoutes, AppRoutesProps, RoutePath } from '@/shared/config/routeConfig/routeConfig';
 
 const protectedRoute = (path: string, element: React.ReactNode): AppRoutesProps => ({ path, element, authOnly: true });
@@ -9,6 +9,9 @@ export const routeConfig: Record<AppRoutes, AppRoutesProps> = {
     main: protectedRoute(RoutePath.main, <DashboardPage />),
     people: protectedRoute(RoutePath.people, <PeoplePage />),
     person: protectedRoute(RoutePath.person, <PersonPage />),
+    choreographers: protectedRoute(RoutePath.choreographers, <ChoreographersPage />),
+    choreographer: protectedRoute(RoutePath.choreographer, <ChoreographerPage />),
+    choreographer_tab: protectedRoute(RoutePath.choreographer_tab, <ChoreographerPage />),
     events: protectedRoute(RoutePath.events, <EventsPage />),
     event: protectedRoute(RoutePath.event, <EventPage />),
     email: protectedRoute(RoutePath.email, <CommunicationsPage />),

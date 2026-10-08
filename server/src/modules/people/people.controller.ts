@@ -1,3 +1,4 @@
+import { hiddenActivityPrefixes } from '../choreographers/relations.rules';
 import { Request } from 'express';
 import { z } from 'zod';
 import { PersonRoleType } from '@prisma/client';
@@ -147,7 +148,8 @@ export const getPersonActivity = async (req: Request) => {
     await peopleService.getPersonById(id);
     
     const { page, skip, pageSize } = normalizePagination(req.query);
-    const timeline = await activityService.getPersonTimeline(id, skip, pageSize);
+    const permissions: string[] = req.res?.locals?.user?.permissions ?? [];
+    const timeline = await activityService.getPersonTimeline(id, skip, pageSize, hiddenActivityPrefixes(permissions));
     
     req.res!.json({ data: timeline.data, meta: { page, pageSize, total: timeline.total } });
 };

@@ -11,3 +11,5 @@ export { AssistantPage } from './ui/AssistantPage';
 export { OperationsPage } from './ui/OperationsPage';
 export { DuplicatesPage, CampaignsPage } from './ui/DataPage';
 export { PlatformPage } from './ui/PlatformPage';
+export { ChoreographersPage } from './ui/choreographers/ChoreographersPage';
+export { ChoreographerPage } from './ui/choreographers/ChoreographerPage';

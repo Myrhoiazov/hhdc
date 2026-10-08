@@ -5,6 +5,7 @@ import { assignChoreographer, createEvent, Event, getEvent, listEvents, listPeop
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
 import { CrmLayout, Field, RequestState } from './common';
+import { EventDocuments } from './choreographers/EventDocuments';
 import cls from './CrmPage.module.scss';
 
 const EventForm = memo(({ onSaved }: { onSaved: () => void }) => {
@@ -59,7 +60,7 @@ const EventAssignments = memo(({ event, onSaved }: { event: Event; onSaved: () =
         <div className={cls.roles}><Button disabled={!personId || saving} onClick={() => void assign('registration')}>{t('Register participant')}</Button><Button disabled={!personId || saving} onClick={() => void assign('choreographer')}>{t('Assign choreographer')}</Button></div>
         <RequestState error={error || people.error} loading={people.loading} />
         <h3>{t('Registrations')}</h3>{event.registrations?.map(item => <div key={item.id} className={cls.row}><Link to={`/people/${item.person.id}`}>{item.person.firstName} {item.person.lastName}</Link><span>{t(item.status)}</span></div>)}
-        <h3>{t('Choreographers')}</h3>{event.choreographers?.map(item => <div key={item.id} className={cls.row}><Link to={`/people/${item.person.id}`}>{item.person.firstName} {item.person.lastName}</Link><span>{item.roleTitle}</span><span>{t(item.status)}</span></div>)}
+        <h3>{t('Choreographers')}</h3>{event.choreographers?.map(item => <div key={item.id} className={cls.row}><Link to={`/people/choreographers/${item.person.id}/events`}>{item.person.firstName} {item.person.lastName}</Link><span>{item.roleTitle}</span><span>{t(item.status)}</span></div>)}
     </section>;
 });
 
@@ -69,5 +70,6 @@ export const EventPage = memo(() => {
     const event = useResource(load);
     return <CrmLayout title={event.data?.name || 'Event'}><RequestState error={event.error} loading={event.loading} />
         {event.data && <><section className={cls.panel}><p>{new Date(event.data.startAt).toLocaleString()} — {new Date(event.data.endAt).toLocaleString()}</p><p>{event.data.timezone} · {event.data.venueName}</p></section><EventAssignments event={event.data} onSaved={() => void event.refresh()} /></>}
+        {event.data && <EventDocuments eventId={id} />}
     </CrmLayout>;
 });

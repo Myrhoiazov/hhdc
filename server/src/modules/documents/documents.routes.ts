@@ -12,9 +12,9 @@ documentRoutes.get('/templates/:id', permitted('events.read'), route(controller.
 documentRoutes.patch('/templates/:id', permitted('events.write'), route(controller.updateTemplate));
 documentRoutes.delete('/templates/:id', permitted('events.write'), route(controller.deleteTemplate));
 
-// Documents
-documentRoutes.get('/', permitted('events.read'), route(controller.listDocuments));
-documentRoutes.post('/', permitted('events.write'), route(controller.createDocument));
-documentRoutes.get('/:id', permitted('events.read'), route(controller.getDocument));
-documentRoutes.patch('/:id', permitted('events.write'), route(controller.updateDocument));
-documentRoutes.delete('/:id', permitted('events.write'), route(controller.deleteDocument));
+// Documents (legacy metadata records). They can be contracts, so reading them needs the sensitive permission.
+documentRoutes.get('/', permitted('documents.sensitive.read'), route(controller.listDocuments));
+documentRoutes.post('/', permitted('documents.write'), route(controller.createDocument));
+documentRoutes.get('/:id', permitted('documents.sensitive.read'), route(controller.getDocument));
+documentRoutes.patch('/:id', permitted('documents.write'), route(controller.updateDocument));
+documentRoutes.delete('/:id', permitted('documents.write'), route(controller.deleteDocument));

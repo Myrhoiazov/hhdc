@@ -40,17 +40,13 @@ export const activityService = {
     /**
      * Get the activity timeline for a specific person.
      */
-    async getPersonTimeline(personId: string, skip: number = 0, take: number = 50) {
+    async getPersonTimeline(personId: string, skip: number = 0, take: number = 50, hiddenTypePrefixes: string[] = []) {
+        // Entries the reader may not know about (for example choreographer finance) are left out
+        // of both the page and the count.
+        const where = { personId, NOT: hiddenTypePrefixes.map(prefix => ({ type: { startsWith: prefix } })) };
         const [activities, total] = await prisma.$transaction([
-            prisma.activity.findMany({
-                where: { personId },
-                skip,
-                take,
-                orderBy: { createdAt: 'desc' },
-            }),
-            prisma.activity.count({
-                where: { personId },
-            }),
+            prisma.activity.findMany({ where, skip, take, orderBy: { createdAt: 'desc' } }),
+            prisma.activity.count({ where }),
         ]);
 
         return { data: activities, total };

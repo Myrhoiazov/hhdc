@@ -134,10 +134,13 @@ export const syncRefund = async (id: string, actorUserId: string) => {
 export const eventFinancialOverview = async (eventId: string) => {
     const event = await prisma.event.findUnique({ where: { id: eventId }, select: { id: true, name: true } });
     if (!event) throw new ApiError(404, 'EVENT_NOT_FOUND', 'Event not found');
-    const [orders, refunds, costs] = await Promise.all([
+    const [orders, refunds, expenses, agreedFees] = await Promise.all([
         prisma.order.findMany({ where: { eventId }, select: { total: true, status: true } }),
         prisma.refund.findMany({ where: { payment: { order: { eventId } } }, select: { amount: true, status: true } }),
         prisma.choreographerCost.findMany({ where: { eventChoreographer: { eventId } }, select: { type: true, amount: true, status: true } }),
+        prisma.choreographerFeeAgreement.findMany({ where: { assignment: { eventId }, status: 'AGREED' }, select: { amount: true } }),
     ]);
+    // An agreed choreographer fee is a commitment of the event: it enters the overview as an estimated FEE cost.
+    const costs = [...expenses, ...agreedFees.map(fee => ({ type: 'FEE', amount: fee.amount, status: 'APPROVED' }))];
     return { event, ...summarizeEventFinance({ orders, refunds, costs }) };
 };

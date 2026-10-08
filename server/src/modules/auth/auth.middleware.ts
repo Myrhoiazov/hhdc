@@ -66,7 +66,8 @@ export const authenticated: RequestHandler = async (req, res, next) => {
     }
 };
 
-export const permitted = (permission: string): RequestHandler => (req, _res, next) => {
+// The guard is a named function so that tests can tell a guarded route from an open one.
+export const permitted = (permission: string): RequestHandler => function requirePermission(req, _res, next) {
     const user = currentUser(req);
     if (!user || !hasPermission(user.permissions, permission)) {
         recordSecurityEvent(req, 'PERMISSION_DENIED', { permission });

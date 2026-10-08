@@ -11,20 +11,24 @@ const permissions = [
     'knowledge.read', 'knowledge.write', 'knowledge.manage', 'search.read',
     'tasks.read', 'tasks.write', 'checkin.use', 'checkin.override',
     'finance.read', 'finance.refund.request', 'finance.refund.approve',
-    'choreographers.finance.read', 'choreographers.finance.write',
+    'choreographers.read', 'choreographers.create', 'choreographers.update',
+    'choreographers.contacts.read', 'choreographers.contacts.manage', 'choreographers.media.manage', 'choreographers.events.manage',
+    'choreographers.conversations.read', 'choreographers.conversations.link', 'choreographers.activity.read',
+    'choreographers.notes.read', 'choreographers.notes.manage',
+    'choreographers.finance.read', 'choreographers.finance.write', 'choreographers.payments.confirm',
     'documents.read', 'documents.sensitive.read', 'documents.write',
     'exports.create', 'gdpr.manage', 'privacy.export', 'privacy.anonymize',
     'api.manage', 'webhooks.manage', 'settings.manage', 'operations.read',
     'providers.read', 'providers.manage', 'users.manage', 'audit.read', 'dashboard.read',
 ];
 // Least privilege: sensitive capabilities are granted explicitly, never by a name pattern.
-const ADMIN_ONLY = ['users.manage', 'providers.manage', 'ai.manage', 'api.manage', 'webhooks.manage', 'settings.manage', 'gdpr.manage', 'privacy.anonymize', 'finance.refund.approve', 'people.merge', 'checkin.override'];
-const VIEWER_EXCLUDED = ['audit.read', 'finance.read', 'choreographers.finance.read', 'documents.sensitive.read'];
+const ADMIN_ONLY = ['users.manage', 'providers.manage', 'ai.manage', 'api.manage', 'webhooks.manage', 'settings.manage', 'gdpr.manage', 'privacy.anonymize', 'finance.refund.approve', 'people.merge', 'checkin.override', 'choreographers.payments.confirm'];
+const VIEWER_EXCLUDED = ['audit.read', 'finance.read', 'choreographers.finance.read', 'documents.sensitive.read', 'choreographers.notes.read'];
 const rolePermissions: Record<string, string[]> = {
     OWNER: permissions,
     ADMIN: permissions,
     EVENT_MANAGER: permissions.filter((key) => !ADMIN_ONLY.includes(key)),
-    SUPPORT: ['dashboard.read', 'people.read', 'events.read', 'ticketing.read', 'communications.read', 'communications.reply', 'ai.use', 'ai.actions.propose', 'ai.actions.confirm', 'knowledge.read', 'search.read', 'tasks.read', 'tasks.write', 'checkin.use', 'finance.refund.request'],
+    SUPPORT: ['dashboard.read', 'people.read', 'choreographers.read', 'choreographers.contacts.read', 'choreographers.conversations.read', 'choreographers.activity.read', 'events.read', 'ticketing.read', 'communications.read', 'communications.reply', 'ai.use', 'ai.actions.propose', 'ai.actions.confirm', 'knowledge.read', 'search.read', 'tasks.read', 'tasks.write', 'checkin.use', 'finance.refund.request'],
     VIEWER: permissions.filter((key) => key.endsWith('.read') && !VIEWER_EXCLUDED.includes(key)),
 };
 

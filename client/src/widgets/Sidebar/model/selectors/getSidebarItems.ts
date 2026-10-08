@@ -22,6 +22,7 @@ export const getSidebarItems = createSelector(getUserAuthData, (user) => {
     const permissions = user?.permissions || [];
     // V2 sections appear only for staff who hold the matching permission.
     const gated: [string, SidebarItemType][] = [
+        ['choreographers.read', { path: RoutePath.choreographers, Icon: People, text: 'Choreographers' }],
         ['people.write', { path: RoutePath.duplicates, Icon: People, text: 'Duplicates' }],
         ['campaigns.read', { path: RoutePath.campaigns, Icon: Mail, text: 'Campaigns' }],
         ['automation.read', { path: RoutePath.automations, Icon: Settings, text: 'Automations', iconColor: 'stroke' }],
