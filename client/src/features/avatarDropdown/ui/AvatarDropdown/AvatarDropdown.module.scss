@@ -3,6 +3,8 @@
 }
 
 .avatar {
+    // Block, not inline: an inline image leaves a baseline gap that pushes the avatar above the row centre.
+    display: block;
     padding: 4px;
     background: var(--sidebar-hover-bg-redesigned);
     border: 1px solid var(--card-border-redesigned);

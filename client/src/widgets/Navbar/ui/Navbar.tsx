@@ -17,6 +17,6 @@ export const Navbar = memo(({ className, onMobileMenuToggle }: { className?: str
     if (!user) return null;
     return <div className={classNames(cls.Navbar, {}, [className])}>
         <div className={cls.left}><button className={cls.hamburger} onClick={onMobileMenuToggle} aria-label={t('Menu')}><span /><span /><span /></button><strong>{t('HHDC Event CRM')}</strong></div>
-        <div className={cls.actions}>{user.permissions.includes('people.write') && <Button onClick={() => navigate('/people')}>{t('Add person')}</Button>}<LangSwitcher /><ThemeSwitcher /><AvatarDropdown /></div>
+        <div className={cls.actions}>{user.permissions.includes('people.write') && <Button onClick={() => navigate('/people')}>{t('Add person')}</Button>}<LangSwitcher className={cls.langSwitcher} /><ThemeSwitcher className={cls.themeSwitcher} /><AvatarDropdown /></div>
     </div>;
 });

@@ -3,7 +3,6 @@ import { classNames, Mods } from '@/shared/lib/classNames/classNames';
 import cls from './Avatar.module.scss';
 import { Skeleton } from '../Skeleton/Skeleton';
 import UserIcon from '../../assets/icons/user-filled.svg';
-import { Icon } from '../Icon/Icon';
 import { AppImage } from '../AppImage';
 
 
@@ -26,7 +25,12 @@ export const Avatar = ({ className, src, size = 100, alt }: AvatarProps) => {
     );
 
     const fallback = <Skeleton width={size} height={size} border="50%" />;
-    const errorFallback = <Icon width={size} height={size} Svg={UserIcon} />;
+    const errorFallback = (
+        <UserIcon
+            className={classNames(cls.Avatar, mods, [cls.fallback, className])}
+            style={styles}
+        />
+    );
 
     return (
         <AppImage

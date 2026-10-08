@@ -5,3 +5,8 @@
     object-fit: cover;
     object-position: center;
 }
+
+// No-photo placeholder: themed fill, since the SVG has no colour of its own.
+.fallback {
+    fill: var(--sidebar-text-redesigned);
+}
