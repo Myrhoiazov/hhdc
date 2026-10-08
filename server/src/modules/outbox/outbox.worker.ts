@@ -8,6 +8,7 @@ import { sendTaskRemindersWhenDue } from '../choreographers/followup.service';
 import { handleDomainEvent } from '../automations/engine';
 import { deliverCampaign } from '../campaigns/campaigns.service';
 import { syncEmailWhenDue } from '../communications/sync';
+import { syncWeeztixWhenDue } from '../ticketing/weeztix-schedule';
 import { sendTemplatedEmail } from '../communications/transactional';
 import { WEBHOOK_EVENTS } from '../webhooks/webhook-signing';
 import { enqueueWebhookDeliveries, processDueWebhookDeliveries } from '../webhooks/webhooks.service';
@@ -62,6 +63,7 @@ const tick = async () => {
         // Not awaited: a slow mailbox must not hold up outbox and webhook delivery.
         void sendTaskRemindersWhenDue().catch(error => logger.error(`[worker] task reminders failed: ${error instanceof Error ? error.message : 'unknown error'}`));
         void syncEmailWhenDue().catch(error => logger.error(`[worker] email sync failed: ${error instanceof Error ? error.message : 'unknown error'}`));
+        void syncWeeztixWhenDue().catch(error => logger.error(`[worker] Weeztix sync failed: ${error instanceof Error ? error.message : 'unknown error'}`));
     } catch (error) {
         logger.error(`[worker] tick failed: ${error instanceof Error ? error.message : 'unknown error'}`);
     } finally {
@@ -69,7 +71,7 @@ const tick = async () => {
     }
 };
 
-// Polls the outbox, due webhook deliveries and connected mailboxes; returns a function that stops the loop.
+// Polls the outbox, due webhook deliveries, connected mailboxes and Weeztix; returns a function that stops the loop.
 export const startBackgroundWorkers = (intervalMs = Number(process.env.WORKER_POLL_MS ?? 5000)) => {
     const timer = setInterval(() => { void tick(); }, intervalMs);
     timer.unref();

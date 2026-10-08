@@ -1,4 +1,4 @@
-import { Prisma, PersonRoleType } from '@prisma/client';
+import { Prisma, PersonRoleType, PersonSource } from '@prisma/client';
 import prisma from '../../../prisma/prisma-client';
 import { ApiError } from '../../common/http';
 
@@ -24,6 +24,21 @@ export interface MatchPersonInput {
         externalId: string;
     };
 }
+
+export interface PeopleFilters { q?: string; role?: PersonRoleType; source?: PersonSource; purchases?: 'yes' | 'no' }
+
+const SEARCHED = ['displayName', 'firstName', 'lastName', 'email', 'phone'];
+
+export const peopleWhere = (filters: PeopleFilters): Prisma.PersonWhereInput => {
+    const query = filters.q?.trim();
+    const purchases = { yes: { some: {} }, no: { none: {} } };
+    return {
+        ...(query ? { OR: SEARCHED.map(field => ({ [field]: { contains: query, mode: 'insensitive' } })) } : {}),
+        ...(filters.role ? { roles: { some: { role: filters.role } } } : {}),
+        ...(filters.source ? { source: filters.source } : {}),
+        ...(filters.purchases ? { orders: purchases[filters.purchases] } : {}),
+    };
+};
 
 export const peopleService = {
     /**
@@ -53,24 +68,17 @@ export const peopleService = {
     },
 
     /**
-     * List people with optional search and pagination.
+     * List people with optional search, filters and pagination.
      */
-    async listPeople(query: string | undefined, skip: number, take: number) {
-        const where: Prisma.PersonWhereInput = query
-            ? {
-                  OR: ['displayName', 'email', 'phone'].map(field => ({
-                      [field]: { contains: query, mode: 'insensitive' },
-                  })),
-              }
-            : {};
-
+    async listPeople(filters: PeopleFilters, skip: number, take: number) {
+        const where = peopleWhere(filters);
         const [data, total] = await prisma.$transaction([
             prisma.person.findMany({
                 where,
-                include: { roles: true, tags: { include: { tag: true } } },
+                include: { roles: true, tags: { include: { tag: true } }, _count: { select: { orders: true } } },
                 skip,
                 take,
-                orderBy: { createdAt: 'desc' },
+                orderBy: [{ createdAt: 'desc' }, { id: 'asc' }],
             }),
             prisma.person.count({ where }),
         ]);

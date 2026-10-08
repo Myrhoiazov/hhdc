@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { CreateSessionSchema, UpdateSessionSchema } from './events.schemas';
 import { Request } from 'express';
-import { eventSchema } from './events.schemas';
+import { eventFiltersSchema, eventSchema, registrationFiltersSchema } from './events.schemas';
 import { choreographerSchema, registrationSchema } from '../crm/schemas';
 import * as eventsService from './events.service';
 import { recordHistory } from '../audit/audit.service';
@@ -70,10 +70,18 @@ export const getEvent = async (req: Request) => {
 
 export const listEvents = async (req: Request) => {
     const { page, pageSize, skip } = normalizePagination(req.query);
-    const { data, total } = await eventsService.listEvents(skip, pageSize);
+    const { data, total } = await eventsService.listEvents(eventFiltersSchema.parse(req.query), skip, pageSize);
     req.res!.json({ data, meta: { page, pageSize, total } });
 };
 
+
+export const listRegistrations = async (req: Request) => {
+    const eventId = entityId(req);
+    await eventsService.requireEvent(eventId);
+    const { page, pageSize, skip } = normalizePagination(req.query);
+    const { data, total } = await eventsService.listRegistrations(eventId, registrationFiltersSchema.parse(req.query), { skip, take: pageSize });
+    req.res!.json({ data, meta: { page, pageSize, total } });
+};
 
 export async function listSessions(req: Request) {
     const { id } = z.object({ id: z.string().uuid() }).parse(req.params);

@@ -22,7 +22,9 @@ export interface Conversation {
     lastMessageAt?: string; messages?: Message[]; drafts?: Draft[];
     unreadCount?: number;
 }
-export interface ConversationFilters { providerConnectionId?: string; q?: string }
+export interface ConversationFilters { providerConnectionId?: string; q?: string; personId?: string }
+// A client is a person with at least one purchase.
+export const isClient = (person?: Person | null): boolean => (person?._count?.orders ?? 0) > 0;
 export interface KnowledgeDocument {
     id: string; title: string; scope: string; content: string; status: string; eventId?: string | null;
 }
@@ -38,6 +40,7 @@ export const listConversations = async (filters: ConversationFilters = {}, page 
     const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
     if (filters.providerConnectionId) params.set('providerConnectionId', filters.providerConnectionId);
     if (filters.q?.trim()) params.set('q', filters.q.trim());
+    if (filters.personId) params.set('personId', filters.personId);
     const result = (await $apiPrivate.get<{data: Conversation[]; meta: {total: number}}>(`/conversations?${params}`)).data;
     return { data: result.data, total: result.meta.total };
 };

@@ -1,10 +1,16 @@
 import { FormEvent, memo, useCallback, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { addPersonRole, getPerson, getPersonActivity, listPeople, Person, PersonRole, savePerson } from '@/entities/crm';
+import { addPersonRole, getPerson, getPersonActivity, Person, PersonRole, savePerson } from '@/entities/crm';
+import { getUserAuthData } from '@/entities/User';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
 import { CrmLayout, Field, RequestState } from './common';
+import { PersonConversations } from './PersonConversations';
+import { PersonExpenses } from './PersonExpenses';
+import { PersonOrders } from './PersonOrders';
+import { PersonRemovalPanel } from './PersonRemoval';
 import cls from './CrmPage.module.scss';
 
 const roles: PersonRole[] = ['CUSTOMER', 'PARTICIPANT', 'CHOREOGRAPHER', 'STAFF'];
@@ -37,19 +43,6 @@ const PersonForm = memo(({ person, onSaved }: { person: Person; onSaved: () => v
     </form>;
 });
 
-export const PeoplePage = memo(() => {
-    const { t } = useTranslation();
-    const [search, setSearch] = useState('');
-    const load = useCallback(() => listPeople(search), [search]);
-    const resource = useResource(load);
-    return <CrmLayout title="People"><Field label="Search contacts"><input value={search} onChange={event => setSearch(event.target.value)} /></Field>
-        <RequestState error={resource.error} loading={resource.loading} />
-        <section className={cls.panel}><h2>{t('All contacts')}</h2>{resource.data?.data.map(person => <div className={cls.row} key={person.id}><Link to={`/people/${person.id}`}>{personName(person)}</Link><span>{person.email}</span><span>{person.roles.map(item => t(item.role)).join(', ')}</span></div>)}
-            {resource.data?.total === 0 && <p>{t('No contacts yet')}</p>}
-        </section>
-    </CrmLayout>;
-});
-
 const PersonRoles = memo(({ person, onSaved }: { person: Person; onSaved: () => void }) => {
     const { t } = useTranslation();
     const [error, setError] = useState('');
@@ -67,9 +60,13 @@ export const PersonPage = memo(() => {
     const loadActivity = useCallback(() => getPersonActivity(id), [id]);
     const person = useResource(load);
     const activity = useResource(loadActivity);
+    const navigate = useNavigate();
+    const permissions = useSelector(getUserAuthData)?.permissions ?? [];
+    const canSeeFinance = permissions.includes('finance.read');
     const refresh = () => { void person.refresh(); void activity.refresh(); };
     return <CrmLayout title={person.data ? personName(person.data) : 'Person'}><RequestState error={person.error} loading={person.loading} />
-        {person.data && <><PersonForm key={person.data.id} person={person.data} onSaved={refresh} /><PersonRoles person={person.data} onSaved={refresh} /></>}
+        {person.data && <><PersonForm key={person.data.id} person={person.data} onSaved={refresh} /><PersonRoles person={person.data} onSaved={refresh} /><PersonOrders personId={person.data.id} /><PersonConversations person={person.data} />{canSeeFinance && <PersonExpenses personId={person.data.id} />}</>}
         <section className={cls.panel}><h2>{t('Activity timeline')}</h2><RequestState error={activity.error} loading={activity.loading} />{activity.data?.data.map(item => <div className={cls.row} key={item.id}><span>{t(item.type)}</span><time>{new Date(item.createdAt).toLocaleString()}</time></div>)}</section>
+        {person.data && permissions.includes('people.write') && <PersonRemovalPanel person={person.data} onDeleted={() => navigate('/people')} />}
     </CrmLayout>;
 });

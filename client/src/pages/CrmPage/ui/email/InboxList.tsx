@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import SearchIcon from '@/shared/assets/icons/search.svg';
-import { Conversation, ProviderConnection } from '@/entities/crm';
+import { Conversation, isClient, ProviderConnection } from '@/entities/crm';
 import { classNames } from '@/shared/lib/classNames/classNames';
 import { mailState, MailState } from '../../model/mailState';
 import cls from '../CommunicationsPage.module.scss';
@@ -63,7 +63,8 @@ const ConversationListItem = memo(({ conversation, selected, onSelect }: {
         <span className={classNames(cls.itemSubject, { [cls.unreadText]: state === 'NEW' })}>{conversation.subject}</span>
         <span className={cls.itemPreview}>{previewText(conversation)}</span>
         <span className={cls.itemBadges}>{STATE_BADGES[state].map((badge) => <span key={badge.label}
-            className={classNames(cls.mailBadge, {}, [badge.className])}>{t(badge.label)}</span>)}</span>
+            className={classNames(cls.mailBadge, {}, [badge.className])}>{t(badge.label)}</span>)}
+            {isClient(conversation.person) && <span className={classNames(cls.mailBadge, {}, [cls.badgeClient])}>{t('Client')}</span>}</span>
     </button>;
 });
 

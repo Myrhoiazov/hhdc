@@ -6,6 +6,7 @@ import { applyConversationDisposition, approveDraft, composeEmail, Conversation,
 import { CommunicationsPage } from './CommunicationsPage';
 
 jest.mock('@/entities/crm', () => ({
+    isClient: (person?: { _count?: { orders: number } } | null) => (person?._count?.orders ?? 0) > 0,
     listConversations: jest.fn(),
     getConversation: jest.fn(),
     listProviders: jest.fn(),
@@ -272,4 +273,22 @@ test('people who cannot read prompt versions still get the reply form', async ()
     await screen.findByLabelText('AI model for this reply (testing)');
     expect(screen.queryByLabelText('Reply prompt')).not.toBeInTheDocument();
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+});
+
+test('a letter from a person with purchases is labelled as a client in the list and in the thread', async () => {
+    const buyer = { ...conversation.person!, _count: { orders: 2 } };
+    jest.mocked(listConversations).mockResolvedValue({ data: [{ ...conversation, person: buyer }], total: 1 });
+    jest.mocked(getConversation).mockResolvedValue({ ...conversation, person: buyer });
+    renderPage();
+
+    fireEvent.click(await screen.findByRole('button', { name: /Ticket question/ }));
+    await waitFor(() => expect(screen.getAllByText('Client')).toHaveLength(2));
+    expect(screen.getByRole('link', { name: 'Open contact card' })).toHaveAttribute('href', '/people/person-a');
+});
+
+test('a letter from someone without purchases has no client label', async () => {
+    renderPage();
+
+    await screen.findByText('Ticket question');
+    expect(screen.queryByText('Client')).not.toBeInTheDocument();
 });

@@ -1,0 +1,102 @@
+.filters {
+    display: flex;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 16px;
+
+    > * {
+        flex: 1 1 160px;
+    }
+
+    > button {
+        flex: 0 0 auto;
+    }
+
+    > .search {
+        flex: 2 1 260px;
+    }
+}
+
+.summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.tableScroll {
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    font-size: 14px;
+    border-collapse: collapse;
+
+    th,
+    td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid var(--card-border-redesigned);
+        vertical-align: middle;
+    }
+
+    th {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--sidebar-group-label-redesigned);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        white-space: nowrap;
+    }
+
+    tbody tr:hover {
+        background: var(--sidebar-hover-bg-redesigned);
+    }
+
+    tbody tr:last-child td {
+        border-bottom: 0;
+    }
+}
+
+/* The name is the way into the contact: it reads as text first and as a link on hover. */
+.name {
+    font-weight: 600;
+    color: var(--sidebar-text-hover-redesigned);
+    text-decoration: none;
+
+    &:hover,
+    &:focus-visible {
+        text-decoration: underline;
+    }
+}
+
+.secondary {
+    color: var(--sidebar-text-redesigned);
+    overflow-wrap: anywhere;
+}
+
+.number {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.pager {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+}
+
+@media (width <= 900px) {
+    .optional {
+        display: none;
+    }
+}

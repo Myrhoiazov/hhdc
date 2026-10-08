@@ -9,6 +9,7 @@ import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
 import { Field, RequestState, StatusBadge } from '../common';
 import cls from '../CrmPage.module.scss';
+import { PersonExpenses } from '../PersonExpenses';
 import own from './Choreographers.module.scss';
 
 export interface FinanceRights { canWrite: boolean; canConfirm: boolean }
@@ -175,5 +176,6 @@ export const FinanceTab = memo(({ personId, rights }: { personId: string; rights
             {finance.data?.assignments.filter((item) => item.year === year).map((item) => <AssignmentLedger key={item.id} assignment={item} rights={rights} run={run} />)}
         </section>)}
         {finance.data?.assignments.length === 0 && <section className={cls.panel}><p className={cls.muted}>{t('Finance is recorded per event. Add the choreographer to an event first.')}</p></section>}
+        <PersonExpenses personId={personId} />
     </>;
 });

@@ -28,3 +28,9 @@ test('conversation query filters one email account and searches message content'
 test('conversation query rejects an invalid provider connection id', () => {
     assert.throws(() => parseConversationQuery({ providerConnectionId: 'not-a-uuid' }));
 });
+
+test('conversation query lists the correspondence of one person', () => {
+    const personId = 'b7c3a1de-5a44-4f0e-8a51-0c1c1f2f3a4b';
+    assert.deepEqual(buildConversationWhere(parseConversationQuery({ personId })), { personId });
+    assert.throws(() => parseConversationQuery({ personId: 'someone' }));
+});

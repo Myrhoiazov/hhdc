@@ -9,7 +9,14 @@ export interface Person {
     notes?: string | null;
     status: 'ACTIVE' | 'ARCHIVED';
     roles: { role: PersonRole }[];
+    country?: string | null;
+    source?: string;
+    createdAt?: string;
+    _count?: { orders: number };
+    removal?: PersonRemoval;
 }
+export type RemovalBlocker = 'WEEZTIX' | 'PURCHASES' | 'EVENTS' | 'FINANCE' | 'CHOREOGRAPHER' | 'NOT_FROM_EMAIL';
+export interface PersonRemoval { allowed: boolean; blockers: RemovalBlocker[] }
 export interface Event {
     id: string;
     name: string;
@@ -21,6 +28,7 @@ export interface Event {
     venueName?: string | null;
     city?: string | null;
     capacity?: number | null;
+    _count?: { tickets: number; registrations: number };
     registrations?: { id: string; status: string; person: Person }[];
     choreographers?: { id: string; status: string; person: Person; roleTitle: string }[];
 }

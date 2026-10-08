@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { PersonRoleType, PersonStatus } from '@prisma/client';
+import { PersonRoleType, PersonSource, PersonStatus } from '@prisma/client';
 
 const text = z.string().trim().max(500);
 const optionalText = text.nullable().optional();
@@ -20,3 +20,13 @@ export const personSchema = z.object({
 export const roleSchema = z.object({
     role: z.nativeEnum(PersonRoleType)
 }).strict();
+
+// Filters of the people list. Paging fields travel in the same query and are read separately;
+// an empty value means "no filter".
+const blankAsMissing = (value: unknown) => (value === '' ? undefined : value);
+export const peopleFiltersSchema = z.object({
+    q: z.preprocess(blankAsMissing, z.string().trim().max(200).optional()),
+    role: z.preprocess(blankAsMissing, z.nativeEnum(PersonRoleType).optional()),
+    source: z.preprocess(blankAsMissing, z.nativeEnum(PersonSource).optional()),
+    purchases: z.preprocess(blankAsMissing, z.enum(['yes', 'no']).optional()),
+});

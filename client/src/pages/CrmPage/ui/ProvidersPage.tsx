@@ -1,12 +1,13 @@
 import { memo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { deleteProvider, listProviders, ProviderConnection, syncProvider, testProvider, updateProvider } from '@/entities/crm';
+import { checkWeeztix, deleteProvider, listProviders, ProviderConnection, syncProvider, testProvider, updateProvider } from '@/entities/crm';
 import { useAction } from '@/shared/lib/useResource/useAction';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
 import { PROVIDER_FORMS, providerFormFor } from '../model/providerForms';
 import { CrmLayout, Field, RequestState, StatusBadge } from './common';
 import { ProviderForm } from './ProviderForm';
+import { WeeztixConnect } from './WeeztixConnect';
 import cls from './CrmPage.module.scss';
 
 const GROUPS = ['EMAIL', 'AI', 'TICKETING', 'PAYMENT', 'STORAGE', 'MESSAGING', 'SIGNATURE'];
@@ -22,13 +23,16 @@ const useProviderActions = (provider: ProviderConnection, refresh: () => void) =
     const [notice, setNotice] = useState('');
     const action = useAction(refresh);
     const run = (work: () => Promise<string>) => { setNotice(''); void action.run(async () => { setNotice(await work()); }); };
-    const verifiable = Boolean(providerFormFor(provider.provider)?.verified);
+    const isWeeztix = provider.provider === 'WEEZTIX';
+    const verifiable = isWeeztix || Boolean(providerFormFor(provider.provider)?.verified);
+    // Weeztix is checked with its own call, which refreshes the access first when it is about to expire.
+    const check = () => (isWeeztix ? checkWeeztix(provider.id) : testProvider(provider.id));
     return {
         notice,
         action,
         verifiable,
         test: () => run(async () => {
-            const result = await testProvider(provider.id);
+            const result = await check();
             return result.success ? t('Connection works') : t('Connection failed: {{error}}', { error: result.error });
         }),
         sync: () => run(async () => t('New messages: {{created}}, already known or skipped: {{skipped}}, failed: {{failed}}', { ...(await syncProvider(provider.id)) })),
@@ -36,7 +40,7 @@ const useProviderActions = (provider: ProviderConnection, refresh: () => void) =
         // A verifiable provider is re-enabled by passing the connection test, never blindly.
         enable: () => run(async () => {
             if (!verifiable) { await updateProvider(provider.id, { status: 'CONNECTED' }); return ''; }
-            const result = await testProvider(provider.id);
+            const result = await check();
             return result.success ? '' : t('Connection failed: {{error}}', { error: result.error });
         }),
         remove: () => { if (window.confirm(t('Delete this provider connection?'))) run(async () => { await deleteProvider(provider.id); return ''; }); },
@@ -71,6 +75,7 @@ const ProviderCard = memo(({ provider, refresh }: { provider: ProviderConnection
             <span className={cls.muted}>{definition ? t(definition.label) : provider.provider}</span>
             <StatusBadge status={provider.status} />
         </div>
+        {provider.settings.companyName && <p className={cls.muted}>{t('Company: {{company}}', { company: String(provider.settings.companyName) })}</p>}
         <p className={cls.muted}>{t('Last successful sync: {{time}}', { time: formatTime(provider.lastSuccessAt) })}</p>
         {provider.lastError && <p className={cls.error}>{t('Last error: {{error}}', { error: provider.lastError })}</p>}
         <ProviderCardActions provider={provider} actions={actions} onConfigure={definition ? () => setConfiguring(true) : undefined} />
@@ -114,6 +119,7 @@ export const ProvidersPage = memo(() => {
         <RequestState error={providers.error} loading={providers.loading && !providers.data} />
         {GROUPS.map((type) => <ProviderGroup key={type} type={type} providers={items.filter((item) => item.type === type)} refresh={refresh} />)}
         {providers.data?.total === 0 && <p className={cls.muted}>{t('No providers connected')}</p>}
+        <WeeztixConnect connectionId={items.find((item) => item.provider === 'WEEZTIX')?.id} onConnected={refresh} />
         <ConnectPanel onSaved={refresh} />
     </CrmLayout>;
 });

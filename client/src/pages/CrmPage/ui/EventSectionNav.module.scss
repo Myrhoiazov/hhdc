@@ -1,0 +1,41 @@
+/* Stays at the top of the page while it scrolls, so any block is one click away. */
+.EventSectionNav {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    display: flex;
+    flex-wrap: wrap;
+    padding: 8px;
+    background: var(--sidebar-bg-redesigned);
+    border: 1px solid var(--card-border-redesigned);
+    border-radius: var(--radius-md-redesigned);
+    gap: 4px;
+}
+
+.link {
+    padding: 8px 14px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--sidebar-text-redesigned);
+    background: transparent;
+    border: 0;
+    border-radius: var(--radius-sm-redesigned);
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+        color: var(--sidebar-text-hover-redesigned);
+        background: var(--sidebar-hover-bg-redesigned);
+    }
+}
+
+@media (width <= 560px) {
+    .EventSectionNav {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+    }
+
+    .link {
+        white-space: nowrap;
+    }
+}

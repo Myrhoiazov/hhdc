@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import prisma from '../../../prisma/prisma-client';
 import { ApiError } from '../../common/http';
-import { Event, Prisma } from '@prisma/client';
+import { Event, EventStatus, Prisma, RegistrationStatus } from '@prisma/client';
 
 export const requireEvent = async (id: string) => {
     const event = await prisma.event.findUnique({ where: { id } });
@@ -31,10 +31,56 @@ export const getEvent = async (id: string) => {
     return requireEvent(id);
 };
 
-export const listEvents = async (skip: number, take: number) => {
+export interface EventFilters { q?: string; status?: EventStatus; period?: 'upcoming' | 'past' }
+
+const SEARCHED = ['name', 'venueName', 'city'];
+
+// An event is upcoming until it has ended, so one that is running now is still listed as upcoming.
+export const eventsWhere = (filters: EventFilters, now = new Date()): Prisma.EventWhereInput => {
+    const query = filters.q?.trim();
+    const periods = { upcoming: { gte: now }, past: { lt: now } };
+    return {
+        ...(query ? { OR: SEARCHED.map(field => ({ [field]: { contains: query, mode: 'insensitive' } })) } : {}),
+        ...(filters.status ? { status: filters.status } : {}),
+        ...(filters.period ? { endAt: periods[filters.period] } : {}),
+    };
+};
+
+export const listEvents = async (filters: EventFilters, skip: number, take: number) => {
+    const where = eventsWhere(filters);
     const [data, total] = await prisma.$transaction([
-        prisma.event.findMany({ skip, take, orderBy: { startAt: 'desc' } }),
-        prisma.event.count()
+        prisma.event.findMany({ where, skip, take, orderBy: [{ startAt: 'desc' }, { id: 'asc' }], include: { _count: { select: { tickets: true, registrations: true } } } }),
+        prisma.event.count({ where }),
+    ]);
+    return { data, total };
+};
+
+export interface RegistrationFilters { q?: string; status?: RegistrationStatus }
+
+const PERSON_SEARCHED = ['displayName', 'firstName', 'lastName', 'email', 'phone'];
+
+export const registrationsWhere = (eventId: string, filters: RegistrationFilters): Prisma.RegistrationWhereInput => {
+    const query = filters.q?.trim();
+    return {
+        eventId,
+        ...(filters.status ? { status: filters.status } : {}),
+        ...(query ? { person: { is: { OR: PERSON_SEARCHED.map(field => ({ [field]: { contains: query, mode: 'insensitive' } })) } } } : {}),
+    };
+};
+
+// People registered for the event, by name, with the ticket each registration came from.
+export const listRegistrations = async (eventId: string, filters: RegistrationFilters, paging: { skip: number; take: number }) => {
+    const where = registrationsWhere(eventId, filters);
+    const [data, total] = await prisma.$transaction([
+        prisma.registration.findMany({
+            where, ...paging, orderBy: [{ person: { displayName: 'asc' } }, { id: 'asc' }],
+            select: {
+                id: true, status: true, registrationSource: true, createdAt: true,
+                person: { select: { id: true, displayName: true, firstName: true, lastName: true, email: true, phone: true, country: true } },
+                ticket: { select: { ticketType: true, status: true } },
+            },
+        }),
+        prisma.registration.count({ where }),
     ]);
     return { data, total };
 };

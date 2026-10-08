@@ -1,0 +1,50 @@
+/* Which way the money went is said by the sign; the colour only repeats it. */
+.amountIn {
+    font-weight: 600;
+    color: var(--success-text-redesigned);
+}
+
+.amountOut {
+    font-weight: 600;
+    color: var(--sidebar-text-hover-redesigned);
+}
+
+/* An operation that adds nothing to the totals: a failed payment, a cancelled expense. */
+.uncounted {
+    color: var(--sidebar-text-redesigned);
+    text-decoration: line-through;
+}
+
+.views {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.viewActive {
+    color: var(--sidebar-text-hover-redesigned);
+    background: var(--primary-soft-bg-redesigned);
+    border-color: var(--primary-redesigned);
+}
+
+.categoryLink {
+    padding: 0;
+    font: inherit;
+    font-weight: 600;
+    color: var(--sidebar-text-hover-redesigned);
+    text-align: left;
+    background: none;
+    border: 0;
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+        text-decoration: underline;
+    }
+}
+
+.barCell {
+    width: 40%;
+    min-width: 120px;
+}

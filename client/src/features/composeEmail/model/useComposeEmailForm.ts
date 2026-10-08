@@ -11,6 +11,8 @@ export interface ComposeFields {
 interface ComposeEmailFormParams {
     providers: ProviderConnection[];
     preferredProviderId: string;
+    // Filled in when the letter is started from a person's page.
+    recipient?: string;
     onSent: () => void;
 }
 
@@ -30,9 +32,9 @@ const sendComposed = (fields: ComposeFields, files: File[]) => composeEmail({
     content: fields.content.trim(),
 }, files);
 
-export const useComposeEmailForm = ({ providers, preferredProviderId, onSent }: ComposeEmailFormParams) => {
+export const useComposeEmailForm = ({ providers, preferredProviderId, recipient = '', onSent }: ComposeEmailFormParams) => {
     const defaultProviderId = preferredProviderId || providers[0]?.id || '';
-    const [fields, setFields] = useState<ComposeFields>({ providerId: defaultProviderId, recipient: '', subject: '', content: '' });
+    const [fields, setFields] = useState<ComposeFields>({ providerId: defaultProviderId, recipient, subject: '', content: '' });
     const [files, setFiles] = useState<File[]>([]);
     const [error, setError] = useState('');
     const [busy, setBusy] = useState(false);
@@ -53,12 +55,12 @@ export const useComposeEmailForm = ({ providers, preferredProviderId, onSent }: 
         try {
             await sendComposed(fields, files);
             setFiles([]);
-            setFields({ providerId: fields.providerId, recipient: '', subject: '', content: '' });
+            setFields({ providerId: fields.providerId, recipient, subject: '', content: '' });
             onSent();
         } catch (cause) {
             setError(cause instanceof Error ? cause.message : 'Request failed');
         } finally { setBusy(false); }
-    }, [fields, files, onSent]);
+    }, [fields, files, recipient, onSent]);
 
     return { fields, files, error, busy, setField, setFiles, submit };
 };

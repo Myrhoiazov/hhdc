@@ -5,6 +5,7 @@ const conversationQuerySchema = z.object({
     status: z.nativeEnum(ConversationStatus).optional(),
     eventId: z.string().uuid().optional(),
     providerConnectionId: z.string().uuid().optional(),
+    personId: z.string().uuid().optional(),
     q: z.string().trim().min(1).max(200).optional(),
 });
 
@@ -27,6 +28,7 @@ const searchWhere = (q: string): Prisma.ConversationWhereInput => ({
 export const buildConversationWhere = (query: ConversationQuery): Prisma.ConversationWhereInput => ({
     ...(query.status ? { status: query.status } : {}),
     ...(query.eventId ? { eventId: query.eventId } : {}),
+    ...(query.personId ? { personId: query.personId } : {}),
     ...(query.providerConnectionId
         ? { messages: { some: { providerConnectionId: query.providerConnectionId } } }
         : {}),

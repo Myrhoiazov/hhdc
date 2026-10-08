@@ -12,6 +12,7 @@ import cls from './ComposeEmailModal.module.scss';
 interface ComposeEmailModalProps {
     isOpen: boolean;
     onClose: () => void;
+    recipient?: string;
 }
 
 const Field = memo(({ label, children }: { label: string; children: ReactNode }) => {
@@ -50,12 +51,12 @@ const ComposeFieldset = memo(({ fields, providers, onChange }: ComposeFieldsetPr
 const isUsableMailbox = (provider: ProviderConnection) => provider.type === 'EMAIL' && provider.status !== 'DISABLED';
 
 // Rendered only once the modal has been opened, so mailboxes are not requested on every page.
-const ComposeEmailForm = memo(({ onClose }: { onClose: () => void }) => {
+const ComposeEmailForm = memo(({ onClose, recipient }: { onClose: () => void; recipient?: string }) => {
     const { t } = useTranslation();
     const connections = useResource(listProviders);
     const providers = useMemo(() => (connections.data?.data ?? []).filter(isUsableMailbox), [connections.data]);
     const onSent = useCallback(() => { announceEmailSent(); onClose(); }, [onClose]);
-    const form = useComposeEmailForm({ providers, preferredProviderId: '', onSent });
+    const form = useComposeEmailForm({ providers, preferredProviderId: '', recipient, onSent });
     const onSubmit = (event: FormEvent) => { event.preventDefault(); void form.submit(); };
     const noMailbox = !connections.loading && providers.length === 0;
     const error = connections.error || (form.error ? t(form.error) : '');
@@ -74,6 +75,6 @@ const ComposeEmailForm = memo(({ onClose }: { onClose: () => void }) => {
     </form>;
 });
 
-export const ComposeEmailModal = memo(({ isOpen, onClose }: ComposeEmailModalProps) => (
-    <Modal isOpen={isOpen} onClose={onClose} lazy><ComposeEmailForm onClose={onClose} /></Modal>
+export const ComposeEmailModal = memo(({ isOpen, onClose, recipient }: ComposeEmailModalProps) => (
+    <Modal isOpen={isOpen} onClose={onClose} lazy><ComposeEmailForm onClose={onClose} recipient={recipient} /></Modal>
 ));

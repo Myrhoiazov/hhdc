@@ -5,6 +5,7 @@ import { z } from 'zod';
 import prisma from '../../../prisma/prisma-client';
 import { entityId, listRoute, normalizePagination, route } from '../../common/http';
 import { currentUser, permitted } from '../auth/auth.middleware';
+import { getLedgerSummary, ledgerFiltersSchema, listLedger } from './ledger';
 import { decideRefund, eventFinancialOverview, importPayment, importPaymentSchema, processRefund, refreshPaymentFromProvider, refundRequestSchema, requestRefund, syncRefund } from './finance.service';
 
 const listPayments = async (req: Request) => {
@@ -27,7 +28,16 @@ const listRefunds = async (req: Request) => {
     return { data, meta: { page, pageSize, total } };
 };
 
+// Payments, refunds and costs as one list, and what they add up to under the same filters.
+const listLedgerPage = async (req: Request) => {
+    const { page, pageSize, skip } = normalizePagination(req.query);
+    const { data, total } = await listLedger(ledgerFiltersSchema.parse(req.query), { skip, take: pageSize });
+    return { data, meta: { page, pageSize, total } };
+};
+
 export const financeRouter = Router();
+financeRouter.get('/finance/ledger', permitted('finance.read'), listRoute(listLedgerPage));
+financeRouter.get('/finance/ledger/summary', permitted('finance.read'), route(req => getLedgerSummary(ledgerFiltersSchema.parse(req.query))));
 financeRouter.get('/payments', permitted('finance.read'), listRoute(listPayments));
 financeRouter.post('/payments/import', permitted('finance.refund.approve'), route(req => importPayment(importPaymentSchema.parse(req.body), currentUser(req).id)));
 financeRouter.get('/refunds', permitted('finance.read'), listRoute(listRefunds));

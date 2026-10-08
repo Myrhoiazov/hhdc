@@ -83,14 +83,10 @@
 }
 
 .brandMark {
-    font-size: 28px;
-    font-weight: 700;
-    line-height: 1;
-    letter-spacing: -0.08em;
-
-    &::before {
-        content: 'HHDC';
-    }
+    display: block;
+    width: 72px;
+    height: 72px;
+    object-fit: contain;
 }
 
 .brandBadge {

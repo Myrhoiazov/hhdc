@@ -7,7 +7,7 @@
         "build": "tsc",
         "prebuild": "npm run prisma:generate",
         "test:auth": "node --test -r ts-node/register src/modules/crm/security.test.ts src/modules/crm/http.test.ts",
-        "test:ci": "node --test -r ts-node/register src/modules/**/*.test.ts src/modules/*/*/*.test.ts src/integrations/**/*.test.ts src/common/*/*.test.ts",
+        "test:ci": "node --test -r ts-node/register src/modules/**/*.test.ts src/modules/*/*/*.test.ts src/integrations/**/*.test.ts src/integrations/*/*/*.test.ts src/common/*/*.test.ts",
         "start": "node build/src/index.js",
         "start:worker": "node build/src/worker.js",
         "start:dev": "nodemon",

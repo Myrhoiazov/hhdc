@@ -15,6 +15,8 @@ import { markConversationRead } from './read';
 
 export const communicationsRouter = Router();
 
+const PERSON_WITH_ORDERS = { _count: { select: { orders: true } } } as const;
+
 // The list payload exposes unread as a plain number instead of Prisma's _count shape.
 const withUnreadCount = <T extends { _count: { messages: number } }>(conversation: T) => {
     const { _count, ...rest } = conversation;
@@ -32,7 +34,8 @@ communicationsRouter.get('/', permitted('communications.read'), async (req, res,
                 take: pageSize,
                 orderBy: { lastMessageAt: 'desc' },
                 include: {
-                    person: true,
+                    // The number of orders tells the inbox whether the sender is a client.
+                    person: { include: PERSON_WITH_ORDERS },
                     event: true,
                     messages: { orderBy: { createdAt: 'desc' }, take: 1 },
                     _count: { select: { messages: { where: { isRead: false } } } },
@@ -46,7 +49,7 @@ communicationsRouter.get('/', permitted('communications.read'), async (req, res,
 communicationsRouter.post('/', permitted('communications.reply'), acceptAttachments, route(req => composeEmail(composeSchema.parse(req.body), currentUser(req).id, { attachments: toAttachments(req.files) })));
 communicationsRouter.get('/:id', permitted('communications.read'), route(async req => {
     const data = await prisma.conversation.findUnique({ where: { id: entityId(req) }, include: {
-        person: { include: { roles: true, tags: { include: { tag: true } } } }, event: true,
+        person: { include: { roles: true, tags: { include: { tag: true } }, ...PERSON_WITH_ORDERS } }, event: true,
         messages: { orderBy: { createdAt: 'asc' }, take: 100 }, drafts: { orderBy: { createdAt: 'desc' }, take: 20 },
     } });
     if (!data) throw new ApiError(404, 'CONVERSATION_NOT_FOUND', 'Conversation not found');

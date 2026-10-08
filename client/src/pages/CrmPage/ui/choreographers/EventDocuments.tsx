@@ -30,7 +30,7 @@ const EventDocumentList = memo(({ eventId }: { eventId: string }) => {
     const documents = useResource(load);
     const [error, setError] = useState('');
     const open = (id: string) => { setError(''); openDocumentFile(id).catch((cause) => setError(cause instanceof Error ? cause.message : t('Request failed'))); };
-    return <section className={cls.panel} aria-label={t('Choreographer documents')}>
+    return <section id="event-documents" className={cls.panel} aria-label={t('Choreographer documents')}>
         <h2>{t('Choreographer documents')}</h2>
         <RequestState error={error || documents.error} loading={documents.loading && !documents.data} />
         {documents.data?.map((document) => <EventDocumentRow key={document.id} document={document} onOpen={open} />)}

@@ -5,7 +5,7 @@ import prisma from '../../../prisma/prisma-client';
 import { currentUser, permitted } from '../auth/auth.middleware';
 import { ApiError, entityId, route } from '../../common/http';
 import { normalizePagination } from '../../common/http';
-import { auditData } from '../audit/audit.service';
+import { auditData, auditFiltersSchema, listAuditEntries, listAuditOptions } from '../audit/audit.service';
 
 const userSchema = z.object({ email: z.string().email().transform(value => value.toLowerCase()), name: z.string().trim().min(1).max(200), password: z.string().min(12).max(256), isActive: z.boolean().optional(), roles: z.array(z.enum(['OWNER', 'ADMIN', 'EVENT_MANAGER', 'SUPPORT', 'VIEWER'])).min(1).max(5) }).strict();
 const userSelect = { id: true, email: true, name: true, isActive: true, createdAt: true, roles: { include: { role: true } } };
@@ -49,7 +49,8 @@ adminRouter.get('/roles', permitted('users.manage'), route(async () => prisma.ro
 adminRouter.get('/audit', permitted('audit.read'), async (req, res, next) => {
     try {
         const { page, pageSize, skip } = normalizePagination(req.query);
-        const [data, total] = await prisma.$transaction([prisma.auditLog.findMany({ skip, take: pageSize, orderBy: { createdAt: 'desc' } }), prisma.auditLog.count()]);
+        const { data, total } = await listAuditEntries(auditFiltersSchema.parse(req.query), { skip, take: pageSize });
         res.json({ data, meta: { page, pageSize, total } });
     } catch (error) { next(error); }
 });
+adminRouter.get('/audit/options', permitted('audit.read'), route(async () => listAuditOptions()));

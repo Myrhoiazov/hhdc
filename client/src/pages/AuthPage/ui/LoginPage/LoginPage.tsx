@@ -4,6 +4,7 @@ import s from './LoginPage.module.scss';
 import { LoginForm } from '@/features/Auth';
 import { Page } from '@/widgets/Page/Page';
 import { useTranslation } from 'react-i18next';
+import logo from '@/shared/assets/logo/hhdc-logo.png';
 
 interface LoginPageProps {
     className?: string;
@@ -18,7 +19,7 @@ const LoginPage = ({ className }: LoginPageProps) => {
             <div className={s.loginLayout}>
                 <section className={s.brandPanel}>
                     <div className={s.brandHeader}>
-                        <div className={s.brandMark} aria-label="HHDC" />
+                        <img className={s.brandMark} src={logo} alt="High Heels Dance Camp" />
                         <div className={s.brandBadge}>{t('Event Admin')}</div>
                     </div>
                     <div className={s.brandContent}>

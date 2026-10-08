@@ -6,20 +6,31 @@ import prisma from '../../../prisma/prisma-client';
 import { entityId, normalizePagination } from '../../common/http';
 import { peopleService } from './people.service';
 import { activityService } from '../activity/activity.service';
-import { personSchema, roleSchema } from './people.schemas';
+import { peopleFiltersSchema, personSchema, roleSchema } from './people.schemas';
+import { createAuditLog, extractAuditContext } from '../audit/audit.service';
+import { deleteEmailPerson, removalByPerson } from './person-removal';
 
 export const listPeople = async (req: Request) => {
     const { page, pageSize, skip } = normalizePagination(req.query);
-    const q = z.string().max(200).optional().parse(req.query.q);
-    
-    const { data, total } = await peopleService.listPeople(q, skip, pageSize);
-    
-    req.res!.json({ data, meta: { page, pageSize, total } });
+    const filters = peopleFiltersSchema.parse(req.query);
+
+    const { data, total } = await peopleService.listPeople(filters, skip, pageSize);
+    const removal = await removalByPerson(data.map(person => person.id));
+
+    req.res!.json({ data: data.map(person => ({ ...person, removal: removal.get(person.id) })), meta: { page, pageSize, total } });
 };
 
 export const getPerson = async (req: Request) => {
     const id = entityId(req);
-    return peopleService.getPersonById(id, true);
+    const person = await peopleService.getPersonById(id, true);
+    return { ...person, removal: (await removalByPerson([id])).get(id) };
+};
+
+// Only a contact that a mailbox created on its own; the service refuses everything else.
+export const deletePerson = async (req: Request) => {
+    const deleted = await deleteEmailPerson(entityId(req));
+    await createAuditLog({ action: 'PERSON_DELETED', entityType: 'Person', entityId: deleted.id, before: deleted }, extractAuditContext(req));
+    return { deleted: true };
 };
 
 export const createPerson = async (req: Request) => {

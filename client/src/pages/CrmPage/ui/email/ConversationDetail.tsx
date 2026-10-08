@@ -1,6 +1,8 @@
 import { memo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { applyConversationDisposition, Conversation, ConversationDisposition, getConversation, Message, PromptVersion, ProviderConnection } from '@/entities/crm';
+import { Link } from 'react-router-dom';
+import { applyConversationDisposition, Conversation, ConversationDisposition, getConversation, isClient, Message, PromptVersion, ProviderConnection } from '@/entities/crm';
+import { classNames } from '@/shared/lib/classNames/classNames';
 import { formatFileSize } from '@/features/composeEmail';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button, ButtonTheme } from '@/shared/ui/Button';
@@ -49,7 +51,9 @@ const ThreadHeader = memo(({ conversation, onBack, onRemoved }: { conversation: 
     return <header className={cls.threadHeader}>
         <Button theme={ButtonTheme.CLEAR} className={cls.backButton} onClick={onBack}>{t('Back to inbox')}</Button>
         <div className={cls.threadTitle}><h2>{conversation.subject}</h2>
-            <p>{conversation.person?.displayName || conversation.person?.email}</p></div>
+            <p>{conversation.person?.displayName || conversation.person?.email}
+                {isClient(conversation.person) && <> <span className={classNames(cls.mailBadge, {}, [cls.badgeClient])}>{t('Client')}</span></>}
+                {conversation.person && <> · <Link to={`/people/${conversation.person.id}`}>{t('Open contact card')}</Link></>}</p></div>
         <div className={cls.threadHeaderActions}>
             <StatusBadge status={conversation.status} />
             <ConversationActions id={conversation.id} onRemoved={onRemoved} />

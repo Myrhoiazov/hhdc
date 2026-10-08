@@ -20,15 +20,10 @@ export const setAutomationStatus = async (id: string, action: 'activate' | 'paus
 export const testAutomation = async (id: string, payload: Record<string, string>) => post<AutomationTest>(`/automations/${id}/test`, { payload });
 export const listAutomationRuns = async (id: string) => page<AutomationRun>(`/automations/${id}/runs`);
 
-export interface Payment { id: string; amount: string; currency: string; status: string; method?: string | null; person?: { displayName: string } | null }
 export interface Refund { id: string; amount: string; currency: string; status: string; reason: string; error?: string | null; person?: { displayName: string } | null }
-export const listPayments = async () => page<Payment>('/payments');
 export const listRefunds = async () => page<Refund>('/refunds');
 export const requestRefund = async (input: { paymentId: string; amount: string; reason: string }) => post<Refund>('/refunds', input);
 export const actOnRefund = async (id: string, action: 'approve' | 'reject' | 'process' | 'sync') => post<Refund>(`/refunds/${id}/${action}`);
-export type MoneyLine = Record<string, string>;
-export interface FinanceOverview { ticketRevenue: MoneyLine; refunds: MoneyLine; netTicketRevenue: MoneyLine; costs: Record<string, MoneyLine>; estimatedMargin: MoneyLine }
-export const getEventFinance = async (eventId: string) => read<FinanceOverview>(`/finance/events/${eventId}/overview`);
 
 export interface AiProposal { id: string; type: string; status: string; payload: { title?: string; description?: string; dueDate?: string } }
 export interface AssistantAnswer { answer: string; references: { tool: string; ok: boolean }[]; proposal: AiProposal | null }
@@ -69,3 +64,18 @@ export const createApiKey = async (name: string, permissions: string[]) => post<
 export const revokeApiKey = async (id: string) => post<ApiKey>(`/api-keys/${id}/revoke`);
 export const listWebhooks = async () => read<WebhookEndpoint[]>('/webhooks');
 export const createWebhook = async (input: { name: string; url: string; events: string[] }) => post<WebhookEndpoint>('/webhooks', input);
+
+// Every movement of money as one list: payments of buyers, refunds and costs of events.
+export const LEDGER_CATEGORIES = ['TICKETS', 'REFUNDS', 'FEE', 'SALARY', 'TRAVEL', 'HOTEL', 'VENUE', 'MARKETING', 'EQUIPMENT', 'OTHER'] as const;
+export type LedgerCategory = typeof LEDGER_CATEGORIES[number];
+export interface LedgerEntry {
+    id: string; kind: 'PAYMENT' | 'REFUND' | 'EXPENSE'; category: string; direction: 'IN' | 'OUT'; date: string; amount: string; currency: string; status: string;
+    description: string | null; person: { id: string; name: string } | null; event: { id: string; name: string } | null; counted: boolean;
+}
+export interface LedgerCategoryTotal { category: string; direction: 'IN' | 'OUT'; operations: number; amount: string }
+export interface LedgerSummary { currency: string; income: string; refunds: string; expenses: string; result: string; operations: number; byCategory: LedgerCategoryTotal[] }
+export interface LedgerFilters { q: string; category: LedgerCategory | ''; eventId: string; from: string; to: string }
+export const LEDGER_PAGE_SIZE = 25;
+export const listLedgerPage = async (filters: LedgerFilters, pageNumber: number) =>
+    page<LedgerEntry>(`/finance/ledger?${new URLSearchParams({ ...filters, page: String(pageNumber), pageSize: String(LEDGER_PAGE_SIZE) }).toString()}`);
+export const getLedgerSummary = async (filters: LedgerFilters) => read<LedgerSummary>(`/finance/ledger/summary?${new URLSearchParams({ ...filters }).toString()}`);

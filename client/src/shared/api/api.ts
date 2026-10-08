@@ -24,5 +24,9 @@ $apiPrivate.interceptors.request.use(async config => {
 });
 $apiPrivate.interceptors.response.use(response => response, error => {
     if (error.response?.status === 401) { csrfActions.reset(); store?.dispatch(userActions.logout()); }
+    // The server explains a refusal in `error.message`. Screens show `cause.message`, so the reason
+    // replaces the generic "Request failed with status code 400".
+    const reason = error.response?.data?.error?.message;
+    if (typeof reason === 'string' && reason) error.message = reason;
     return Promise.reject(error);
 });

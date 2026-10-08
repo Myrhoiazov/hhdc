@@ -11,6 +11,7 @@ import { AvatarDropdown } from '@/features/avatarDropdown';
 import { ComposeEmailModal } from '@/features/composeEmail';
 import { CreatePersonModal } from '@/features/createPerson';
 import cls from './Navbar.module.scss';
+import logo from '@/shared/assets/logo/hhdc-logo.png';
 
 const ComposeEmailAction = memo(() => {
     const { t } = useTranslation();
@@ -34,7 +35,7 @@ export const Navbar = memo(({ className, onMobileMenuToggle }: { className?: str
     const { t } = useTranslation();
     if (!user) return null;
     return <div className={classNames(cls.Navbar, {}, [className])}>
-        <div className={cls.left}><button className={cls.hamburger} onClick={onMobileMenuToggle} aria-label={t('Menu')}><span /><span /><span /></button><strong>{t('HHDC Event CRM')}</strong></div>
+        <div className={cls.left}><button className={cls.hamburger} onClick={onMobileMenuToggle} aria-label={t('Menu')}><span /><span /><span /></button><img className={cls.logo} src={logo} alt="" /><strong>{t('HHDC Event CRM')}</strong></div>
         <div className={cls.actions}>
             {user.permissions.includes('communications.reply') && <ComposeEmailAction />}
             {user.permissions.includes('people.write') && <CreatePersonAction />}

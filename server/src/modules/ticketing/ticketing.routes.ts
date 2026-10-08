@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { permitted } from '../auth/auth.middleware';
-import { ticketingService } from './ticketing.service';
+import { syncWeeztixSales } from './weeztix-orders.service';
 import prisma from '../../../prisma/prisma-client';
 
 export const ticketingRouter = Router();
@@ -13,7 +13,7 @@ ticketingRouter.post('/ticketing/sync', permitted('ticketing.sync'), async (req,
       return;
     }
     
-    const result = await ticketingService.syncAll(providerConnectionId);
+    const result = await syncWeeztixSales(String(providerConnectionId));
     res.json({ data: { message: 'Sync completed', result } });
   } catch (error) {
     next(error);
@@ -25,7 +25,7 @@ ticketingRouter.get('/orders', permitted('ticketing.read'), async (req, res, nex
     const orders = await prisma.order.findMany({
       take: 50,
       orderBy: { createdAt: 'desc' },
-      include: { buyer: true },
+      include: { buyer: true }, omit: { rawData: true },
     });
     res.json({ data: orders });
   } catch (error) {
@@ -37,7 +37,7 @@ ticketingRouter.get('/orders/:id', permitted('ticketing.read'), async (req, res,
   try {
     const order = await prisma.order.findUnique({
       where: { id: req.params.id },
-      include: { items: { include: { tickets: true } }, buyer: true },
+      include: { items: { omit: { rawData: true }, include: { tickets: { omit: { rawData: true } } } }, buyer: true }, omit: { rawData: true },
     });
     if (!order) {
       res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Order not found' } });
@@ -54,7 +54,7 @@ ticketingRouter.get('/tickets', permitted('ticketing.read'), async (req, res, ne
     const tickets = await prisma.ticket.findMany({
       take: 50,
       orderBy: { createdAt: 'desc' },
-      include: { holder: true, order: true },
+      include: { holder: true, order: { omit: { rawData: true } } }, omit: { rawData: true },
     });
     res.json({ data: tickets });
   } catch (error) {
@@ -66,7 +66,7 @@ ticketingRouter.get('/tickets/:id', permitted('ticketing.read'), async (req, res
   try {
     const ticket = await prisma.ticket.findUnique({
       where: { id: req.params.id },
-      include: { holder: true, order: true },
+      include: { holder: true, order: { omit: { rawData: true } } }, omit: { rawData: true },
     });
     if (!ticket) {
       res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Ticket not found' } });

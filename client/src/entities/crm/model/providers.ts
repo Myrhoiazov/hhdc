@@ -36,3 +36,19 @@ export const updateProvider = async (id: string, input: Partial<ProviderInput>) 
 export const testProvider = async (id: string) => post<ProviderTestResult>(`/providers/${id}/test`);
 export const syncProvider = async (id: string) => post<EmailSyncSummary>(`/providers/${id}/sync`);
 export const deleteProvider = async (id: string) => $apiPrivate.delete(`/providers/${id}`);
+
+// Weeztix is connected by approving access in Weeztix itself; no secret is ever typed into the CRM.
+export interface WeeztixAuthorization { url: string; redirectUri: string; state: string }
+export interface WeeztixCheckResult { success: boolean; error: string | null; account: { name: string; email: string } | null; provider: ProviderConnection }
+export const startWeeztixAuthorization = async () => post<WeeztixAuthorization>('/providers/weeztix/authorize');
+export const connectWeeztix = async (address: string, state: string) => post<ProviderConnection>('/providers/weeztix/connect', { address, state });
+export const checkWeeztix = async (id: string) => post<WeeztixCheckResult>(`/providers/${id}/weeztix-check`);
+
+// Buyers of Weeztix orders become people. A preview reads Weeztix and writes nothing.
+export interface WeeztixContactsResult { dryRun: boolean; orders: number; contacts: number; created: number; linked: number; known: number; ambiguous: number; failed: number }
+export interface WeeztixCatalogResult { events: number; created: number; updated: number; unchanged: number; ticketTypes: number; coupons: number; unreadable: number; failed: number }
+export const previewWeeztixContacts = async (id: string) => post<WeeztixContactsResult>(`/providers/${id}/weeztix-contacts`, { dryRun: true });
+export const importWeeztixContacts = async (id: string) => post<WeeztixContactsResult>(`/providers/${id}/weeztix-contacts`, { dryRun: false });
+export const syncWeeztixCatalog = async (id: string) => post<WeeztixCatalogResult>(`/providers/${id}/weeztix-catalog`);
+export interface WeeztixSalesResult { catalog: WeeztixCatalogResult; sales: { orders: number; created: number; updated: number; unchanged: number; tickets: number; registrations: number; newPeople: number; withoutBuyer: number; unreadable: number; failed: number; firstError: string | null } }
+export const syncWeeztixSales = async (id: string) => post<WeeztixSalesResult>(`/providers/${id}/weeztix-sales`);
