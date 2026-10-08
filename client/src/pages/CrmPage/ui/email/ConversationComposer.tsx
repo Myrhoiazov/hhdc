@@ -91,7 +91,7 @@ const useReplyComposer = ({ conversation, providers, preferredProviderId, refres
         const generated = await generateDraft(conversation.id, choice);
         setDraft(generated); setContent(generated.content);
     });
-    const discard = () => run(async () => { if (draft) await rejectDraft(draft.id); clear(); });
+    const discard = () => run(async () => { if (draft) await rejectDraft(draft.id); clear(); refresh(); });
     return { draft, content, setContent, files, setFiles, choice, setChoice, providerId, setProviderId, error, busy, send, generate, discard };
 };
 

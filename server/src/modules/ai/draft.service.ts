@@ -1,3 +1,4 @@
+import { discardOutcome, OPEN_DRAFT_STATUSES } from './approval';
 import type { AiDraft, Prisma } from '@prisma/client';
 import prisma from '../../../prisma/prisma-client';
 import { ApiError } from '../../common/http';
@@ -55,12 +56,29 @@ export const buildContextSnapshot = (run: EmailAssistantRun): Prisma.InputJsonOb
     promptVersion: run.promptVersion,
 }));
 
+interface DraftClosure { actorUserId: string | null; action: 'AI_DRAFT_REJECTED' | 'AI_DRAFT_SUPERSEDED' }
+
+// Closes every open draft of a conversation. The audit log gets one row per draft that was
+// actually closed, under that draft's own id — never a row for a draft that did not change.
+const closeOpenDrafts = async (tx: Prisma.TransactionClient, conversationId: string, closure: DraftClosure): Promise<number> => {
+    const open = await tx.aiDraft.findMany({ where: { conversationId, status: { in: [...OPEN_DRAFT_STATUSES] } }, select: { id: true } });
+    const ids = open.map(draft => draft.id);
+    if (!ids.length) return 0;
+    // The status is checked again in the update, so a draft approved in the meantime is left alone.
+    const { count } = await tx.aiDraft.updateMany({ where: { id: { in: ids }, status: { in: [...OPEN_DRAFT_STATUSES] } }, data: { status: 'REJECTED' } });
+    if (count !== ids.length) throw new ApiError(409, 'DRAFT_CHANGED', 'The draft changed while it was being discarded. Try again.');
+    await tx.auditLog.createMany({ data: ids.map(id => ({ actorUserId: closure.actorUserId, action: closure.action, entityType: 'AiDraft', entityId: id })) });
+    return count;
+};
+
 export interface DraftAuthor { createdBy: string; actorUserId: string | null }
 
 export const saveDraft = async (source: DraftSource, run: EmailAssistantRun, author: DraftAuthor): Promise<AiDraft> => {
     if (!run.result) throw new ApiError(422, 'DRAFT_NOT_GENERATED', 'The assistant did not produce a draft for this email');
     const { draft, trace } = run.result;
     return prisma.$transaction(async tx => {
+        // A conversation has one draft to act on: a new one replaces whatever was still open.
+        await closeOpenDrafts(tx, source.conversation.id, { actorUserId: author.actorUserId, action: 'AI_DRAFT_SUPERSEDED' });
         const saved = await tx.aiDraft.create({ data: {
             conversationId: source.conversation.id, sourceMessageId: source.message.id, status: 'GENERATED',
             language: trace.language, intent: trace.intent.toUpperCase(), confidence: draft.confidence,
@@ -70,6 +88,15 @@ export const saveDraft = async (source: DraftSource, run: EmailAssistantRun, aut
         await tx.auditLog.create({ data: { actorUserId: author.actorUserId, action: 'AI_DRAFT_GENERATED', entityType: 'AiDraft', entityId: saved.id } });
         return saved;
     });
+};
+
+// Discards the draft together with any other open draft of the same conversation, so that an
+// older one cannot come back in its place.
+export const discardDraft = async (draftId: string, actorUserId: string): Promise<{ discarded: number }> => {
+    const draft = await prisma.aiDraft.findUnique({ where: { id: draftId }, select: { status: true, conversationId: true } });
+    if (!draft) throw new ApiError(404, 'DRAFT_NOT_FOUND', 'Draft not found');
+    discardOutcome(draft.status);
+    return prisma.$transaction(async tx => ({ discarded: await closeOpenDrafts(tx, draft.conversationId, { actorUserId, action: 'AI_DRAFT_REJECTED' }) }));
 };
 
 // What a tester may swap for one draft: the provider/model and the reply-prompt version.
