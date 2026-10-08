@@ -1,7 +1,7 @@
 import { ChangeEvent, memo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { addAttachments, formatFileSize } from '../../model/attachments';
-import cls from '../CommunicationsPage.module.scss';
+import cls from './AttachmentPicker.module.scss';
 
 interface AttachmentPickerProps {
     files: File[];
@@ -19,7 +19,7 @@ export const AttachmentPicker = memo(({ files, disabled, onChange }: AttachmentP
         setError(selection.error);
         onChange(selection.files);
     };
-    return <div className={cls.attachments}>
+    return <div className={cls.AttachmentPicker}>
         <label className={cls.attachButton}>
             <input className={cls.srOnly} type="file" multiple disabled={disabled} onChange={onPick} />
             {t('Attach file')}

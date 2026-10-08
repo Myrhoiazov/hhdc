@@ -1,13 +1,11 @@
-import { memo, useCallback, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { memo, useEffect, useMemo, useState } from 'react';
 import { ConversationFilters, listPrompts, listProviders, PromptVersion } from '@/entities/crm';
-import { Button, ButtonTheme } from '@/shared/ui/Button';
+import { onEmailSent } from '@/features/composeEmail';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { useConversationPages } from '../model/useConversationPages';
 import { CrmLayout, RequestState } from './common';
 import { AccountOverview, MailboxNavigation } from './email/MailboxNavigation';
 import { EmailWorkspace } from './email/EmailWorkspace';
-import { ComposeEmailModal } from './email/ComposeEmailModal';
 import cls from './CommunicationsPage.module.scss';
 
 type MailView = 'letters' | 'accounts';
@@ -22,8 +20,6 @@ const loadReplyPrompts = async (): Promise<PromptVersion[]> => {
 const NO_PROMPTS: PromptVersion[] = [];
 
 export const CommunicationsPage = memo(() => {
-    const { t } = useTranslation();
-    const [composeOpen, setComposeOpen] = useState(false);
     const providers = useResource(listProviders);
     const replyPrompts = useResource(loadReplyPrompts);
     const [view, setView] = useState<MailView>('letters');
@@ -39,7 +35,8 @@ export const CommunicationsPage = memo(() => {
     );
 
     const { refresh } = conversations;
-    const onEmailSent = useCallback(() => { setComposeOpen(false); refresh(); }, [refresh]);
+    // New letters are written from the header; the list reloads when one has been sent.
+    useEffect(() => onEmailSent(refresh), [refresh]);
 
     const aiProviders = useMemo(() => (providers.data?.data ?? []).filter(
         (provider) => provider.type === 'AI' && provider.status === 'CONNECTED',
@@ -47,10 +44,6 @@ export const CommunicationsPage = memo(() => {
 
     return <CrmLayout title="Email">
         <div className={cls.EmailPage}>
-            <div className={cls.pageActions}>
-                <Button theme={ButtonTheme.BACKGROUND_INVERTED} disabled={!emailProviders.length}
-                    onClick={() => setComposeOpen(true)}>{t('New email')}</Button>
-            </div>
             <MailboxNavigation view={view} providers={emailProviders} onViewChange={setView} />
             <RequestState error={providers.error || conversations.error} loading={providers.loading || conversations.loading} />
             {view === 'accounts'
@@ -60,8 +53,6 @@ export const CommunicationsPage = memo(() => {
                         providerId={providerId} query={query} onProviderChange={setProviderId} onQueryChange={setQuery}
                         onConversationRemoved={conversations.refresh}
                         onConversationRead={conversations.markRead} />}
-            <ComposeEmailModal isOpen={composeOpen} providers={emailProviders} preferredProviderId={providerId}
-                onClose={() => setComposeOpen(false)} onSent={onEmailSent} />
         </div>
     </CrmLayout>;
 });

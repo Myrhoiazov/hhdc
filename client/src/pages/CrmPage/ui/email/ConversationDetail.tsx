@@ -1,7 +1,7 @@
 import { memo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { applyConversationDisposition, Conversation, ConversationDisposition, getConversation, Message, PromptVersion, ProviderConnection } from '@/entities/crm';
-import { formatFileSize } from '../../model/attachments';
+import { formatFileSize } from '@/features/composeEmail';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button, ButtonTheme } from '@/shared/ui/Button';
 import { RequestState, StatusBadge } from '../common';

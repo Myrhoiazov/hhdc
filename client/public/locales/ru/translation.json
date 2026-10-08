@@ -1,4 +1,11 @@
 {
+  "Connect a mailbox in Settings to send email.": "Подключите почтовый ящик в настройках, чтобы отправлять письма.",
+  "Create person": "Новый человек",
+  "Add person": "Добавить человека",
+  "First name": "Имя",
+  "Last name": "Фамилия",
+  "Notes": "Заметки",
+  "Edit contact": "Редактировать контакт",
   "Pinned": "Закреплено",
   "Unpin": "Открепить",
   "Pin": "Закрепить",

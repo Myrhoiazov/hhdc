@@ -4,7 +4,7 @@ import { approveDraft, Conversation, Draft, DraftModelChoice, generateDraft, Pro
 import { classNames } from '@/shared/lib/classNames/classNames';
 import { Button, ButtonTheme } from '@/shared/ui/Button';
 import { RequestState } from '../common';
-import { AttachmentPicker } from './AttachmentPicker';
+import { AttachmentPicker } from '@/features/composeEmail';
 import cls from '../CommunicationsPage.module.scss';
 
 const actionableDraft = (conversation: Conversation) => conversation.drafts?.find(

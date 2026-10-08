@@ -1,0 +1,62 @@
+/* The shared Modal falls back to a legacy background, so the form carries its own surface. */
+.ComposeEmailModal {
+    display: flex;
+    flex-direction: column;
+    width: min(520px, calc(100vw - 80px));
+    padding: 4px;
+    color: var(--sidebar-text-hover-redesigned);
+    background: var(--sidebar-bg-redesigned);
+    border-radius: var(--radius-md-redesigned);
+    gap: 16px;
+
+    h2 {
+        margin: 0;
+        font-size: 20px;
+    }
+
+    :where(textarea) {
+        line-height: 1.5;
+        resize: vertical;
+    }
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    font-size: 14px;
+    gap: 8px;
+
+    input,
+    select,
+    textarea {
+        width: 100%;
+        min-height: 40px;
+        padding: 8px 12px;
+        color: var(--sidebar-text-hover-redesigned);
+        background: var(--sidebar-hover-bg-redesigned);
+        border: 1px solid var(--card-border-redesigned);
+        border-radius: var(--radius-sm-redesigned);
+
+        &:focus {
+            border-color: var(--primary-redesigned);
+            outline: 0;
+        }
+    }
+}
+
+.error {
+    margin: 0;
+    color: var(--danger-text-redesigned);
+}
+
+.muted {
+    margin: 0;
+    color: var(--sidebar-text-redesigned);
+}
