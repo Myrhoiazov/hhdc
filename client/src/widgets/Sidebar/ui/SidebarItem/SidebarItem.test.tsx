@@ -14,14 +14,20 @@ const item: SidebarItemType = {
     Icon: MockIcon,
 };
 
-function renderItem(itemOverrides: Partial<SidebarItemType> = {}, options: { authed?: boolean; route?: string } = {}) {
-    const { authed = true, route = '/' } = options;
+interface RenderOptions {
+    authed?: boolean;
+    route?: string;
+    permissions?: string[];
+}
+
+function renderItem(itemOverrides: Partial<SidebarItemType> = {}, options: RenderOptions = {}) {
+    const { authed = true, route = '/', permissions = [] } = options;
     const store = configureStore({
         reducer: { user: userReducer },
         preloadedState: {
             user: {
                 _inited: true,
-                authData: authed ? { id: '1', name: 'denis', email: 'd@example.com', roles: ['ADMIN'], permissions: [] } : undefined,
+                authData: authed ? { id: '1', name: 'denis', email: 'd@example.com', roles: ['ADMIN'], permissions } : undefined,
             },
         },
     });
@@ -69,6 +75,12 @@ test('marks itself active for a nested path', () => {
 test('does not mark itself active for an unrelated path', () => {
     renderItem({}, { route: '/transactions' });
     expect(screen.getByText('Clients').closest('a')).not.toHaveClass('active');
+});
+
+// /people/duplicates sits under /people too; only the Duplicates link may be highlighted there.
+test('does not mark itself active when another menu link matches the route more precisely', () => {
+    renderItem({ path: '/people', text: 'People' }, { route: '/people/duplicates', permissions: ['people.write'] });
+    expect(screen.getByText('People').closest('a')).not.toHaveClass('active');
 });
 
 // The icon colour must come from the sidebar's own classes: the shared Icon's class names

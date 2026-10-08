@@ -5,7 +5,9 @@ import { classNames } from '@/shared/lib/classNames/classNames';
 import { memo } from 'react';
 import { useSelector } from 'react-redux';
 import { getUserAuthData } from '@/entities/User';
-import { SidebarItemType } from '@/widgets/Sidebar/model/types/sidebar';
+import { SidebarItemType } from '../../model/types/sidebar';
+import { getSidebarItems } from '../../model/selectors/getSidebarItems';
+import { isSidebarPathActive } from '../../model/lib/isSidebarPathActive';
 import { Icon } from '@/shared/ui/Icon/Icon';
 import { useLocation } from 'react-router-dom';
 
@@ -19,12 +21,13 @@ export const SidebarItem = memo(({ item, collapsed, nested }: SidebarItemProps) 
     const { t } = useTranslation();
     const isAuth = useSelector(getUserAuthData);
     const { pathname } = useLocation();
+    const sidebarItems = useSelector(getSidebarItems);
 
     if (item.authOnly && !isAuth) {
         return null;
     }
 
-    const isActive = pathname === item.path || pathname.startsWith(item.path + '/');
+    const isActive = isSidebarPathActive(item.path, pathname, sidebarItems);
 
     return (
         <AppLink
