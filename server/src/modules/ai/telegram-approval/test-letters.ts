@@ -23,7 +23,8 @@ export const TEST_LETTERS: TestLetter[] = [
         body: 'Dear website owner, we offer cheap SEO backlinks and guaranteed first page ranking on Google. Reply now to get 50% discount on our marketing package. Unsubscribe here.' },
 ];
 
-const WAIT_MS = 180_000;
+// A local model on CPU needs a couple of minutes per letter.
+const WAIT_MS = 15 * 60_000;
 const CHECK_EVERY_MS = 5_000;
 
 const argument = (name: string): string | undefined => process.argv.find(item => item.startsWith(`--${name}=`))?.split('=').slice(1).join('=');
