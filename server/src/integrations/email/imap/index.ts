@@ -1,6 +1,7 @@
 import { ImapFlow } from 'imapflow';
 import nodemailer from 'nodemailer';
 import { z } from 'zod';
+import { logger } from '../../../common/logger';
 import type { EmailAttachment, EmailDisposition, EmailProvider, EmailSyncPage, NormalizedEmail, RemoteEmailRef, SendEmailInput } from '../EmailProvider';
 import {
     formatImapCursor, normalizeImapMessage, parseImapCursor, rangeHasMessages, rangeToFetch,
@@ -110,9 +111,39 @@ const readInbox: ImapTransports['readInbox'] = (config, selectRange) => withInbo
     return { ...mailbox, messages };
 });
 
+// The message is built once, so the copy filed under Sent is exactly what the recipient got.
+export const buildMessage = async (mail: OutgoingMail) => {
+    const built = await nodemailer.createTransport({ streamTransport: true, buffer: true }).sendMail(mail);
+    return { raw: z.instanceof(Buffer).parse(built.message), envelope: built.envelope, messageId: z.string().min(1).parse(built.messageId) };
+};
+
+// Gmail files what it sends over SMTP by itself; a second copy would show every letter twice.
+export const keepsOwnSentCopy = (capabilities: ReadonlyMap<string, unknown>): boolean => capabilities.has('X-GM-EXT-1');
+
+const SENT_FOLDER_NAME = /^(inbox[./])?sent([ -_]?(items|messages|mail))?$/i;
+// The folder the server marks as Sent; older servers do not mark it, so the usual names are tried.
+export const sentFolderPath = (mailboxes: { path: string; specialUse?: string }[]): string | undefined =>
+    (mailboxes.find(item => item.specialUse === '\\Sent') ?? mailboxes.find(item => SENT_FOLDER_NAME.test(item.path)))?.path;
+
+const saveSentCopy = async (config: ImapConfig, raw: Buffer): Promise<void> => {
+    const client = imapClient(config);
+    await connectImap(client);
+    try {
+        if (keepsOwnSentCopy(client.capabilities)) return;
+        const path = sentFolderPath(await client.list());
+        if (path) await client.append(path, raw, ['\\Seen']);
+    } finally {
+        await safeLogout(client);
+    }
+};
+
 const sendMail: ImapTransports['send'] = async (config, mail) => {
-    const info = await smtpTransport(config).sendMail(mail);
-    return { messageId: z.string().min(1).parse(info.messageId) };
+    const message = await buildMessage(mail);
+    await smtpTransport(config).sendMail({ envelope: message.envelope, raw: message.raw });
+    // The letter has left by now: failing to file its copy must not report the send as failed.
+    try { await saveSentCopy(config, message.raw); }
+    catch (error) { logger.warn(`[email] sent copy was not saved for ${config.credentials.username}: ${describeImapError(error).message}`); }
+    return { messageId: message.messageId };
 };
 
 const destinationMailbox = async (client: ImapFlow, disposition: EmailDisposition) => {
