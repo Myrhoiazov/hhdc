@@ -10,7 +10,7 @@ interface NotifyOptions {
     fetchImpl?: typeof fetch;
 }
 
-const configuredNotifier = (): TelegramNotificationConfig | null => {
+export const configuredNotifier = (): TelegramNotificationConfig | null => {
     const token = process.env.TELEGRAM_TOKEN?.trim();
     const chatId = process.env.TELEGRAM_EMAIL_NOTIFY_CHAT_ID?.trim();
     if (!token || !chatId || !/^-?\d+$/.test(chatId)) return null;
