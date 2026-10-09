@@ -12,18 +12,31 @@ interface ToolbarProps {
     providers: ProviderConnection[];
     providerId: string;
     query: string;
+    // Conversations with unread mail per mailbox id.
+    unread: Record<string, number>;
     onProviderChange: (id: string) => void;
     onQueryChange: (query: string) => void;
 }
 
+const MailboxPill = memo(({ label, count, active, onSelect }: { label: string; count: number; active: boolean; onSelect: () => void }) => {
+    const { t } = useTranslation();
+    return <button className={active ? cls.activeMailbox : ''} aria-pressed={active}
+        aria-label={count ? `${label} — ${t('Unread')}: ${count}` : label} onClick={onSelect}>
+        {label}{count > 0 && <span className={cls.mailboxCount} aria-hidden="true">{count}</span>}
+    </button>;
+});
+
+const totalUnread = (unread: Record<string, number>, providers: ProviderConnection[]) =>
+    providers.reduce((sum, provider) => sum + (unread[provider.id] ?? 0), 0);
+
 export const InboxToolbar = memo((props: ToolbarProps) => {
     const { t } = useTranslation();
-    const { providers, providerId, query, onProviderChange, onQueryChange } = props;
+    const { providers, providerId, query, unread, onProviderChange, onQueryChange } = props;
     return <div className={cls.inboxToolbar}>
         {providers.length > 1 && <div className={cls.mailboxPills} aria-label={t('Email accounts')}>
-            <button className={!providerId ? cls.activeMailbox : ''} onClick={() => onProviderChange('')}>{t('All inboxes')}</button>
-            {providers.map((provider) => <button key={provider.id} className={providerId === provider.id ? cls.activeMailbox : ''}
-                onClick={() => onProviderChange(provider.id)}>{provider.name}</button>)}
+            <MailboxPill label={t('All inboxes')} count={totalUnread(unread, providers)} active={!providerId} onSelect={() => onProviderChange('')} />
+            {providers.map((provider) => <MailboxPill key={provider.id} label={provider.name} count={unread[provider.id] ?? 0}
+                active={providerId === provider.id} onSelect={() => onProviderChange(provider.id)} />)}
         </div>}
         <label className={cls.searchBox}>
             {/* The glass is drawn in the middle of a larger canvas; the view is cut to the glass itself. */}

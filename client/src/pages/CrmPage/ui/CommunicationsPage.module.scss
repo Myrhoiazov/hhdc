@@ -65,6 +65,20 @@
     }
 }
 
+.mailboxCount {
+    display: inline-block;
+    min-width: 22px;
+    padding: 1px 7px;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--danger-text-redesigned);
+    text-align: center;
+    background: var(--danger-bg-redesigned);
+    border: 1px solid var(--danger-text-redesigned);
+    border-radius: var(--radius-pill-redesigned);
+    margin-left: 8px;
+}
+
 .searchBox {
     display: flex;
     align-items: center;

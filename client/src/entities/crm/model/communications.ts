@@ -51,6 +51,10 @@ export const getConversation = async (id: string) => (await $apiPrivate.get<{dat
 export const markConversationRead = async (id: string): Promise<void> => {
     await $apiPrivate.post(`/conversations/${id}/read`);
 };
+// Conversations with unread incoming mail per mailbox id; a mailbox with none is absent.
+export const getUnreadByMailbox = async (): Promise<Record<string, number>> =>
+    (await $apiPrivate.get<{data: Record<string, number>}>('/conversations/unread-counts')).data.data;
+// The server sends a reply from the mailbox the letter came to; the id matters only for a thread no mailbox owns.
 export const replyToConversation = async (id: string, content: string, providerConnectionId: string, files: File[] = []) => $apiPrivate.post(`/conversations/${id}/reply`, withAttachments({ content, providerConnectionId }, files));
 export interface DraftModelChoice { providerConnectionId?: string; model?: string; draftPromptId?: string }
 // `choice` sends this one draft to another connected provider or model; without it the provider's own model answers.

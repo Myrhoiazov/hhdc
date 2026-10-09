@@ -26,6 +26,10 @@ export const mailboxSettings = z.object({ sender: z.string().email(), senderName
 export const senderNameFor = (settings: { senderName?: string }, connectionName: string): string | undefined =>
     (settings.senderName?.trim() || connectionName.trim()).replace(/[\r\n"<>]/g, '') || undefined;
 
+// A reply leaves from the mailbox the letter came to, whatever the request names; the requested
+// one is used only for a thread that no mailbox owns.
+export const replyMailboxId = (threadMailboxId: string | null | undefined, requestedId: string): string => threadMailboxId ?? requestedId;
+
 export const buildReplySubject = (subject: string): string => (/^re:/i.test(subject.trim()) ? subject.trim() : `Re: ${subject}`.trim());
 
 const inboundMetadata = z.object({ threadId: z.string().optional(), messageId: z.string().nullable().optional(), replyTo: z.string().email().nullable().optional() });
@@ -53,11 +57,12 @@ const recordSent = async (input: { conversationId: string; reply: Reply; userId:
     return message;
 });
 
-export const sendReply = async (conversationId: string, reply: Reply, userId: string, attachments: EmailAttachment[] = []) => {
+export const sendReply = async (conversationId: string, requested: Reply, userId: string, attachments: EmailAttachment[] = []) => {
     const conversation = await prisma.conversation.findUnique({ where: { id: conversationId }, include: { person: true, messages: { where: { direction: 'INBOUND' }, orderBy: { receivedAt: 'desc' }, take: 1 } } });
     if (!conversation) throw new ApiError(404, 'CONVERSATION_NOT_FOUND', 'Conversation not found');
     const inbound = conversation.messages[0];
     if (!inbound) throw new ApiError(400, 'NO_REPLY_RECIPIENT', 'No incoming message to reply to');
+    const reply: Reply = { ...requested, providerConnectionId: replyMailboxId(inbound.providerConnectionId, requested.providerConnectionId) };
     const { connection, provider } = await emailProvider(reply.providerConnectionId);
     const settings = mailboxSettings.parse(connection.settings);
     const body = renderEmailBody(reply.content, settings.signatureHtml);
