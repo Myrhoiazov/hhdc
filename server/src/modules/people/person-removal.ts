@@ -67,13 +67,16 @@ export const blockedMessage = (blockers: RemovalBlocker[]): string =>
     `This contact cannot be deleted: ${blockers.map(blocker => REASONS[blocker]).join(', ')}`;
 
 // Letters stay in the mailbox without a contact. The link between the address and the person is
-// removed with the person, so the next letter from this address finds no dead reference.
-export const deleteEmailPerson = async (id: string) => prisma.$transaction(async tx => {
+// removed with the person, and the address is remembered so the next letter from it does not
+// bring the contact back.
+export const deleteEmailPerson = async (id: string, actorUserId?: string) => prisma.$transaction(async tx => {
     const person = await tx.person.findUnique({ where: { id }, select: { id: true, displayName: true, email: true, source: true } });
     if (!person) throw new ApiError(404, 'PERSON_NOT_FOUND', 'Person not found');
     const removal = (await removalByPerson([id], tx)).get(id);
     if (!removal?.allowed) throw new ApiError(409, 'PERSON_DELETE_BLOCKED', blockedMessage(removal?.blockers ?? []));
     await tx.externalIdentity.deleteMany({ where: { entityId: id, entityType: 'EMAIL_CONTACT' } });
     await tx.person.delete({ where: { id } });
+    const address = person.email?.trim().toLowerCase();
+    if (address) await tx.emailContactBlock.upsert({ where: { address }, create: { address, createdById: actorUserId ?? null }, update: {} });
     return person;
 });

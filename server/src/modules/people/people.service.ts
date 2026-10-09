@@ -1,6 +1,7 @@
 import { Prisma, PersonRoleType, PersonSource } from '@prisma/client';
 import prisma from '../../../prisma/prisma-client';
 import { ApiError } from '../../common/http';
+import { PAYEE_ROLES } from './payees';
 
 export interface CreatePersonInput {
     firstName: string;
@@ -25,16 +26,18 @@ export interface MatchPersonInput {
     };
 }
 
-export interface PeopleFilters { q?: string; role?: PersonRoleType; source?: PersonSource; purchases?: 'yes' | 'no' }
+export interface PeopleFilters { q?: string; role?: PersonRoleType; source?: PersonSource; purchases?: 'yes' | 'no'; payees?: 'yes' }
 
 const SEARCHED = ['displayName', 'firstName', 'lastName', 'email', 'phone'];
 
 export const peopleWhere = (filters: PeopleFilters): Prisma.PersonWhereInput => {
     const query = filters.q?.trim();
     const purchases = { yes: { some: {} }, no: { none: {} } };
+    const roles = [...(filters.role ? [{ roles: { some: { role: filters.role } } }] : []), ...(filters.payees ? [{ roles: { some: { role: { in: [...PAYEE_ROLES] } } } }] : [])];
     return {
         ...(query ? { OR: SEARCHED.map(field => ({ [field]: { contains: query, mode: 'insensitive' } })) } : {}),
-        ...(filters.role ? { roles: { some: { role: filters.role } } } : {}),
+        ...(roles.length === 1 ? roles[0] : {}),
+        ...(roles.length > 1 ? { AND: roles } : {}),
         ...(filters.source ? { source: filters.source } : {}),
         ...(filters.purchases ? { orders: purchases[filters.purchases] } : {}),
     };
@@ -135,6 +138,8 @@ export const peopleService = {
         const email = input.email ? input.email.toLowerCase().trim() : null;
         const displayName = input.displayName ?? `${input.firstName} ${input.lastName}`.trim();
 
+        // Somebody adds this person on purpose: their address may make a contact again.
+        if (email) await db.emailContactBlock.deleteMany({ where: { address: email } });
         return db.person.create({
             data: {
                 ...input,

@@ -52,3 +52,10 @@ export const importWeeztixContacts = async (id: string) => post<WeeztixContactsR
 export const syncWeeztixCatalog = async (id: string) => post<WeeztixCatalogResult>(`/providers/${id}/weeztix-catalog`);
 export interface WeeztixSalesResult { catalog: WeeztixCatalogResult; sales: { orders: number; created: number; updated: number; unchanged: number; tickets: number; registrations: number; newPeople: number; withoutBuyer: number; unreadable: number; failed: number; firstError: string | null } }
 export const syncWeeztixSales = async (id: string) => post<WeeztixSalesResult>(`/providers/${id}/weeztix-sales`);
+
+// One run of a sync: when it ran, what it read and why it failed.
+export interface SyncRun {
+    id: string; type: string; status: string; startedAt: string; finishedAt: string | null;
+    createdCount: number; updatedCount: number; skippedCount: number; failedCount: number; errorSummary: string | null; metadata: { scope?: string };
+}
+export const listSyncRuns = async (id: string) => (await $apiPrivate.get<{ data: SyncRun[] }>(`/providers/${id}/sync-runs`)).data.data;

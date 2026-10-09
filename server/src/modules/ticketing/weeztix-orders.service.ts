@@ -9,8 +9,9 @@ import { WeeztixFormatError } from '../../integrations/ticketing/weeztix/weeztix
 import { syncWeeztixCatalog, unreadableNote, type CatalogSyncResult } from './weeztix-catalog.service';
 import { getWeeztixAccessToken, readWeeztixCompanyGuid, recordWeeztixSync } from './weeztix-connection.service';
 import { saveContactsFromOrders } from './weeztix-contacts.service';
-import { newSalesMessage, weeztixFailedMessage } from '../telegram-notifications/messages';
+import { crmLink } from '../telegram-notifications/crm-link';
 import { announce } from '../telegram-notifications/announce';
+import { announceNewSales } from './sale-announcements';
 
 // Orders of Weeztix in the CRM: order → lines by ticket type → tickets → payments, and a
 // registration of the buyer for each event they hold a ticket to. Everything is matched by its
@@ -260,6 +261,8 @@ export const syncWeeztixOrders = async (connectionId: string): Promise<OrderSync
     return result;
 };
 
+// How much of a failure is told in the chat.
+const REASON_SHOWN = 200;
 const running = new Set<string>();
 
 // Sales need the catalog first: a ticket is stored under its ticket type and event. One sync per
@@ -271,14 +274,15 @@ export const syncWeeztixSales = async (connectionId: string): Promise<{ catalog:
     try {
         const catalog = await syncWeeztixCatalog(connectionId);
         const sales = await syncWeeztixOrders(connectionId);
+        // Before the result is recorded: orders are stored by now, and a failure further down must not silence them.
+        void announceNewSales(connectionId).catch((): number => 0);
         await recordWeeztixSync(connectionId, sales.firstError ?? unreadableNote(catalog.unreadable + sales.unreadable));
-        if (sales.created > 0) void announce('NEW_TICKET_SALES', newSalesMessage(sales.created));
         return { catalog, sales };
     } catch (error) {
         const reason = (error instanceof Error ? error.message : 'Unknown error').slice(0, 300);
         await recordWeeztixSync(connectionId, reason);
         // A connection that already failed is retried on every sweep; only the first failure is announced.
-        if (!before?.lastError) void announce('WEEZTIX_SYNC_FAILED', weeztixFailedMessage(before?.name ?? connectionId, reason));
+        if (!before?.lastError) void announce('WEEZTIX_SYNC_FAILED', { connection: before?.name ?? connectionId, reason: reason.slice(0, REASON_SHOWN), link: crmLink('/settings/providers') });
         throw error;
     } finally {
         running.delete(connectionId);

@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from 'react';
+import { memo, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LIST_PAGE_SIZE } from '@/entities/crm';
 import { Button, ButtonTheme } from '@/shared/ui/Button';
@@ -19,6 +19,19 @@ export const useDelayed = (value: string, delayMs = SEARCH_DELAY_MS) => {
         return () => clearTimeout(timer);
     }, [value, delayMs]);
     return delayed;
+};
+
+// The filters of a list page and its page number. `applied` is what the list is asked with: the
+// typed search joins it only after a pause. Changing any filter returns to the first page — the
+// old page number means nothing in a new list.
+export const useListFilters = <Filters extends { q: string }>(none: Filters) => {
+    const [filters, setFilters] = useState(none);
+    const [page, setPage] = useState(1);
+    const q = useDelayed(filters.q).trim();
+    const key = JSON.stringify({ ...filters, q });
+    const applied = useMemo(() => JSON.parse(key) as Filters, [key]);
+    const change = (patch: Partial<Filters>) => { setFilters(current => ({ ...current, ...patch })); setPage(1); };
+    return { filters, applied, page, setPage, change, filtered: Object.values(filters).some(Boolean), reset: () => change(none) };
 };
 
 export const Pager = memo(({ page, total, onChange }: { page: number; total: number; onChange: (page: number) => void }) => {

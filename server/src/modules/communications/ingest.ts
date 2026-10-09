@@ -22,25 +22,42 @@ const createPersonFromEmail = async (tx: Prisma.TransactionClient, address: stri
     return person.id;
 };
 
-// The Person behind an address in this mailbox; an unknown address becomes a new contact.
-export const resolveContact = async (tx: Prisma.TransactionClient, providerId: string, address: string) => {
+// Senders that are programs, not people: nobody will ever read a reply sent to them.
+// "noreply" may stand anywhere in the name as a word of its own; the other names start it.
+const NO_REPLY = /(^|[-+_.])(no[-_.]?reply|do[-_.]?not[-_.]?reply)\d*([-+_.]|$)/i;
+const ROBOT_NAME = /^(mailer-daemon|postmaster|bounces?|notifications?|notify|newsletters?)\d*([-+_.]|$)/i;
+export const isAutomaticSender = (address: string): boolean => {
+    const name = address.trim().split('@')[0];
+    return NO_REPLY.test(name) || ROBOT_NAME.test(name);
+};
+
+// An address makes no contact of its own when a program writes from it or when staff deleted
+// the contact it once made. A person already in the CRM with this address is still linked.
+const makesNoContact = async (tx: Prisma.TransactionClient, address: string): Promise<boolean> =>
+    isAutomaticSender(address) || Boolean(await tx.emailContactBlock.count({ where: { address } }));
+
+// The Person behind an address in this mailbox; an unknown address becomes a new contact,
+// unless it is one that makes none — then the letter is kept without a person.
+export const resolveContact = async (tx: Prisma.TransactionClient, providerId: string, address: string): Promise<string | null> => {
     const existing = await tx.externalIdentity.findUnique({ where: identityKey(providerId, 'EMAIL_CONTACT', address) });
     if (existing) return existing.entityId;
-    const personId = await findKnownPersonId(tx, address) ?? await createPersonFromEmail(tx, address);
+    const known = await findKnownPersonId(tx, address);
+    if (!known && await makesNoContact(tx, address)) return null;
+    const personId = known ?? await createPersonFromEmail(tx, address);
     await tx.externalIdentity.create({ data: { providerConnectionId: providerId, entityType: 'EMAIL_CONTACT', entityId: personId, externalId: address } });
     return personId;
 };
 
-const resolveThread = async (tx: Prisma.TransactionClient, providerId: string, email: NormalizedEmail, personId: string) => {
+const resolveThread = async (tx: Prisma.TransactionClient, providerId: string, email: NormalizedEmail, personId: string | null) => {
     const identity = await tx.externalIdentity.findUnique({ where: identityKey(providerId, 'EMAIL_THREAD', email.threadId) });
     if (identity) return tx.conversation.findUniqueOrThrow({ where: { id: identity.entityId } });
     
     // Safely associate to an Event if known: check if the person has exactly 1 recent registration
-    const registrations = await tx.registration.findMany({
+    const registrations = personId ? await tx.registration.findMany({
         where: { personId, event: { status: { in: ['PUBLISHED', 'ACTIVE'] } } },
         include: { event: true },
         take: 2,
-    });
+    }) : [];
     const eventId = registrations.length === 1 ? registrations[0].eventId : undefined;
 
     const conversation = await tx.conversation.create({ data: { subject: email.subject, personId, eventId, lastMessageAt: email.receivedAt } });

@@ -71,9 +71,10 @@ export type LedgerCategory = typeof LEDGER_CATEGORIES[number];
 export interface LedgerEntry {
     id: string; kind: 'PAYMENT' | 'REFUND' | 'EXPENSE'; category: string; direction: 'IN' | 'OUT'; date: string; amount: string; currency: string; status: string;
     description: string | null; person: { id: string; name: string } | null; event: { id: string; name: string } | null; counted: boolean;
+    paidAmount: string | null;
 }
 export interface LedgerCategoryTotal { category: string; direction: 'IN' | 'OUT'; operations: number; amount: string }
-export interface LedgerSummary { currency: string; income: string; refunds: string; expenses: string; result: string; operations: number; byCategory: LedgerCategoryTotal[] }
+export interface LedgerSummary { currency: string; income: string; refunds: string; expenses: string; planned: string; result: string; operations: number; byCategory: LedgerCategoryTotal[] }
 export interface LedgerFilters { q: string; category: LedgerCategory | ''; eventId: string; from: string; to: string }
 export const LEDGER_PAGE_SIZE = 25;
 export const listLedgerPage = async (filters: LedgerFilters, pageNumber: number) =>
@@ -85,8 +86,14 @@ export const NOTIFICATION_GROUPS = ['SALES', 'EMAIL', 'PEOPLE_AND_FINANCE'] as c
 export type NotificationGroup = typeof NOTIFICATION_GROUPS[number];
 export interface NotificationSetting {
     key: string; group: NotificationGroup; title: string; enabled: boolean; configured: boolean;
+    // The text that is sent, the one it started as, whether staff changed it, and the values it can carry as {{name}}.
+    template: string; defaultTemplate: string; customised: boolean; placeholders: { name: string; example: string }[];
     updatedAt: string | null; updatedBy: { id: string; name: string; email: string } | null;
 }
 export const listNotificationSettings = async () => read<NotificationSetting[]>('/telegram-notifications');
-export const setNotificationEnabled = async (key: string, enabled: boolean) =>
-    (await $apiPrivate.put<{ data: NotificationSetting }>(`/telegram-notifications/${key}`, { enabled })).data.data;
+const changeNotification = async (key: string, change: { enabled?: boolean; template?: string | null }) =>
+    (await $apiPrivate.put<{ data: NotificationSetting }>(`/telegram-notifications/${key}`, change)).data.data;
+export const setNotificationEnabled = async (key: string, enabled: boolean) => changeNotification(key, { enabled });
+// `null` returns to the text the notification started with.
+export const saveNotificationTemplate = async (key: string, template: string | null) => changeNotification(key, { template });
+export const sendTestNotification = async (key: string) => post<{ sent: boolean; text: string }>(`/telegram-notifications/${key}/test`);

@@ -4,10 +4,10 @@ import { useTranslation } from 'react-i18next';
 import { Event, getLedgerSummary, LEDGER_CATEGORIES, LedgerCategory, LedgerCategoryTotal, LedgerEntry, LedgerFilters, LedgerSummary, listEvents, listLedgerPage } from '@/entities/crm';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
-import { Field, RequestState, StatusBadge } from './common';
+import { Field, RequestState, StatusBadge, useNumbers } from './common';
 import { Bar, chartStyles, Tile } from './Charts';
 import { REFUNDABLE, RefundRequestForm } from './FinanceRefunds';
-import { listStyles as table, Pager, useDelayed } from './ListTable';
+import { listStyles as table, Pager, useListFilters } from './ListTable';
 import cls from './CrmPage.module.scss';
 import own from './FinanceLedger.module.scss';
 
@@ -15,31 +15,24 @@ export type LedgerView = 'dates' | 'categories';
 const NO_FILTERS: LedgerFilters = { q: '', category: '', eventId: '', from: '', to: '' };
 
 const useLedgerText = (currency = 'EUR') => {
-    const { t, i18n } = useTranslation();
-    const format = new Intl.NumberFormat(i18n.language, { style: 'currency', currency });
-    const whole = new Intl.NumberFormat(i18n.language, { style: 'currency', currency, maximumFractionDigits: 0 });
+    const { t } = useTranslation();
+    const numbers = useNumbers(currency);
     return {
-        money: (amount: string) => format.format(Number(amount)),
-        rounded: (amount: string) => whole.format(Number(amount)),
+        ...numbers,
         // Money out is written with a minus, money in with a plus.
-        signed: (amount: string, direction: 'IN' | 'OUT') => `${direction === 'IN' ? '+' : '−'}${format.format(Number(amount))}`,
+        signed: (amount: string, direction: 'IN' | 'OUT') => `${direction === 'IN' ? '+' : '−'}${numbers.money(amount)}`,
         category: (category: string) => t(`Ledger category: ${category}`, { defaultValue: category }),
     };
 };
 
-// Changing any filter returns to the first page: the old page number means nothing in a new list.
 const useLedger = () => {
-    const [filters, setFilters] = useState(NO_FILTERS);
-    const [page, setPage] = useState(1);
+    const list = useListFilters(NO_FILTERS);
     const [view, setView] = useState<LedgerView>('dates');
-    const q = useDelayed(filters.q);
-    const { category, eventId, from, to } = filters;
-    const loadList = useCallback(() => listLedgerPage({ q: q.trim(), category, eventId, from, to }, page), [q, category, eventId, from, to, page]);
-    const loadSummary = useCallback(() => getLedgerSummary({ q: q.trim(), category, eventId, from, to }), [q, category, eventId, from, to]);
-    const change = (patch: Partial<LedgerFilters>) => { setFilters(current => ({ ...current, ...patch })); setPage(1); };
+    const { applied, page, change } = list;
+    const loadList = useCallback(() => listLedgerPage(applied, page), [applied, page]);
+    const loadSummary = useCallback(() => getLedgerSummary(applied), [applied]);
     const openCategory = (chosen: string) => { change({ category: chosen as LedgerCategory }); setView('dates'); };
-    const filtered = Object.values(filters).some(Boolean);
-    return { filters, page, setPage, view, setView, change, openCategory, filtered, reset: () => change(NO_FILTERS), list: useResource(loadList), summary: useResource(loadSummary) };
+    return { ...list, view, setView, openCategory, list: useResource(loadList), summary: useResource(loadSummary) };
 };
 
 interface FiltersProps { filters: LedgerFilters; events: Event[]; filtered: boolean; onChange: (patch: Partial<LedgerFilters>) => void; onReset: () => void }
@@ -66,33 +59,56 @@ const LedgerFiltersBar = memo(({ filters, events, filtered, onChange, onReset }:
 const LedgerTiles = memo(({ summary }: { summary: LedgerSummary }) => {
     const text = useLedgerText(summary.currency);
     return <div className={chartStyles.tiles}>
-        <Tile label="Received from buyers">{text.rounded(summary.income)}</Tile>
+        <Tile label="Ticket income">{text.rounded(summary.income)}</Tile>
         <Tile label="Refunded">{text.rounded(summary.refunds)}</Tile>
         <Tile label="Costs recorded">{text.rounded(summary.expenses)}</Tile>
+        <Tile label="Of them not paid yet">{text.rounded(summary.planned)}</Tile>
         <Tile label="Result">{text.rounded(summary.result)}</Tile>
     </div>;
 });
 
 const COLUMNS = 8;
-const canRefund = (entry: LedgerEntry) => entry.kind === 'PAYMENT' && REFUNDABLE.includes(entry.status) && Number(entry.amount) > 0;
+const canRefund = (entry: LedgerEntry) => entry.kind === 'PAYMENT' && REFUNDABLE.includes(entry.status) && Number(entry.paidAmount ?? entry.amount) > 0;
+// The id of an operation names its kind first: "PAYMENT:<id of the payment>".
+const paymentIdOf = (entry: LedgerEntry): string => entry.id.slice('PAYMENT:'.length);
+
+const NamedLink = memo(({ to, named }: { to: string; named: { id: string; name: string } | null }) => (
+    named ? <Link className={table.name} to={`${to}/${named.id}`}>{named.name}</Link> : <span className={table.secondary}>—</span>
+));
+
+// What the operation is about, and — when the buyer paid more than the tickets cost — how much
+// they paid: the fees of the shop and of the payment method come on top of the income.
+const EntryDescription = memo(({ entry }: { entry: LedgerEntry }) => {
+    const { t } = useTranslation();
+    const text = useLedgerText(entry.currency);
+    const paid = entry.paidAmount && entry.paidAmount !== entry.amount ? ` · ${t('paid {{amount}}', { amount: text.money(entry.paidAmount) })}` : '';
+    return <>{entry.description || '—'}{paid}</>;
+});
+
+const EntryAmount = memo(({ entry }: { entry: LedgerEntry }) => {
+    const { t } = useTranslation();
+    const text = useLedgerText(entry.currency);
+    const signed = text.signed(entry.amount, entry.direction);
+    if (!entry.counted) return <span className={own.uncounted} title={t('Not counted in the totals')}>{signed}</span>;
+    return <span className={own[entry.direction === 'IN' ? 'amountIn' : 'amountOut']}>{signed}</span>;
+});
 
 const EntryRow = memo(({ entry, onRefunded }: { entry: LedgerEntry; onRefunded: () => void }) => {
     const { t } = useTranslation();
     const [refunding, setRefunding] = useState(false);
-    const done = () => { setRefunding(false); onRefunded(); };
     const text = useLedgerText(entry.currency);
-    const amountClass = entry.counted ? own[entry.direction === 'IN' ? 'amountIn' : 'amountOut'] : own.uncounted;
+    const done = () => { setRefunding(false); onRefunded(); };
     return <><tr>
         <td className={table.secondary}><time dateTime={entry.date}>{new Date(entry.date).toLocaleDateString()}</time></td>
         <td><span className={cls.badge}>{text.category(entry.category)}</span></td>
-        <td>{entry.person ? <Link className={table.name} to={`/people/${entry.person.id}`}>{entry.person.name}</Link> : <span className={table.secondary}>—</span>}</td>
-        <td className={table.optional}>{entry.event ? <Link className={table.name} to={`/events/${entry.event.id}`}>{entry.event.name}</Link> : <span className={table.secondary}>—</span>}</td>
-        <td className={`${table.secondary} ${table.optional}`}>{entry.description || '—'}</td>
+        <td><NamedLink to="/people" named={entry.person} /></td>
+        <td className={table.optional}><NamedLink to="/events" named={entry.event} /></td>
+        <td className={`${table.secondary} ${table.optional}`}><EntryDescription entry={entry} /></td>
         <td><StatusBadge status={entry.status} /></td>
-        <td className={`${table.number} ${amountClass}`} title={entry.counted ? undefined : t('Not counted in the totals')}>{text.signed(entry.amount, entry.direction)}</td>
+        <td className={table.number}><EntryAmount entry={entry} /></td>
         <td>{canRefund(entry) && <Button aria-expanded={refunding} onClick={() => setRefunding(!refunding)}>{t('Refund')}</Button>}</td>
     </tr>
-        {refunding && <tr><td colSpan={COLUMNS}><RefundRequestForm paymentId={entry.id.slice('PAYMENT:'.length)} amount={entry.amount} onDone={done} /></td></tr>}</>;
+        {refunding && <tr><td colSpan={COLUMNS}><RefundRequestForm paymentId={paymentIdOf(entry)} amount={entry.paidAmount ?? entry.amount} onDone={done} /></td></tr>}</>;
 });
 
 const EntriesTable = memo(({ entries, onRefunded }: { entries: LedgerEntry[]; onRefunded: () => void }) => {
@@ -167,7 +183,7 @@ export const FinanceLedger = memo(({ onRefundRequested }: { onRefundRequested?: 
             </div>
             <RequestState error={ledger.list.error || ledger.summary.error || events.error} loading={loading} />
             <LedgerBody ledger={ledger} onRefunded={refunded} />
-            <p className={cls.muted}>{t('Payments are what buyers paid, including the service fee of the ticket shop. Failed payments, refunds that are not completed and cancelled expenses are listed but not counted.')}</p>
+            <p className={cls.muted}>{t('Income is the price of the tickets that are still valid, as on the dashboard: without the fees of the ticket shop and of the payment method, and without tickets that were refunded, cancelled or transferred. Failed payments, payments of refunded orders, refunds that are not completed and cancelled expenses are listed but not counted.')}</p>
         </section>
     </>;
 });

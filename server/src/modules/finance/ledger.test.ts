@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { expenseCategory, isCounted, ledgerFiltersSchema, matchesLedger, newestFirst, paymentState, summariseLedger, toEntry, type LedgerEntry } from './ledger';
+import { expenseCategory, isCounted, ledgerFiltersSchema, matchesLedger, newestFirst, paymentState, splitByWeight, summariseLedger, ticketIncome, toEntry, type LedgerEntry } from './ledger';
 
 const amount = (value: string) => ({ toFixed: () => value });
 const anna = { id: 'p1', displayName: 'Anna Berg' };
@@ -25,7 +25,7 @@ test('totals count only money that moved or is planned to: not failed, requested
         refund('3', '20.00', 'COMPLETED'), refund('4', '30.00', 'REQUESTED'),
         expense('5', 'VENUE', '40.00', 'PAID'), expense('6', 'FEE', '10.00'), expense('7', 'FEE', '99.00', 'CANCELLED'),
     ]);
-    assert.deepEqual([summary.income, summary.refunds, summary.expenses, summary.result, summary.operations], ['100.00', '20.00', '50.00', '30.00', 7]);
+    assert.deepEqual([summary.income, summary.refunds, summary.expenses, summary.planned, summary.result, summary.operations], ['100.00', '20.00', '50.00', '10.00', '30.00', 7]);
 });
 
 test('categories are added up from the largest and say which way the money went', () => {
@@ -38,7 +38,7 @@ test('categories are added up from the largest and say which way the money went'
 });
 
 test('an empty list adds up to zero', () => {
-    assert.deepEqual(summariseLedger([]), { currency: 'EUR', income: '0.00', refunds: '0.00', expenses: '0.00', result: '0.00', operations: 0, byCategory: [] });
+    assert.deepEqual(summariseLedger([]), { currency: 'EUR', income: '0.00', refunds: '0.00', expenses: '0.00', planned: '0.00', result: '0.00', operations: 0, byCategory: [] });
 });
 
 test('filters narrow by category, event, period and text; the last day of the period is included', () => {
@@ -76,4 +76,28 @@ test('a payment of a refunded or cancelled order takes the state of the order an
     assert.equal(paymentState('FAILED', undefined), 'FAILED');
     assert.deepEqual([isCounted('PAYMENT', 'REFUNDED'), isCounted('PAYMENT', 'CANCELLED'), isCounted('PAYMENT', 'PAID')], [false, false, true]);
     assert.equal(summariseLedger([payment('1', '100.00', '2026-01-01'), payment('2', '397.82', '2026-01-02', 'REFUNDED')]).income, '100.00');
+});
+
+const paid = (id: string, orderId: string | null, amountCents: number, counted = true) => ({ id, orderId, amountCents, counted });
+
+test('income is the price of the valid tickets, without the fees the buyer paid on top', () => {
+    assert.deepEqual([...ticketIncome([paid('a', 'o1', 39782)], new Map([['o1', 39000]]))], [['a', 39000]]);
+    assert.equal(payment('1', '390.00', '2026-01-01').paidAmount, null);
+});
+
+test('a failed attempt takes no part of the income of its order', () => {
+    const income = ticketIncome([paid('failed', 'o1', 39782, false), paid('ok', 'o1', 39782)], new Map([['o1', 39000]]));
+    assert.deepEqual([income.get('ok'), income.get('failed')], [39000, 39782]);
+});
+
+test('an order paid in several payments shares its income between them to the cent', () => {
+    const income = ticketIncome([paid('a', 'o1', 3333), paid('b', 'o1', 3333), paid('c', 'o1', 3334)], new Map([['o1', 10000]]));
+    assert.equal([...income.values()].reduce((sum, part) => sum + part, 0), 10000);
+    assert.deepEqual(splitByWeight(100, [1, 1, 1]), [33, 34, 33]);
+    assert.deepEqual(splitByWeight(100, [0, 0]), [0, 0]);
+});
+
+test('an order whose tickets were all refunded or transferred earns nothing; a payment without an order counts as paid', () => {
+    const income = ticketIncome([paid('a', 'o1', 25000), paid('b', null, 5000)], new Map());
+    assert.deepEqual([income.get('a'), income.get('b')], [0, 5000]);
 });

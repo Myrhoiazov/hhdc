@@ -2,11 +2,11 @@ import type { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import prisma from '../../../prisma/prisma-client';
 import { ApiError } from '../../common/http';
+import { mayBePaid } from '../people/payees';
 import { fromCents, toCents } from './refund-rules';
 
 // The costs of an event. An expense is entered on the event and may name the person it is paid
-// to — a choreographer, a staff member, anyone in the CRM — so the same line shows up on that
-// person's page. Costs kept on a choreographer's card (expenses and agreed fees) are not copied
+// to — a choreographer or a staff member — so the same line shows up on that person's page. Costs kept on a choreographer's card (expenses and agreed fees) are not copied
 // here: they are listed next to the event's own expenses and counted once.
 
 export const EXPENSE_CATEGORIES = ['FEE', 'SALARY', 'TRAVEL', 'HOTEL', 'VENUE', 'MARKETING', 'EQUIPMENT', 'OTHER'] as const;
@@ -68,7 +68,10 @@ const toLine = (row: ExpenseRow): ExpenseLine => ({
 });
 
 const requirePayee = async (personId: string | null | undefined): Promise<void> => {
-    if (personId && !await prisma.person.count({ where: { id: personId } })) throw new ApiError(400, 'PERSON_NOT_FOUND', 'The person this expense is paid to does not exist');
+    if (!personId) return;
+    const person = await prisma.person.findUnique({ where: { id: personId }, select: { roles: { select: { role: true } } } });
+    if (!person) throw new ApiError(400, 'PERSON_NOT_FOUND', 'The person this expense is paid to does not exist');
+    if (!mayBePaid(person.roles.map(item => item.role))) throw new ApiError(400, 'PAYEE_ROLE_REQUIRED', 'An expense can be paid only to a choreographer or a staff member. Give the person that role first');
 };
 
 const requireEvent = async (eventId: string): Promise<void> => {
@@ -104,6 +107,17 @@ export const updateEventExpense = async (ref: ExpenseRef, change: ExpenseChange,
         const after = await tx.eventExpense.update({ where: { id: ref.expenseId }, data, select: EXPENSE_FIELDS });
         await audit(tx, 'EVENT_EXPENSE_UPDATED', actorUserId, { id: after.id, before: toLine(before), after: toLine(after) });
         return toLine(after);
+    });
+};
+
+// An expense entered by mistake is removed for good; what it was stays in the audit log.
+export const deleteEventExpense = async (ref: ExpenseRef, actorUserId: string): Promise<{ deleted: true }> => {
+    const before = await prisma.eventExpense.findFirst({ where: { id: ref.expenseId, eventId: ref.eventId }, select: EXPENSE_FIELDS });
+    if (!before) throw new ApiError(404, 'EXPENSE_NOT_FOUND', 'Expense not found');
+    return prisma.$transaction(async tx => {
+        await tx.eventExpense.delete({ where: { id: ref.expenseId } });
+        await audit(tx, 'EVENT_EXPENSE_DELETED', actorUserId, { id: before.id, before: toLine(before), after: { deleted: true } });
+        return { deleted: true as const };
     });
 };
 

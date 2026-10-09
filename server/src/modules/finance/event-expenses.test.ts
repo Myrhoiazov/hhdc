@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { expenseChangeSchema, expenseSchema, paidAtFor, summariseExpenses } from './event-expenses';
+import { mayBePaid } from '../people/payees';
 
 const line = (category: string, amount: string, status = 'PLANNED') => ({ category, amount, status });
 
@@ -40,4 +41,11 @@ test('the moment of payment is set when an expense becomes paid, kept while it s
     assert.equal(paidAtFor('PAID', earlier, now), earlier);
     assert.equal(paidAtFor('PLANNED', earlier, now), null);
     assert.equal(paidAtFor(undefined, earlier, now), undefined);
+});
+
+test('only a choreographer or a staff member can be paid an expense', () => {
+    assert.equal(mayBePaid(['CUSTOMER', 'CHOREOGRAPHER']), true);
+    assert.equal(mayBePaid(['STAFF']), true);
+    assert.equal(mayBePaid(['CUSTOMER', 'PARTICIPANT']), false);
+    assert.equal(mayBePaid([]), false);
 });

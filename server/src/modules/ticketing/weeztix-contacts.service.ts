@@ -42,6 +42,8 @@ const identityKey = (connectionId: string, email: string) => ({
 });
 
 const createPerson = async (tx: Db, contact: WeeztixContact): Promise<string> => {
+    // A buyer is a real person: an address once dropped from the mailbox contacts is welcome again.
+    await tx.emailContactBlock.deleteMany({ where: { address: contact.email } });
     const person = await tx.person.create({ data: {
         firstName: contact.firstName, lastName: contact.lastName, displayName: fullName(contact) || contact.email, email: contact.email,
         phone: contact.phone || null, language: contact.language || null, country: contact.country || null, source: 'WEEZTIX',

@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { currentUser, permitted } from '../auth/auth.middleware';
-import { expenseAddedMessage } from '../telegram-notifications/messages';
+import { crmLink } from '../telegram-notifications/crm-link';
 import { announce } from '../telegram-notifications/announce';
-import { createEventExpense, expenseChangeSchema, expenseSchema, listEventExpenses, updateEventExpense } from '../finance/event-expenses';
+import { createEventExpense, deleteEventExpense, expenseChangeSchema, expenseSchema, listEventExpenses, updateEventExpense } from '../finance/event-expenses';
 import { route } from '../../common/http';
 import * as controller from './events.controller';
 import { entityId } from '../../common/http';
@@ -28,13 +28,18 @@ eventsRouter.get('/:id/expenses', permitted('finance.read'), route(async req => 
 eventsRouter.post('/:id/expenses', permitted('finance.read'), permitted('events.write'), route(async req => {
     req.res!.status(201);
     const expense = await createEventExpense(entityId(req), expenseSchema.parse(req.body), currentUser(req).id);
-    void announce('EVENT_EXPENSE_ADDED', expenseAddedMessage({ category: expense.category, amount: expense.amount, currency: expense.currency, eventName: expense.event?.name ?? '' }));
+    void announce('EVENT_EXPENSE_ADDED', { category: expense.category, amount: expense.amount, currency: expense.currency, event: expense.event?.name ?? '', link: crmLink('/finance') });
     return expense;
 }));
 eventsRouter.patch('/:id/expenses/:expenseId', permitted('finance.read'), permitted('events.write'), route(async req => {
     const expenseId = z.string().uuid().parse(req.params.expenseId);
     return updateEventExpense({ eventId: entityId(req), expenseId }, expenseChangeSchema.parse(req.body), currentUser(req).id);
 }));
+eventsRouter.delete('/:id/expenses/:expenseId', permitted('finance.read'), permitted('events.write'), route(async req => {
+    const expenseId = z.string().uuid().parse(req.params.expenseId);
+    return deleteEventExpense({ eventId: entityId(req), expenseId }, currentUser(req).id);
+}));
+
 eventsRouter.get('/:id/registrations', permitted('events.read'), async (req, res, next) => { try { await controller.listRegistrations(req); } catch (e) { next(e); } });
 eventsRouter.post('/:id/registrations', permitted('events.write'), route(controller.createRegistration));
 eventsRouter.post('/:id/choreographers', permitted('events.write'), route(controller.assignChoreographer));

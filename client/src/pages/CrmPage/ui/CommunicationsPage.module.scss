@@ -694,9 +694,11 @@
     background: var(--style-1-bg-redesigned);
 }
 
+/* The brand colour is too light to read as text: it stays in the fill and the outline. */
 .badgeSent {
-    color: var(--primary-redesigned);
+    color: var(--sidebar-text-hover-redesigned);
     background: var(--primary-soft-bg-redesigned);
+    border-color: var(--primary-redesigned);
 }
 
 .badgeClient {

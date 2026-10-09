@@ -220,11 +220,21 @@ model User {
   telegramNotificationChanges TelegramNotificationSetting[]
 }
 
+// An address that must not become a contact by itself: its contact was deleted by staff. Letters
+// from it are still received; they stay in the mailbox without a person.
+model EmailContactBlock {
+  address     String   @id
+  createdById String?  @db.Uuid
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+}
+
 // The switch of one Telegram notification. The list of notifications and their defaults lives in
 // code: a row exists only after somebody changed a switch.
 model TelegramNotificationSetting {
   key         String   @id @db.VarChar(64)
   enabled     Boolean
+  // The text staff wrote for the message; empty while the text from the code is used.
+  template    String?
   updatedById String?  @db.Uuid
   createdAt   DateTime @default(now()) @db.Timestamptz(6)
   updatedAt   DateTime @updatedAt @db.Timestamptz(6)
@@ -476,6 +486,8 @@ model Order {
   answers              Json?
   downloadUrl          String?
   rawData              Json?
+  // When the chat was told about this order, or when it was decided not to tell. Empty: not yet.
+  announcedAt          DateTime?           @db.Timestamptz(6)
   createdAt            DateTime            @default(now()) @db.Timestamptz(6)
   updatedAt            DateTime            @updatedAt @db.Timestamptz(6)
   event                Event?              @relation(fields: [eventId], references: [id], onDelete: SetNull)

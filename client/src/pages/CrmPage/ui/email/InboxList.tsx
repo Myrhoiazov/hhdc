@@ -6,6 +6,8 @@ import { classNames } from '@/shared/lib/classNames/classNames';
 import { mailState, MailState } from '../../model/mailState';
 import cls from '../CommunicationsPage.module.scss';
 
+const SEARCH_GLASS = '8 8 16 16';
+
 interface ToolbarProps {
     providers: ProviderConnection[];
     providerId: string;
@@ -24,7 +26,8 @@ export const InboxToolbar = memo((props: ToolbarProps) => {
                 onClick={() => onProviderChange(provider.id)}>{provider.name}</button>)}
         </div>}
         <label className={cls.searchBox}>
-            <SearchIcon aria-hidden="true" />
+            {/* The glass is drawn in the middle of a larger canvas; the view is cut to the glass itself. */}
+            <SearchIcon aria-hidden="true" viewBox={SEARCH_GLASS} />
             <span className={cls.srOnly}>{t('Search email')}</span>
             <input value={query} onChange={(event) => onQueryChange(event.target.value)}
                 placeholder={t('Search by subject, sender, or text…')} />

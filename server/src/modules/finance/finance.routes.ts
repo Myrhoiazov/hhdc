@@ -5,7 +5,7 @@ import { z } from 'zod';
 import prisma from '../../../prisma/prisma-client';
 import { entityId, listRoute, normalizePagination, route } from '../../common/http';
 import { currentUser, permitted } from '../auth/auth.middleware';
-import { refundRequestedMessage } from '../telegram-notifications/messages';
+import { crmLink } from '../telegram-notifications/crm-link';
 import { announce } from '../telegram-notifications/announce';
 import { getLedgerSummary, ledgerFiltersSchema, listLedger } from './ledger';
 import { decideRefund, eventFinancialOverview, importPayment, importPaymentSchema, processRefund, refreshPaymentFromProvider, refundRequestSchema, requestRefund, syncRefund } from './finance.service';
@@ -45,7 +45,7 @@ financeRouter.post('/payments/import', permitted('finance.refund.approve'), rout
 financeRouter.get('/refunds', permitted('finance.read'), listRoute(listRefunds));
 financeRouter.post('/refunds', permitted('finance.refund.request'), route(async req => {
     const refund = await requestRefund(refundRequestSchema.parse(req.body), currentUser(req).id);
-    void announce('REFUND_REQUESTED', refundRequestedMessage(refund.amount.toFixed(2), refund.currency));
+    void announce('REFUND_REQUESTED', { amount: refund.amount.toFixed(2), currency: refund.currency, link: crmLink('/finance') });
     return refund;
 }));
 financeRouter.post('/refunds/:id/approve', permitted('finance.refund.approve'), route(req => decideRefund(entityId(req), 'APPROVED', currentUser(req).id)));

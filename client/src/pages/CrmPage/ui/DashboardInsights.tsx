@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { CountryRow, DashboardInsights, EventMoney, getDashboardInsights, YearMoney } from '@/entities/crm';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Bar, chartStyles as chart, Tile } from './Charts';
-import { RequestState } from './common';
+import { RequestState, useNumbers } from './common';
 import { listStyles as table } from './ListTable';
 import cls from './CrmPage.module.scss';
 import own from './DashboardInsights.module.scss';
@@ -13,13 +13,9 @@ const COUNTRIES_SHOWN = 12;
 
 const useFormat = (currency: string) => {
     const { i18n } = useTranslation();
-    const whole = new Intl.NumberFormat(i18n.language, { style: 'currency', currency, maximumFractionDigits: 0 });
+    const numbers = useNumbers(currency);
     const regions = new Intl.DisplayNames([i18n.language], { type: 'region' });
-    return {
-        money: (amount: string) => whole.format(Number(amount)),
-        count: (value: number) => new Intl.NumberFormat(i18n.language).format(value),
-        country: (code: string) => regions.of(code) ?? code,
-    };
+    return { money: numbers.rounded, count: numbers.count, country: (code: string) => regions.of(code) ?? code };
 };
 
 const Totals = memo(({ data }: { data: DashboardInsights }) => {

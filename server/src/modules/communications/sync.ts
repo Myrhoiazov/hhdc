@@ -3,7 +3,7 @@ import prisma from '../../../prisma/prisma-client';
 import { ApiError } from '../../common/http';
 import { logger } from '../../common/logger';
 import type { EmailSyncPage, NormalizedEmail } from '../../integrations/email/EmailProvider';
-import { notifyEmailSyncFailed } from '../../integrations/telegram/notify';
+import { crmLink } from '../telegram-notifications/crm-link';
 import { announce } from '../telegram-notifications/announce';
 import { ingestEmail } from './ingest';
 import { emailProvider } from './send';
@@ -104,7 +104,7 @@ export const syncEmailConnection = async (connectionId: string, deps: EmailSyncD
         return summary;
     } catch (error) {
         await failRun(run, error);
-        if (isNewSyncFailure(connection.status)) await announce('EMAIL_SYNC_FAILED', () => notifyEmailSyncFailed(connectionId));
+        if (isNewSyncFailure(connection.status)) await announce('EMAIL_SYNC_FAILED', { mailbox: connection.name, link: crmLink('/settings/providers') });
         if (error instanceof ApiError) throw error;
         throw new ApiError(502, 'EMAIL_SYNC_FAILED', `Mailbox sync failed: ${errorText(error)}`);
     }

@@ -10,7 +10,7 @@ import { peopleFiltersSchema, personSchema, roleSchema } from './people.schemas'
 import { createAuditLog, extractAuditContext } from '../audit/audit.service';
 import { deleteEmailPerson, removalByPerson } from './person-removal';
 import { currentUser } from '../auth/auth.middleware';
-import { contactDeletedMessage } from '../telegram-notifications/messages';
+import { crmLink } from '../telegram-notifications/crm-link';
 import { announce } from '../telegram-notifications/announce';
 
 export const listPeople = async (req: Request) => {
@@ -31,9 +31,9 @@ export const getPerson = async (req: Request) => {
 
 // Only a contact that a mailbox created on its own; the service refuses everything else.
 export const deletePerson = async (req: Request) => {
-    const deleted = await deleteEmailPerson(entityId(req));
+    const deleted = await deleteEmailPerson(entityId(req), currentUser(req).id);
     await createAuditLog({ action: 'PERSON_DELETED', entityType: 'Person', entityId: deleted.id, before: deleted }, extractAuditContext(req));
-    void announce('CONTACT_DELETED', contactDeletedMessage(currentUser(req).name || currentUser(req).email));
+    void announce('CONTACT_DELETED', { actor: currentUser(req).name || currentUser(req).email, link: crmLink('/settings/audit') });
     return { deleted: true };
 };
 

@@ -1,4 +1,4 @@
-import { memo, useCallback, useState } from 'react';
+import { memo, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -8,7 +8,7 @@ import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
 import { CrmLayout, Field, RequestState } from './common';
 import cls from './CrmPage.module.scss';
-import { listStyles as own, Pager, useDelayed } from './ListTable';
+import { listStyles as own, Pager, useListFilters } from './ListTable';
 import { DeleteContactButton } from './PersonRemoval';
 
 const ROLES: PersonRole[] = ['CUSTOMER', 'PARTICIPANT', 'CHOREOGRAPHER', 'STAFF'];
@@ -16,16 +16,11 @@ const NO_FILTERS: PeopleFilters = { q: '', role: '', source: '', purchases: '' }
 
 const personName = (person: Person) => person.displayName || `${person.firstName} ${person.lastName}`.trim() || '—';
 
-// Changing any filter returns to the first page: the old page number means nothing in a new list.
 const usePeopleList = () => {
-    const [filters, setFilters] = useState(NO_FILTERS);
-    const [page, setPage] = useState(1);
-    const q = useDelayed(filters.q);
-    const { role, source, purchases } = filters;
-    const load = useCallback(() => listPeoplePage({ q: q.trim(), role, source, purchases }, page), [q, role, source, purchases, page]);
-    const change = (patch: Partial<PeopleFilters>) => { setFilters(current => ({ ...current, ...patch })); setPage(1); };
-    const filtered = Object.values(filters).some(Boolean);
-    return { filters, page, setPage, change, filtered, reset: () => change(NO_FILTERS), list: useResource(load) };
+    const list = useListFilters(NO_FILTERS);
+    const { applied, page } = list;
+    const load = useCallback(() => listPeoplePage(applied, page), [applied, page]);
+    return { ...list, list: useResource(load) };
 };
 
 interface FiltersProps { filters: PeopleFilters; filtered: boolean; onChange: (patch: Partial<PeopleFilters>) => void; onReset: () => void }

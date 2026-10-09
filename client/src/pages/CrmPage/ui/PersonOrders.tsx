@@ -3,12 +3,12 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { listPersonOrders, PersonOrder, PersonTicket } from '@/entities/crm';
 import { useResource } from '@/shared/lib/useResource/useResource';
-import { RequestState } from './common';
+import { RequestState, useNumbers } from './common';
 import cls from './CrmPage.module.scss';
 
 const useMoney = (currency: string) => {
-    const { i18n } = useTranslation();
-    return (amount: string | null) => (amount === null ? '—' : new Intl.NumberFormat(i18n.language, { style: 'currency', currency }).format(Number(amount)));
+    const { money } = useNumbers(currency);
+    return (amount: string | null) => (amount === null ? '—' : money(amount));
 };
 
 const useStatus = () => {

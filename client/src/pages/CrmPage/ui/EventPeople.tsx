@@ -7,7 +7,7 @@ import {
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
 import { Field, RequestState, StatusBadge } from './common';
-import { listStyles as own, Pager, useDelayed } from './ListTable';
+import { listStyles as own, Pager, useDelayed, useListFilters } from './ListTable';
 import cls from './CrmPage.module.scss';
 
 const NO_FILTERS: RegistrationFilters = { q: '', status: '' };
@@ -15,16 +15,11 @@ const MIN_SEARCH = 2;
 
 const personName = (person: { displayName?: string; firstName: string; lastName: string }) => person.displayName || `${person.firstName} ${person.lastName}`.trim() || '—';
 
-// Changing a filter returns to the first page: the old page number means nothing in a new list.
 const useRegistrations = (eventId: string) => {
-    const [filters, setFilters] = useState(NO_FILTERS);
-    const [page, setPage] = useState(1);
-    const q = useDelayed(filters.q);
-    const { status } = filters;
-    const load = useCallback(() => listEventRegistrations(eventId, { q: q.trim(), status }, page), [eventId, q, status, page]);
-    const change = (patch: Partial<RegistrationFilters>) => { setFilters(current => ({ ...current, ...patch })); setPage(1); };
-    const filtered = Object.values(filters).some(Boolean);
-    return { filters, page, setPage, change, filtered, reset: () => change(NO_FILTERS), list: useResource(load) };
+    const list = useListFilters(NO_FILTERS);
+    const { applied, page } = list;
+    const load = useCallback(() => listEventRegistrations(eventId, applied, page), [eventId, applied, page]);
+    return { ...list, list: useResource(load) };
 };
 
 interface FiltersProps { filters: RegistrationFilters; filtered: boolean; onChange: (patch: Partial<RegistrationFilters>) => void; onReset: () => void }

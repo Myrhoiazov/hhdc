@@ -1,11 +1,11 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { createEventExpense, ExpenseLine, ExpenseList, listEventExpenses, listPeople, listPersonExpenses, updateEventExpense } from '@/entities/crm';
+import { createEventExpense, deleteEventExpense, ExpenseLine, ExpenseList, listEventExpenses, listPayees, listPersonExpenses, updateEventExpense } from '@/entities/crm';
 import { EventExpenses } from './EventExpenses';
 import { PersonExpenses } from './PersonExpenses';
 
 jest.mock('@/entities/crm', () => ({
-    createEventExpense: jest.fn(), listEventExpenses: jest.fn(), listPeople: jest.fn(), listPersonExpenses: jest.fn(), updateEventExpense: jest.fn(),
+    createEventExpense: jest.fn(), deleteEventExpense: jest.fn(), listEventExpenses: jest.fn(), listPayees: jest.fn(), listPersonExpenses: jest.fn(), updateEventExpense: jest.fn(),
     EVENT_EXPENSE_CATEGORIES: ['FEE', 'SALARY', 'TRAVEL', 'HOTEL', 'VENUE', 'MARKETING', 'EQUIPMENT', 'OTHER'],
 }));
 jest.mock('./ListTable', () => ({ ...jest.requireActual('./ListTable'), useDelayed: (value: string) => value }));
@@ -21,9 +21,10 @@ const renderExpenses = (canEdit = true) => render(<MemoryRouter><EventExpenses e
 
 beforeEach(() => {
     jest.mocked(listEventExpenses).mockReset().mockResolvedValue(list([line('x1'), fee]));
-    jest.mocked(listPeople).mockReset().mockResolvedValue({ data: [], total: 0 });
+    jest.mocked(listPayees).mockReset().mockResolvedValue({ data: [], total: 0 });
     jest.mocked(createEventExpense).mockReset().mockResolvedValue(line('x2'));
     jest.mocked(updateEventExpense).mockReset().mockResolvedValue(line('x1', { status: 'PAID' }));
+    jest.mocked(deleteEventExpense).mockReset().mockResolvedValue(undefined);
 });
 
 test('the block lists what the event costs with who is paid, and adds everything up', async () => {
@@ -50,13 +51,13 @@ test('an expense of the event can be marked paid; a line from a choreographer ca
 });
 
 test('a new expense is saved with its category, amount, payee and whether it is already paid', async () => {
-    jest.mocked(listPeople).mockResolvedValue({ data: [{ id: 'p2', firstName: 'Bo', lastName: 'Lind', displayName: 'Bo Lind', email: 'bo@example.test', status: 'ACTIVE', roles: [] }], total: 1 });
+    jest.mocked(listPayees).mockResolvedValue({ data: [{ id: 'p2', firstName: 'Bo', lastName: 'Lind', displayName: 'Bo Lind', email: 'bo@example.test', status: 'ACTIVE', roles: [] }], total: 1 });
     renderExpenses();
     const form = await screen.findByRole('form', { name: 'Add an expense' });
 
     fireEvent.change(within(form).getByLabelText('Category'), { target: { value: 'SALARY' } });
     fireEvent.change(within(form).getByLabelText('Amount'), { target: { value: '1250,50' } });
-    fireEvent.change(within(form).getByLabelText('Find the person to pay'), { target: { value: 'bo' } });
+    fireEvent.change(within(form).getByLabelText('Find the choreographer or staff member to pay'), { target: { value: 'bo' } });
     await within(form).findByRole('option', { name: /Bo Lind/ });
     fireEvent.change(within(form).getByLabelText('Paid to'), { target: { value: 'p2' } });
     fireEvent.click(within(form).getByLabelText('Already paid'));
@@ -87,4 +88,38 @@ test('the page of a person shows what events planned for and paid to them, with 
     const block = await screen.findByRole('region', { name: 'Payments and expenses from events' });
     expect(await within(block).findByRole('link', { name: 'Dance Camp' })).toHaveAttribute('href', '/events/e1');
     expect(listPersonExpenses).toHaveBeenCalledWith('p1');
+});
+
+test('the amount, date and description of an expense can be corrected', async () => {
+    renderExpenses();
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Edit' }));
+    const form = screen.getByRole('form', { name: 'Edit expense' });
+    fireEvent.change(within(form).getByLabelText('Amount'), { target: { value: '500,50' } });
+    fireEvent.change(within(form).getByLabelText('Description'), { target: { value: 'Front desk, two days' } });
+    fireEvent.click(within(form).getByRole('button', { name: 'Save' }));
+
+    await waitFor(() => expect(updateEventExpense).toHaveBeenCalledWith('e1', 'x1', { category: 'SALARY', amount: '500.50', description: 'Front desk, two days', expenseDate: '2027-05-21', personId: 'p1' }));
+    await waitFor(() => expect(screen.queryByRole('form', { name: 'Edit expense' })).not.toBeInTheDocument());
+});
+
+test('an expense is deleted only after a second press, and only an expense of the event itself', async () => {
+    renderExpenses();
+
+    expect(await screen.findAllByRole('button', { name: /^Delete expense/ })).toHaveLength(1);
+    fireEvent.click(screen.getByRole('button', { name: /^Delete expense/ }));
+    expect(deleteEventExpense).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'Delete for good' }));
+
+    await waitFor(() => expect(deleteEventExpense).toHaveBeenCalledWith('e1', 'x1'));
+    await waitFor(() => expect(listEventExpenses).toHaveBeenCalledTimes(2));
+});
+
+test('a search that finds no choreographer or staff member says who can be paid', async () => {
+    renderExpenses();
+
+    const form = await screen.findByRole('form', { name: 'Add an expense' });
+    fireEvent.change(within(form).getByLabelText('Find the choreographer or staff member to pay'), { target: { value: 'anna' } });
+    expect(await within(form).findByRole('status')).toHaveTextContent(/only to them/);
+    expect(listPayees).toHaveBeenCalledWith('anna');
 });

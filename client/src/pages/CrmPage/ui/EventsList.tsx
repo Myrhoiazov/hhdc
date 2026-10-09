@@ -5,7 +5,7 @@ import { createEvent, Event, EVENT_STATUSES, EventFilters, listEventsPage } from
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
 import { CrmLayout, Field, RequestState, StatusBadge } from './common';
-import { listStyles as own, Pager, useDelayed } from './ListTable';
+import { listStyles as own, Pager, useListFilters } from './ListTable';
 import cls from './CrmPage.module.scss';
 
 const NO_FILTERS: EventFilters = { q: '', status: '', period: '' };
@@ -42,16 +42,11 @@ const eventDates = (event: Event): string => {
     return start === end ? start : `${start} – ${end}`;
 };
 
-// Changing any filter returns to the first page: the old page number means nothing in a new list.
 const useEventsList = () => {
-    const [filters, setFilters] = useState(NO_FILTERS);
-    const [page, setPage] = useState(1);
-    const q = useDelayed(filters.q);
-    const { status, period } = filters;
-    const load = useCallback(() => listEventsPage({ q: q.trim(), status, period }, page), [q, status, period, page]);
-    const change = (patch: Partial<EventFilters>) => { setFilters(current => ({ ...current, ...patch })); setPage(1); };
-    const filtered = Object.values(filters).some(Boolean);
-    return { filters, page, setPage, change, filtered, reset: () => change(NO_FILTERS), list: useResource(load) };
+    const list = useListFilters(NO_FILTERS);
+    const { applied, page } = list;
+    const load = useCallback(() => listEventsPage(applied, page), [applied, page]);
+    return { ...list, list: useResource(load) };
 };
 
 interface FiltersProps { filters: EventFilters; filtered: boolean; onChange: (patch: Partial<EventFilters>) => void; onReset: () => void }

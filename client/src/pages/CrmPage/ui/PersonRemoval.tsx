@@ -21,7 +21,7 @@ export const PersonRemovalPanel = memo(({ person, onDeleted }: DeleteProps) => {
     if (!removal) return null;
     return <section className={cls.panel}><h2>{t('Delete contact')}</h2>
         {removal.allowed
-            ? <><p className={cls.muted}>{t('This contact was created from an email and is not tied to Weeztix, purchases or events. Its letters stay in the mailbox.')}</p><div><DeleteContactButton person={person} onDeleted={onDeleted} /></div></>
+            ? <><p className={cls.muted}>{t('This contact was created from an email and is not tied to Weeztix, purchases or events. Its letters stay in the mailbox, and new letters from this address will not create the contact again.')}</p><div><DeleteContactButton person={person} onDeleted={onDeleted} /></div></>
             : <><p>{t('This contact cannot be deleted:')}</p><ul>{removal.blockers.map(blocker => <li key={blocker}>{t(`Removal blocker: ${blocker}`)}</li>)}</ul></>}
     </section>;
 });

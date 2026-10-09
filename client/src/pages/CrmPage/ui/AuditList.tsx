@@ -1,25 +1,20 @@
-import { memo, useCallback, useState } from 'react';
+import { memo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AuditEntry, AuditFilters, AuditOptions, getAuditOptions, listAuditPage } from '@/entities/crm';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
 import { CrmLayout, Field, RequestState } from './common';
-import { listStyles as own, Pager, useDelayed } from './ListTable';
+import { listStyles as own, Pager, useListFilters } from './ListTable';
 import cls from './CrmPage.module.scss';
 
 const NO_FILTERS: AuditFilters = { q: '', entityType: '', actorUserId: '', from: '', to: '' };
 const NO_OPTIONS: AuditOptions = { entityTypes: [], actors: [] };
 
-// Changing any filter returns to the first page: the old page number means nothing in a new list.
 const useAuditList = () => {
-    const [filters, setFilters] = useState(NO_FILTERS);
-    const [page, setPage] = useState(1);
-    const q = useDelayed(filters.q);
-    const { entityType, actorUserId, from, to } = filters;
-    const load = useCallback(() => listAuditPage({ q: q.trim(), entityType, actorUserId, from, to }, page), [q, entityType, actorUserId, from, to, page]);
-    const change = (patch: Partial<AuditFilters>) => { setFilters(current => ({ ...current, ...patch })); setPage(1); };
-    const filtered = Object.values(filters).some(Boolean);
-    return { filters, page, setPage, change, filtered, reset: () => change(NO_FILTERS), list: useResource(load) };
+    const list = useListFilters(NO_FILTERS);
+    const { applied, page } = list;
+    const load = useCallback(() => listAuditPage(applied, page), [applied, page]);
+    return { ...list, list: useResource(load) };
 };
 
 interface FiltersProps { filters: AuditFilters; options: AuditOptions; filtered: boolean; onChange: (patch: Partial<AuditFilters>) => void; onReset: () => void }

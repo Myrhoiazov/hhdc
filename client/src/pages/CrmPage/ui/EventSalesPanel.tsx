@@ -2,19 +2,16 @@ import { memo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { EventSales, getEventSales } from '@/entities/crm';
 import { useResource } from '@/shared/lib/useResource/useResource';
-import { RequestState } from './common';
+import { RequestState, useNumbers } from './common';
 import { Bar, chartStyles as own, Tile } from './Charts';
 import cls from './CrmPage.module.scss';
 
 const useFormat = (currency: string) => {
     const { i18n } = useTranslation();
-    const exact = new Intl.NumberFormat(i18n.language, { style: 'currency', currency });
-    const whole = new Intl.NumberFormat(i18n.language, { style: 'currency', currency, maximumFractionDigits: 0 });
+    const numbers = useNumbers(currency);
     const months = new Intl.DateTimeFormat(i18n.language, { month: 'long', year: 'numeric', timeZone: 'UTC' });
     return {
-        money: (amount: string) => exact.format(Number(amount)),
-        rounded: (amount: string) => whole.format(Number(amount)),
-        count: (value: number) => new Intl.NumberFormat(i18n.language).format(value),
+        ...numbers,
         // "2026-05" → "May 2026" in the language of the interface.
         month: (value: string) => months.format(new Date(`${value}-01T00:00:00Z`)),
     };

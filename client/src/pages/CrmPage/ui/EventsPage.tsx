@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Event, getEvent, listTicketTypes } from '@/entities/crm';
 import { getUserAuthData } from '@/entities/User';
 import { useResource } from '@/shared/lib/useResource/useResource';
-import { CrmLayout, RequestState } from './common';
+import { CrmLayout, RequestState, useNumbers } from './common';
 import { EventDocuments } from './choreographers/EventDocuments';
 import { EventExpenses } from './EventExpenses';
 import { EventPeople } from './EventPeople';
@@ -15,13 +15,13 @@ import cls from './CrmPage.module.scss';
 
 // What the event sells, as read from the ticketing provider; prices are not edited in the CRM.
 const EventTicketTypes = memo(({ eventId }: { eventId: string }) => {
-    const { t, i18n } = useTranslation();
+    const { t } = useTranslation();
     const load = useCallback(() => listTicketTypes(eventId), [eventId]);
     const types = useResource(load);
-    const price = (amount: string, currency: string) => new Intl.NumberFormat(i18n.language, { style: 'currency', currency }).format(Number(amount));
+    const { money } = useNumbers(types.data?.[0]?.currency);
     return <section id="event-ticket-types" className={cls.panel} aria-label={t('Ticket types')}><h2>{t('Ticket types')}</h2>
         <RequestState error={types.error} loading={types.loading} />
-        {types.data?.map(type => <div className={cls.row} key={type.id}><span>{type.name}</span><span>{price(type.price, type.currency)}</span><span>{t('Sold: {{count}}', { count: type.soldCount })}</span><span className={cls.muted}>{t(`Ticket status: ${type.status}`, { defaultValue: type.status })}</span></div>)}
+        {types.data?.map(type => <div className={cls.row} key={type.id}><span>{type.name}</span><span>{money(type.price)}</span><span>{t('Sold: {{count}}', { count: type.soldCount })}</span><span className={cls.muted}>{t(`Ticket status: ${type.status}`, { defaultValue: type.status })}</span></div>)}
         {types.data?.length === 0 && <p className={cls.muted}>{t('No ticket types yet')}</p>}
     </section>;
 });

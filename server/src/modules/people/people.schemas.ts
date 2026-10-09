@@ -29,4 +29,6 @@ export const peopleFiltersSchema = z.object({
     role: z.preprocess(blankAsMissing, z.nativeEnum(PersonRoleType).optional()),
     source: z.preprocess(blankAsMissing, z.nativeEnum(PersonSource).optional()),
     purchases: z.preprocess(blankAsMissing, z.enum(['yes', 'no']).optional()),
+    // Only people an expense can be paid to: choreographers and staff.
+    payees: z.preprocess(blankAsMissing, z.enum(['yes']).optional()),
 });

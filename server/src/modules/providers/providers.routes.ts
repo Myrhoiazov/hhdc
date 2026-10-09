@@ -10,6 +10,7 @@ import { syncWeeztixCatalog } from '../ticketing/weeztix-catalog.service';
 import { syncWeeztixSales } from '../ticketing/weeztix-orders.service';
 import { importContactsSchema, importWeeztixContacts } from '../ticketing/weeztix-contacts.service';
 import { providerSchema, safeProviderSelect } from './providers.service';
+import { listSyncRuns } from './sync-runs';
 
 export const providersRouter = Router();
 
@@ -70,6 +71,8 @@ providersRouter.post('/:id/weeztix-sales', permitted('ticketing.sync'), route(as
     await audit(req, 'WEEZTIX_SALES_SYNCED', id, { after: result });
     return result;
 }));
+
+providersRouter.get('/:id/sync-runs', permitted('providers.read'), route(async req => listSyncRuns(entityId(req))));
 
 providersRouter.patch('/:id', permitted('providers.manage'), route(async req => {
     const { before, provider } = await updateConnection(entityId(req), providerSchema.partial().parse(req.body));

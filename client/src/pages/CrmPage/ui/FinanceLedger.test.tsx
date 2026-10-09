@@ -10,12 +10,12 @@ jest.mock('@/entities/crm', () => ({
 
 const entry = (overrides: Partial<LedgerEntry> = {}): LedgerEntry => ({
     id: 'PAYMENT:pay-1', kind: 'PAYMENT', category: 'TICKETS', direction: 'IN', date: '2026-05-04T10:00:00Z', amount: '445.35', currency: 'EUR', status: 'PAID',
-    description: 'ideal', person: { id: 'p1', name: 'Anna Berg' }, event: { id: 'e1', name: 'Dance Camp' }, counted: true, ...overrides,
+    description: 'ideal', person: { id: 'p1', name: 'Anna Berg' }, event: { id: 'e1', name: 'Dance Camp' }, counted: true, paidAmount: '452.10', ...overrides,
 });
-const fee = entry({ id: 'EXPENSE:x1', kind: 'EXPENSE', category: 'FEE', direction: 'OUT', amount: '300.00', status: 'PLANNED', description: 'Workshop fee', person: null, event: null });
+const fee = entry({ id: 'EXPENSE:x1', kind: 'EXPENSE', category: 'FEE', direction: 'OUT', amount: '300.00', status: 'PLANNED', description: 'Workshop fee', person: null, event: null, paidAmount: null });
 
 const summary: LedgerSummary = {
-    currency: 'EUR', income: '445.35', refunds: '0.00', expenses: '300.00', result: '145.35', operations: 2,
+    currency: 'EUR', income: '445.35', refunds: '0.00', expenses: '300.00', planned: '300.00', result: '145.35', operations: 2,
     byCategory: [{ category: 'TICKETS', direction: 'IN', operations: 1, amount: '445.35' }, { category: 'FEE', direction: 'OUT', operations: 1, amount: '300.00' }],
 };
 const NO_FILTERS = { q: '', category: '', eventId: '', from: '', to: '' };
@@ -78,7 +78,7 @@ test('a refund is asked for from the row of a paid payment only', async () => {
     fireEvent.change(screen.getByLabelText('Reason'), { target: { value: 'Cannot come' } });
     fireEvent.click(screen.getByRole('button', { name: 'Request refund' }));
 
-    await waitFor(() => expect(requestRefund).toHaveBeenCalledWith({ paymentId: 'pay-1', amount: '445.35', reason: 'Cannot come' }));
+    await waitFor(() => expect(requestRefund).toHaveBeenCalledWith({ paymentId: 'pay-1', amount: '452.10', reason: 'Cannot come' }));
     await waitFor(() => expect(onRefundRequested).toHaveBeenCalled());
 });
 

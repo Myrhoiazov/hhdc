@@ -3,28 +3,18 @@ import { logger } from '../../common/logger';
 export interface TelegramNotificationConfig {
     token: string;
     chatId: string;
-    clientUrl: string;
 }
 
 interface NotifyOptions {
     config?: TelegramNotificationConfig | null;
     fetchImpl?: typeof fetch;
-    now?: number;
 }
-
-const ANNOUNCE_WINDOW_MS = 24 * 60 * 60_000;
-
-// Imported mailbox history is not news: only mail known to have arrived recently is announced.
-const arrivedRecently = (receivedAt: unknown, now: number): boolean => {
-    const arrived = typeof receivedAt === 'string' ? Date.parse(receivedAt) : Number.NaN;
-    return !Number.isNaN(arrived) && now - arrived <= ANNOUNCE_WINDOW_MS;
-};
 
 const configuredNotifier = (): TelegramNotificationConfig | null => {
     const token = process.env.TELEGRAM_TOKEN?.trim();
     const chatId = process.env.TELEGRAM_EMAIL_NOTIFY_CHAT_ID?.trim();
     if (!token || !chatId || !/^-?\d+$/.test(chatId)) return null;
-    return { token, chatId, clientUrl: (process.env.CLIENT_URL ?? '').replace(/\/$/, '') };
+    return { token, chatId };
 };
 
 export const sendTelegramNotification = async (text: string, options: NotifyOptions = {}): Promise<boolean> => {
@@ -44,14 +34,3 @@ export const sendTelegramNotification = async (text: string, options: NotifyOpti
         return false;
     }
 };
-
-export const notifyEmailReceived = (payload: Record<string, unknown>, options: NotifyOptions = {}) => {
-    const config = options.config === undefined ? configuredNotifier() : options.config;
-    if (!config || typeof payload.conversationId !== 'string') return Promise.resolve(false);
-    if (!arrivedRecently(payload.receivedAt, options.now ?? Date.now())) return Promise.resolve(false);
-    const inboxUrl = config.clientUrl ? `\n${config.clientUrl}/email` : '';
-    return sendTelegramNotification(`📨 New inbound email${inboxUrl}`, { ...options, config });
-};
-
-export const notifyEmailSyncFailed = (connectionId: string, options: NotifyOptions = {}) =>
-    sendTelegramNotification(`⚠️ Email sync failed\nMailbox: ${connectionId}`, options);

@@ -4,7 +4,7 @@ import { deleteKnowledge, KnowledgeDocument, KnowledgeFilters, listEvents, listK
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
 import { Field, RequestState, StatusBadge } from '../common';
-import { ConfirmDelete, listStyles as table, Pager, useDelayed } from '../ListTable';
+import { ConfirmDelete, listStyles as table, Pager, useListFilters } from '../ListTable';
 import cls from '../CrmPage.module.scss';
 import { KnowledgeSyncPanel } from './KnowledgeSyncPanel';
 
@@ -12,16 +12,11 @@ const SCOPES = ['GLOBAL', 'EVENT'];
 const STATUSES = ['DRAFT', 'ACTIVE', 'ARCHIVED'];
 const NO_FILTERS: KnowledgeFilters = { q: '', scope: '', status: '' };
 
-// Changing any filter returns to the first page: the old page number means nothing in a new list.
 const useKnowledgeList = () => {
-    const [filters, setFilters] = useState(NO_FILTERS);
-    const [page, setPage] = useState(1);
-    const q = useDelayed(filters.q);
-    const { scope, status } = filters;
-    const load = useCallback(() => listKnowledge({ q: q.trim(), scope, status }, page), [q, scope, status, page]);
-    const change = (patch: Partial<KnowledgeFilters>) => { setFilters(current => ({ ...current, ...patch })); setPage(1); };
-    const filtered = Object.values(filters).some(Boolean);
-    return { filters, page, setPage, change, filtered, reset: () => change(NO_FILTERS), list: useResource(load) };
+    const list = useListFilters(NO_FILTERS);
+    const { applied, page } = list;
+    const load = useCallback(() => listKnowledge(applied, page), [applied, page]);
+    return { ...list, list: useResource(load) };
 };
 
 interface FiltersProps { filters: KnowledgeFilters; filtered: boolean; onChange: (patch: Partial<KnowledgeFilters>) => void; onReset: () => void }

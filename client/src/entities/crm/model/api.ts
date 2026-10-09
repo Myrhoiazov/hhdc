@@ -14,6 +14,10 @@ export const LIST_PAGE_SIZE = 25;
 export const listPeople = async (search = '') =>
     list<Person>(`/people?q=${encodeURIComponent(search)}&pageSize=100`);
 
+// People an expense can be paid to: choreographers and staff.
+export const listPayees = async (search = '') =>
+    list<Person>(`/people?q=${encodeURIComponent(search)}&payees=yes&pageSize=100`);
+
 export const PERSON_SOURCES = ['WEEZTIX', 'EMAIL', 'MANUAL', 'IMPORT', 'SYSTEM'] as const;
 export type PersonSource = typeof PERSON_SOURCES[number];
 export interface PeopleFilters { q: string; role: PersonRole | ''; source: PersonSource | ''; purchases: 'yes' | 'no' | '' }
@@ -88,6 +92,7 @@ export interface EventExpenseInput { category: EventExpenseCategory; amount: str
 export const listEventExpenses = async (eventId: string) => read<ExpenseList>(`/events/${eventId}/expenses`);
 export const listPersonExpenses = async (personId: string) => read<ExpenseList>(`/people/${personId}/expenses`);
 export const createEventExpense = async (eventId: string, input: EventExpenseInput) => (await $apiPrivate.post<{ data: ExpenseLine }>(`/events/${eventId}/expenses`, input)).data.data;
+export const deleteEventExpense = async (eventId: string, expenseId: string) => { await $apiPrivate.delete(`/events/${eventId}/expenses/${expenseId}`); };
 export const updateEventExpense = async (eventId: string, expenseId: string, change: Partial<EventExpenseInput>) =>
     (await $apiPrivate.patch<{ data: ExpenseLine }>(`/events/${eventId}/expenses/${expenseId}`, change)).data.data;
 export const getDashboard = async () => read<Record<string, number>>('/dashboard');

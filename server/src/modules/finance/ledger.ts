@@ -17,6 +17,8 @@ interface Named { id: string; name: string }
 export interface LedgerEntry {
     id: string; kind: LedgerKind; category: string; direction: 'IN' | 'OUT'; date: string; amount: string; currency: string; status: string;
     description: string | null; person: Named | null; event: Named | null; counted: boolean;
+    // What the buyer paid, when it differs from the income: the ticket shop and the payment method add their fees.
+    paidAmount: string | null;
 }
 
 const optional = optionalFilter;
@@ -54,7 +56,7 @@ export const matchesLedger = (entry: LedgerEntry, filters: LedgerFilters): boole
 export const newestFirst = (entries: LedgerEntry[]): LedgerEntry[] => [...entries].sort((a, b) => b.date.localeCompare(a.date) || a.id.localeCompare(b.id));
 
 export interface CategoryTotal { category: string; direction: 'IN' | 'OUT'; operations: number; amount: string }
-export interface LedgerSummary { currency: string; income: string; refunds: string; expenses: string; result: string; operations: number; byCategory: CategoryTotal[] }
+export interface LedgerSummary { currency: string; income: string; refunds: string; expenses: string; planned: string; result: string; operations: number; byCategory: CategoryTotal[] }
 
 const sumCents = (entries: LedgerEntry[]): number => entries.reduce((sum, entry) => sum + toCents(entry.amount), 0);
 
@@ -71,22 +73,24 @@ export const summariseLedger = (entries: LedgerEntry[]): LedgerSummary => {
     const counted = entries.filter(entry => entry.counted);
     const of = (kind: LedgerKind) => sumCents(counted.filter(entry => entry.kind === kind));
     const [income, refunds, expenses] = [of('PAYMENT'), of('REFUND'), of('EXPENSE')];
+    // Costs that are recorded but not paid yet: part of the expenses, shown apart.
+    const planned = sumCents(counted.filter(entry => entry.kind === 'EXPENSE' && entry.status !== 'PAID'));
     return {
-        currency: entries[0]?.currency ?? 'EUR', income: fromCents(income), refunds: fromCents(refunds), expenses: fromCents(expenses),
+        currency: entries[0]?.currency ?? 'EUR', income: fromCents(income), refunds: fromCents(refunds), expenses: fromCents(expenses), planned: fromCents(planned),
         result: fromCents(income - refunds - expenses), operations: entries.length, byCategory: categoryTotals(counted),
     };
 };
 
 interface EntrySource {
-    id: string; kind: LedgerKind; category: string; status: string; amount: { toFixed(digits: number): string }; currency: string;
-    date: Date; description?: string | null; person?: { id: string; displayName: string } | null; event?: Named | null;
+    id: string; kind: LedgerKind; category: string; status: string; amount: string | { toFixed(digits: number): string }; currency: string;
+    date: Date; description?: string | null; person?: { id: string; displayName: string } | null; event?: Named | null; paidAmount?: string | null;
 }
 
 export const toEntry = (source: EntrySource): LedgerEntry => ({
     id: `${source.kind}:${source.id}`, kind: source.kind, category: source.category, direction: source.kind === 'PAYMENT' ? 'IN' : 'OUT',
-    date: source.date.toISOString(), amount: source.amount.toFixed(2), currency: source.currency.trim(), status: source.status,
+    date: source.date.toISOString(), amount: typeof source.amount === 'string' ? source.amount : source.amount.toFixed(2), currency: source.currency.trim(), status: source.status,
     description: source.description ?? null, person: source.person ? { id: source.person.id, name: source.person.displayName } : null,
-    event: source.event ?? null, counted: isCounted(source.kind, source.status),
+    event: source.event ?? null, counted: isCounted(source.kind, source.status), paidAmount: source.paidAmount ?? null,
 });
 
 const PERSON = { select: { id: true, displayName: true } } as const;
@@ -99,9 +103,55 @@ const WITHDRAWN_ORDERS = ['REFUNDED', 'CANCELLED'];
 export const paymentState = (paymentStatus: string, orderStatus: string | undefined): string =>
     (orderStatus && WITHDRAWN_ORDERS.includes(orderStatus) ? orderStatus : paymentStatus);
 
+export interface OrderPayment { id: string; orderId: string | null; amountCents: number; counted: boolean }
+
+// One amount cut into parts in proportion to `weights`, so the parts add up to it to the cent:
+// each part is what the running total has reached, less what the parts before it took.
+export const splitByWeight = (amountCents: number, weights: number[]): number[] => {
+    const total = weights.reduce((sum, weight) => sum + weight, 0);
+    if (total <= 0) return weights.map(() => 0);
+    let [seen, given] = [0, 0];
+    return weights.map(weight => {
+        seen += weight;
+        const part = Math.round(amountCents * (seen / total)) - given;
+        given += part;
+        return part;
+    });
+};
+
+// Income is the price of the tickets that still let their holder in — the same figure the
+// dashboard shows — without the fees of the ticket shop and of the payment method. A ticket
+// that was refunded, cancelled or transferred earns nothing. The income of an order is shared
+// between its successful payments by their size; a failed attempt takes no part in it.
+export const ticketIncome = (payments: OrderPayment[], ticketValue: Map<string, number>): Map<string, number> => {
+    const income = new Map<string, number>(payments.map(payment => [payment.id, payment.amountCents]));
+    const byOrder = new Map<string, OrderPayment[]>();
+    for (const payment of payments) if (payment.orderId && payment.counted) byOrder.set(payment.orderId, [...(byOrder.get(payment.orderId) ?? []), payment]);
+    for (const [orderId, paid] of byOrder) {
+        const parts = splitByWeight(ticketValue.get(orderId) ?? 0, paid.map(payment => payment.amountCents));
+        paid.forEach((payment, index) => income.set(payment.id, parts[index]));
+    }
+    return income;
+};
+
+const ADMITTING = ['VALID', 'USED'] as const;
+
+const loadTicketValue = async (): Promise<Map<string, number>> => {
+    const groups = await prisma.ticket.groupBy({ by: ['orderId'], where: { status: { in: [...ADMITTING] } }, _sum: { price: true } });
+    return new Map(groups.map(group => [group.orderId, toCents(group._sum.price ?? 0)]));
+};
+
 const loadPayments = async (): Promise<LedgerEntry[]> => {
-    const rows = await prisma.payment.findMany({ select: { id: true, amount: true, currency: true, status: true, method: true, paidAt: true, createdAt: true, person: PERSON, order: ORDER } });
-    return rows.map(row => toEntry({ ...row, kind: 'PAYMENT', category: TICKETS, status: paymentState(row.status, row.order?.status), date: row.paidAt ?? row.createdAt, description: row.method, event: row.order?.event }));
+    const [rows, ticketValue] = await Promise.all([
+        prisma.payment.findMany({ select: { id: true, orderId: true, amount: true, currency: true, status: true, method: true, paidAt: true, createdAt: true, person: PERSON, order: ORDER } }),
+        loadTicketValue(),
+    ]);
+    const states = new Map(rows.map(row => [row.id, paymentState(row.status, row.order?.status)]));
+    const income = ticketIncome(rows.map(row => ({ id: row.id, orderId: row.orderId, amountCents: toCents(row.amount), counted: isCounted('PAYMENT', states.get(row.id) as string) })), ticketValue);
+    return rows.map(row => toEntry({
+        ...row, kind: 'PAYMENT', category: TICKETS, status: states.get(row.id) as string, date: row.paidAt ?? row.createdAt, description: row.method, event: row.order?.event,
+        amount: fromCents(income.get(row.id) ?? 0), paidAmount: row.amount.toFixed(2),
+    }));
 };
 
 const loadRefunds = async (): Promise<LedgerEntry[]> => {
