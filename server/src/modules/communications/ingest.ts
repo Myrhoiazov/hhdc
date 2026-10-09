@@ -108,7 +108,9 @@ export interface RetryOptions {
 // Two mailboxes syncing at once reject each other's serializable transactions. Retrying right
 // away meets the same conflict again, so every attempt waits before the next one.
 export const retryOnConflict = async <T>(work: () => Promise<T>, options: RetryOptions = {}): Promise<T> => {
-    const { attempts = 5, isRetryable = isWriteConflict, wait = sleep } = options;
+    const attempts = options.attempts ?? 5;
+    const isRetryable = options.isRetryable ?? isWriteConflict;
+    const wait = options.wait ?? sleep;
     for (let attempt = 0; ; attempt += 1) {
         try { return await work(); }
         catch (error) {
