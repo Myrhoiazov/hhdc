@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { imapClient, imapConfigSchema, ImapEmailProvider, type ImapMarkReadRequest, type ImapMoveRequest, type ImapTransports, type MailboxSnapshot, type OutgoingMail } from './index';
+import { describeImapError, imapClient, imapConfigSchema, ImapEmailProvider, type ImapMarkReadRequest, type ImapMoveRequest, type ImapTransports, type MailboxSnapshot, type OutgoingMail } from './index';
 import { normalizeImapMessage, parseImapCursor, rangeHasMessages, rangeToFetch, type ImapFetchRange } from './normalize';
 
 const config = {
@@ -135,4 +135,15 @@ test('sync carries the read flag of every message', async () => {
 test('a socket error on a mailbox connection does not become an uncaught exception', () => {
     const client = imapClient(imapConfigSchema.parse(config));
     assert.doesNotThrow(() => client.emit('error', new Error('Socket timeout')));
+});
+
+test('a refused login is explained with what the mail server said', () => {
+    const refused = Object.assign(new Error('Command failed'), { authenticationFailed: true, responseText: 'Application-specific password required' });
+    assert.equal(describeImapError(refused).message, 'The mail server rejected the login or password: Application-specific password required');
+    assert.equal(describeImapError(Object.assign(new Error('Command failed'), { authenticationFailed: true })).message, 'The mail server rejected the login or password');
+});
+
+test('other mailbox errors keep the server reply, or their own text when there is none', () => {
+    assert.equal(describeImapError(Object.assign(new Error('Command failed'), { responseText: 'Mailbox does not exist' })).message, 'Mailbox does not exist');
+    assert.equal(describeImapError(new Error('getaddrinfo ENOTFOUND imap.hhdc.test')).message, 'getaddrinfo ENOTFOUND imap.hhdc.test');
 });

@@ -58,6 +58,20 @@ const smtpTransport = (config: ImapConfig) => nodemailer.createTransport({
     connectionTimeout: CONNECTION_TIMEOUT_MS,
 });
 
+// ImapFlow rejects a refused login with the bare "Command failed"; what the server actually
+// said (wrong password, app password required) travels on the error and is what staff need.
+export const describeImapError = (error: unknown): Error => {
+    const detail = error as { responseText?: unknown; authenticationFailed?: unknown } | null;
+    const said = typeof detail?.responseText === 'string' ? detail.responseText.trim() : '';
+    if (detail?.authenticationFailed) return new Error(`The mail server rejected the login or password${said ? `: ${said}` : ''}`);
+    if (said) return new Error(said);
+    return error instanceof Error ? error : new Error('Unknown error');
+};
+
+const connectImap = async (client: ImapFlow): Promise<void> => {
+    try { await client.connect(); } catch (error) { throw describeImapError(error); }
+};
+
 // logout() can reject once the socket is gone; that must not replace the real sync error.
 const safeLogout = async (client: ImapFlow) => {
     try { await client.logout(); } catch { /* connection already closed */ }
@@ -65,7 +79,7 @@ const safeLogout = async (client: ImapFlow) => {
 
 const withInbox = async <T>(config: ImapConfig, work: (client: ImapFlow, mailbox: ImapMailboxState) => Promise<T>): Promise<T> => {
     const client = imapClient(config);
-    await client.connect();
+    await connectImap(client);
     try {
         const mailbox = await client.mailboxOpen('INBOX', { readOnly: true });
         return await work(client, { uidValidity: String(mailbox.uidValidity), uidNext: mailbox.uidNext, exists: mailbox.exists });
@@ -127,7 +141,7 @@ const resolveUids = async (client: ImapFlow, messages: RemoteEmailRef[], uidVali
 
 const moveMessages: ImapTransports['move'] = async (config, request) => {
     const client = imapClient(config);
-    await client.connect();
+    await connectImap(client);
     try {
         const destination = await destinationMailbox(client, request.disposition);
         const mailbox = await client.mailboxOpen('INBOX');
@@ -140,7 +154,7 @@ const moveMessages: ImapTransports['move'] = async (config, request) => {
 
 const markMessagesRead: ImapTransports['markRead'] = async (config, request) => {
     const client = imapClient(config);
-    await client.connect();
+    await connectImap(client);
     try {
         // The mailbox must be writable for the \Seen flag; reading stays read-only.
         const mailbox = await client.mailboxOpen('INBOX');
