@@ -89,13 +89,34 @@ const persistInbound = async (tx: Prisma.TransactionClient, providerId: string, 
     return { message, created: true };
 };
 
-export const ingestEmail = async (providerId: string, email: NormalizedEmail) => {
-    for (let attempt = 0; attempt < 3; attempt += 1) {
-        try { return await prisma.$transaction(tx => persistInbound(tx, providerId, email), { isolationLevel: 'Serializable' }); }
+const isWriteConflict = (error: unknown): boolean =>
+    error instanceof Prisma.PrismaClientKnownRequestError && ['P2034', 'P2002'].includes(error.code);
+
+const sleep = (ms: number): Promise<void> => new Promise(resolve => { setTimeout(resolve, ms); });
+
+// Grows with every attempt and is spread at random, so two transactions that collided once
+// do not come back at the same moment.
+export const retryDelayMs = (attempt: number, random: () => number = Math.random): number =>
+    Math.round(50 * 2 ** attempt * (0.5 + random()));
+
+export interface RetryOptions {
+    attempts?: number;
+    isRetryable?: (error: unknown) => boolean;
+    wait?: (ms: number) => Promise<void>;
+}
+
+// Two mailboxes syncing at once reject each other's serializable transactions. Retrying right
+// away meets the same conflict again, so every attempt waits before the next one.
+export const retryOnConflict = async <T>(work: () => Promise<T>, options: RetryOptions = {}): Promise<T> => {
+    const { attempts = 5, isRetryable = isWriteConflict, wait = sleep } = options;
+    for (let attempt = 0; ; attempt += 1) {
+        try { return await work(); }
         catch (error) {
-            const retryable = error instanceof Prisma.PrismaClientKnownRequestError && ['P2034', 'P2002'].includes(error.code);
-            if (!retryable || attempt === 2) throw error;
+            if (!isRetryable(error) || attempt >= attempts - 1) throw error;
+            await wait(retryDelayMs(attempt));
         }
     }
-    throw new Error('Email ingestion retries exhausted');
 };
+
+export const ingestEmail = (providerId: string, email: NormalizedEmail) =>
+    retryOnConflict(() => prisma.$transaction(tx => persistInbound(tx, providerId, email), { isolationLevel: 'Serializable' }));
