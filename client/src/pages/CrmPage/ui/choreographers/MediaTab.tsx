@@ -1,13 +1,14 @@
-import { ChangeEvent, DragEvent, memo, useCallback, useEffect, useState } from 'react';
+import { ChangeEvent, DragEvent, memo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-    ChoreographerPhoto, fetchChoreographerPhoto, listChoreographerPhotos, MAX_CHOREOGRAPHER_PHOTOS, MAX_PHOTO_BYTES, MEDIA_RIGHTS, MediaRights,
+    ChoreographerPhoto, listChoreographerPhotos, MAX_CHOREOGRAPHER_PHOTOS, MAX_PHOTO_BYTES, MEDIA_RIGHTS, MediaRights,
     removeChoreographerPhoto, reorderChoreographerPhotos, updateChoreographerPhoto, uploadChoreographerPhoto,
 } from '@/entities/crm';
 import { classNames } from '@/shared/lib/classNames/classNames';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
 import { RequestState } from '../common';
+import { usePhotoUrl } from './usePhotoUrl';
 import cls from '../CrmPage.module.scss';
 import own from './Choreographers.module.scss';
 
@@ -29,20 +30,9 @@ export const movePhoto = (ids: string[], id: string, step: -1 | 1): string[] => 
     return next;
 };
 
-// Photos are private, so the thumbnail is fetched with the staff session and shown from memory.
 const PhotoImage = memo(({ personId, photo }: { personId: string; photo: ChoreographerPhoto }) => {
     const { t } = useTranslation();
-    const [url, setUrl] = useState('');
-    useEffect(() => {
-        let objectUrl = '';
-        let current = true;
-        fetchChoreographerPhoto(personId, photo.id, 'thumb').then((blob) => {
-            if (!current) return;
-            objectUrl = URL.createObjectURL(blob);
-            setUrl(objectUrl);
-        }).catch(() => undefined);
-        return () => { current = false; if (objectUrl) URL.revokeObjectURL(objectUrl); };
-    }, [personId, photo.id]);
+    const url = usePhotoUrl(personId, photo.id);
     return url ? <img className={own.photoImage} src={url} alt={photo.caption || t('Choreographer photo')} /> : <div className={own.photoImage} aria-hidden="true" />;
 });
 
@@ -92,7 +82,8 @@ const UploadZone = memo(({ disabled, onFiles }: { disabled: boolean; onFiles: (f
     </label>;
 });
 
-export const MediaTab = memo(({ personId, canManage }: { personId: string; canManage: boolean }) => {
+// onChanged lets the page refresh what it shows of the photos, such as the cover in the header.
+export const MediaTab = memo(({ personId, canManage, onChanged }: { personId: string; canManage: boolean; onChanged?: () => void }) => {
     const { t } = useTranslation();
     const load = useCallback(() => listChoreographerPhotos(personId), [personId]);
     const photos = useResource(load);
@@ -103,7 +94,7 @@ export const MediaTab = memo(({ personId, canManage }: { personId: string; canMa
         setBusy(true); setError('');
         try { await work(); }
         catch (cause) { setError(cause instanceof Error ? cause.message : t('Request failed')); }
-        finally { setBusy(false); await photos.refresh(); }
+        finally { setBusy(false); await photos.refresh(); onChanged?.(); }
     };
     // Files go up one by one, so the server-side limit is reported for the exact file that hits it.
     const upload = (files: File[]) => run(async () => {

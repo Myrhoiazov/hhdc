@@ -44,7 +44,7 @@ Choose:
 - One Conventional Commit message.
 - A PR title and body that describe behavior and verification, targeting `develop`.
 
-Read `commit-message-instructions.md` from this skill directory and follow it. Do not add `Co-authored-by`, `Generated-by`, AI attribution trailers, or similar metadata unless the user explicitly asks.
+Read `commit-message-instructions.md` from this skill directory and follow it. Never add `Co-authored-by`, `Generated-by`, "Generated with Claude Code", AI attribution trailers, or similar metadata (AGENTS.md rule 7).
 
 Completion criterion: branch name, commit message, PR title, and PR body are ready.
 

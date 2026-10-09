@@ -9,6 +9,7 @@ import { getUserAuthData } from '@/entities/User';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
 import { CrmLayout, Field, RequestState, StatusBadge } from '../common';
+import { ChoreographerAvatar } from './ChoreographerAvatar';
 import cls from '../CrmPage.module.scss';
 import own from './Choreographers.module.scss';
 
@@ -26,8 +27,11 @@ const SummaryChips = memo(({ item }: { item: ChoreographerListItem }) => {
 });
 
 const ChoreographerRow = memo(({ item }: { item: ChoreographerListItem }) => <div className={own.listRow}>
-    <span><Link to={`/people/choreographers/${item.person.id}`}>{choreographerName(item)}</Link>
-        {item.profile?.stageName && <div className={own.secondary}>{item.person.displayName}</div>}</span>
+    <span className={own.identity}>
+        <ChoreographerAvatar personId={item.person.id} photoId={item.coverPhotoId} name={choreographerName(item)} />
+        <span><Link to={`/people/choreographers/${item.person.id}`}>{choreographerName(item)}</Link>
+            {item.profile?.stageName && <div className={own.secondary}>{item.person.displayName}</div>}</span>
+    </span>
     <span className={own.secondary}>{[item.person.email, item.profile?.styles.join(', ')].filter(Boolean).join(' · ')}</span>
     <span className={own.chips}>{item.profile && <StatusBadge status={item.profile.relationshipStatus} />}<SummaryChips item={item} /></span>
 </div>);

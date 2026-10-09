@@ -17,9 +17,10 @@ export interface ChoreographerSummary {
     totalAssignments: number; lastEventYear: number | null; upcomingEvent: { id: string; name: string; startAt: string } | null; openTasks?: number;
 }
 export interface ChoreographerAssignment { id: string; status: string; roleTitle: string; event: { id: string; name: string; startAt: string; endAt: string } }
-export interface ChoreographerListItem { person: ChoreographerPerson; profile: ChoreographerProfile | null; summary: ChoreographerSummary }
+// coverPhotoId is the photo shown next to the name; null until a photo is uploaded.
+export interface ChoreographerListItem { person: ChoreographerPerson; profile: ChoreographerProfile | null; summary: ChoreographerSummary; coverPhotoId: string | null }
 export interface ChoreographerDetail {
-    person: ChoreographerPerson; profile: ChoreographerProfile; summary: ChoreographerSummary;
+    person: ChoreographerPerson; profile: ChoreographerProfile; summary: ChoreographerSummary; coverPhotoId: string | null;
     // Keys of what is still missing from the profile, e.g. "biography".
     checklist: string[];
     assignments: ChoreographerAssignment[];

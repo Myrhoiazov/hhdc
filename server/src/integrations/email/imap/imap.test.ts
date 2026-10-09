@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { ImapEmailProvider, type ImapMarkReadRequest, type ImapMoveRequest, type ImapTransports, type MailboxSnapshot, type OutgoingMail } from './index';
+import { imapClient, imapConfigSchema, ImapEmailProvider, type ImapMarkReadRequest, type ImapMoveRequest, type ImapTransports, type MailboxSnapshot, type OutgoingMail } from './index';
 import { normalizeImapMessage, parseImapCursor, rangeHasMessages, rangeToFetch, type ImapFetchRange } from './normalize';
 
 const config = {
@@ -130,4 +130,9 @@ test('sync carries the read flag of every message', async () => {
         { ...inbound(13, ['From: a@example.test', 'To: info@hhdc.test', 'Subject: Read', 'Message-ID: <r@x>']), flags: ['\\Seen', '\\Answered'] },
     ] })).syncMessages('v2:7:12');
     assert.deepEqual(page.messages.map(message => message.isRead), [true]);
+});
+
+test('a socket error on a mailbox connection does not become an uncaught exception', () => {
+    const client = imapClient(imapConfigSchema.parse(config));
+    assert.doesNotThrow(() => client.emit('error', new Error('Socket timeout')));
 });

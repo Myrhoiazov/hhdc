@@ -94,7 +94,7 @@ const profile = {
 };
 const summary = { totalAssignments: 2, lastEventYear: 2026, upcomingEvent: { id: 'event-27', name: 'HHDC 2027', startAt: '2027-05-21T08:00:00.000Z' }, openTasks: 1 };
 const detail: ChoreographerDetail = {
-    person, profile, summary, checklist: ['styles'],
+    person, profile, summary, coverPhotoId: null, checklist: ['styles'],
     assignments: [{ id: 'assignment-1', status: 'CONFIRMED', roleTitle: 'Choreographer', event: { id: 'event-27', name: 'HHDC 2027', startAt: '2027-05-21T08:00:00.000Z', endAt: '2027-05-23T20:00:00.000Z' } }],
 };
 
@@ -109,7 +109,7 @@ const renderAt = (path: string, permissions: string[]) => {
 
 beforeEach(() => {
     jest.mocked(listChoreographers).mockReset();
-    jest.mocked(listChoreographers).mockResolvedValue({ data: [{ person, profile, summary }], total: 1 });
+    jest.mocked(listChoreographers).mockResolvedValue({ data: [{ person, profile, summary, coverPhotoId: null }], total: 1 });
     jest.mocked(getChoreographer).mockResolvedValue(detail);
     jest.mocked(listPeople).mockResolvedValue({ data: [], total: 0 });
     jest.mocked(updateChoreographer).mockReset();
@@ -669,4 +669,27 @@ test('only an open task past its due date is overdue', () => {
     expect(isOverdue(followUp({ dueDate: '2026-10-08T09:00:00Z', status: 'DONE' }), now)).toBe(false);
     expect(isOverdue(followUp({ dueDate: null }), now)).toBe(false);
     expect(dueAtEndOfDay('')).toBeNull();
+});
+
+test('the cover photo is shown in the profile header and in the list', async () => {
+    jest.mocked(getChoreographer).mockResolvedValue({ ...detail, coverPhotoId: 'p1' });
+    jest.mocked(listChoreographers).mockResolvedValue({ data: [{ person, profile, summary, coverPhotoId: 'p1' }], total: 1 });
+    jest.mocked(fetchChoreographerPhoto).mockClear();
+
+    const header = renderAt('/people/choreographers/person-1', ALL);
+    expect(await screen.findByRole('img', { name: /Choreographer photo/ })).toBeInTheDocument();
+    expect(fetchChoreographerPhoto).toHaveBeenCalledWith('person-1', 'p1', 'thumb');
+    header.unmount();
+
+    renderAt('/people/choreographers', ALL);
+    expect(await screen.findByRole('img', { name: /Choreographer photo/ })).toBeInTheDocument();
+});
+
+test('a choreographer without a photo is shown by initials and no photo is requested', async () => {
+    jest.mocked(fetchChoreographerPhoto).mockClear();
+    renderAt('/people/choreographers/person-1', ALL);
+
+    await screen.findByRole('navigation', { name: 'Profile sections' });
+    expect(screen.queryByRole('img', { name: /Choreographer photo/ })).not.toBeInTheDocument();
+    expect(fetchChoreographerPhoto).not.toHaveBeenCalled();
 });

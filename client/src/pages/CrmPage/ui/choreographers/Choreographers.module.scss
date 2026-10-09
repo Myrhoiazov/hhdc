@@ -18,6 +18,12 @@
     }
 }
 
+.identity {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
 .secondary {
     font-size: 13px;
     color: var(--sidebar-text-redesigned);

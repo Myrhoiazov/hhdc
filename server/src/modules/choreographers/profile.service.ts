@@ -7,6 +7,13 @@ import { profileChecklist, summarizeAssignments } from './profile.summary';
 const PERSON_FIELDS = { id: true, firstName: true, lastName: true, displayName: true, email: true, phone: true, country: true, language: true, status: true } as const;
 const ASSIGNMENT_FIELDS = { id: true, status: true, roleTitle: true, event: { select: { id: true, name: true, startAt: true, endAt: true } } } as const;
 const OPEN_TASKS = ['TODO', 'IN_PROGRESS'] as const;
+// The photo that stands for the choreographer: the cover, or the first one when none is marked.
+const COVER_PHOTO = {
+    where: { deletedAt: null } as Prisma.ChoreographerMediaWhereInput,
+    orderBy: [{ isCover: 'desc' }, { position: 'asc' }] as Prisma.ChoreographerMediaOrderByWithRelationInput[],
+    take: 1, select: { id: true },
+};
+const coverPhotoId = (media: { id: string }[]): string | null => media[0]?.id ?? null;
 
 const isChoreographer: Prisma.PersonWhereInput = { roles: { some: { role: 'CHOREOGRAPHER' } }, mergedIntoId: null };
 
@@ -28,12 +35,13 @@ export const listChoreographers = async (query: ChoreographerListQuery, paging: 
     const [people, total] = await prisma.$transaction([
         prisma.person.findMany({
             where, skip: paging.skip, take: paging.pageSize ?? 25, orderBy: { displayName: 'asc' },
-            select: { ...PERSON_FIELDS, choreographerProfile: true, choreographerAssignments: { select: ASSIGNMENT_FIELDS } },
+            select: { ...PERSON_FIELDS, choreographerProfile: true, choreographerAssignments: { select: ASSIGNMENT_FIELDS }, choreographerMedia: COVER_PHOTO },
         }),
         prisma.person.count({ where }),
     ]);
-    const data = people.map(({ choreographerProfile, choreographerAssignments, ...person }) => ({
+    const data = people.map(({ choreographerProfile, choreographerAssignments, choreographerMedia, ...person }) => ({
         person, profile: choreographerProfile, summary: summarizeAssignments(choreographerAssignments, now),
+        coverPhotoId: coverPhotoId(choreographerMedia),
     }));
     return { data, meta: { page: paging.page ?? 1, pageSize: paging.pageSize ?? 25, total } };
 };
@@ -51,7 +59,7 @@ const requireChoreographer = async (personId: string) => {
     await ensureProfile(personId);
     const person = await prisma.person.findFirst({
         where: { id: personId, ...isChoreographer },
-        select: { ...PERSON_FIELDS, choreographerProfile: true, choreographerAssignments: { select: ASSIGNMENT_FIELDS, orderBy: { event: { startAt: 'desc' } } } },
+        select: { ...PERSON_FIELDS, choreographerProfile: true, choreographerAssignments: { select: ASSIGNMENT_FIELDS, orderBy: { event: { startAt: 'desc' } } }, choreographerMedia: COVER_PHOTO },
     });
     if (!person || !person.choreographerProfile) throw new ApiError(404, 'CHOREOGRAPHER_NOT_FOUND', 'Choreographer not found');
     return { ...person, choreographerProfile: person.choreographerProfile };
@@ -61,10 +69,10 @@ const requireChoreographer = async (personId: string) => {
 export const assertChoreographer = (personId: string): Promise<void> => ensureProfile(personId);
 
 export const getChoreographer = async (personId: string, now = new Date()) => {
-    const { choreographerProfile: profile, choreographerAssignments: assignments, ...person } = await requireChoreographer(personId);
+    const { choreographerProfile: profile, choreographerAssignments: assignments, choreographerMedia, ...person } = await requireChoreographer(personId);
     const openTasks = await prisma.task.count({ where: { personId, status: { in: [...OPEN_TASKS] } } });
     return {
-        person, profile,
+        person, profile, coverPhotoId: coverPhotoId(choreographerMedia),
         summary: { ...summarizeAssignments(assignments, now), openTasks },
         checklist: profileChecklist(profile, person),
         assignments: assignments.slice(0, 10),

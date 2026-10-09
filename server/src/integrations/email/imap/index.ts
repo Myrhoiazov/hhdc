@@ -35,13 +35,22 @@ export interface ImapTransports {
     markRead(config: ImapConfig, request: ImapMarkReadRequest): Promise<void>;
 }
 
-const imapClient = (config: ImapConfig) => new ImapFlow({
-    host: config.settings.imapHost, port: config.settings.imapPort, secure: config.settings.imapSecure,
-    auth: { user: config.credentials.username, pass: config.credentials.password },
-    logger: false,
-    // A black-holed host would otherwise hold the sync for the 90s default.
-    connectionTimeout: CONNECTION_TIMEOUT_MS,
-});
+// ImapFlow reports a dropped or timed-out socket as an 'error' event besides rejecting the
+// command in flight. Node treats an 'error' event nobody listens to as an uncaught exception,
+// so one stalled mailbox would stop the whole server.
+const ignoreSocketError = (): void => undefined;
+
+export const imapClient = (config: ImapConfig): ImapFlow => {
+    const client = new ImapFlow({
+        host: config.settings.imapHost, port: config.settings.imapPort, secure: config.settings.imapSecure,
+        auth: { user: config.credentials.username, pass: config.credentials.password },
+        logger: false,
+        // A black-holed host would otherwise hold the sync for the 90s default.
+        connectionTimeout: CONNECTION_TIMEOUT_MS,
+    });
+    client.on('error', ignoreSocketError);
+    return client;
+};
 
 const smtpTransport = (config: ImapConfig) => nodemailer.createTransport({
     host: config.settings.smtpHost, port: config.settings.smtpPort, secure: config.settings.smtpSecure,

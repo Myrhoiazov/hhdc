@@ -91,7 +91,7 @@ Instead of listing file changes, list significant side effects or impacts that m
 - Reference issue tracker IDs explicitly (e.g., GitHub Issues).
 - Format: `Ref: #123` or `Fixes: ISSUE-123`.
 - Mention breaking changes if any: `BREAKING CHANGE: <description>`.
-- Do not add `Co-authored-by`, `Generated-by`, AI attribution trailers, or similar metadata unless the user explicitly asks.
+- Never add `Co-authored-by`, `Generated-by`, "Generated with Claude Code", AI attribution trailers, or similar metadata (AGENTS.md rule 7).
 
 ### Example
 
