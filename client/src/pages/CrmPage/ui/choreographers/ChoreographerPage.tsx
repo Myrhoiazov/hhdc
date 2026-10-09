@@ -10,6 +10,7 @@ import { Button } from '@/shared/ui/Button';
 import { CrmLayout, Field, RequestState, StatusBadge } from '../common';
 import { ActivityTab } from './ActivityTab';
 import { BioVersions } from './BioVersions';
+import { ChoreographerAvatar } from './ChoreographerAvatar';
 import { choreographerName } from './ChoreographersPage';
 import { ContactsTab } from './ContactsTab';
 import { DocumentsTab } from './DocumentsTab';
@@ -48,9 +49,12 @@ const ProfileHeader = memo(({ detail }: { detail: ChoreographerDetail }) => {
     const location = [profile.city, profile.countryCode].filter(Boolean).join(', ');
     return <header className={own.header}>
         <div className={own.headerTop}>
-            <div><h2>{choreographerName(detail)}</h2>
-                {profile.stageName && <div className={own.secondary}>{person.displayName}</div>}
-                {location && <div className={own.secondary}>{location}</div>}</div>
+            <div className={own.identity}>
+                <ChoreographerAvatar personId={person.id} photoId={detail.coverPhotoId} name={choreographerName(detail)} large />
+                <div><h2>{choreographerName(detail)}</h2>
+                    {profile.stageName && <div className={own.secondary}>{person.displayName}</div>}
+                    {location && <div className={own.secondary}>{location}</div>}</div>
+            </div>
             <StatusBadge status={profile.relationshipStatus} />
         </div>
         {profile.styles.length > 0 && <div className={own.chips} aria-label={t('Dance styles')}>{profile.styles.map((style) => <span key={style} className={own.chip}>{style}</span>)}</div>}
@@ -193,7 +197,7 @@ export const ChoreographerPage = memo(() => {
             {active === 'activity' && <ActivityTab personId={id} />}
             {active === 'notes' && <NotesTab personId={id} canManageNotes={permissions.includes('choreographers.notes.manage')}
                 canReadTasks={permissions.includes('tasks.read')} canManageTasks={permissions.includes('tasks.write')} />}
-            {active === 'media' && <MediaTab personId={id} canManage={permissions.includes('choreographers.media.manage')} />}
+            {active === 'media' && <MediaTab personId={id} canManage={permissions.includes('choreographers.media.manage')} onChanged={() => void detail.refresh()} />}
             {active === 'contacts' && <ContactsTab personId={id} canManage={permissions.includes('choreographers.contacts.manage')} />}
         </>}
     </CrmLayout>;
