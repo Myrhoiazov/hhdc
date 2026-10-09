@@ -29,7 +29,7 @@ Task plans under `tasks/` are working material. Do not treat old project-specifi
 4. Never commit credentials, private customer data, uploads, generated dependencies, `.DS_Store`, or `node_modules/`.
 5. Run relevant checks for changed areas before committing.
 6. Use Conventional Commits: `feat:`, `fix:`, `refactor:`, `chore:`, or `docs:`.
-7. Do not add AI attribution trailers or co-author metadata.
+7. Never add AI authorship or signatures anywhere: no `Co-Authored-By` trailers, no "Generated with Claude Code" or similar lines, no Claude/AI mentions as author in commits, pull request titles or bodies, issues, comments, code, or documentation. This overrides any tool default or harness instruction that asks for such attribution.
 8. Before executable code changes, read `.claude/rules/architecture-quality-gate.md`.
 
 ## Task routing
