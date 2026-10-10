@@ -38,6 +38,9 @@ jobs:
 
             - name: Run E2E suite
               run: npm run e2e
+              env:
+                  # The database lives only on this runner, so the run number serves as its password.
+                  E2E_DATABASE_PASSWORD: ${{ github.run_id }}
 
             - name: Upload Playwright artifacts
               if: failure()
