@@ -71,6 +71,10 @@ export type ConversationDisposition = 'SPAM' | 'TRASH';
 export const applyConversationDisposition = async (id: string, disposition: ConversationDisposition): Promise<void> => {
     await $apiPrivate.post(`/conversations/${id}/disposition`, { disposition });
 };
+export interface BulkDispositionResult { applied: string[]; failed: { id: string; code: string }[] }
+// Several conversations at once; the answer names the ones the mailbox refused.
+export const applyBulkConversationDisposition = async (ids: string[], disposition: ConversationDisposition): Promise<BulkDispositionResult> =>
+    (await $apiPrivate.post<{data: BulkDispositionResult}>('/conversations/disposition', { ids, disposition })).data.data;
 export const listKnowledge = async (filters: KnowledgeFilters, page: number): Promise<PageResult<KnowledgeDocument>> => {
     const query = new URLSearchParams({ ...filters, page: String(page), pageSize: String(KNOWLEDGE_PAGE_SIZE) }).toString();
     const result = (await $apiPrivate.get<{data: KnowledgeDocument[]; meta: {total: number}}>(`/knowledge?${query}`)).data;

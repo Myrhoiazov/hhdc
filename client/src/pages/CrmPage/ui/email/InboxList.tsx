@@ -1,9 +1,10 @@
-import { memo } from 'react';
+import { memo, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import SearchIcon from '@/shared/assets/icons/search.svg';
 import { Conversation, isClient, ProviderConnection } from '@/entities/crm';
 import { classNames } from '@/shared/lib/classNames/classNames';
 import { mailState, MailState } from '../../model/mailState';
+import { ConversationSelection } from '../../model/useConversationSelection';
 import cls from '../CommunicationsPage.module.scss';
 
 const SEARCH_GLASS = '8 8 16 16';
@@ -60,7 +61,7 @@ const STATE_BADGES: Record<MailState, { label: string; className: string }[]> = 
     SENT: [{ label: 'Sent', className: cls.badgeSent }],
 };
 
-const ConversationListItem = memo(({ conversation, selected, onSelect }: {
+const ConversationButton = memo(({ conversation, selected, onSelect }: {
     conversation: Conversation; selected: boolean; onSelect: (id: string) => void;
 }) => {
     const { t } = useTranslation();
@@ -84,15 +85,58 @@ const ConversationListItem = memo(({ conversation, selected, onSelect }: {
     </button>;
 });
 
-export const ConversationList = memo(({ conversations, total, hasMore, loadingMore, selectedId, onSelect, onLoadMore }: {
-    conversations: Conversation[]; total: number; hasMore: boolean; loadingMore: boolean;
-    selectedId: string; onSelect: (id: string) => void; onLoadMore: () => void;
-}) => {
+interface ListItemProps {
+    conversation: Conversation;
+    selected: boolean;
+    checked: boolean;
+    onSelect: (id: string) => void;
+    onToggle: (id: string) => void;
+}
+
+// The checkbox marks the conversation for a bulk action; the row itself still opens it.
+const ConversationListItem = memo(({ conversation, selected, checked, onSelect, onToggle }: ListItemProps) => {
+    const { t } = useTranslation();
+    return <div className={classNames(cls.conversationRow, { [cls.checkedConversation]: checked })}>
+        <input type="checkbox" className={cls.rowCheckbox} checked={checked} onChange={() => onToggle(conversation.id)}
+            aria-label={`${t('Select conversation')} — ${conversation.subject}`} />
+        <ConversationButton conversation={conversation} selected={selected} onSelect={onSelect} />
+    </div>;
+});
+
+const ListHeading = memo(({ loaded, total, selection }: { loaded: number; total: number; selection: ConversationSelection }) => {
+    const { t } = useTranslation();
+    return <div className={cls.listHeading}>
+        <label className={cls.selectAll}>
+            <input type="checkbox" className={cls.rowCheckbox} checked={selection.allSelected} disabled={!loaded}
+                onChange={selection.toggleAll} aria-label={t('Select all loaded conversations')} />
+            <strong>{t('Letters')}</strong>
+        </label>
+        <span>{loaded} / {total}</span>
+    </div>;
+});
+
+interface ConversationListProps {
+    conversations: Conversation[];
+    total: number;
+    hasMore: boolean;
+    loadingMore: boolean;
+    selectedId: string;
+    selection: ConversationSelection;
+    onSelect: (id: string) => void;
+    onLoadMore: () => void;
+    // The bulk actions bar, shown between the heading and the letters.
+    children?: ReactNode;
+}
+
+export const ConversationList = memo((props: ConversationListProps) => {
+    const { conversations, total, hasMore, loadingMore, selectedId, selection, onSelect, onLoadMore, children } = props;
     const { t } = useTranslation();
     return <aside className={cls.conversationList} aria-label={t('Letters')}>
-        <div className={cls.listHeading}><strong>{t('Letters')}</strong><span>{conversations.length} / {total}</span></div>
+        <ListHeading loaded={conversations.length} total={total} selection={selection} />
+        {children}
         <div className={cls.listScroll}>{conversations.map((conversation) => <ConversationListItem key={conversation.id}
-            conversation={conversation} selected={selectedId === conversation.id} onSelect={onSelect} />)}
+            conversation={conversation} selected={selectedId === conversation.id} checked={selection.selectedIds.includes(conversation.id)}
+            onSelect={onSelect} onToggle={selection.toggle} />)}
             {hasMore && <button className={cls.loadMore} disabled={loadingMore} onClick={onLoadMore}>
                 {t(loadingMore ? 'Loading…' : 'Load more')}
             </button>}</div>

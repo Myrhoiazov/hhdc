@@ -25,4 +25,5 @@ docker compose -f docker-compose.e2e.yml up --detach --wait
     npx prisma migrate deploy --schema prisma/schema
     SEED_OWNER_EMAIL='e2e.admin@example.test' SEED_OWNER_PASSWORD='e2e-password-2026' SEED_OWNER_NAME='E2E Admin' \
         npx ts-node --files prisma/seed.ts
+    npx ts-node --files prisma/seed-e2e.ts
 )

@@ -166,7 +166,6 @@
     background: transparent;
     border: 0;
     transition: background 160ms ease;
-    border-bottom: 1px solid var(--card-border-redesigned);
     cursor: pointer;
     gap: 6px;
 
@@ -175,6 +174,90 @@
         background: var(--sidebar-hover-bg-redesigned);
         outline: none;
     }
+}
+
+.conversationRow {
+    display: flex;
+    align-items: stretch;
+    border-bottom: 1px solid var(--card-border-redesigned);
+
+    .conversationItem {
+        min-width: 0;
+        flex: 1 1 auto;
+        padding-left: 10px;
+    }
+}
+
+.checkedConversation {
+    background: var(--primary-soft-bg-redesigned);
+}
+
+.rowCheckbox {
+    width: 18px;
+    height: 18px;
+    margin: 18px 0 0 18px;
+    accent-color: var(--primary-redesigned);
+    cursor: pointer;
+    flex: 0 0 auto;
+}
+
+.selectAll {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    gap: 10px;
+
+    .rowCheckbox {
+        margin: 0;
+    }
+}
+
+.bulkActions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 10px 18px;
+    color: var(--sidebar-text-hover-redesigned);
+    background: var(--sidebar-hover-bg-redesigned);
+    border-bottom: 1px solid var(--card-border-redesigned);
+    gap: 10px;
+}
+
+.bulkButtons {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    button {
+        min-height: 36px;
+        padding-inline: 14px;
+    }
+}
+
+.clearSelection {
+    color: var(--sidebar-text-redesigned);
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+        color: var(--sidebar-text-hover-redesigned);
+    }
+
+    &:disabled {
+        opacity: 0.65;
+        cursor: wait;
+    }
+}
+
+.bulkError {
+    width: 100%;
+    margin: 0;
+    font-size: 13px;
+    color: var(--danger-text-redesigned);
 }
 
 .loadMore {
