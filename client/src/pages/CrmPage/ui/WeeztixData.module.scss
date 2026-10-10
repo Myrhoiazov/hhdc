@@ -1,0 +1,29 @@
+/* A separate block under the connection: a line above it tells the two apart. */
+.WeeztixData {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--card-border-redesigned);
+    gap: 16px;
+    padding-top: 20px;
+}
+
+.intro {
+    display: flex;
+    flex-direction: column;
+    max-width: 720px;
+    gap: 6px;
+}
+
+.history {
+    summary {
+        width: fit-content;
+        padding: 4px 0;
+        font-size: 14px;
+        color: var(--sidebar-text-redesigned);
+        cursor: pointer;
+
+        &:hover { color: var(--sidebar-text-hover-redesigned); }
+    }
+
+    &[open] summary { margin-bottom: 12px; }
+}
