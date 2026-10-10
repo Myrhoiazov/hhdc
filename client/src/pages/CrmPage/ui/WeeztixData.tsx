@@ -7,6 +7,7 @@ import { Button } from '@/shared/ui/Button';
 import { StatusBadge } from './common';
 import { listStyles as table } from './ListTable';
 import cls from './CrmPage.module.scss';
+import own from './WeeztixData.module.scss';
 
 // A record Weeztix returned but the CRM could not read counts as failed: it was not saved.
 const withUnreadable = <Result extends { failed: number; unreadable: number }>(result: Result): Result => ({ ...result, failed: result.failed + result.unreadable });
@@ -73,7 +74,7 @@ const SyncHistory = memo(({ connectionId, version }: { connectionId: string; ver
     const request = useMemo(() => ({ connectionId, version }), [connectionId, version]);
     const load = useCallback(() => (open ? listSyncRuns(request.connectionId) : Promise.resolve(undefined)), [request, open]);
     const runs = useResource(load);
-    return <details onToggle={event => setOpen(event.currentTarget.open)}>
+    return <details className={own.history} onToggle={event => setOpen(event.currentTarget.open)}>
         <summary>{t('Sync history')}</summary>
         {runs.error && <p role="alert" className={cls.error}>{runs.error}</p>}
         {runs.data?.length === 0 && <p className={cls.muted}>{t('No sync has run yet')}</p>}
@@ -90,9 +91,11 @@ const SyncHistory = memo(({ connectionId, version }: { connectionId: string; ver
 export const WeeztixData = memo(({ connectionId }: { connectionId: string }) => {
     const { t } = useTranslation();
     const data = useWeeztixData(connectionId);
-    return <div aria-label={t('Data from Weeztix')} role="group">
-        <h3>{t('Data from Weeztix')}</h3>
-        <p className={cls.muted}>{t('New orders, events and prices are read from Weeztix automatically every few minutes. The buttons read them right now.')}</p>
+    return <div className={own.WeeztixData} aria-label={t('Data from Weeztix')} role="group">
+        <div className={own.intro}>
+            <h3>{t('Data from Weeztix')}</h3>
+            <p className={cls.muted}>{t('New orders, events and prices are read from Weeztix automatically every few minutes. The buttons read them right now.')}</p>
+        </div>
         <div className={cls.actions}>
             <Button disabled={data.busy} onClick={data.syncCatalog}>{t('Sync events and prices')}</Button>
             <Button disabled={data.busy} onClick={data.syncSales}>{t('Sync orders and tickets')}</Button>
