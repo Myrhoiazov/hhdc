@@ -780,5 +780,10 @@
     "Clear selection": "Снять выбор",
     "Move selected conversations to spam ({{count}})?": "Переместить выбранные переписки в спам ({{count}})?",
     "Move selected conversations to trash ({{count}})?": "Переместить выбранные переписки в корзину ({{count}})?",
-    "Could not process {{failed}} of {{total}}": "Не удалось обработать {{failed}} из {{total}}"
+    "Could not process {{failed}} of {{total}}": "Не удалось обработать {{failed}} из {{total}}",
+    "Answering model": "Модель для ответов",
+    "Assistant answers and email drafts are written by the chosen model. Knowledge search keeps its own model.": "Ответы ассистента и черновики писем пишет выбранная модель. Поиск по базе знаний остаётся на своей модели.",
+    "Model not set": "Модель не указана",
+    "Writes answers": "Пишет ответы",
+    "Switch answers and drafts to {{name}}?": "Переключить ответы и черновики на «{{name}}»?"
 }

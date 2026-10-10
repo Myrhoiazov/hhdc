@@ -780,5 +780,10 @@
     "Clear selection": "Clear selection",
     "Move selected conversations to spam ({{count}})?": "Move selected conversations to spam ({{count}})?",
     "Move selected conversations to trash ({{count}})?": "Move selected conversations to trash ({{count}})?",
-    "Could not process {{failed}} of {{total}}": "Could not process {{failed}} of {{total}}"
+    "Could not process {{failed}} of {{total}}": "Could not process {{failed}} of {{total}}",
+    "Answering model": "Answering model",
+    "Assistant answers and email drafts are written by the chosen model. Knowledge search keeps its own model.": "Assistant answers and email drafts are written by the chosen model. Knowledge search keeps its own model.",
+    "Model not set": "Model not set",
+    "Writes answers": "Writes answers",
+    "Switch answers and drafts to {{name}}?": "Switch answers and drafts to {{name}}?"
 }

@@ -44,6 +44,7 @@ export const safeProviderSelect = {
     lastAttemptAt: true, 
     lastSuccessAt: true, 
     lastFailureAt: true, 
+    activeForGeneration: true,
     createdAt: true, 
     updatedAt: true 
 };

@@ -29,9 +29,22 @@ const seedLetters = async () => {
     }
 };
 
+// Two AI providers that are never called: the suite only switches which of them writes answers.
+const AI_PROVIDERS = [
+    { name: 'E2E local model', provider: 'OLLAMA' as const, model: 'e2e-local', createdAt: new Date(Date.UTC(2026, 9, 1)) },
+    { name: 'E2E cloud model', provider: 'OPENAI' as const, model: 'e2e-cloud', createdAt: new Date(Date.UTC(2026, 9, 2)) },
+];
+
+const seedAiProviders = async () => {
+    for (const { model, ...connection } of AI_PROVIDERS) {
+        await prisma.providerConnection.create({ data: { ...connection, type: 'AI', status: 'CONNECTED', settings: { model } } });
+    }
+};
+
 async function main() {
     assertE2eDatabase();
     await seedLetters();
+    await seedAiProviders();
 }
 
 main().catch((error: unknown) => {

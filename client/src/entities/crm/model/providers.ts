@@ -12,6 +12,8 @@ export interface ProviderConnection {
     lastSyncAt?: string | null;
     lastSuccessAt?: string | null;
     lastError?: string | null;
+    // The AI provider chosen to write answers and drafts.
+    activeForGeneration?: boolean;
 }
 export interface ProviderInput {
     name: string;
@@ -35,6 +37,7 @@ export const updateProvider = async (id: string, input: Partial<ProviderInput>) 
     (await $apiPrivate.patch<{ data: ProviderConnection }>(`/providers/${id}`, input)).data.data;
 export const testProvider = async (id: string) => post<ProviderTestResult>(`/providers/${id}/test`);
 export const syncProvider = async (id: string) => post<EmailSyncSummary>(`/providers/${id}/sync`);
+export const activateAiProvider = async (id: string) => post<ProviderConnection>(`/providers/${id}/activate-ai`);
 export const deleteProvider = async (id: string) => $apiPrivate.delete(`/providers/${id}`);
 
 // Weeztix is connected by approving access in Weeztix itself; no secret is ever typed into the CRM.
