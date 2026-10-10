@@ -13,6 +13,7 @@
         "start:dev": "nodemon",
         "prisma:generate": "prisma generate --schema prisma/schema",
         "prisma:seed": "prisma db seed",
+        "test:approval-letters": "ts-node --files src/modules/ai/telegram-approval/test-letters.ts",
         "seed:choreographers-demo": "ts-node --files prisma/seed-choreographers-demo.ts",
         "seed:choreographers-demo:reset": "ts-node --files prisma/seed-choreographers-demo.ts --reset",
         "migrate:dev": "prisma migrate dev --schema prisma/schema",

@@ -2,6 +2,7 @@ import prisma from '../../../prisma/prisma-client';
 import { ApiError } from '../../common/http';
 import { logger } from '../../common/logger';
 import { loadDraftSource, runAssistantForMessage, saveDraft } from './draft.service';
+import { requestDraftApprovalSafely } from './telegram-approval/request';
 
 const FRESH_MAIL_MS = 24 * 60 * 60_000;
 const ACTIONABLE_DRAFTS = ['GENERATED', 'EDITED', 'APPROVED', 'SENDING'] as const;
@@ -30,7 +31,8 @@ export const autoDraftEnabled = (env: NodeJS.ProcessEnv = process.env): boolean 
     env.AI_EMAIL_CLASSIFICATION_ENABLED === 'true' && env.AI_EMAIL_DRAFT_ENABLED === 'true';
 
 // Classifies a new incoming email and, when it needs an answer, prepares a draft that waits in
-// the CRM for a person to approve. Nothing is ever sent from here (spec §71).
+// the CRM for a person to approve and is shown to the staff chat in Telegram. Nothing is ever
+// sent to the customer from here (spec §71).
 export const prepareInboundDraft = async (messageId: string, now = Date.now()): Promise<string> => {
     const candidate = await loadCandidate(messageId);
     const reason = skipReason(candidate, now, autoDraftEnabled());
@@ -39,7 +41,8 @@ export const prepareInboundDraft = async (messageId: string, now = Date.now()): 
     const run = await runAssistantForMessage(source, 'strict');
     await prisma.message.update({ where: { id: messageId }, data: { classification: { ...run.classification } } });
     if (!run.result) return run.classification.spam ? 'spam' : 'no_reply_needed';
-    await saveDraft(source, run, { createdBy: 'SYSTEM', actorUserId: null });
+    const draft = await saveDraft(source, run, { createdBy: 'SYSTEM', actorUserId: null });
+    await requestDraftApprovalSafely(draft.id);
     return 'drafted';
 };
 

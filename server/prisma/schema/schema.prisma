@@ -457,6 +457,8 @@ model ProviderConnection {
   lastSuccessAt        DateTime?          @db.Timestamptz(6)
   lastFailureAt        DateTime?          @db.Timestamptz(6)
   lastError            String?
+  // The AI connection chosen to write answers and drafts. Embeddings do not follow this choice.
+  activeForGeneration  Boolean            @default(false)
   createdAt            DateTime           @default(now()) @db.Timestamptz(6)
   updatedAt            DateTime           @updatedAt @db.Timestamptz(6)
   orders               Order[]

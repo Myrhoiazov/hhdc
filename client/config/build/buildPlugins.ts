@@ -31,6 +31,10 @@ export function buildPlugins({ paths, isDev, apiUrl, project }: IBuildOptions): 
     if (isDev) {
         plugins.push(new ReactRefreshWebpackPlugin());
         plugins.push(new webpack.HotModuleReplacementPlugin());
+    }
+
+    // The analyzer listens on a fixed port: the E2E client must start next to a running dev server.
+    if (isDev && process.env.E2E !== 'true') {
         plugins.push(
             new BundleAnalyzerPlugin({
                 openAnalyzer: false,

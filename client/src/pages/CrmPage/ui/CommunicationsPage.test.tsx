@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { createReduxStore, ReduxStoreWithManager } from '@/app/providers/StoreProvider';
-import { applyConversationDisposition, approveDraft, composeEmail, Conversation, rejectDraft, replyToConversation, generateDraft, getConversation, listConversations, listPrompts, listProviders, markConversationRead } from '@/entities/crm';
+import { applyConversationDisposition, approveDraft, composeEmail, Conversation, rejectDraft, replyToConversation, generateDraft, getConversation, listConversations, listPrompts, getUnreadByMailbox, listProviders, markConversationRead } from '@/entities/crm';
 import { CommunicationsPage } from './CommunicationsPage';
 
 jest.mock('@/entities/crm', () => ({
@@ -18,6 +18,7 @@ jest.mock('@/entities/crm', () => ({
     markConversationRead: jest.fn(),
     composeEmail: jest.fn(),
     listPrompts: jest.fn(),
+    getUnreadByMailbox: jest.fn(),
 }), { virtual: true });
 
 const mailboxA = { id: 'mail-a', name: 'DDC NL', type: 'EMAIL', provider: 'IMAP', status: 'CONNECTED', settings: {} };
@@ -38,6 +39,8 @@ const renderPage = () => {
 beforeEach(() => {
     jest.mocked(listProviders).mockResolvedValue({ data: [mailboxA, mailboxB], total: 2 });
     jest.mocked(listPrompts).mockResolvedValue([]);
+    jest.mocked(getUnreadByMailbox).mockReset();
+    jest.mocked(getUnreadByMailbox).mockResolvedValue({});
     jest.mocked(listConversations).mockResolvedValue({ data: [conversation], total: 1 });
     jest.mocked(getConversation).mockResolvedValue(conversation);
     jest.mocked(generateDraft).mockResolvedValue({ id: 'draft-a', content: 'AI answer', status: 'GENERATED' });
@@ -291,4 +294,36 @@ test('a letter from someone without purchases has no client label', async () => 
 
     await screen.findByText('Ticket question');
     expect(screen.queryByText('Client')).not.toBeInTheDocument();
+});
+
+test('each mailbox tab shows how many conversations are unread, and the number is reloaded after reading one', async () => {
+    jest.mocked(getUnreadByMailbox).mockResolvedValue({ 'mail-a': 2, 'mail-b': 1 });
+    jest.mocked(listConversations).mockResolvedValue({ data: [{ ...conversation, unreadCount: 1 }], total: 1 });
+    renderPage();
+
+    expect(await screen.findByRole('button', { name: 'DDC NL — Unread: 2' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Camp EU — Unread: 1' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'All inboxes — Unread: 3' })).toBeInTheDocument();
+
+    jest.mocked(getUnreadByMailbox).mockResolvedValue({ 'mail-a': 1, 'mail-b': 1 });
+    fireEvent.click(screen.getByRole('button', { name: 'Unread — ada@example.test — Ticket question' }));
+
+    expect(await screen.findByRole('button', { name: 'DDC NL — Unread: 1' })).toBeInTheDocument();
+});
+
+test('a reply names the mailbox the letter came to and offers no other one', async () => {
+    renderPage();
+    fireEvent.click(await screen.findByRole('button', { name: 'Ticket question' }));
+
+    await screen.findByLabelText('Reply message');
+    expect(screen.getByText('From').parentElement).toHaveTextContent('FromDDC NL');
+    expect(screen.queryByRole('combobox', { name: 'From' })).not.toBeInTheDocument();
+});
+
+test('a thread that no mailbox owns still lets the sender be chosen', async () => {
+    jest.mocked(getConversation).mockResolvedValue({ ...conversation, messages: [{ ...conversation.messages![0], providerConnectionId: null }] });
+    renderPage();
+    fireEvent.click(await screen.findByRole('button', { name: 'Ticket question' }));
+
+    expect(await screen.findByRole('combobox', { name: 'From' })).toBeInTheDocument();
 });

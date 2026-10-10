@@ -5,6 +5,7 @@ import { logger } from '../../common/logger';
 import { happenedRecently } from '../../common/recent';
 import { crmLink } from '../telegram-notifications/crm-link';
 import { prepareInboundDraftSafely } from '../ai/inbound-pipeline';
+import { startApprovalPolling } from '../ai/telegram-approval/polling';
 import { sendTaskRemindersWhenDue } from '../choreographers/followup.service';
 import { announce } from '../telegram-notifications/announce';
 import { handleDomainEvent } from '../automations/engine';
@@ -73,9 +74,11 @@ const tick = async () => {
     }
 };
 
-// Polls the outbox, due webhook deliveries, connected mailboxes and Weeztix; returns a function that stops the loop.
+// Polls the outbox, due webhook deliveries, connected mailboxes and Weeztix, and listens for the
+// Telegram approval buttons; returns a function that stops all of it.
 export const startBackgroundWorkers = (intervalMs = Number(process.env.WORKER_POLL_MS ?? 5000)) => {
     const timer = setInterval(() => { void tick(); }, intervalMs);
     timer.unref();
-    return () => clearInterval(timer);
+    const stopApprovalPolling = startApprovalPolling();
+    return () => { clearInterval(timer); stopApprovalPolling(); };
 };

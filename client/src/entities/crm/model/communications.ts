@@ -51,6 +51,10 @@ export const getConversation = async (id: string) => (await $apiPrivate.get<{dat
 export const markConversationRead = async (id: string): Promise<void> => {
     await $apiPrivate.post(`/conversations/${id}/read`);
 };
+// Conversations with unread incoming mail per mailbox id; a mailbox with none is absent.
+export const getUnreadByMailbox = async (): Promise<Record<string, number>> =>
+    (await $apiPrivate.get<{data: Record<string, number>}>('/conversations/unread-counts')).data.data;
+// The server sends a reply from the mailbox the letter came to; the id matters only for a thread no mailbox owns.
 export const replyToConversation = async (id: string, content: string, providerConnectionId: string, files: File[] = []) => $apiPrivate.post(`/conversations/${id}/reply`, withAttachments({ content, providerConnectionId }, files));
 export interface DraftModelChoice { providerConnectionId?: string; model?: string; draftPromptId?: string }
 // `choice` sends this one draft to another connected provider or model; without it the provider's own model answers.
@@ -67,6 +71,10 @@ export type ConversationDisposition = 'SPAM' | 'TRASH';
 export const applyConversationDisposition = async (id: string, disposition: ConversationDisposition): Promise<void> => {
     await $apiPrivate.post(`/conversations/${id}/disposition`, { disposition });
 };
+export interface BulkDispositionResult { applied: string[]; failed: { id: string; code: string }[] }
+// Several conversations at once; the answer names the ones the mailbox refused.
+export const applyBulkConversationDisposition = async (ids: string[], disposition: ConversationDisposition): Promise<BulkDispositionResult> =>
+    (await $apiPrivate.post<{data: BulkDispositionResult}>('/conversations/disposition', { ids, disposition })).data.data;
 export const listKnowledge = async (filters: KnowledgeFilters, page: number): Promise<PageResult<KnowledgeDocument>> => {
     const query = new URLSearchParams({ ...filters, page: String(page), pageSize: String(KNOWLEDGE_PAGE_SIZE) }).toString();
     const result = (await $apiPrivate.get<{data: KnowledgeDocument[]; meta: {total: number}}>(`/knowledge?${query}`)).data;

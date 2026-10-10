@@ -770,5 +770,20 @@
     "Delete": "Delete",
     "Move this conversation to spam?": "Move this conversation to spam?",
     "Move this conversation to trash?": "Move this conversation to trash?",
-    "Mailbox action failed": "Mailbox action failed"
+    "Mailbox action failed": "Mailbox action failed",
+    "Select conversation": "Select conversation",
+    "Select all loaded conversations": "Select all loaded conversations",
+    "Actions for selected conversations": "Actions for selected conversations",
+    "Selected": "Selected",
+    "Move selected to spam": "Move selected to spam",
+    "Delete selected": "Delete selected",
+    "Clear selection": "Clear selection",
+    "Move selected conversations to spam ({{count}})?": "Move selected conversations to spam ({{count}})?",
+    "Move selected conversations to trash ({{count}})?": "Move selected conversations to trash ({{count}})?",
+    "Could not process {{failed}} of {{total}}": "Could not process {{failed}} of {{total}}",
+    "Answering model": "Answering model",
+    "Assistant answers and email drafts are written by the chosen model. Knowledge search keeps its own model.": "Assistant answers and email drafts are written by the chosen model. Knowledge search keeps its own model.",
+    "Model not set": "Model not set",
+    "Writes answers": "Writes answers",
+    "Switch answers and drafts to {{name}}?": "Switch answers and drafts to {{name}}?"
 }
