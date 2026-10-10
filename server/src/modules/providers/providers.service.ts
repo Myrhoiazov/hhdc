@@ -1,9 +1,7 @@
 import { createCipheriv, createDecipheriv, randomBytes } from 'node:crypto';
-import { ProviderName, ProviderStatus, ProviderType, ProviderConnection, Prisma } from '@prisma/client';
+import { ProviderName, ProviderStatus, ProviderType, ProviderConnection } from '@prisma/client';
 import { z } from 'zod';
-import prisma from '../../../prisma/prisma-client';
 import { ApiError } from '../../common/http';
-import { createAuditLog } from '../audit/audit.service';
 
 export const providerSchema = z.object({
     name: z.string().trim().min(1).max(200), 
