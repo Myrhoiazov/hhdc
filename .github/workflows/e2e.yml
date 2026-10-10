@@ -38,6 +38,9 @@ jobs:
 
             - name: Run E2E suite
               run: npm run e2e
+              env:
+                  # Not a secret: the database lives only on this runner, bound to 127.0.0.1.
+                  E2E_DATABASE_PASSWORD: e2e_runner_only
 
             - name: Upload Playwright artifacts
               if: failure()

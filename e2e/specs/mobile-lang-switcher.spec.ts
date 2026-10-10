@@ -14,7 +14,7 @@ test.describe('mobile viewport', () => {
         await expect(page.getByRole('group', languageGroup)).toHaveCount(1);
         await expect(sidebarSwitcher).not.toBeInViewport();
 
-        await page.getByRole('button', { name: 'Меню' }).click();
+        await page.getByRole('button', { name: 'Menu' }).click();
 
         await expect(sidebarSwitcher).toBeInViewport();
         await sidebarSwitcher.getByRole('button', { name: 'EN' }).click();

@@ -1,23 +1,27 @@
+import { randomBytes } from 'node:crypto';
+import { existsSync, readFileSync } from 'node:fs';
+import { parseEnv } from 'node:util';
 import { defineConfig, devices } from '@playwright/test';
 
-const e2eDatabaseUrl = 'mysql://ddc_e2e:ddc_e2e_password@127.0.0.1:13306/ddc_e2e';
+// The same password scripts/e2e-setup.sh gives the throwaway database: the environment (CI) or the root .env (local).
+const readDatabasePassword = (): string => {
+    const fromFile = existsSync('.env') ? parseEnv(readFileSync('.env', 'utf8')).E2E_DATABASE_PASSWORD : undefined;
+    const password = process.env.E2E_DATABASE_PASSWORD || fromFile;
+    if (!password) throw new Error('Set E2E_DATABASE_PASSWORD in the environment or in the root .env (see .env.example).');
+    return password;
+};
+
 const serverEnvironment = {
     MODE: 'development',
     NODE_ENV: 'test',
     PORT: '18081',
-    DATABASE_URL: e2eDatabaseUrl,
+    DATABASE_URL: `postgresql://hhdc_e2e:${readDatabasePassword()}@127.0.0.1:55434/hhdc_crm_e2e?schema=public`,
     CLIENT_URL: 'http://127.0.0.1:13001',
-    COOKIE_NAME: 'ddc_e2e_session',
-    // Test-only key: keep the isolated server independent of local .env secrets.
-    SESSION_TOKEN_SECRET: 'e2e-only-session-token-secret',
-    CSRF_SECRET: 'e2e-csrf-secret',
-    // Enables the Telegram button/widget and replaces the real oauth.telegram.org
-    // round trip with an in-process loop-back — see isOidcTestMode in
-    // auth.telegram.oidc-client.ts. Never set outside this E2E config.
-    TELEGRAM_OIDC_CLIENT_ID: 'e2e-telegram-client-id',
-    TELEGRAM_OIDC_CLIENT_SECRET: 'e2e-telegram-client-secret',
-    TELEGRAM_OIDC_REDIRECT_URI: 'http://127.0.0.1:18081/api/v1/auth/telegram/callback',
-    TELEGRAM_OIDC_TEST_MODE: 'true',
+    // Generated per run: the isolated server never shares secrets with a local .env.
+    SESSION_SECRET: randomBytes(32).toString('hex'),
+    APP_ENCRYPTION_KEY: randomBytes(32).toString('base64'),
+    // No polling of mailboxes, Weeztix or Telegram while the browser flows run.
+    BACKGROUND_WORKERS: 'off',
 };
 
 export default defineConfig({
@@ -48,13 +52,13 @@ export default defineConfig({
         },
         {
             name: 'anonymous',
-            testMatch: /(app|telegram-login)\.spec\.ts/,
+            testMatch: /app\.spec\.ts/,
             use: { ...devices['Desktop Chrome'] },
         },
         {
             name: 'chromium',
             dependencies: ['setup'],
-            testIgnore: /.*(\.setup|app\.spec|telegram-login\.spec)\.ts/,
+            testIgnore: /.*(\.setup|app\.spec)\.ts/,
             use: { ...devices['Desktop Chrome'], storageState: 'playwright/.auth/admin.json' },
         },
     ],
