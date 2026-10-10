@@ -5,6 +5,7 @@ import { useAction } from '@/shared/lib/useResource/useAction';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
 import { PROVIDER_FORMS, providerFormFor } from '../model/providerForms';
+import { AiSwitch } from './AiSwitch';
 import { CrmLayout, Field, RequestState, StatusBadge } from './common';
 import { ProviderForm } from './ProviderForm';
 import { WeeztixConnect } from './WeeztixConnect';
@@ -91,6 +92,7 @@ const ProviderGroup = memo(({ type, providers, refresh }: { type: string; provid
     if (!providers.length) return null;
     return <section className={cls.CrmPage} aria-label={t(GROUP_TITLES[type] ?? type)}>
         <h2>{t(GROUP_TITLES[type] ?? type)}</h2>
+        {type === 'AI' && <AiSwitch providers={providers} refresh={refresh} />}
         {providers.map((item) => <ProviderCard key={item.id} provider={item} refresh={refresh} />)}
     </section>;
 });
