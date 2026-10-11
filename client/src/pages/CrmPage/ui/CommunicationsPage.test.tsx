@@ -327,3 +327,22 @@ test('a thread that no mailbox owns still lets the sender be chosen', async () =
 
     expect(await screen.findByRole('combobox', { name: 'From' })).toBeInTheDocument();
 });
+
+test('opening another conversation shows only its own letters', async () => {
+    const other: Conversation = {
+        ...conversation, id: 'conversation-b', subject: 'Stall request',
+        messages: [{ ...conversation.messages![0], id: 'message-b', bodyText: 'May I put up a stall?' }],
+    };
+    jest.mocked(listConversations).mockResolvedValue({ data: [conversation, other], total: 2 });
+    jest.mocked(getConversation).mockImplementation(async (id) => (id === other.id ? other : conversation));
+    const errors = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    renderPage();
+
+    fireEvent.click(await screen.findByRole('button', { name: /Ticket question/ }));
+    expect(await screen.findByRole('article')).toHaveTextContent('Can I join?');
+    fireEvent.click(screen.getByRole('button', { name: /Stall request/ }));
+
+    await waitFor(() => expect(screen.getByRole('article')).toHaveTextContent('May I put up a stall?'));
+    expect(errors.mock.calls.flat().join(' ')).not.toMatch(/same key/);
+    errors.mockRestore();
+});
