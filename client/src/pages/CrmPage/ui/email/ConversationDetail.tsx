@@ -67,7 +67,7 @@ const LoadedConversationDetail = memo(({ id, providers, aiProviders, replyPrompt
         <RequestState error={thread.error} loading={thread.loading} />
         {thread.data && <>
             <ThreadHeader conversation={thread.data} onBack={onBack} onRemoved={onRemoved} />
-            <MessageThread key={thread.data.id} messages={thread.data.messages ?? []} />
+            <MessageThread key={`messages-${thread.data.id}`} messages={thread.data.messages ?? []} />
             <ConversationComposer key={thread.data.id} conversation={thread.data} providers={providers} aiProviders={aiProviders} replyPrompts={replyPrompts}
                 preferredProviderId={preferredProviderId} refresh={() => void thread.refresh()} />
         </>}
