@@ -752,6 +752,8 @@
     "No conversations found": "No conversations found",
     "You": "You",
     "From {{sender}}": "From {{sender}}",
+    "Expand all": "Expand all",
+    "Collapse all": "Collapse all",
     "Back to inbox": "Back to inbox",
     "Select a conversation": "Select a conversation",
     "Choose a message from the inbox to read and reply.": "Choose a message from the inbox to read and reply.",

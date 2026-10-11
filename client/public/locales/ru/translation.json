@@ -752,6 +752,8 @@
     "No conversations found": "Переписки не найдены",
     "You": "Вы",
     "From {{sender}}": "От: {{sender}}",
+    "Expand all": "Развернуть все",
+    "Collapse all": "Свернуть все",
     "Back to inbox": "Назад к письмам",
     "Select a conversation": "Выберите переписку",
     "Choose a message from the inbox to read and reply.": "Выберите письмо слева, чтобы прочитать его и ответить.",
