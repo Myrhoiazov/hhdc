@@ -1,5 +1,6 @@
 import { createHash, createHmac, timingSafeEqual, randomBytes } from 'node:crypto';
 import argon2 from 'argon2';
+import type { Prisma } from '@prisma/client';
 import prisma from '../../../prisma/prisma-client';
 import { ApiError } from '../../common/http';
 import { z } from 'zod';
@@ -26,12 +27,14 @@ export interface CurrentUser {
     permissions: string[] 
 }
 
-export const publicUser = (user: any): CurrentUser => ({
+type UserWithRoles = Prisma.UserGetPayload<{ include: typeof userInclude }>;
+
+export const publicUser = (user: UserWithRoles): CurrentUser => ({
     id: user.id, 
     email: user.email, 
     name: user.name,
-    roles: user.roles.map((item: any) => item.role.name),
-    permissions: [...new Set(user.roles.flatMap((item: any) => item.role.permissions.map((entry: any) => entry.permission.key)) as string[])],
+    roles: user.roles.map(item => item.role.name),
+    permissions: [...new Set(user.roles.flatMap(item => item.role.permissions.map(entry => entry.permission.key)))],
 });
 
 export const loadUser = (id: string) => prisma.user.findUnique({ where: { id }, include: userInclude });
