@@ -124,17 +124,18 @@ export const verifyTwoFactorChallenge = async (rawToken: string, code: string): 
     }
 
     // The attempt is claimed in one conditional write before the code is compared, so guesses
-    // sent in parallel cannot exceed the limit by all reading the same counter.
-    const claimed = await prisma.twoFactorChallenge.updateMany({
-        where: { id: challenge.id, consumedAt: null, attempts: { lt: challenge.maxAttempts } },
+    // sent in parallel cannot exceed the limit by all reading the same counter. The row that
+    // comes back is the current one: its counter and its code are what the answer is based on.
+    const [claimed] = await prisma.twoFactorChallenge.updateManyAndReturn({
+        where: { id: challenge.id, consumedAt: null, expiresAt: { gt: new Date() }, attempts: { lt: challenge.maxAttempts } },
         data: { attempts: { increment: 1 } },
     });
-    if (claimed.count === 0) {
+    if (!claimed) {
         return { ok: false, reason: 'LOCKED' };
     }
 
-    if (!verifyCode(code, challenge.codeHash)) {
-        return { ok: false, reason: challenge.attempts + 1 >= challenge.maxAttempts ? 'LOCKED' : 'INVALID_CODE' };
+    if (!verifyCode(code, claimed.codeHash)) {
+        return { ok: false, reason: claimed.attempts >= claimed.maxAttempts ? 'LOCKED' : 'INVALID_CODE' };
     }
 
     // Likewise only one request may consume the challenge: a code opens exactly one session.
@@ -184,6 +185,20 @@ export const resendTwoFactorChallenge = async (rawToken: string): Promise<TwoFac
     const refusal = resendRefusal(challenge);
     if (refusal || !challenge) return refusal ?? { ok: false, reason: 'NOT_FOUND' };
 
+    // The resend is claimed in one conditional write that repeats the checks above, so requests
+    // sent in parallel cannot each pass them and send more letters than the limit allows.
+    const cooldownStartedBefore = dayjs().subtract(RESEND_COOLDOWN_SECONDS, 'second').toDate();
+    const claimed = await prisma.twoFactorChallenge.updateMany({
+        where: {
+            id: challenge.id, consumedAt: null, expiresAt: { gt: new Date() },
+            resendCount: { lt: MAX_RESENDS }, updatedAt: { lte: cooldownStartedBefore },
+        },
+        data: { resendCount: { increment: 1 } },
+    });
+    if (claimed.count === 0) {
+        return { ok: false, reason: 'COOLDOWN', retryAfterSeconds: RESEND_COOLDOWN_SECONDS };
+    }
+
     const code = generateSixDigitCode();
     await sendTwoFactorCodeEmail(challenge.user.email, code);
 
@@ -192,7 +207,6 @@ export const resendTwoFactorChallenge = async (rawToken: string): Promise<TwoFac
         data: {
             codeHash: hashTwoFactorCode(code),
             expiresAt: dayjs().add(CODE_TTL_MINUTES, 'minute').toDate(),
-            resendCount: { increment: 1 },
         },
     });
 
