@@ -113,7 +113,10 @@ render_nginx_site() {
 
 # The installed site is never overwritten: certbot keeps its TLS settings in that same file.
 install_nginx_site() {
-    local upload_path="/tmp/$NGINX_SITE_NAME-nginx-site.conf"
+    # mktemp creates the file itself (0600, unpredictable name), so nobody on the server can
+    # plant a file or a symlink at the path before root writes to it.
+    local upload_path
+    upload_path="$(ssh "$DEPLOY_HOST" "mktemp /tmp/$NGINX_SITE_NAME-nginx-site.XXXXXXXX")"
     render_nginx_site | ssh "$DEPLOY_HOST" "cat > '$upload_path'"
     ssh "$DEPLOY_HOST" bash -s -- "$upload_path" "$NGINX_SITE_NAME" "$DEPLOY_DOMAIN" <<'REMOTE_SCRIPT'
 set -Eeuo pipefail
