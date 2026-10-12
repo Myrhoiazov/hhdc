@@ -15,6 +15,11 @@ export interface RequiresTwoFactorResponse {
     maskedEmail: string;
 }
 
+export interface SessionResponse {
+    user: User;
+    csrfToken: string;
+}
+
 export type LoginResponse = RequiresTwoFactorResponse | User;
 
 export interface ServerError {
@@ -24,43 +29,49 @@ export interface ServerError {
     siteKey?: string | null;
 }
 
+// The server explains a refusal in `error`: a code, a message and, for a captcha, the site key.
+export const readServerError = (error: unknown, fallbackMessage: string): ServerError => {
+    if (!axios.isAxiosError(error)) {
+        return { status: 500, message: 'Unknown error' };
+    }
+    const details = error.response?.data?.error;
+    const responseMessage = typeof details?.message === 'string' ? details.message : undefined;
+    const message = responseMessage
+        || (error.code === 'ERR_NETWORK'
+            ? 'Локальный сервер недоступен. Запустите backend на порту 8080.'
+            : fallbackMessage);
+    return {
+        status: error.response?.status || 500,
+        message,
+        code: typeof details?.code === 'string' ? details.code : undefined,
+        siteKey: typeof details?.siteKey === 'string' ? details.siteKey : undefined,
+    };
+};
+
 export const loginByUsername = createAsyncThunk<LoginResponse, LoginByEmailProps, ThunkConfig<ServerError>>(
     'login/loginByEmail',
     async (authData, thunkAPI) => {
         const { dispatch, extra, rejectWithValue, } = thunkAPI
         try {
-            const response = await extra.api.post<{data: {user: User; csrfToken: string}}>('/auth/login', authData);
+            const response = await extra.api.post<{data: RequiresTwoFactorResponse | SessionResponse}>('/auth/login', authData);
 
             if (!response.data) {
                 throw new Error('No data received');
             }
 
+            const result = response.data.data;
             // A 2FA challenge is not a completed login — authData must stay empty
             // until /login/2fa/verify actually confirms the code.
-            csrfActions.set(response.data.data.csrfToken);
-            dispatch(userActions.setAuthData(response.data.data.user));
-            return response.data.data.user;
-
-        } catch (error) {
-            if (axios.isAxiosError(error)) {
-                const status = error.response?.status || 500;
-                const responseMessage = typeof error.response?.data?.message === 'string'
-                    ? error.response.data.message
-                    : undefined;
-                const message = responseMessage
-                    || (error.code === 'ERR_NETWORK'
-                        ? 'Локальный сервер недоступен. Запустите backend на порту 8080.'
-                        : 'Не удалось выполнить вход. Проверьте сервер.');
-                const code = typeof error.response?.data?.code === 'string'
-                    ? error.response.data.code
-                    : undefined;
-                const siteKey = typeof error.response?.data?.siteKey === 'string'
-                    ? error.response.data.siteKey
-                    : undefined;
-                return rejectWithValue({ status, message, code, siteKey });
+            if ('requiresTwoFactor' in result) {
+                return result;
             }
 
-            return rejectWithValue({ status: 500, message: 'Unknown error' });
+            csrfActions.set(result.csrfToken);
+            dispatch(userActions.setAuthData(result.user));
+            return result.user;
+
+        } catch (error) {
+            return rejectWithValue(readServerError(error, 'Не удалось выполнить вход. Проверьте сервер.'));
         }
     },
 );
