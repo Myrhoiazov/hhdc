@@ -4,6 +4,7 @@
   "scripts": {
     "start": "node scripts/start-development.js",
     "deploy": "bash scripts/deploy-docker.sh",
+    "deploy:setup": "bash scripts/deploy-setup.sh",
     "docker:rebuild": "docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build",
     "graphify:specs": "bash scripts/graphify-update-docs.sh",
     "docs:links": "bash scripts/check-markdown-links.sh",

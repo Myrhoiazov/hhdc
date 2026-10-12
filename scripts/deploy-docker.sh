@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Docker-based production deploy. The permanent staging stack was removed on
-# 2026-08-18, so this script targets the single live Docker stack by default.
+# Docker-based production deploy of the single live stack.
 #
 # Usage:
 #   ./scripts/deploy-docker.sh [--no-cache] [--skip-smoke]
 # Config comes from .deploy-docker.env (see .deploy-docker.env.example), or env vars.
+# A new server is prepared once with scripts/deploy-setup.sh (remote .env, nginx site, TLS).
 
 set -Eeuo pipefail
 
@@ -36,9 +36,9 @@ if [[ -f "$CONFIG_FILE" ]]; then
 fi
 
 DEPLOY_HOST="${DEPLOY_HOST:-}"
-REMOTE_PATH="${REMOTE_PATH:-/var/www/project/hhdc_docker_prod}"
-HEALTHCHECK_PORT="${BACKEND_PORT_PROD:-38080}"
-FRONTEND_CHECK_PORT="${FRONTEND_PORT_PROD:-3030}"
+REMOTE_PATH="${REMOTE_PATH:-/var/www/project/hhdc}"
+HEALTHCHECK_PORT="${BACKEND_PORT_PROD:-38090}"
+FRONTEND_CHECK_PORT="${FRONTEND_PORT_PROD:-3040}"
 
 if [[ -z "$DEPLOY_HOST" ]]; then
     echo "Укажите сервер: создайте .deploy-docker.env на основе .deploy-docker.env.example"
@@ -46,8 +46,8 @@ if [[ -z "$DEPLOY_HOST" ]]; then
     exit 1
 fi
 
-if [[ "$REMOTE_PATH" != "/var/www/project/hhdc_docker_prod" ]]; then
-    echo "ОШИБКА: production deploy разрешён только в /var/www/project/hhdc_docker_prod."
+if [[ "$REMOTE_PATH" != "/var/www/project/hhdc" ]]; then
+    echo "ОШИБКА: production deploy разрешён только в /var/www/project/hhdc."
     echo "Текущее значение REMOTE_PATH=$REMOTE_PATH"
     exit 1
 fi
@@ -67,6 +67,11 @@ rsync -az --delete \
     --exclude '.git' \
     --exclude '.github' \
     --exclude '.claude' \
+    --exclude '/node_modules' \
+    --exclude 'graphify-out' \
+    --exclude 'test-results' \
+    --exclude 'playwright-report' \
+    --exclude '/photo' \
     --exclude '.DS_Store' \
     --exclude '*.log' \
     --exclude '.env' \
@@ -87,8 +92,8 @@ rsync -az --delete \
 
 echo "==> Проверяем .env на сервере (docker compose читает $REMOTE_PATH/.env)"
 ssh "$DEPLOY_HOST" "test -f '$REMOTE_PATH/.env'" || {
-    echo "На сервере отсутствует $REMOTE_PATH/.env — скопируйте .env.example и заполните"
-    echo "реальными production-секретами."
+    echo "На сервере отсутствует $REMOTE_PATH/.env — создайте его командой"
+    echo "bash scripts/deploy-setup.sh env (секреты генерируются на сервере)."
     exit 1
 }
 
@@ -115,12 +120,12 @@ get_env_value() {
 required_pairs=(
     "FRONTEND_CONTAINER_NAME=hhdc-client-live"
     "BACKEND_CONTAINER_NAME=hhdc-backend-live"
-    "DB_CONTAINER_NAME=hhdc-mysql-live"
-    "REDIS_CONTAINER_NAME=hhdc-redis-live"
-    "FRONTEND_PORT_PROD=3030"
-    "BACKEND_PORT_PROD=38080"
-    "DB_PORT=33062"
-    "REDIS_PORT=16381"
+    "POSTGRES_CONTAINER_NAME=hhdc-postgres"
+    "REDIS_CONTAINER_NAME=hhdc-redis"
+    "FRONTEND_PORT_PROD=3040"
+    "BACKEND_PORT_PROD=38090"
+    "POSTGRES_PORT=55433"
+    "REDIS_PORT=16391"
 )
 
 for pair in "${required_pairs[@]}"; do
@@ -142,12 +147,15 @@ NO_CACHE="$2"
 
 cd "$REMOTE_PATH"
 COMPOSE="docker compose -f docker-compose.yml -f docker-compose.prod.yml"
+# db and redis start as dependencies. The local Ollama container is left out on purpose:
+# it needs about 2 GB of memory; start it by hand on a server that has room for it.
+SERVICES="frontend backend"
 
 if [[ "$NO_CACHE" == "true" ]]; then
-    $COMPOSE build --no-cache
-    $COMPOSE up -d
+    $COMPOSE build --no-cache $SERVICES
+    $COMPOSE up -d $SERVICES
 else
-    $COMPOSE up --build -d
+    $COMPOSE up --build -d $SERVICES
 fi
 
 $COMPOSE ps
