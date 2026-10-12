@@ -10,7 +10,7 @@ const MAX_ATTEMPTS = 10;
 // guessing one code.
 const keyFor = (req: Request) => `rate-limit:2fa:${req.ip}`;
 
-export const twoFactorRateLimit = async (req: Request, res: Response, next: NextFunction) => {
+const throttle = async (req: Request, res: Response, next: NextFunction, resetOnSuccess: boolean) => {
     const key = keyFor(req);
     const result = await hitRateLimit({
         key,
@@ -24,11 +24,13 @@ export const twoFactorRateLimit = async (req: Request, res: Response, next: Next
         return;
     }
 
-    res.on('finish', () => {
-        if (res.statusCode >= 200 && res.statusCode < 300) {
-            void resetRateLimit(key);
-        }
-    });
+    if (resetOnSuccess) {
+        res.on('finish', () => {
+            if (res.statusCode >= 200 && res.statusCode < 300) {
+                void resetRateLimit(key);
+            }
+        });
+    }
 
     const delayMs = calculateProgressiveDelayMs(result.count);
     if (delayMs > 0) {
@@ -38,3 +40,10 @@ export const twoFactorRateLimit = async (req: Request, res: Response, next: Next
 
     next();
 };
+
+// A confirmed code ends the guessing, so it clears the counter.
+export const twoFactorVerifyRateLimit = (req: Request, res: Response, next: NextFunction) => throttle(req, res, next, true);
+
+// A resend succeeds without knowing the code, so it must never clear the counter: otherwise
+// every resend would hand out a fresh batch of guesses.
+export const twoFactorResendRateLimit = (req: Request, res: Response, next: NextFunction) => throttle(req, res, next, false);

@@ -49,11 +49,16 @@ export const twoFactorVerifySchema = z.object({
 
 export type AuthenticatedUser = NonNullable<Awaited<ReturnType<typeof loadUser>>>;
 
+// Compared against when the address is unknown, so a missing account takes as long to refuse
+// as a wrong password and cannot be told apart by timing.
+const placeholderHash = argon2.hash(randomBytes(16).toString('hex'));
+
 // Checks the password only; whether a session starts right away is decided by the caller.
 export const authenticateUser = async (email: string, password: string): Promise<AuthenticatedUser> => {
     const user = await prisma.user.findUnique({ where: { email }, include: userInclude });
+    const passwordMatches = await argon2.verify(user?.passwordHash ?? await placeholderHash, password);
     
-    if (!user?.isActive || !await argon2.verify(user.passwordHash, password)) {
+    if (!user?.isActive || !passwordMatches) {
         throw new ApiError(401, 'INVALID_CREDENTIALS', 'Invalid email or password');
     }
     

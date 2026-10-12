@@ -123,18 +123,28 @@ export const verifyTwoFactorChallenge = async (rawToken: string, code: string): 
         return { ok: false, reason: 'LOCKED' };
     }
 
-    if (!verifyCode(code, challenge.codeHash)) {
-        const updated = await prisma.twoFactorChallenge.update({
-            where: { id: challenge.id },
-            data: { attempts: { increment: 1 } },
-        });
-        return { ok: false, reason: updated.attempts >= updated.maxAttempts ? 'LOCKED' : 'INVALID_CODE' };
+    // The attempt is claimed in one conditional write before the code is compared, so guesses
+    // sent in parallel cannot exceed the limit by all reading the same counter.
+    const claimed = await prisma.twoFactorChallenge.updateMany({
+        where: { id: challenge.id, consumedAt: null, attempts: { lt: challenge.maxAttempts } },
+        data: { attempts: { increment: 1 } },
+    });
+    if (claimed.count === 0) {
+        return { ok: false, reason: 'LOCKED' };
     }
 
-    await prisma.twoFactorChallenge.update({
-        where: { id: challenge.id },
+    if (!verifyCode(code, challenge.codeHash)) {
+        return { ok: false, reason: challenge.attempts + 1 >= challenge.maxAttempts ? 'LOCKED' : 'INVALID_CODE' };
+    }
+
+    // Likewise only one request may consume the challenge: a code opens exactly one session.
+    const consumed = await prisma.twoFactorChallenge.updateMany({
+        where: { id: challenge.id, consumedAt: null },
         data: { consumedAt: new Date() },
     });
+    if (consumed.count === 0) {
+        return { ok: false, reason: 'NOT_FOUND' };
+    }
 
     return { ok: true, userId: challenge.userId };
 };

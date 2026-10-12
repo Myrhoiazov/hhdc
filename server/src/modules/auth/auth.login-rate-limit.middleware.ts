@@ -8,8 +8,11 @@ const MAX_ATTEMPTS = 5;
 
 type LoginRateLimitResult = { limited: boolean; count: number; retryAfterSeconds: number; store: string };
 
+// An address is at most 320 characters; the cut keeps a huge body from becoming a huge key.
+const MAX_EMAIL_LENGTH = 320;
+
 const emailFromBody = (req: Request): string => (
-    typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : 'unknown'
+    typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase().slice(0, MAX_EMAIL_LENGTH) : 'unknown'
 );
 
 const keyFor = (req: Request) => `rate-limit:login:${req.ip}:${emailFromBody(req)}`;

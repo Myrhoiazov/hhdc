@@ -16,6 +16,7 @@ import {
     verifyTwoFactorChallenge,
 } from './auth.two-factor.service';
 import { CAPTCHA_THRESHOLD, captchaSiteKey, isCaptchaConfigured } from './auth.captcha.service';
+import { hitRateLimit } from './auth.rate-limit.service';
 
 const TWO_FACTOR_PENDING_COOKIE = 'hhdc_2fa_pending';
 export const TRUSTED_DEVICE_COOKIE = 'hhdc_trusted_device';
@@ -56,7 +57,20 @@ const issueSession = async (user: AuthenticatedUser, req: Request, metadata: Rec
     return { user: publicUser(user), csrfToken: csrfForSession(token, sessionSecret()) };
 };
 
+const CHALLENGE_WINDOW_MS = 15 * 60 * 1000;
+const MAX_CHALLENGES_PER_WINDOW = 5;
+
+// Each challenge allows a handful of guesses, so the number of challenges one account can get
+// is capped too — whatever address the requests come from. It also caps the code letters.
+const assertChallengeAllowed = async (userId: string, res: Response) => {
+    const issued = await hitRateLimit({ key: `rate-limit:2fa-issue:${userId}`, windowMs: CHALLENGE_WINDOW_MS, maxAttempts: MAX_CHALLENGES_PER_WINDOW });
+    if (!issued.limited) return;
+    res.setHeader('Retry-After', issued.retryAfterSeconds);
+    throw new ApiError(429, 'TWO_FACTOR_RATE_LIMIT', 'Too many confirmation codes requested. Try again later.');
+};
+
 const requestTwoFactor = async (user: AuthenticatedUser, req: Request) => {
+    await assertChallengeAllowed(user.id, req.res!);
     let challenge;
     try {
         challenge = await createTwoFactorChallenge({ userId: user.id, email: user.email, ipAddress: req.ip, userAgent: userAgentOf(req) });
