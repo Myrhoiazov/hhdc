@@ -13,7 +13,6 @@ RUN npm ci
 RUN npx prisma generate --schema ./prisma/schema
 
 COPY src ./src/
-COPY scripts ./scripts
 
 RUN npm run build
 
@@ -33,17 +32,10 @@ RUN npm ci --omit=dev
 RUN npx prisma generate --schema ./prisma/schema
 
 COPY --from=build /app/build ./build
-COPY --from=build /app/scripts ./scripts
 
-RUN mkdir -p \
-    public/upload/clients \
-    public/upload/brands \
-    public/upload/choreographers \
-    public/upload/styles \
-    private-uploads/email-attachments
+RUN mkdir -p private-uploads
 
 EXPOSE 8080
 
-# server/package.json's "start" script runs nodemon in dev mode — not usable here.
-# Invoke the compiled entrypoint directly, same as the current PM2 deploy does.
+# Pending migrations are applied on every start, then the compiled entrypoint runs.
 CMD ["sh", "-c", "npx prisma migrate deploy --schema ./prisma/schema && node build/src/index.js"]
