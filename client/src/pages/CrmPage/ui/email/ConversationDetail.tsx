@@ -1,30 +1,14 @@
 import { memo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { applyConversationDisposition, Conversation, ConversationDisposition, getConversation, isClient, Message, PromptVersion, ProviderConnection } from '@/entities/crm';
+import { applyConversationDisposition, Conversation, ConversationDisposition, getConversation, isClient, PromptVersion, ProviderConnection } from '@/entities/crm';
 import { classNames } from '@/shared/lib/classNames/classNames';
-import { formatFileSize } from '@/features/composeEmail';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button, ButtonTheme } from '@/shared/ui/Button';
 import { RequestState, StatusBadge } from '../common';
 import { ConversationComposer } from './ConversationComposer';
+import { MessageThread } from './MessageThread';
 import cls from '../CommunicationsPage.module.scss';
-
-const MessageCard = memo(({ message }: { message: Message }) => {
-    const { t } = useTranslation();
-    const outbound = message.direction === 'OUTBOUND';
-    const attachments = message.rawData?.attachments ?? [];
-    return <article className={outbound ? cls.outboundMessage : cls.inboundMessage}>
-        <div className={cls.messageMeta}>
-            <strong>{t(outbound ? 'You' : 'From {{sender}}', { sender: message.sender })}</strong>
-            <time>{new Date(message.sentAt || message.receivedAt || message.createdAt).toLocaleString()}</time>
-        </div>
-        <p>{message.bodyText}</p>
-        {attachments.length > 0 && <ul className={cls.attachmentList} aria-label={t('Attachments')}>
-            {attachments.map((file) => <li key={file.filename}><span>{file.filename}</span><small>{formatFileSize(file.size)}</small></li>)}
-        </ul>}
-    </article>;
-});
 
 const ConversationActions = memo(({ id, onRemoved }: { id: string; onRemoved: () => void }) => {
     const { t } = useTranslation();
@@ -83,7 +67,7 @@ const LoadedConversationDetail = memo(({ id, providers, aiProviders, replyPrompt
         <RequestState error={thread.error} loading={thread.loading} />
         {thread.data && <>
             <ThreadHeader conversation={thread.data} onBack={onBack} onRemoved={onRemoved} />
-            <div className={cls.messageStream}>{thread.data.messages?.map((message) => <MessageCard key={message.id} message={message} />)}</div>
+            <MessageThread key={`messages-${thread.data.id}`} messages={thread.data.messages ?? []} />
             <ConversationComposer key={thread.data.id} conversation={thread.data} providers={providers} aiProviders={aiProviders} replyPrompts={replyPrompts}
                 preferredProviderId={preferredProviderId} refresh={() => void thread.refresh()} />
         </>}

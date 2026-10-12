@@ -81,6 +81,21 @@ npm run test:search
 npm run test:ci
 ```
 
+## Production deploy
+
+Production is one Docker Compose stack on a VPS behind the host nginx, which terminates TLS and proxies `/api` to the API container and everything else to the frontend container. Both containers are published on loopback only.
+
+Copy `.deploy-docker.env.example` to `.deploy-docker.env` and set the server and the domain. A new server is prepared once, in this order:
+
+```bash
+npm run deploy:setup -- env     # remote .env; secrets are generated on the server
+npm run deploy                  # sync sources, build images, apply migrations, smoke-check
+npm run deploy:setup -- nginx   # host nginx site and the TLS certificate
+npm run deploy:setup -- owner   # first OWNER account
+```
+
+After that every release is `npm run deploy`. It deploys the working tree as it is, so check out the revision you intend to ship. Integration keys (Gmail, Weeztix, Telegram, AI) live in the remote `.env`; the local Ollama container is not started in production.
+
 ## Architecture
 
 The client follows Feature-Sliced Design:

@@ -1,5 +1,5 @@
-import { memo, useEffect, useMemo, useState } from 'react';
-import { ConversationFilters, listPrompts, listProviders, PromptVersion } from '@/entities/crm';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { ConversationFilters, getUnreadByMailbox, listPrompts, listProviders, PromptVersion } from '@/entities/crm';
 import { onEmailSent } from '@/features/composeEmail';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { useConversationPages } from '../model/useConversationPages';
@@ -18,10 +18,17 @@ const loadReplyPrompts = async (): Promise<PromptVersion[]> => {
     catch { return []; }
 };
 const NO_PROMPTS: PromptVersion[] = [];
+const NO_UNREAD: Record<string, number> = {};
+// The counters are a hint on the tabs: when they cannot be loaded the inbox still works without them.
+const loadUnread = async (): Promise<Record<string, number>> => {
+    try { return await getUnreadByMailbox(); }
+    catch { return NO_UNREAD; }
+};
 
 export const CommunicationsPage = memo(() => {
     const providers = useResource(listProviders);
     const replyPrompts = useResource(loadReplyPrompts);
+    const unread = useResource(loadUnread);
     const [view, setView] = useState<MailView>('letters');
     const [providerId, setProviderId] = useState('');
     const [query, setQuery] = useState('');
@@ -34,9 +41,12 @@ export const CommunicationsPage = memo(() => {
         (provider) => provider.type === 'EMAIL' && provider.status !== 'DISABLED',
     );
 
-    const { refresh } = conversations;
+    const { refresh, markRead } = conversations;
+    const refreshUnread = unread.refresh;
     // New letters are written from the header; the list reloads when one has been sent.
     useEffect(() => onEmailSent(refresh), [refresh]);
+    const onConversationRead = useCallback((id: string) => { markRead(id); void refreshUnread(); }, [markRead, refreshUnread]);
+    const onConversationRemoved = useCallback(() => { refresh(); void refreshUnread(); }, [refresh, refreshUnread]);
 
     const aiProviders = useMemo(() => (providers.data?.data ?? []).filter(
         (provider) => provider.type === 'AI' && provider.status === 'CONNECTED',
@@ -50,9 +60,9 @@ export const CommunicationsPage = memo(() => {
                 ? <AccountOverview providers={emailProviders} />
                 : <EmailWorkspace conversations={conversations.data} total={conversations.total} hasMore={conversations.hasMore}
                         loadingMore={conversations.loading && conversations.data.length > 0} onLoadMore={conversations.loadMore} providers={emailProviders} aiProviders={aiProviders} replyPrompts={replyPrompts.data ?? NO_PROMPTS}
-                        providerId={providerId} query={query} onProviderChange={setProviderId} onQueryChange={setQuery}
-                        onConversationRemoved={conversations.refresh}
-                        onConversationRead={conversations.markRead} />}
+                        providerId={providerId} query={query} unread={unread.data ?? NO_UNREAD} onProviderChange={setProviderId} onQueryChange={setQuery}
+                        onConversationRemoved={onConversationRemoved}
+                        onConversationRead={onConversationRead} />}
         </div>
     </CrmLayout>;
 });

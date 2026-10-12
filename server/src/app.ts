@@ -7,6 +7,8 @@ import routes from './routes';
 import { errors, requestId } from './common/http';
 
 export const app = express();
+// Behind a reverse proxy the client address arrives in X-Forwarded-For; trust only the configured number of proxies.
+app.set('trust proxy', Number(process.env.TRUST_PROXY_HOPS) || 0);
 app.use(helmet());
 app.use(cors({ origin: process.env.CLIENT_URL ?? 'http://localhost:3000', credentials: true }));
 app.use(express.json({ limit: '1mb' }));

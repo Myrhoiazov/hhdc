@@ -5,6 +5,7 @@ import { Button } from '@/shared/ui/Button';
 import { Field } from './common';
 import { WeeztixData } from './WeeztixData';
 import cls from './CrmPage.module.scss';
+import own from './WeeztixConnect.module.scss';
 
 // Two steps: approve access in Weeztix (opens in a new tab), then bring back the address of the
 // page Weeztix returned to. The address carries a one-time code; the CRM exchanges it for access.
@@ -43,7 +44,7 @@ const FinishStep = memo(({ redirectUri, busy, onFinish }: { redirectUri: string;
         const address = String(new FormData(event.currentTarget).get('address') ?? '').trim();
         if (address) onFinish(address);
     };
-    return <form onSubmit={submit} aria-label={t('Finish connecting Weeztix')}>
+    return <form className={own.finish} onSubmit={submit} aria-label={t('Finish connecting Weeztix')}>
         <p className={cls.muted}>{t('After you approve access, Weeztix returns you to {{address}}. Copy the whole address from the address bar of that page (or just the code from it) and paste it here. It works once and for 15 minutes.', { address: redirectUri })}</p>
         <Field label="Address of the page you were returned to, or the code"><input name="address" autoComplete="off" required /></Field>
         <div className={cls.actions}><Button type="submit" disabled={busy}>{t('Finish connecting')}</Button></div>
@@ -55,9 +56,11 @@ export const WeeztixConnect = memo(({ connectionId, onConnected }: { connectionI
     const { t } = useTranslation();
     const flow = useWeeztixConnect(onConnected);
     return <section className={cls.panel} aria-label={t('Weeztix')}>
-        <h2>{t('Weeztix')}</h2>
-        <p className={cls.muted}>{t('Events, ticket types, orders and buyers are read from Weeztix. You approve access in Weeztix; no password is stored in the CRM.')}</p>
-        <div className={cls.actions}>
+        <div className={own.header}>
+            <div className={own.intro}>
+                <h2>{t('Weeztix')}</h2>
+                <p className={cls.muted}>{t('Events, ticket types, orders and buyers are read from Weeztix. You approve access in Weeztix; no password is stored in the CRM.')}</p>
+            </div>
             <Button disabled={flow.busy} onClick={() => void flow.start()}>{t(connected ? 'Reconnect Weeztix' : 'Connect Weeztix')}</Button>
         </div>
         {flow.redirectUri && <FinishStep redirectUri={flow.redirectUri} busy={flow.busy} onFinish={(address) => void flow.finish(address)} />}

@@ -10,7 +10,9 @@ import { composeEmail, composeSchema } from './compose';
 import { acceptAttachments, toAttachments } from './attachments';
 import { buildConversationWhere, parseConversationQuery } from './conversation-query';
 import { applyConversationDisposition } from './disposition';
+import { applyBulkDisposition, bulkDispositionSchema } from './bulk-disposition';
 import { markConversationRead } from './read';
+import { unreadByMailbox } from './unread-counts';
 
 
 export const communicationsRouter = Router();
@@ -47,6 +49,8 @@ communicationsRouter.get('/', permitted('communications.read'), async (req, res,
     } catch (error) { next(error); }
 });
 communicationsRouter.post('/', permitted('communications.reply'), acceptAttachments, route(req => composeEmail(composeSchema.parse(req.body), currentUser(req).id, { attachments: toAttachments(req.files) })));
+communicationsRouter.post('/disposition', permitted('communications.write'), route(req => applyBulkDisposition(bulkDispositionSchema.parse(req.body), currentUser(req).id)));
+communicationsRouter.get('/unread-counts', permitted('communications.read'), route(() => unreadByMailbox()));
 communicationsRouter.get('/:id', permitted('communications.read'), route(async req => {
     const data = await prisma.conversation.findUnique({ where: { id: entityId(req) }, include: {
         person: { include: { roles: true, tags: { include: { tag: true } }, ...PERSON_WITH_ORDERS } }, event: true,

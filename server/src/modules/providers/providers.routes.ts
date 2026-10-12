@@ -4,6 +4,7 @@ import { entityId, listRoute, route, normalizePagination } from '../../common/ht
 import { currentUser, permitted } from '../auth/auth.middleware';
 import { createAuditLog, extractAuditContext } from '../audit/audit.service';
 import { syncEmailConnection } from '../communications/sync';
+import { activateAiConnection } from './active-ai';
 import { createConnection, deleteConnection, testConnection, updateConnection } from './connection.service';
 import { checkWeeztixConnection, completeWeeztixAuthorization, connectSchema, startWeeztixAuthorization } from '../ticketing/weeztix-connection.service';
 import { syncWeeztixCatalog } from '../ticketing/weeztix-catalog.service';
@@ -84,6 +85,13 @@ providersRouter.post('/:id/test', permitted('providers.manage'), route(async req
     const result = await testConnection(entityId(req));
     await audit(req, result.success ? 'PROVIDER_TEST_SUCCEEDED' : 'PROVIDER_TEST_FAILED', result.provider.id);
     return result;
+}));
+
+// Makes this AI provider the one that writes answers and drafts.
+providersRouter.post('/:id/activate-ai', permitted('providers.manage'), route(async req => {
+    const { before, provider } = await activateAiConnection(entityId(req));
+    await audit(req, 'PROVIDER_AI_ACTIVATED', provider.id, { before, after: provider });
+    return provider;
 }));
 
 providersRouter.post('/:id/sync', permitted('providers.manage'), route(async req => {

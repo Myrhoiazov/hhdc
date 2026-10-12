@@ -1,0 +1,23 @@
+/* The title with its explanation on the left, the connect button on the right; they stack on a narrow screen. */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.intro {
+    display: flex;
+    flex-direction: column;
+    max-width: 720px;
+    flex: 1 1 320px;
+    gap: 6px;
+}
+
+.finish {
+    display: flex;
+    flex-direction: column;
+    max-width: 720px;
+    gap: 12px;
+}

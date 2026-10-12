@@ -212,6 +212,8 @@ model User {
   updatedAt     DateTime          @updatedAt @db.Timestamptz(6)
   roles         UserRole[]
   sessions      Session[]
+  twoFactorChallenges TwoFactorChallenge[]
+  trustedDevices      TrustedDevice[]
   conversations Conversation[]
   tasks         Task[]
   notifications Notification[]
@@ -252,6 +254,50 @@ model Session {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([expiresAt])
+}
+
+enum TwoFactorChannel {
+  EMAIL
+  TELEGRAM // reserved, not implemented yet
+}
+
+// A pending second step of a login: the browser holds the raw token in a cookie, the code
+// travels by email. Only hashes are stored.
+model TwoFactorChallenge {
+  id          String           @id @default(uuid()) @db.Uuid
+  userId      String           @db.Uuid
+  channel     TwoFactorChannel @default(EMAIL)
+  tokenHash   String           @unique
+  codeHash    String
+  attempts    Int              @default(0)
+  maxAttempts Int              @default(5)
+  resendCount Int              @default(0)
+  ipAddress   String?
+  userAgent   String?
+  expiresAt   DateTime         @db.Timestamptz(6)
+  consumedAt  DateTime?        @db.Timestamptz(6)
+  createdAt   DateTime         @default(now()) @db.Timestamptz(6)
+  // Bumped on resend — used for the resend cooldown.
+  updatedAt   DateTime         @updatedAt @db.Timestamptz(6)
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// A browser that passed the second step and asked to be remembered; it skips the code until it expires.
+model TrustedDevice {
+  id         String    @id @default(uuid()) @db.Uuid
+  userId     String    @db.Uuid
+  tokenHash  String    @unique
+  userAgent  String?
+  ipAddress  String?
+  createdAt  DateTime  @default(now()) @db.Timestamptz(6)
+  expiresAt  DateTime  @db.Timestamptz(6)
+  lastUsedAt DateTime? @db.Timestamptz(6)
+  revokedAt  DateTime? @db.Timestamptz(6)
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model PasswordResetToken {
@@ -457,6 +503,8 @@ model ProviderConnection {
   lastSuccessAt        DateTime?          @db.Timestamptz(6)
   lastFailureAt        DateTime?          @db.Timestamptz(6)
   lastError            String?
+  // The AI connection chosen to write answers and drafts. Embeddings do not follow this choice.
+  activeForGeneration  Boolean            @default(false)
   createdAt            DateTime           @default(now()) @db.Timestamptz(6)
   updatedAt            DateTime           @updatedAt @db.Timestamptz(6)
   orders               Order[]

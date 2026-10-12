@@ -64,6 +64,18 @@ interface ComposerProps {
     refresh: () => void;
 }
 
+// A reply leaves from the mailbox the letter came to, so that mailbox is only named; a thread
+// that no mailbox owns (none of its letters came through one) still lets the sender be chosen.
+const ReplyMailbox = memo(({ providers, threadMailboxId, providerId, onChange }: {
+    providers: ProviderConnection[]; threadMailboxId: string; providerId: string; onChange: (id: string) => void;
+}) => {
+    const { t } = useTranslation();
+    const own = providers.find((provider) => provider.id === threadMailboxId);
+    if (own) return <p className={cls.providerSelect}><span>{t('From')}</span><strong>{own.name}</strong></p>;
+    return <label className={cls.providerSelect}><span>{t('From')}</span><select value={providerId}
+        onChange={(event) => onChange(event.target.value)}>{providers.map((provider) => <option key={provider.id} value={provider.id}>{provider.name}</option>)}</select></label>;
+});
+
 // One reply field for both ways of answering: an AI draft lands in it as editable text, and
 // sending it is the approval — nothing goes out until a person presses "Send reply".
 const useReplyComposer = ({ conversation, providers, preferredProviderId, refresh }: ComposerProps) => {
@@ -103,8 +115,8 @@ export const ConversationComposer = memo((props: ComposerProps) => {
     return <div className={draft ? cls.aiDraft : cls.composer}>
         <div className={cls.composerHeading}><h3>{t('Reply')}</h3><span>{t(draft ? 'AI draft — review before sending' : 'Your reply will be sent as email')}</span></div>
         {draft && <DraftAssessment draft={draft} />}
-        {providers.length > 1 && !draft && <label className={cls.providerSelect}><span>{t('From')}</span><select value={composer.providerId}
-            onChange={(event) => composer.setProviderId(event.target.value)}>{providers.map((provider) => <option key={provider.id} value={provider.id}>{provider.name}</option>)}</select></label>}
+        {providers.length > 1 && !draft && <ReplyMailbox providers={providers} threadMailboxId={conversationProvider(props.conversation)}
+            providerId={composer.providerId} onChange={composer.setProviderId} />}
         <textarea aria-label={t('Reply message')} rows={7} value={composer.content} onChange={(event) => composer.setContent(event.target.value)} placeholder={t('Write a reply…')} />
         <AttachmentPicker files={composer.files} disabled={busy} onChange={composer.setFiles} />
         {aiProviders.length > 0 && <AiModelPicker providers={aiProviders} prompts={replyPrompts} choice={composer.choice} onChange={composer.setChoice} />}
