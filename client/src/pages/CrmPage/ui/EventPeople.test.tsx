@@ -5,7 +5,7 @@ import { EventPeople } from './EventPeople';
 
 jest.mock('@/entities/crm', () => ({
     assignChoreographer: jest.fn(), listEventRegistrations: jest.fn(), listPeople: jest.fn(), registerPerson: jest.fn(),
-    LIST_PAGE_SIZE: 25, REGISTRATION_STATUSES: ['PENDING', 'CONFIRMED', 'CHECKED_IN', 'CANCELLED', 'NO_SHOW'],
+    LIST_PAGE_SIZE: 25, REGISTRATIONS_PAGE_SIZE: 20, REGISTRATION_STATUSES: ['PENDING', 'CONFIRMED', 'CHECKED_IN', 'CANCELLED', 'NO_SHOW'],
 }));
 jest.mock('./ListTable', () => ({ ...jest.requireActual('./ListTable'), useDelayed: (value: string) => value }));
 
@@ -40,16 +40,34 @@ test('a registered person is a table row like on the people page, with the ticke
 });
 
 test('the list is searched, filtered by status and paged', async () => {
-    jest.mocked(listEventRegistrations).mockResolvedValue({ data: [registration('r1')], total: 60 });
+    // Twenty people a page: forty-one make three pages. The pager stands above the table and under it.
+    jest.mocked(listEventRegistrations).mockResolvedValue({ data: [registration('r1')], total: 41 });
     renderPeople();
     const list = await screen.findByRole('region', { name: 'Registrations' });
 
-    fireEvent.click(await within(list).findByRole('button', { name: 'Next page' }));
+    const next = () => within(list).getAllByRole('button', { name: 'Next page' });
+    await within(list).findByRole('table');
+    expect(next()).toHaveLength(2);
+    expect(list.querySelector('nav')?.compareDocumentPosition(within(list).getByRole('table')) ?? 0).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    fireEvent.click(next()[0]);
     await waitFor(() => expect(listEventRegistrations).toHaveBeenLastCalledWith('e1', NO_FILTERS, 2));
+    expect(next()[1]).toBeEnabled();
+    fireEvent.click(next()[1]);
+    await waitFor(() => expect(listEventRegistrations).toHaveBeenLastCalledWith('e1', NO_FILTERS, 3));
+    await waitFor(() => expect(next()[0]).toBeDisabled());
     fireEvent.change(within(list).getByLabelText('Status'), { target: { value: 'CHECKED_IN' } });
     await waitFor(() => expect(listEventRegistrations).toHaveBeenLastCalledWith('e1', { q: '', status: 'CHECKED_IN' }, 1));
     fireEvent.change(within(list).getByLabelText('Search by name, email or phone'), { target: { value: 'anna' } });
     await waitFor(() => expect(listEventRegistrations).toHaveBeenLastCalledWith('e1', { q: 'anna', status: 'CHECKED_IN' }, 1));
+});
+
+test('twenty registrations or fewer fit one page, so there is no pager', async () => {
+    jest.mocked(listEventRegistrations).mockResolvedValue({ data: [registration('r1')], total: 20 });
+    renderPeople();
+    const list = await screen.findByRole('region', { name: 'Registrations' });
+
+    await within(list).findByRole('table');
+    expect(within(list).queryByRole('button', { name: 'Next page' })).not.toBeInTheDocument();
 });
 
 test('choreographers are listed with their role, or the page says none are assigned', async () => {

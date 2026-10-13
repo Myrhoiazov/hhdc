@@ -464,6 +464,7 @@ CUSTOMER
 PARTICIPANT
 CHOREOGRAPHER
 STAFF
+PARTNER
 ```
 
 Unique:
@@ -569,6 +570,39 @@ Unique:
 ```text
 (eventId, personId)
 ```
+
+## 14.1 Event Team
+
+Everybody who works on an event and is not one of its choreographers: the project administrator,
+the videographer, a partner who supplies equipment.
+
+```text
+EventTeamMember
+---------------
+id
+eventId
+personId
+roleTitle
+duties nullable
+notes nullable
+createdAt
+updatedAt
+```
+
+Unique:
+
+```text
+(eventId, personId, roleTitle)
+```
+
+Rules:
+
+- one Person may hold several roles on one Event, each with its own pay;
+- a Person joining a team who is neither STAFF nor PARTNER gets the one chosen on joining;
+- the pay of a role is not stored on the row: it is the `EventExpense` rows whose `teamMemberId`
+  names it, so every finance report counts it once;
+- removing a role keeps its expenses, which still name the Person;
+- phone and email come from the Person and are not copied.
 
 ---
 

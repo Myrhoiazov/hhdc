@@ -3,8 +3,10 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { listPersonOrders, PersonOrder, PersonTicket } from '@/entities/crm';
 import { useResource } from '@/shared/lib/useResource/useResource';
+import { classNames } from '@/shared/lib/classNames/classNames';
 import { RequestState, useNumbers } from './common';
 import cls from './CrmPage.module.scss';
+import own from './PersonOrders.module.scss';
 
 const useMoney = (currency: string) => {
     const { money } = useNumbers(currency);
@@ -67,20 +69,23 @@ const OrderDetails = memo(({ order }: { order: PersonOrder }) => {
     </>;
 });
 
+const SETTLED = ['PAID'];
+const UNDONE = ['CANCELLED', 'REFUNDED'];
+
 const OrderCard = memo(({ order }: { order: PersonOrder }) => {
     const { t } = useTranslation();
     const money = useMoney(order.currency);
     const status = useStatus();
-    return <details>
-        <summary className={cls.row}>
-            <time>{new Date(order.orderedAt).toLocaleDateString()}</time>
-            <span>{order.event?.name ?? '—'}</span>
-            <span>{t('Tickets: {{count}}', { count: order.tickets.length })}</span>
-            <span>{money(order.total)}</span>
-            <span>{status(order.status)}</span>
-            {!order.boughtByPerson && <span className={cls.muted}>{t('Bought by someone else')}</span>}
+    return <details className={own.order}>
+        <summary className={own.summary}>
+            <time className={own.date}>{new Date(order.orderedAt).toLocaleDateString()}</time>
+            <span className={own.event}>{order.event?.name ?? '—'}</span>
+            <span className={own.count}>{t('Tickets: {{count}}', { count: order.tickets.length })}</span>
+            <span className={own.total}>{money(order.total)}</span>
+            <span className={classNames(cls.badge, { [cls.success]: SETTLED.includes(order.status), [cls.danger]: UNDONE.includes(order.status) }, [own.status])}>{status(order.status)}</span>
+            {!order.boughtByPerson && <span className={classNames(cls.muted, {}, [own.note])}>{t('Bought by someone else')}</span>}
         </summary>
-        <OrderDetails order={order} />
+        <div className={own.body}><OrderDetails order={order} /></div>
     </details>;
 });
 

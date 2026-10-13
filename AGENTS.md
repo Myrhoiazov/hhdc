@@ -64,7 +64,7 @@ Task plans under `tasks/` are working material. Do not treat old project-specifi
 
 ## Domain guardrails
 
-HHDC is an internal Event & Talent CRM for High Heels Dance Camp. Person is the central identity; CUSTOMER, PARTICIPANT, CHOREOGRAPHER and STAFF are roles of the same Person. Event-specific participation belongs to Registration and choreographer assignments to EventChoreographer. Use the V1 specification for orders, tickets, communications, AI, knowledge, providers, activity and audit. School students, classes, branches, lessons and attendance are migration surfaces to remove, not workflows to extend. Preserve and adapt useful email, AI and dashboard capabilities. The user chose a fresh PostgreSQL database; do not import old data or delete existing MySQL databases/volumes.
+HHDC is an internal Event & Talent CRM for High Heels Dance Camp. Person is the central identity; CUSTOMER, PARTICIPANT, CHOREOGRAPHER, STAFF and PARTNER are roles of the same Person. Event-specific participation belongs to Registration, choreographer assignments to EventChoreographer and the rest of an event's team to EventTeamMember, whose pay is kept as EventExpense rows. Use the V1 specification for orders, tickets, communications, AI, knowledge, providers, activity and audit. School students, classes, branches, lessons and attendance are migration surfaces to remove, not workflows to extend. Preserve and adapt useful email, AI and dashboard capabilities. The user chose a fresh PostgreSQL database; do not import old data or delete existing MySQL databases/volumes.
 
 ## Git
 

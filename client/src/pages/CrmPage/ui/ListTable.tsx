@@ -23,10 +23,11 @@ export const useDelayed = (value: string, delayMs = SEARCH_DELAY_MS) => {
 
 // The filters of a list page and its page number. `applied` is what the list is asked with: the
 // typed search joins it only after a pause. Changing any filter returns to the first page — the
-// old page number means nothing in a new list.
-export const useListFilters = <Filters extends { q: string }>(none: Filters) => {
-    const [filters, setFilters] = useState(none);
-    const [page, setPage] = useState(1);
+// old page number means nothing in a new list. `start` opens the list somewhere else than on the
+// first page without filters: a page that keeps its place in the address gives it.
+export const useListFilters = <Filters extends { q: string }>(none: Filters, start: { filters: Filters; page: number } = { filters: none, page: 1 }) => {
+    const [filters, setFilters] = useState(start.filters);
+    const [page, setPage] = useState(start.page);
     const q = useDelayed(filters.q).trim();
     const key = JSON.stringify({ ...filters, q });
     const applied = useMemo(() => JSON.parse(key) as Filters, [key]);
@@ -34,9 +35,12 @@ export const useListFilters = <Filters extends { q: string }>(none: Filters) => 
     return { filters, applied, page, setPage, change, filtered: Object.values(filters).some(Boolean), reset: () => change(none) };
 };
 
-export const Pager = memo(({ page, total, onChange }: { page: number; total: number; onChange: (page: number) => void }) => {
+interface PagerProps { page: number; total: number; onChange: (page: number) => void; pageSize?: number }
+
+// `pageSize` is named by a list whose pages are not of the common size.
+export const Pager = memo(({ page, total, onChange, pageSize }: PagerProps) => {
     const { t } = useTranslation();
-    const pages = Math.max(1, Math.ceil(total / LIST_PAGE_SIZE));
+    const pages = Math.max(1, Math.ceil(total / (pageSize ?? LIST_PAGE_SIZE)));
     if (pages === 1) return null;
     return <nav className={own.pager} aria-label={t('Page {{page}} of {{pages}}', { page, pages })}>
         <Button disabled={page <= 1} aria-label={t('Previous page')} onClick={() => onChange(page - 1)}>←</Button>

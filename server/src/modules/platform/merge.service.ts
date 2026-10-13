@@ -46,6 +46,15 @@ const moveEventScoped = async (tx: Tx, sourceId: string, targetId: string) => {
     await tx.eventChoreographer.updateMany({ where: { personId: sourceId, eventId: { notIn: assigned.map(row => row.eventId) } }, data: { personId: targetId } });
 };
 
+// A role on an event the target already holds stays on the archived source, like the rows above.
+const moveTeamRoles = async (tx: Tx, sourceId: string, targetId: string) => {
+    const held = await tx.eventTeamMember.findMany({ where: { personId: targetId }, select: { eventId: true, roleTitle: true } });
+    const taken = new Set(held.map(row => `${row.eventId}:${row.roleTitle}`));
+    const own = await tx.eventTeamMember.findMany({ where: { personId: sourceId }, select: { id: true, eventId: true, roleTitle: true } });
+    const free = own.filter(row => !taken.has(`${row.eventId}:${row.roleTitle}`)).map(row => row.id);
+    await tx.eventTeamMember.updateMany({ where: { id: { in: free } }, data: { personId: targetId } });
+};
+
 const moveMemberships = async (tx: Tx, sourceId: string, targetId: string) => {
     const [roles, tags, consents] = await Promise.all([
         tx.personRole.findMany({ where: { personId: sourceId } }), tx.personTag.findMany({ where: { personId: sourceId } }), tx.consent.findMany({ where: { personId: sourceId } }),
@@ -77,6 +86,7 @@ export const mergePeople = async ({ targetId, sourceId, fieldDecisions, actorUse
     const [personAId, personBId] = orderedPair(targetId, sourceId);
     return prisma.$transaction(async tx => {
         await moveEventScoped(tx, sourceId, targetId);
+        await moveTeamRoles(tx, sourceId, targetId);
         await moveMemberships(tx, sourceId, targetId);
         await moveOwnedRecords(tx, sourceId, targetId);
         const updates = planFieldUpdates(source, fieldDecisions);

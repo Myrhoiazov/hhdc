@@ -1,24 +1,32 @@
-import { memo, useCallback } from 'react';
+import { memo, useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { listPeoplePage, PeopleFilters, Person, PERSON_SOURCES, PersonRole } from '@/entities/crm';
+import { listPeoplePage, PeopleFilters, Person, PERSON_ROLES as ROLES, PERSON_SOURCES } from '@/entities/crm';
 import { getUserAuthData } from '@/entities/User';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
+import { readPeopleList, writePeopleList } from '../model/peopleListUrl';
 import { CrmLayout, Field, RequestState } from './common';
 import cls from './CrmPage.module.scss';
 import { listStyles as own, Pager, useListFilters } from './ListTable';
 import { DeleteContactButton } from './PersonRemoval';
 
-const ROLES: PersonRole[] = ['CUSTOMER', 'PARTICIPANT', 'CHOREOGRAPHER', 'STAFF'];
 const NO_FILTERS: PeopleFilters = { q: '', role: '', source: '', purchases: '' };
 
 const personName = (person: Person) => person.displayName || `${person.firstName} ${person.lastName}`.trim() || '—';
 
+// The list starts from what the address says and keeps the address in step with itself, without
+// adding a history entry per filter or page: "back" leaves the list, it does not replay it.
 const usePeopleList = () => {
-    const list = useListFilters(NO_FILTERS);
+    const [params, setParams] = useSearchParams();
+    const [start] = useState(() => readPeopleList(params));
+    const list = useListFilters(NO_FILTERS, start);
     const { applied, page } = list;
+    const address = writePeopleList(applied, page);
+    useEffect(() => {
+        if (params.toString() !== address) setParams(address, { replace: true });
+    }, [params, address, setParams]);
     const load = useCallback(() => listPeoplePage(applied, page), [applied, page]);
     return { ...list, list: useResource(load) };
 };
@@ -51,16 +59,17 @@ interface RowProps { person: Person; onDeleted?: () => void }
 
 const PersonRow = memo(({ person, onDeleted }: RowProps) => {
     const { t } = useTranslation();
+    const { pathname, search } = useLocation();
     const name = personName(person);
     return <tr>
-        <td><Link className={own.name} to={`/people/${person.id}`}>{name}</Link></td>
+        <td><Link className={own.name} to={`/people/${person.id}`} state={{ peopleList: pathname + search }}>{name}</Link></td>
         <td className={own.secondary}>{person.email && person.email !== name ? person.email : '—'}</td>
-        <td className={`${own.secondary} ${own.optional}`}>{person.phone || '—'}</td>
+        <td className={`${own.secondary} ${own.optional} ${own.whole}`}>{person.phone || '—'}</td>
         <td className={`${own.secondary} ${own.optional}`}>{person.country || '—'}</td>
         <td><span className={own.badges}>{person.roles.map(item => <span className={cls.badge} key={item.role}>{t(item.role)}</span>)}</span></td>
         <td className={`${own.secondary} ${own.optional}`}>{person.source ? t(`Person source: ${person.source}`, { defaultValue: person.source }) : '—'}</td>
         <td className={own.number}>{person._count?.orders ?? 0}</td>
-        <td className={`${own.secondary} ${own.optional}`}>{person.createdAt ? new Date(person.createdAt).toLocaleDateString() : '—'}</td>
+        <td className={`${own.secondary} ${own.optional} ${own.whole}`}>{person.createdAt ? new Date(person.createdAt).toLocaleDateString() : '—'}</td>
         {onDeleted && <td>{person.removal?.allowed && <DeleteContactButton person={person} onDeleted={onDeleted} />}</td>}
     </tr>;
 });
@@ -88,7 +97,10 @@ export const PeoplePage = memo(() => {
         <section className={cls.panel} aria-label={t('All contacts')}>
             <div className={own.summary}>
                 <h2>{t('All contacts')}</h2>
-                {data && <span className={cls.muted}>{t('Contacts found: {{count}}', { count: data.total })}</span>}
+                {data && <div className={own.summaryEnd}>
+                    <span className={cls.muted}>{t('Contacts found: {{count}}', { count: data.total })}</span>
+                    <Pager page={people.page} total={data.total} onChange={people.setPage} />
+                </div>}
             </div>
             <RequestState error={people.list.error} loading={people.list.loading && !data} />
             {data && data.total > 0 && <PeopleTable people={data.data} onDeleted={canDelete ? refresh : undefined} />}

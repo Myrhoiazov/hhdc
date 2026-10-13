@@ -4,6 +4,7 @@ import { route } from '../../common/http';
 import * as peopleController from './people.controller';
 import { entityId } from '../../common/http';
 import { listPersonExpenses } from '../finance/event-expenses';
+import { listPersonTeamRoles } from '../events/event-team';
 import { listPersonOrders } from '../ticketing/person-orders';
 
 export const peopleRouter = Router();
@@ -33,6 +34,7 @@ peopleRouter.get('/:id/activity', permitted('people.read'), async (req, _res, ne
 
 // What events planned for and paid to this person.
 peopleRouter.get('/:id/expenses', permitted('finance.read'), route(async req => listPersonExpenses(entityId(req))));
+peopleRouter.get('/:id/team-roles', permitted('people.read'), route(async req => listPersonTeamRoles(entityId(req))));
 
 // Purchases, with the addresses of ticket files: for staff who may read tickets.
 peopleRouter.get('/:id/orders', permitted('ticketing.read'), route(async req => listPersonOrders(entityId(req))));

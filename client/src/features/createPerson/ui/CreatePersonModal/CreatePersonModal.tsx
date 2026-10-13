@@ -1,11 +1,9 @@
 import { FormEvent, memo, ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { addPersonRole, Person, PersonRole, savePerson } from '@/entities/crm';
+import { addPersonRole, Person, PERSON_ROLES as ROLES, PersonRole, savePerson } from '@/entities/crm';
 import { Button, ButtonTheme } from '@/shared/ui/Button';
 import { Modal } from '@/shared/ui/Modal';
 import cls from './CreatePersonModal.module.scss';
-
-const ROLES: PersonRole[] = ['CUSTOMER', 'PARTICIPANT', 'CHOREOGRAPHER', 'STAFF'];
 
 const text = (form: FormData, name: string) => String(form.get(name) ?? '').trim();
 

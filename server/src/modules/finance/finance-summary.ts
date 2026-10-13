@@ -7,7 +7,8 @@ export interface FinanceInput {
     costs: { type: string; amount: Money; status: string }[];
 }
 
-const COST_TYPES = ['FEE', 'TRAVEL', 'HOTEL', 'PER_DIEM', 'OTHER'];
+// Salaries of the event's team are a line of their own, next to the fees of its choreographers.
+const COST_TYPES = ['FEE', 'SALARY', 'TRAVEL', 'HOTEL', 'PER_DIEM', 'OTHER'];
 const sum = <T,>(items: T[], pick: (item: T) => Money) => items.reduce((total, item) => total + toCents(pick(item)), 0);
 const withStatus = <T extends { status: string }>(items: T[], statuses: string[]) => items.filter(item => statuses.includes(item.status));
 

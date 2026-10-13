@@ -26,7 +26,7 @@ test('an empty filter in the address means no filter, an unknown value is refuse
     assert.throws(() => peopleFiltersSchema.parse({ purchases: 'maybe' }));
 });
 
-test('the payee filter keeps only choreographers and staff', () => {
-    assert.deepEqual(peopleWhere(peopleFiltersSchema.parse({ payees: 'yes' })), { roles: { some: { role: { in: ['CHOREOGRAPHER', 'STAFF'] } } } });
+test('the payee filter keeps only choreographers, staff and partners', () => {
+    assert.deepEqual(peopleWhere(peopleFiltersSchema.parse({ payees: 'yes' })), { roles: { some: { role: { in: ['CHOREOGRAPHER', 'STAFF', 'PARTNER'] } } } });
     assert.throws(() => peopleFiltersSchema.parse({ payees: 'no' }));
 });

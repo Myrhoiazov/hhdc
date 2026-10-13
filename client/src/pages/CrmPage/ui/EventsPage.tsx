@@ -1,4 +1,4 @@
-import { memo, useCallback } from 'react';
+import { memo, useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -11,6 +11,7 @@ import { EventExpenses } from './EventExpenses';
 import { EventPeople } from './EventPeople';
 import { EventSalesPanel } from './EventSalesPanel';
 import { EventSectionNav } from './EventSectionNav';
+import { EventTeam } from './EventTeam';
 import cls from './CrmPage.module.scss';
 
 // What the event sells, as read from the ticketing provider; prices are not edited in the CRM.
@@ -34,23 +35,35 @@ const EventDates = memo(({ event }: { event: Event }) => (
 ));
 
 // Sales and expenses are money: both are shown only to staff who may see finance.
-const EventMoney = memo(({ eventId, permissions }: { eventId: string; permissions: string[] }) => {
+interface EventMoneyProps { eventId: string; permissions: string[]; version: number; onChanged: () => void }
+
+const EventMoney = memo(({ eventId, permissions, version, onChanged }: EventMoneyProps) => {
     if (!permissions.includes('finance.read')) return null;
-    return <><EventSalesPanel eventId={eventId} /><EventExpenses eventId={eventId} canEdit={permissions.includes('events.write')} /></>;
+    return <><EventSalesPanel eventId={eventId} /><EventExpenses eventId={eventId} canEdit={permissions.includes('events.write')} version={version} onChanged={onChanged} /></>;
 });
+
+// The pay of the team is kept among the expenses, so a change in one block is read by the other.
+const useCounter = (): [number, () => void] => {
+    const [count, setCount] = useState(0);
+    return [count, useCallback(() => setCount(current => current + 1), [])];
+};
 
 export const EventPage = memo(() => {
     const { id = '' } = useParams();
     const load = useCallback(() => getEvent(id), [id]);
     const event = useResource(load);
     const permissions = useSelector(getUserAuthData)?.permissions ?? [];
+    const [teamVersion, teamChanged] = useCounter();
+    const [expensesVersion, expensesChanged] = useCounter();
     return <CrmLayout title={event.data?.name || 'Event'}><RequestState error={event.error} loading={event.loading} />
         {event.data && <>
             <EventSectionNav />
             <EventDates event={event.data} />
-            <EventMoney eventId={id} permissions={permissions} />
+            <EventMoney eventId={id} permissions={permissions} version={teamVersion} onChanged={expensesChanged} />
             <EventTicketTypes eventId={id} />
             <EventPeople event={event.data} onSaved={() => void event.refresh()} />
+            <EventTeam eventId={id} canEdit={permissions.includes('events.write')} seesMoney={permissions.includes('finance.read')}
+                version={expensesVersion} onChanged={teamChanged} />
             <EventDocuments eventId={id} />
         </>}
     </CrmLayout>;

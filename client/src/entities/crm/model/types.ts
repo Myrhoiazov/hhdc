@@ -1,4 +1,6 @@
-export type PersonRole = 'CUSTOMER' | 'PARTICIPANT' | 'CHOREOGRAPHER' | 'STAFF';
+// Every role a Person can have, in the order the interface lists them.
+export const PERSON_ROLES = ['CUSTOMER', 'PARTICIPANT', 'CHOREOGRAPHER', 'STAFF', 'PARTNER'] as const;
+export type PersonRole = typeof PERSON_ROLES[number];
 export interface Person {
     id: string;
     firstName: string;
