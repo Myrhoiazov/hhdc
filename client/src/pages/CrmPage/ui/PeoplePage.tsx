@@ -13,6 +13,7 @@ import { PersonConversations } from './PersonConversations';
 import { PersonExpenses } from './PersonExpenses';
 import { PersonOrders } from './PersonOrders';
 import { PersonRemovalPanel } from './PersonRemoval';
+import { PersonTeamRoles } from './PersonTeamRoles';
 import cls from './CrmPage.module.scss';
 import own from './PersonPage.module.scss';
 
@@ -121,6 +122,7 @@ const PersonBody = memo(({ person, permissions, activity, onSaved, onDeleted }: 
         <div className={own.main}>
             <PersonOrders personId={person.id} />
             <PersonConversations person={person} />
+            <PersonTeamRoles personId={person.id} />
             {permissions.includes('finance.read') && <PersonExpenses personId={person.id} />}
             {activity}
         </div>

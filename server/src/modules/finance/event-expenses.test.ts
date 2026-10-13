@@ -43,9 +43,10 @@ test('the moment of payment is set when an expense becomes paid, kept while it s
     assert.equal(paidAtFor(undefined, earlier, now), undefined);
 });
 
-test('only a choreographer or a staff member can be paid an expense', () => {
+test('only a choreographer, a staff member or a partner can be paid an expense', () => {
     assert.equal(mayBePaid(['CUSTOMER', 'CHOREOGRAPHER']), true);
     assert.equal(mayBePaid(['STAFF']), true);
+    assert.equal(mayBePaid(['PARTNER']), true);
     assert.equal(mayBePaid(['CUSTOMER', 'PARTICIPANT']), false);
     assert.equal(mayBePaid([]), false);
 });

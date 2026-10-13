@@ -378,6 +378,7 @@ model Person {
   payments                 Payment[]
   refunds                  Refund[]
   eventExpenses            EventExpense[]
+  teamAssignments          EventTeamMember[]
 
   @@index([email])
   @@index([phone])
@@ -440,6 +441,7 @@ model Event {
   sessions           EventSession[]
   ticketTypes        TicketType[]
   expenses           EventExpense[]
+  team               EventTeamMember[]
   brandId            String?              @db.Uuid
   brand              Brand?               @relation(fields: [brandId], references: [id], onDelete: SetNull)
   userAccess         UserEventAccess[]
@@ -468,6 +470,27 @@ model EventChoreographer {
   payoutRecords ChoreographerPaymentRecord[]
 
   @@unique([eventId, personId])
+}
+
+// Somebody who works on an event and is not a choreographer of it: the project administrator,
+// the videographer, a partner who supplies equipment. One person may hold several roles on one
+// event, each with its own pay. The pay itself is not kept here: it is the event's expenses that
+// name this row, so every report counts it once.
+model EventTeamMember {
+  id        String         @id @default(uuid()) @db.Uuid
+  eventId   String         @db.Uuid
+  personId  String         @db.Uuid
+  roleTitle String
+  duties    String?
+  notes     String?
+  createdAt DateTime       @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime       @updatedAt @db.Timestamptz(6)
+  event     Event          @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  person    Person         @relation(fields: [personId], references: [id], onDelete: Restrict)
+  expenses  EventExpense[]
+
+  @@unique([eventId, personId, roleTitle])
+  @@index([personId])
 }
 
 model Registration {
@@ -654,6 +677,8 @@ model EventExpense {
   id          String    @id @default(uuid()) @db.Uuid
   eventId     String    @db.Uuid
   personId    String?   @db.Uuid
+  // The role on the event this expense pays for, when it is the pay of a team member.
+  teamMemberId String?  @db.Uuid
   category    String
   description String?
   amount      Decimal   @db.Decimal(14, 2)
@@ -666,9 +691,11 @@ model EventExpense {
   updatedAt   DateTime  @updatedAt @db.Timestamptz(6)
   event       Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
   person      Person?   @relation(fields: [personId], references: [id], onDelete: SetNull)
+  teamMember  EventTeamMember? @relation(fields: [teamMemberId], references: [id], onDelete: SetNull)
 
   @@index([eventId, status])
   @@index([personId])
+  @@index([teamMemberId])
 }
 
 model Payment {

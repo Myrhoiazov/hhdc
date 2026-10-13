@@ -6,23 +6,25 @@ import { mayBePaid } from '../people/payees';
 import { fromCents, toCents } from './refund-rules';
 
 // The costs of an event. An expense is entered on the event and may name the person it is paid
-// to — a choreographer or a staff member — so the same line shows up on that person's page. Costs kept on a choreographer's card (expenses and agreed fees) are not copied
+// to — a choreographer, a staff member or a partner — so the same line shows up on that person's page. Costs kept on a choreographer's card (expenses and agreed fees) are not copied
 // here: they are listed next to the event's own expenses and counted once.
 
 export const EXPENSE_CATEGORIES = ['FEE', 'SALARY', 'TRAVEL', 'HOTEL', 'VENUE', 'MARKETING', 'EQUIPMENT', 'OTHER'] as const;
 export const EXPENSE_STATUSES = ['PLANNED', 'PAID', 'CANCELLED'] as const;
 
-const amount = z.union([z.string(), z.number()]).transform(value => String(value).trim().replace(',', '.'))
+export const expenseAmount = z.union([z.string(), z.number()]).transform(value => String(value).trim().replace(',', '.'))
     .refine(value => /^\d+(\.\d{1,2})?$/.test(value) && Number(value) > 0, 'The amount must be a positive number with at most two decimals');
 
 const fields = {
     category: z.enum(EXPENSE_CATEGORIES),
     description: z.string().trim().max(500).nullable().optional(),
-    amount,
+    amount: expenseAmount,
     currency: z.string().trim().length(3).toUpperCase().default('EUR'),
     status: z.enum(EXPENSE_STATUSES).default('PLANNED'),
     expenseDate: z.coerce.date().nullable().optional(),
     personId: z.string().uuid().nullable().optional(),
+    // The role on the event the expense pays for; it names the payee by itself.
+    teamMemberId: z.string().uuid().nullable().optional(),
 };
 export const expenseSchema = z.object(fields).strict();
 export const expenseChangeSchema = z.object({ ...fields, currency: fields.currency.optional(), status: z.enum(EXPENSE_STATUSES).optional() }).partial().strict();
@@ -33,6 +35,7 @@ export type ExpenseSource = 'EVENT' | 'CHOREOGRAPHER_EXPENSE' | 'CHOREOGRAPHER_F
 export interface ExpenseLine {
     id: string; source: ExpenseSource; category: string; description: string | null; amount: string; currency: string; status: string;
     date: string | null; person: { id: string; displayName: string } | null; event?: { id: string; name: string };
+    teamMember?: { id: string; roleTitle: string } | null;
 }
 export interface ExpenseTotals { total: string; paid: string; planned: string; byCategory: { category: string; amount: string }[] }
 
@@ -57,21 +60,36 @@ export const paidAtFor = (status: string | undefined, current: Date | null, now 
 };
 
 const PERSON = { select: { id: true, displayName: true } } as const;
-const EXPENSE_FIELDS = { id: true, category: true, description: true, amount: true, currency: true, status: true, expenseDate: true, person: PERSON, event: { select: { id: true, name: true } } } as const;
+const EXPENSE_FIELDS = { id: true, category: true, description: true, amount: true, currency: true, status: true, expenseDate: true, person: PERSON, event: { select: { id: true, name: true } }, teamMember: { select: { id: true, roleTitle: true } } } as const;
 type ExpenseRow = Prisma.EventExpenseGetPayload<{ select: typeof EXPENSE_FIELDS }>;
 
 const day = (date: Date | null): string | null => date?.toISOString().slice(0, 10) ?? null;
 
 const toLine = (row: ExpenseRow): ExpenseLine => ({
     id: row.id, source: 'EVENT', category: row.category, description: row.description, amount: row.amount.toFixed(2), currency: row.currency, status: row.status,
-    date: day(row.expenseDate), person: row.person, event: row.event,
+    date: day(row.expenseDate), person: row.person, event: row.event, teamMember: row.teamMember,
 });
 
 const requirePayee = async (personId: string | null | undefined): Promise<void> => {
     if (!personId) return;
     const person = await prisma.person.findUnique({ where: { id: personId }, select: { roles: { select: { role: true } } } });
     if (!person) throw new ApiError(400, 'PERSON_NOT_FOUND', 'The person this expense is paid to does not exist');
-    if (!mayBePaid(person.roles.map(item => item.role))) throw new ApiError(400, 'PAYEE_ROLE_REQUIRED', 'An expense can be paid only to a choreographer or a staff member. Give the person that role first');
+    if (!mayBePaid(person.roles.map(item => item.role))) throw new ApiError(400, 'PAYEE_ROLE_REQUIRED', 'An expense can be paid only to a choreographer, a staff member or a partner. Give the person that role first');
+};
+
+interface PayeeRef { personId?: string | null; teamMemberId?: string | null }
+
+// Who an expense is paid to, as it will be stored. Pay for a role on the event goes to the person
+// holding that role; naming another payee, or nobody, takes the expense off the role.
+export const resolvePayee = async (eventId: string, ref: PayeeRef): Promise<PayeeRef> => {
+    if (ref.teamMemberId) {
+        const member = await prisma.eventTeamMember.findFirst({ where: { id: ref.teamMemberId, eventId }, select: { personId: true } });
+        if (!member) throw new ApiError(400, 'TEAM_MEMBER_NOT_FOUND', 'This person is not in the team of the event');
+        return { personId: member.personId, teamMemberId: ref.teamMemberId };
+    }
+    if (ref.personId === undefined && ref.teamMemberId === undefined) return {};
+    await requirePayee(ref.personId);
+    return { ...(ref.personId === undefined ? {} : { personId: ref.personId }), teamMemberId: null };
 };
 
 const requireEvent = async (eventId: string): Promise<void> => {
@@ -84,11 +102,11 @@ const audit = (tx: Prisma.TransactionClient, action: string, actorUserId: string
 
 export const createEventExpense = async (eventId: string, input: ExpenseInput, actorUserId: string): Promise<ExpenseLine> => {
     await requireEvent(eventId);
-    await requirePayee(input.personId);
+    const payee = await resolvePayee(eventId, input);
     return prisma.$transaction(async tx => {
         const data: Prisma.EventExpenseUncheckedCreateInput = {
             eventId, category: input.category, amount: input.amount, currency: input.currency, status: input.status, description: input.description ?? null,
-            expenseDate: input.expenseDate ?? null, personId: input.personId ?? null, paidAt: paidAtFor(input.status, null), createdById: actorUserId,
+            expenseDate: input.expenseDate ?? null, personId: payee.personId ?? null, teamMemberId: payee.teamMemberId ?? null, paidAt: paidAtFor(input.status, null), createdById: actorUserId,
         };
         const created = await tx.eventExpense.create({ data, select: EXPENSE_FIELDS });
         await audit(tx, 'EVENT_EXPENSE_CREATED', actorUserId, { id: created.id, after: toLine(created) });
@@ -101,9 +119,9 @@ interface ExpenseRef { eventId: string; expenseId: string }
 export const updateEventExpense = async (ref: ExpenseRef, change: ExpenseChange, actorUserId: string): Promise<ExpenseLine> => {
     const before = await prisma.eventExpense.findFirst({ where: { id: ref.expenseId, eventId: ref.eventId }, select: { ...EXPENSE_FIELDS, paidAt: true } });
     if (!before) throw new ApiError(404, 'EXPENSE_NOT_FOUND', 'Expense not found');
-    await requirePayee(change.personId);
+    const payee = await resolvePayee(ref.eventId, change);
     return prisma.$transaction(async tx => {
-        const data: Prisma.EventExpenseUncheckedUpdateInput = { ...change, paidAt: paidAtFor(change.status, before.paidAt) };
+        const data: Prisma.EventExpenseUncheckedUpdateInput = { ...change, ...payee, paidAt: paidAtFor(change.status, before.paidAt) };
         const after = await tx.eventExpense.update({ where: { id: ref.expenseId }, data, select: EXPENSE_FIELDS });
         await audit(tx, 'EVENT_EXPENSE_UPDATED', actorUserId, { id: after.id, before: toLine(before), after: toLine(after) });
         return toLine(after);

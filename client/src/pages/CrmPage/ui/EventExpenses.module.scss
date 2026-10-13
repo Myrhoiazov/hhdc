@@ -37,6 +37,14 @@
     gap: 8px;
 }
 
+/* Under the payee: the role on the event the expense pays for. */
+.role {
+    display: block;
+    font-size: 13px;
+    color: var(--sidebar-text-redesigned);
+    margin-top: 2px;
+}
+
 .totals {
     display: flex;
     flex-direction: column;

@@ -1,11 +1,11 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { createEventExpense, deleteEventExpense, ExpenseLine, ExpenseList, listEventExpenses, listPayees, listPersonExpenses, updateEventExpense } from '@/entities/crm';
+import { createEventExpense, deleteEventExpense, ExpenseLine, ExpenseList, listEventExpenses, listEventTeam, listPayees, listPersonExpenses, updateEventExpense } from '@/entities/crm';
 import { EventExpenses } from './EventExpenses';
 import { PersonExpenses } from './PersonExpenses';
 
 jest.mock('@/entities/crm', () => ({
-    createEventExpense: jest.fn(), deleteEventExpense: jest.fn(), listEventExpenses: jest.fn(), listPayees: jest.fn(), listPersonExpenses: jest.fn(), updateEventExpense: jest.fn(),
+    createEventExpense: jest.fn(), deleteEventExpense: jest.fn(), listEventExpenses: jest.fn(), listEventTeam: jest.fn(), listPayees: jest.fn(), listPersonExpenses: jest.fn(), updateEventExpense: jest.fn(),
     EVENT_EXPENSE_CATEGORIES: ['FEE', 'SALARY', 'TRAVEL', 'HOTEL', 'VENUE', 'MARKETING', 'EQUIPMENT', 'OTHER'],
 }));
 jest.mock('./ListTable', () => ({ ...jest.requireActual('./ListTable'), useDelayed: (value: string) => value }));
@@ -21,6 +21,7 @@ const renderExpenses = (canEdit = true) => render(<MemoryRouter><EventExpenses e
 
 beforeEach(() => {
     jest.mocked(listEventExpenses).mockReset().mockResolvedValue(list([line('x1'), fee]));
+    jest.mocked(listEventTeam).mockReset().mockResolvedValue([]);
     jest.mocked(listPayees).mockReset().mockResolvedValue({ data: [], total: 0 });
     jest.mocked(createEventExpense).mockReset().mockResolvedValue(line('x2'));
     jest.mocked(updateEventExpense).mockReset().mockResolvedValue(line('x1', { status: 'PAID' }));
@@ -57,9 +58,9 @@ test('a new expense is saved with its category, amount, payee and whether it is 
 
     fireEvent.change(within(form).getByLabelText('Category'), { target: { value: 'SALARY' } });
     fireEvent.change(within(form).getByLabelText('Amount'), { target: { value: '1250,50' } });
-    fireEvent.change(within(form).getByLabelText('Find the choreographer or staff member to pay'), { target: { value: 'bo' } });
+    fireEvent.change(within(form).getByLabelText('Find a payee outside the team'), { target: { value: 'bo' } });
     await within(form).findByRole('option', { name: /Bo Lind/ });
-    fireEvent.change(within(form).getByLabelText('Paid to'), { target: { value: 'p2' } });
+    fireEvent.change(within(form).getByLabelText('Paid to'), { target: { value: 'person:p2' } });
     fireEvent.click(within(form).getByLabelText('Already paid'));
     fireEvent.submit(form);
 
@@ -119,7 +120,25 @@ test('a search that finds no choreographer or staff member says who can be paid'
     renderExpenses();
 
     const form = await screen.findByRole('form', { name: 'Add an expense' });
-    fireEvent.change(within(form).getByLabelText('Find the choreographer or staff member to pay'), { target: { value: 'anna' } });
+    fireEvent.change(within(form).getByLabelText('Find a payee outside the team'), { target: { value: 'anna' } });
     expect(await within(form).findByRole('status')).toHaveTextContent(/only to them/);
     expect(listPayees).toHaveBeenCalledWith('anna');
+});
+
+test('pay for a role names the role of the team, and the list shows which role an expense pays for', async () => {
+    jest.mocked(listEventTeam).mockResolvedValue([{ id: 'm1', roleTitle: 'Videographer', duties: null, notes: null, person: { id: 'p5', displayName: 'Ivo Dahl', email: null, phone: null } }]);
+    jest.mocked(listEventExpenses).mockResolvedValue(list([line('x1', { teamMember: { id: 'm7', roleTitle: 'Project administrator' } })]));
+    renderExpenses();
+
+    const row = (await screen.findByRole('link', { name: 'Anna Berg' })).closest('tr') as HTMLElement;
+    expect(within(row).getByText('Project administrator')).toBeInTheDocument();
+
+    const form = screen.getByRole('form', { name: 'Add an expense' });
+    fireEvent.change(within(form).getByLabelText('Amount'), { target: { value: '900' } });
+    await within(form).findByRole('option', { name: 'Ivo Dahl — Videographer' });
+    fireEvent.change(within(form).getByLabelText('Paid to'), { target: { value: 'member:m1' } });
+    fireEvent.submit(form);
+
+    await waitFor(() => expect(createEventExpense).toHaveBeenCalledWith('e1', expect.objectContaining({ amount: '900', teamMemberId: 'm1' })));
+    expect(jest.mocked(createEventExpense).mock.calls[0][1]).not.toHaveProperty('personId');
 });

@@ -14,7 +14,7 @@ export const LIST_PAGE_SIZE = 25;
 export const listPeople = async (search = '') =>
     list<Person>(`/people?q=${encodeURIComponent(search)}&pageSize=100`);
 
-// People an expense can be paid to: choreographers and staff.
+// People an expense can be paid to: choreographers, staff and partners.
 export const listPayees = async (search = '') =>
     list<Person>(`/people?q=${encodeURIComponent(search)}&payees=yes&pageSize=100`);
 
@@ -89,15 +89,36 @@ export type ExpenseStatus = 'PLANNED' | 'PAID' | 'CANCELLED';
 export interface ExpenseLine {
     id: string; source: 'EVENT' | 'CHOREOGRAPHER_EXPENSE' | 'CHOREOGRAPHER_FEE'; category: string; description: string | null; amount: string; currency: string; status: string;
     date: string | null; person: { id: string; displayName: string } | null; event?: { id: string; name: string };
+    // The role on the event this expense pays for, when it is the pay of a team member.
+    teamMember?: { id: string; roleTitle: string } | null;
 }
 export interface ExpenseList { lines: ExpenseLine[]; totals: { total: string; paid: string; planned: string; byCategory: { category: string; amount: string }[] } }
-export interface EventExpenseInput { category: EventExpenseCategory; amount: string; description?: string | null; expenseDate?: string | null; personId?: string | null; status?: ExpenseStatus }
+export interface EventExpenseInput { category: EventExpenseCategory; amount: string; description?: string | null; expenseDate?: string | null; personId?: string | null; teamMemberId?: string | null; status?: ExpenseStatus }
 export const listEventExpenses = async (eventId: string) => read<ExpenseList>(`/events/${eventId}/expenses`);
 export const listPersonExpenses = async (personId: string) => read<ExpenseList>(`/people/${personId}/expenses`);
 export const createEventExpense = async (eventId: string, input: EventExpenseInput) => (await $apiPrivate.post<{ data: ExpenseLine }>(`/events/${eventId}/expenses`, input)).data.data;
 export const deleteEventExpense = async (eventId: string, expenseId: string) => { await $apiPrivate.delete(`/events/${eventId}/expenses/${expenseId}`); };
 export const updateEventExpense = async (eventId: string, expenseId: string, change: Partial<EventExpenseInput>) =>
     (await $apiPrivate.patch<{ data: ExpenseLine }>(`/events/${eventId}/expenses/${expenseId}`, change)).data.data;
+// The team of an event: who works on it besides the choreographers. `pay` is what the role costs
+// the event, summed from its expenses; it comes only to those who may see finance.
+export const TEAM_PERSON_ROLES = ['STAFF', 'PARTNER'] as const;
+export type TeamPersonRole = typeof TEAM_PERSON_ROLES[number];
+export interface TeamPay { total: string; paid: string; planned: string; currency: string }
+export interface TeamMember {
+    id: string; roleTitle: string; duties: string | null; notes: string | null;
+    person: { id: string; displayName: string; email: string | null; phone: string | null };
+    pay?: TeamPay;
+}
+export interface TeamMemberInput { personId: string; roleTitle: string; duties?: string | null; notes?: string | null; personRole: TeamPersonRole; amount?: string }
+export type TeamMemberChange = Partial<Pick<TeamMemberInput, 'roleTitle' | 'duties' | 'notes'>>;
+export interface PersonTeamRole { id: string; roleTitle: string; duties: string | null; event: { id: string; name: string; startAt: string } }
+export const listEventTeam = async (eventId: string) => read<TeamMember[]>(`/events/${eventId}/team`);
+export const addTeamMember = async (eventId: string, input: TeamMemberInput) => (await $apiPrivate.post<{ data: TeamMember }>(`/events/${eventId}/team`, input)).data.data;
+export const updateTeamMember = async (eventId: string, memberId: string, change: TeamMemberChange) =>
+    (await $apiPrivate.patch<{ data: TeamMember }>(`/events/${eventId}/team/${memberId}`, change)).data.data;
+export const removeTeamMember = async (eventId: string, memberId: string) => { await $apiPrivate.delete(`/events/${eventId}/team/${memberId}`); };
+export const listPersonTeamRoles = async (personId: string) => read<PersonTeamRole[]>(`/people/${personId}/team-roles`);
 export const getDashboard = async () => read<Record<string, number>>('/dashboard');
 export interface AuditEntry {
     id: string; action: string; entityType: string; entityId: string | null; ipAddress: string | null; createdAt: string;
