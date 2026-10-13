@@ -13,9 +13,9 @@ interface PagerProps {
 }
 
 // The way through the pages of a list; a list that fits on one page shows nothing.
-export const Pager = memo(({ page, total, onChange, pageSize = LIST_PAGE_SIZE }: PagerProps) => {
+export const Pager = memo(({ page, total, onChange, pageSize }: PagerProps) => {
     const { t } = useTranslation();
-    const pages = Math.max(1, Math.ceil(total / pageSize));
+    const pages = Math.max(1, Math.ceil(total / (pageSize ?? LIST_PAGE_SIZE)));
     if (pages === 1) return null;
     const place = t('Page {{page}} of {{pages}}', { page, pages });
     return (

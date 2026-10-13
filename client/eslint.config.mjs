@@ -42,7 +42,7 @@ export default defineConfig([
     tseslint.configs.recommended,
     pluginReact.configs.flat.recommended,
     i18next.configs['flat/recommended'],
-    { ignores: ['node_modules/', 'dist/', 'build/', 'scripts/'] },
+    { ignores: ['node_modules/', 'dist/', 'build/', 'scripts/', 'storybook-static/'] },
     {
         files: ['**/*.{js,mjs,cjs,ts,jsx,tsx}'],
         languageOptions: {

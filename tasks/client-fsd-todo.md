@@ -10,17 +10,16 @@
 - [x] Task 1.4: правила слоёв в ESLint
 - [x] Проверки клиента пройдены 2026-10-13: `typecheck`, `lint:ts` (0 ошибок), Jest 435/435, `build:prod`,
       `check:skylos`. Серверная часть `npm run ci` не запускалась — сервер не менялся.
-- [ ] `storybook:build` падает и на `develop`: в `LoginForm.stories.tsx` и `AvatarDropdown.stories.tsx` нет
-      экспорта по умолчанию (файлы закомментированы). Этим этапом не затронуто; чинится в этапе 2.4.
-- [ ] Browser QA: вход и выход по истечении сессии — не выполнено, локально не запущен Docker (E2E-стенд)
-- [ ] PR в `develop`
+- [x] E2E в CI прошёл; ручной Browser QA выхода по 401 не выполнялся (покрыто юнит-тестом)
+- [x] PR #13 слит в `develop`
 
 ## Этап 2. Общее — в `shared`, мёртвый код — прочь
 
-- [ ] 2.1: `Field`, `RequestState`, `StatusBadge`, `Pager`, `ConfirmDelete` в `shared/ui`
-- [ ] 2.2: форматтеры, `useDelayed`, `useListFilters`, чтение `FormData`, сообщение об ошибке в `shared/lib`
-- [ ] 2.3: `hasPermission` в `entities/User`
-- [ ] 2.4: удаление мёртвого кода
+- [x] 2.1: `Field`, `RequestState`, `StatusBadge`, `Pager`, `ConfirmDelete` в `shared/ui`
+- [x] 2.2: `useNumbers`, форматтеры дат, `useDelayed`, `useListFilters`, `formText`, `messageOf` в `shared/lib`
+- [x] 2.3: `Permission`, `hasPermission`, `useCan` в `entities/User`
+- [x] 2.4: удаление мёртвого кода и двух пустых сторис
+- [ ] PR в `develop`
 
 ## Этап 3. `entities/crm` → доменные сущности
 
