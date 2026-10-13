@@ -3,7 +3,8 @@ import { ConversationFilters, getUnreadByMailbox, listPrompts, listProviders, Pr
 import { onEmailSent } from '@/features/composeEmail';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { useConversationPages } from '../model/useConversationPages';
-import { CrmLayout, RequestState } from './common';
+import { CrmLayout } from './common';
+import { RequestState } from '@/shared/ui/RequestState';
 import { AccountOverview, MailboxNavigation } from './email/MailboxNavigation';
 import { EmailWorkspace } from './email/EmailWorkspace';
 import cls from './CommunicationsPage.module.scss';

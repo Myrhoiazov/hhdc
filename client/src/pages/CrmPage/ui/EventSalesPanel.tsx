@@ -2,7 +2,8 @@ import { memo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { EventSales, getEventSales } from '@/entities/crm';
 import { useResource } from '@/shared/lib/useResource/useResource';
-import { RequestState, useNumbers } from './common';
+import { RequestState } from '@/shared/ui/RequestState';
+import { useNumbers } from '@/shared/lib/format/useNumbers';
 import { Bar, chartStyles as own, Tile } from './Charts';
 import cls from './CrmPage.module.scss';
 

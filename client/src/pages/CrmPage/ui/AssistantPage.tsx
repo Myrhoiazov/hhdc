@@ -2,10 +2,13 @@ import { FormEvent, memo, useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AiProposal, askAssistant, AssistantAnswer, decideProposal, getReviewQueue } from '@/entities/crm';
+import { formatDate } from '@/shared/lib/format/date';
 import { useAction } from '@/shared/lib/useResource/useAction';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
-import { CrmLayout, Field, RequestState } from './common';
+import { CrmLayout } from './common';
+import { Field } from '@/shared/ui/Field';
+import { RequestState } from '@/shared/ui/RequestState';
 import cls from './CrmPage.module.scss';
 
 // A proposal changes nothing until the staff member confirms it here.
@@ -16,7 +19,7 @@ const ProposalCard = memo(({ proposal, onDecided }: { proposal: AiProposal; onDe
         <h3>{t('Create task?')}</h3>
         <p><strong>{proposal.payload.title}</strong></p>
         {proposal.payload.description && <p>{proposal.payload.description}</p>}
-        {proposal.payload.dueDate && <p className={cls.muted}>{t('Due')}: {new Date(proposal.payload.dueDate).toLocaleDateString()}</p>}
+        {proposal.payload.dueDate && <p className={cls.muted}>{t('Due')}: {formatDate(proposal.payload.dueDate)}</p>}
         <RequestState error={action.error} loading={false} />
         <div className={cls.actions}>
             <Button disabled={action.busy} onClick={() => void action.run(() => decideProposal(proposal.id, 'reject'))}>{t('Cancel')}</Button>

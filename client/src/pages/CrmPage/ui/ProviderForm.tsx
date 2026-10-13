@@ -5,7 +5,8 @@ import { classNames } from '@/shared/lib/classNames/classNames';
 import { useAction } from '@/shared/lib/useResource/useAction';
 import { Button } from '@/shared/ui/Button';
 import { buildProviderInput, ProviderField, ProviderForm as ProviderFormDefinition } from '../model/providerForms';
-import { Field, RequestState } from './common';
+import { Field } from '@/shared/ui/Field';
+import { RequestState } from '@/shared/ui/RequestState';
 import cls from './CrmPage.module.scss';
 
 interface ProviderFormProps {

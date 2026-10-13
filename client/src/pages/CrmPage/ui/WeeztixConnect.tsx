@@ -2,7 +2,7 @@ import { FormEvent, memo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { connectWeeztix, startWeeztixAuthorization } from '@/entities/crm';
 import { Button } from '@/shared/ui/Button';
-import { Field } from './common';
+import { Field } from '@/shared/ui/Field';
 import { WeeztixData } from './WeeztixData';
 import cls from './CrmPage.module.scss';
 import own from './WeeztixConnect.module.scss';

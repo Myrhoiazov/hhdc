@@ -2,7 +2,7 @@ import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { deletePerson, Person } from '@/entities/crm';
 import cls from './CrmPage.module.scss';
-import { ConfirmDelete } from './ListTable';
+import { ConfirmDelete } from '@/shared/ui/ConfirmDelete';
 
 const personName = (person: Person) => person.displayName || `${person.firstName} ${person.lastName}`.trim() || person.email || '';
 

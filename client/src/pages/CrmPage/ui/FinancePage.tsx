@@ -1,7 +1,8 @@
 import { memo, useCallback, useState } from 'react';
 import { listRefunds } from '@/entities/crm';
 import { useResource } from '@/shared/lib/useResource/useResource';
-import { CrmLayout, RequestState } from './common';
+import { CrmLayout } from './common';
+import { RequestState } from '@/shared/ui/RequestState';
 import { FinanceLedger } from './FinanceLedger';
 import { RefundsPanel } from './FinanceRefunds';
 

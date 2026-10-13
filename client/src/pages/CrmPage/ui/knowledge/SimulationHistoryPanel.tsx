@@ -1,9 +1,11 @@
 import { memo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getSimulationRun, listSimulationRuns, SIMULATION_PAGE_SIZE, SimulationRun, SimulationRunSummary } from '@/entities/crm';
+import { formatDateTime } from '@/shared/lib/format/date';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button, ButtonTheme } from '@/shared/ui/Button';
-import { RequestState, StatusBadge } from '../common';
+import { RequestState } from '@/shared/ui/RequestState';
+import { StatusBadge } from '@/shared/ui/StatusBadge';
 import { SimulationResult } from './SimulationResult';
 import cls from '../CrmPage.module.scss';
 import own from './Knowledge.module.scss';
@@ -11,7 +13,7 @@ import own from './Knowledge.module.scss';
 const HistoryRow = memo(({ run, onOpen }: { run: SimulationRunSummary; onOpen: (id: string) => void }) => {
     const { t } = useTranslation();
     return <tr>
-        <td>{new Date(run.createdAt).toLocaleString()}</td>
+        <td>{formatDateTime(run.createdAt)}</td>
         <td><Button theme={ButtonTheme.CLEAR} className={own.rowLink} onClick={() => onOpen(run.id)}>{run.subject || run.preview}</Button></td>
         <td>{run.model ? `${run.provider ?? ''}/${run.model}` : '—'}</td>
         <td>{run.totalTokens}</td>
@@ -43,7 +45,7 @@ const Pager = memo(({ page, total, onChange }: { page: number; total: number; on
 const RunDetail = memo(({ run, onClose }: { run: SimulationRun; onClose: () => void }) => {
     const { t } = useTranslation();
     return <div className={own.result} role="region" aria-label={t('Simulation run')}>
-        <div className={cls.row}><strong>{new Date(run.createdAt).toLocaleString()}</strong><Button onClick={onClose}>{t('Close')}</Button></div>
+        <div className={cls.row}><strong>{formatDateTime(run.createdAt)}</strong><Button onClick={onClose}>{t('Close')}</Button></div>
         <p className={cls.muted}>{`${run.fromAddress} — ${run.subject || t('No subject')}`}</p>
         <pre className={own.draft}>{run.body}</pre>
         {run.error && <p role="alert" className={cls.error}>{run.error}</p>}

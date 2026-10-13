@@ -3,7 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { createUser, listUsers, updateUser } from '@/entities/crm';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
-import { CrmLayout, Field, RequestState } from './common';
+import { CrmLayout } from './common';
+import { Field } from '@/shared/ui/Field';
+import { RequestState } from '@/shared/ui/RequestState';
 import cls from './CrmPage.module.scss';
 
 const UserForm = memo(({ refresh }: {refresh: () => void}) => {

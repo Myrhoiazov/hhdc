@@ -4,11 +4,16 @@ import { useTranslation } from 'react-i18next';
 import {
     addTeamMember, createEventExpense, listEventTeam, listPeople, removeTeamMember, TEAM_PERSON_ROLES, TeamMember, TeamMemberChange, TeamPersonRole, updateTeamMember,
 } from '@/entities/crm';
+import { formText } from '@/shared/lib/form/formText';
 import { useAction } from '@/shared/lib/useResource/useAction';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
-import { Field, RequestState, useNumbers } from './common';
-import { ConfirmDelete, listStyles as list, useDelayed } from './ListTable';
+import { Field } from '@/shared/ui/Field';
+import { RequestState } from '@/shared/ui/RequestState';
+import { useNumbers } from '@/shared/lib/format/useNumbers';
+import { ConfirmDelete } from '@/shared/ui/ConfirmDelete';
+import { useDelayed } from '@/shared/lib/hooks/useDelayed/useDelayed';
+import { listStyles as list } from './ListTable';
 import cls from './CrmPage.module.scss';
 import own from './EventTeam.module.scss';
 
@@ -17,8 +22,7 @@ const MIN_SEARCH = 2;
 const ROLE_HINTS = ['Project administrator', 'Videographer', 'Photographer', 'Sound engineer', 'Equipment supplier'];
 const ROLE_HINTS_ID = 'event-team-role-hints';
 
-const text = (form: FormData, name: string) => String(form.get(name) ?? '').trim();
-const money = (form: FormData) => text(form, 'amount').replace(',', '.');
+const money = (form: FormData) => formText(form, 'amount').replace(',', '.');
 
 const RoleHints = memo(() => {
     const { t } = useTranslation();
@@ -67,7 +71,7 @@ const EditRow = memo(({ member, columns, busy, onCancel, onSave }: FormRowProps 
     const submit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const form = new FormData(event.currentTarget);
-        onSave(member, { roleTitle: text(form, 'roleTitle'), duties: text(form, 'duties') || null, notes: text(form, 'notes') || null });
+        onSave(member, { roleTitle: formText(form, 'roleTitle'), duties: formText(form, 'duties') || null, notes: formText(form, 'notes') || null });
     };
     return <tr><td colSpan={columns}><form className={own.fields} onSubmit={submit} aria-label={title}>
         <strong className={own.whole}>{title}</strong>
@@ -90,7 +94,7 @@ const PayRow = memo(({ member, columns, busy, onCancel, onPay }: FormRowProps & 
         const form = new FormData(event.currentTarget);
         const amount = money(form);
         if (!(Number(amount) > 0)) { setError(t('Enter an amount greater than zero')); return; }
-        onPay(member, { amount, expenseDate: text(form, 'expenseDate') || null, paid: Boolean(form.get('paid')) });
+        onPay(member, { amount, expenseDate: formText(form, 'expenseDate') || null, paid: Boolean(form.get('paid')) });
     };
     return <tr><td colSpan={columns}><form className={own.fields} onSubmit={submit} aria-label={title}>
         <strong className={own.whole}>{title}</strong>
@@ -148,8 +152,8 @@ const PersonFields = memo(() => {
 });
 
 const readMember = (form: FormData) => ({
-    personId: text(form, 'personId'), roleTitle: text(form, 'roleTitle'), duties: text(form, 'duties') || null,
-    personRole: text(form, 'personRole') as TeamPersonRole, ...(money(form) ? { amount: money(form) } : {}),
+    personId: formText(form, 'personId'), roleTitle: formText(form, 'roleTitle'), duties: formText(form, 'duties') || null,
+    personRole: formText(form, 'personRole') as TeamPersonRole, ...(money(form) ? { amount: money(form) } : {}),
 });
 
 const AddMember = memo(({ eventId, seesMoney, onSaved }: { eventId: string; seesMoney: boolean; onSaved: () => void }) => {

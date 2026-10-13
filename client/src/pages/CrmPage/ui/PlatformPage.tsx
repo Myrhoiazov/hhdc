@@ -4,7 +4,10 @@ import { ApiKey, createApiKey, createWebhook, FeatureFlag, listApiKeys, listFeat
 import { useAction } from '@/shared/lib/useResource/useAction';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
-import { CrmLayout, Field, RequestState, StatusBadge } from './common';
+import { CrmLayout } from './common';
+import { Field } from '@/shared/ui/Field';
+import { RequestState } from '@/shared/ui/RequestState';
+import { StatusBadge } from '@/shared/ui/StatusBadge';
 import cls from './CrmPage.module.scss';
 
 const WEBHOOK_EVENTS = ['person.created', 'registration.created', 'ticket.created', 'checkin.completed', 'payment.paid', 'event.updated'];

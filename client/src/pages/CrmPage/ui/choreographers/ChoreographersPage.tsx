@@ -8,7 +8,10 @@ import {
 import { getUserAuthData } from '@/entities/User';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
-import { CrmLayout, Field, RequestState, StatusBadge } from '../common';
+import { CrmLayout } from '../common';
+import { Field } from '@/shared/ui/Field';
+import { RequestState } from '@/shared/ui/RequestState';
+import { StatusBadge } from '@/shared/ui/StatusBadge';
 import { ChoreographerAvatar } from './ChoreographerAvatar';
 import cls from '../CrmPage.module.scss';
 import own from './Choreographers.module.scss';

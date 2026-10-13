@@ -5,7 +5,8 @@ import { useTranslation } from 'react-i18next';
 import { getDashboard } from '@/entities/crm';
 import { getUserAuthData } from '@/entities/User';
 import { useResource } from '@/shared/lib/useResource/useResource';
-import { CrmLayout, RequestState } from './common';
+import { CrmLayout } from './common';
+import { RequestState } from '@/shared/ui/RequestState';
 import { DashboardInsightsPanel } from './DashboardInsights';
 import cls from './CrmPage.module.scss';
 

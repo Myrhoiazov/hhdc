@@ -3,12 +3,15 @@ import { useSelector } from 'react-redux';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Activity, addPersonRole, getPerson, getPersonActivity, Person, PERSON_ROLES, PersonRole, removePersonRole, savePerson } from '@/entities/crm';
+import { formatDate, formatDateTime } from '@/shared/lib/format/date';
 import { classNames } from '@/shared/lib/classNames/classNames';
 import { getUserAuthData } from '@/entities/User';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button, ButtonTheme } from '@/shared/ui/Button';
 import { peopleListPath } from '../model/peopleListUrl';
-import { CrmLayout, Field, RequestState } from './common';
+import { CrmLayout } from './common';
+import { Field } from '@/shared/ui/Field';
+import { RequestState } from '@/shared/ui/RequestState';
 import { PersonConversations } from './PersonConversations';
 import { PersonExpenses } from './PersonExpenses';
 import { PersonOrders } from './PersonOrders';
@@ -99,7 +102,7 @@ const PersonSummary = memo(({ person, onSaved }: PersonProps) => {
             <Fact label="Phone">{contactLink('tel', person.phone)}</Fact>
             <Fact label="Country">{person.country || '—'}</Fact>
             <Fact label="Source">{person.source ? t(`Person source: ${person.source}`, { defaultValue: person.source }) : '—'}</Fact>
-            <Fact label="Added">{person.createdAt ? new Date(person.createdAt).toLocaleDateString() : '—'}</Fact>
+            <Fact label="Added">{person.createdAt ? formatDate(person.createdAt) : '—'}</Fact>
         </dl>
         <PersonRoles person={person} onSaved={onSaved} />
     </section>;
@@ -108,7 +111,7 @@ const PersonSummary = memo(({ person, onSaved }: PersonProps) => {
 const PersonActivity = memo(({ activity }: { activity: Activity[] | undefined }) => {
     const { t } = useTranslation();
     return <>
-        {activity?.map(item => <div className={cls.row} key={item.id}><span className={own.activityType}>{t(item.type)}</span><time className={own.activityTime}>{new Date(item.createdAt).toLocaleString()}</time></div>)}
+        {activity?.map(item => <div className={cls.row} key={item.id}><span className={own.activityType}>{t(item.type)}</span><time className={own.activityTime}>{formatDateTime(item.createdAt)}</time></div>)}
         {activity?.length === 0 && <p className={cls.muted}>{t('No activity yet')}</p>}
     </>;
 });

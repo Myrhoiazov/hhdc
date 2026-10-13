@@ -2,10 +2,11 @@ import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Conversation, listConversations, listPrompts, listProviders, markConversationRead, Person, PromptVersion } from '@/entities/crm';
 import { ComposeEmailModal, onEmailSent } from '@/features/composeEmail';
+import { formatDate } from '@/shared/lib/format/date';
 import { classNames } from '@/shared/lib/classNames/classNames';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
-import { RequestState } from './common';
+import { RequestState } from '@/shared/ui/RequestState';
 import { ConversationDetail } from './email/ConversationDetail';
 import cls from './CrmPage.module.scss';
 import own from './PersonConversations.module.scss';
@@ -37,7 +38,7 @@ const ThreadRow = memo(({ thread, selected, onOpen }: { thread: Conversation; se
     const unread = thread.unreadCount ?? 0;
     return <button type="button" aria-expanded={selected} className={classNames(own.thread, { [own.selected]: selected })} onClick={() => onOpen(thread.id)}>
         <span className={classNames(own.subject, { [own.unread]: unread > 0 })}>{thread.subject}</span>
-        <span className={own.meta}>{unread > 0 && <>{t('Unread: {{count}}', { count: unread })} · </>}{thread.lastMessageAt ? new Date(thread.lastMessageAt).toLocaleDateString() : ''}</span>
+        <span className={own.meta}>{unread > 0 && <>{t('Unread: {{count}}', { count: unread })} · </>}{thread.lastMessageAt ? formatDate(thread.lastMessageAt) : ''}</span>
         <span className={own.preview}>{thread.messages?.[0]?.bodyText || ''}</span>
     </button>;
 });

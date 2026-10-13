@@ -1,8 +1,9 @@
-import { FormEvent, memo, ReactNode, useCallback, useMemo } from 'react';
+import { FormEvent, memo, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { listProviders, ProviderConnection } from '@/entities/crm';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button, ButtonTheme } from '@/shared/ui/Button';
+import { Field } from '@/shared/ui/Field';
 import { Modal } from '@/shared/ui/Modal';
 import { announceEmailSent } from '../../model/emailSent';
 import { ComposeFields, useComposeEmailForm } from '../../model/useComposeEmailForm';
@@ -15,11 +16,6 @@ interface ComposeEmailModalProps {
     recipient?: string;
 }
 
-const Field = memo(({ label, children }: { label: string; children: ReactNode }) => {
-    const { t } = useTranslation();
-    return <label className={cls.field}><span>{t(label)}</span>{children}</label>;
-});
-
 interface ComposeFieldsetProps {
     fields: ComposeFields;
     providers: ProviderConnection[];
@@ -29,19 +25,19 @@ interface ComposeFieldsetProps {
 const ComposeFieldset = memo(({ fields, providers, onChange }: ComposeFieldsetProps) => {
     const { t } = useTranslation();
     return <>
-        <Field label="Send from">
+        <Field className={cls.field} label="Send from">
             <select value={fields.providerId} onChange={(event) => onChange('providerId', event.target.value)}>
                 {providers.map((provider) => <option key={provider.id} value={provider.id}>{provider.name}</option>)}
             </select>
         </Field>
-        <Field label="To">
+        <Field className={cls.field} label="To">
             <input type="email" autoComplete="off" value={fields.recipient} placeholder="client@example.com"
                 onChange={(event) => onChange('recipient', event.target.value)} />
         </Field>
-        <Field label="Subject">
+        <Field className={cls.field} label="Subject">
             <input value={fields.subject} maxLength={300} onChange={(event) => onChange('subject', event.target.value)} />
         </Field>
-        <Field label="Message">
+        <Field className={cls.field} label="Message">
             <textarea rows={9} value={fields.content} placeholder={t('Write a message…')}
                 onChange={(event) => onChange('content', event.target.value)} />
         </Field>

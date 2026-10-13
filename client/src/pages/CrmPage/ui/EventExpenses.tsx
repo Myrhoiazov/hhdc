@@ -4,11 +4,16 @@ import { useTranslation } from 'react-i18next';
 import {
     createEventExpense, deleteEventExpense, EVENT_EXPENSE_CATEGORIES, EventExpenseCategory, EventExpenseInput, ExpenseLine, ExpenseList, ExpenseStatus, listEventExpenses, listEventTeam, listPayees, TeamMember, updateEventExpense,
 } from '@/entities/crm';
+import { formatDate } from '@/shared/lib/format/date';
 import { useAction } from '@/shared/lib/useResource/useAction';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
-import { Field, RequestState, useNumbers } from './common';
-import { ConfirmDelete, listStyles as own, useDelayed } from './ListTable';
+import { Field } from '@/shared/ui/Field';
+import { RequestState } from '@/shared/ui/RequestState';
+import { useNumbers } from '@/shared/lib/format/useNumbers';
+import { ConfirmDelete } from '@/shared/ui/ConfirmDelete';
+import { useDelayed } from '@/shared/lib/hooks/useDelayed/useDelayed';
+import { listStyles as own } from './ListTable';
 import cls from './CrmPage.module.scss';
 import form from './EventExpenses.module.scss';
 
@@ -56,7 +61,7 @@ const ExpenseRow = memo(({ line, ...actions }: RowActions & { line: ExpenseLine 
     const text = useExpenseText(line.currency);
     const own_ = line.source === 'EVENT';
     return <tr>
-        <td className={`${own.secondary} ${own.whole}`}>{line.date ? new Date(line.date).toLocaleDateString() : '—'}</td>
+        <td className={`${own.secondary} ${own.whole}`}>{line.date ? formatDate(line.date) : '—'}</td>
         <td>{text.category(line.category)}</td>
         <td>{line.person ? <Link className={own.name} to={`/people/${line.person.id}`}>{line.person.displayName}</Link> : '—'}
             {line.teamMember && <span className={form.role}>{line.teamMember.roleTitle}</span>}</td>

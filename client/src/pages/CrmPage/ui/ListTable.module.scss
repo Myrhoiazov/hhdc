@@ -112,13 +112,6 @@
     gap: 6px;
 }
 
-.pager {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 12px;
-}
-
 @media (width <= 900px) {
     .optional {
         display: none;

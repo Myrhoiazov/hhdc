@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { messageOf } from './messageOf';
 
 export const useResource = <T,>(load: () => Promise<T>) => {
     const [data, setData] = useState<T>();
@@ -8,7 +9,7 @@ export const useResource = <T,>(load: () => Promise<T>) => {
         setLoading(true);
         setError('');
         try { setData(await load()); }
-        catch (cause) { setError(cause instanceof Error ? cause.message : 'Request failed'); }
+        catch (cause) { setError(messageOf(cause)); }
         finally { setLoading(false); }
     }, [load]);
     useEffect(() => { void refresh(); }, [refresh]);

@@ -1,10 +1,16 @@
 import { FormEvent, memo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { deleteKnowledge, KnowledgeDocument, KnowledgeFilters, listEvents, listKnowledge, saveKnowledge } from '@/entities/crm';
+import { formatDate } from '@/shared/lib/format/date';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
-import { Field, RequestState, StatusBadge } from '../common';
-import { ConfirmDelete, listStyles as table, Pager, useListFilters } from '../ListTable';
+import { Field } from '@/shared/ui/Field';
+import { RequestState } from '@/shared/ui/RequestState';
+import { StatusBadge } from '@/shared/ui/StatusBadge';
+import { ConfirmDelete } from '@/shared/ui/ConfirmDelete';
+import { Pager } from '@/shared/ui/Pager';
+import { useListFilters } from '@/shared/lib/hooks/useListFilters/useListFilters';
+import { listStyles as table } from '../ListTable';
 import cls from '../CrmPage.module.scss';
 import { KnowledgeSyncPanel } from './KnowledgeSyncPanel';
 
@@ -54,7 +60,7 @@ const DocumentRow = memo(({ document, onOpen, onDeleted, onError }: RowProps) =>
         <td><span className={cls.badge}>{t(`Knowledge scope: ${document.scope}`)}</span></td>
         <td><StatusBadge status={document.status} /></td>
         <td className={`${table.secondary} ${table.optional}`}>{document.sourceType ? t(`Knowledge source: ${document.sourceType}`, { defaultValue: document.sourceType }) : '—'}</td>
-        <td className={`${table.secondary} ${table.optional}`}>{document.updatedAt ? new Date(document.updatedAt).toLocaleDateString() : '—'}</td>
+        <td className={`${table.secondary} ${table.optional}`}>{document.updatedAt ? formatDate(document.updatedAt) : '—'}</td>
         <td><DeleteDocument document={document} onDeleted={onDeleted} onError={onError} /></td>
     </tr>;
 });

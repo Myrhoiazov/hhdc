@@ -4,13 +4,15 @@ import {
     ChoreographerContact, CONTACT_KINDS, ContactKind, createChoreographerContact, deactivateChoreographerContact, listChoreographerContacts,
     updateChoreographerContact,
 } from '@/entities/crm';
+import { formText } from '@/shared/lib/form/formText';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
-import { Field, RequestState, StatusBadge } from '../common';
+import { Field } from '@/shared/ui/Field';
+import { RequestState } from '@/shared/ui/RequestState';
+import { StatusBadge } from '@/shared/ui/StatusBadge';
 import cls from '../CrmPage.module.scss';
 import own from './Choreographers.module.scss';
 
-const text = (form: FormData, name: string) => String(form.get(name) ?? '').trim();
 
 interface ContactRowProps {
     contact: ChoreographerContact;
@@ -47,8 +49,8 @@ const ContactForm = memo(({ personId, onSaved }: { personId: string; onSaved: ()
         setBusy(true); setError('');
         try {
             await createChoreographerContact(personId, {
-                kind: text(form, 'kind') as ContactKind, name: text(form, 'name'), organization: text(form, 'organization'),
-                email: text(form, 'email'), phone: text(form, 'phone'), notes: text(form, 'notes'), isPrimary: form.get('isPrimary') === 'on',
+                kind: formText(form, 'kind') as ContactKind, name: formText(form, 'name'), organization: formText(form, 'organization'),
+                email: formText(form, 'email'), phone: formText(form, 'phone'), notes: formText(form, 'notes'), isPrimary: form.get('isPrimary') === 'on',
             });
             formElement.reset(); onSaved();
         } catch (cause) { setError(cause instanceof Error ? cause.message : t('Unable to save')); }

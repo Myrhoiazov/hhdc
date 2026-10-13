@@ -4,10 +4,15 @@ import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ChoreographerDetail, ChoreographerProfileInput, getChoreographer, RELATIONSHIP_STATUSES, RelationshipStatus, updateChoreographer } from '@/entities/crm';
 import { getUserAuthData } from '@/entities/User';
+import { formText } from '@/shared/lib/form/formText';
+import { formatLongDate } from '@/shared/lib/format/date';
 import { classNames } from '@/shared/lib/classNames/classNames';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
-import { CrmLayout, Field, RequestState, StatusBadge } from '../common';
+import { CrmLayout } from '../common';
+import { Field } from '@/shared/ui/Field';
+import { RequestState } from '@/shared/ui/RequestState';
+import { StatusBadge } from '@/shared/ui/StatusBadge';
 import { ActivityTab } from './ActivityTab';
 import { BioVersions } from './BioVersions';
 import { ChoreographerAvatar } from './ChoreographerAvatar';
@@ -41,7 +46,6 @@ const CHECKLIST_LABELS: Record<string, string> = {
     stage_name: 'Stage name', biography: 'Biography', styles: 'Dance styles', country: 'Country', social_link: 'Instagram or website', email: 'Email',
 };
 
-const formatDate = (value: string) => new Date(value).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
 
 const ProfileHeader = memo(({ detail }: { detail: ChoreographerDetail }) => {
     const { t } = useTranslation();
@@ -96,7 +100,7 @@ const OverviewTab = memo(({ detail }: { detail: ChoreographerDetail }) => {
         <section className={cls.panel} aria-label={t('Events')}><h2>{t('Events')}</h2>
             {assignments.map((assignment) => <div className={cls.row} key={assignment.id}>
                 <Link to={`/events/${assignment.event.id}`}>{assignment.event.name}</Link>
-                <span className={own.secondary}>{`${formatDate(assignment.event.startAt)} · ${assignment.roleTitle}`}</span>
+                <span className={own.secondary}>{`${formatLongDate(assignment.event.startAt)} · ${assignment.roleTitle}`}</span>
                 <StatusBadge status={assignment.status} />
             </div>)}
             {!assignments.length && <p className={cls.muted}>{t('Not assigned to any event yet.')}</p>}
@@ -106,14 +110,13 @@ const OverviewTab = memo(({ detail }: { detail: ChoreographerDetail }) => {
 });
 
 const toList = (value: FormDataEntryValue | null) => String(value ?? '').split(',').map((item) => item.trim()).filter(Boolean);
-const text = (form: FormData, name: string) => String(form.get(name) ?? '').trim();
 
 const readProfileForm = (form: FormData): ChoreographerProfileInput => ({
-    stageName: text(form, 'stageName'), relationshipStatus: text(form, 'relationshipStatus') as RelationshipStatus,
-    countryCode: text(form, 'countryCode'), city: text(form, 'city'), timezone: text(form, 'timezone'),
+    stageName: formText(form, 'stageName'), relationshipStatus: formText(form, 'relationshipStatus') as RelationshipStatus,
+    countryCode: formText(form, 'countryCode'), city: formText(form, 'city'), timezone: formText(form, 'timezone'),
     styles: toList(form.get('styles')), languages: toList(form.get('languages')),
-    bioShort: text(form, 'bioShort'), bioFull: text(form, 'bioFull'),
-    instagramUrl: text(form, 'instagramUrl'), tiktokUrl: text(form, 'tiktokUrl'), youtubeUrl: text(form, 'youtubeUrl'), websiteUrl: text(form, 'websiteUrl'),
+    bioShort: formText(form, 'bioShort'), bioFull: formText(form, 'bioFull'),
+    instagramUrl: formText(form, 'instagramUrl'), tiktokUrl: formText(form, 'tiktokUrl'), youtubeUrl: formText(form, 'youtubeUrl'), websiteUrl: formText(form, 'websiteUrl'),
 });
 
 const LinkFields = memo(({ detail }: { detail: ChoreographerDetail }) => <>

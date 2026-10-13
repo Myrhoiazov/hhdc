@@ -7,7 +7,9 @@ jest.mock('@/entities/crm', () => ({
     addTeamMember: jest.fn(), createEventExpense: jest.fn(), listEventTeam: jest.fn(), listPeople: jest.fn(), removeTeamMember: jest.fn(), updateTeamMember: jest.fn(),
     TEAM_PERSON_ROLES: ['STAFF', 'PARTNER'],
 }));
-jest.mock('./ListTable', () => ({ ...jest.requireActual('./ListTable'), useDelayed: (value: string) => value }));
+jest.mock('@/shared/lib/hooks/useDelayed/useDelayed', () => ({
+    ...jest.requireActual('@/shared/lib/hooks/useDelayed/useDelayed'), useDelayed: (value: string) => value,
+}));
 
 const member = (overrides: Partial<TeamMember> = {}): TeamMember => ({
     id: 'm1', roleTitle: 'Videographer', duties: 'Films the show', notes: null,

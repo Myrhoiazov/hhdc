@@ -1,0 +1,9 @@
+.ConfirmDelete {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.error {
+    color: var(--danger-text-redesigned);
+}

@@ -4,12 +4,17 @@ import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { listPeoplePage, PeopleFilters, Person, PERSON_ROLES as ROLES, PERSON_SOURCES } from '@/entities/crm';
 import { getUserAuthData } from '@/entities/User';
+import { formatDate } from '@/shared/lib/format/date';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
 import { readPeopleList, writePeopleList } from '../model/peopleListUrl';
-import { CrmLayout, Field, RequestState } from './common';
+import { CrmLayout } from './common';
+import { Field } from '@/shared/ui/Field';
+import { RequestState } from '@/shared/ui/RequestState';
+import { Pager } from '@/shared/ui/Pager';
+import { useListFilters } from '@/shared/lib/hooks/useListFilters/useListFilters';
 import cls from './CrmPage.module.scss';
-import { listStyles as own, Pager, useListFilters } from './ListTable';
+import { listStyles as own } from './ListTable';
 import { DeleteContactButton } from './PersonRemoval';
 
 const NO_FILTERS: PeopleFilters = { q: '', role: '', source: '', purchases: '' };
@@ -69,7 +74,7 @@ const PersonRow = memo(({ person, onDeleted }: RowProps) => {
         <td><span className={own.badges}>{person.roles.map(item => <span className={cls.badge} key={item.role}>{t(item.role)}</span>)}</span></td>
         <td className={`${own.secondary} ${own.optional}`}>{person.source ? t(`Person source: ${person.source}`, { defaultValue: person.source }) : '—'}</td>
         <td className={own.number}>{person._count?.orders ?? 0}</td>
-        <td className={`${own.secondary} ${own.optional} ${own.whole}`}>{person.createdAt ? new Date(person.createdAt).toLocaleDateString() : '—'}</td>
+        <td className={`${own.secondary} ${own.optional} ${own.whole}`}>{person.createdAt ? formatDate(person.createdAt) : '—'}</td>
         {onDeleted && <td>{person.removal?.allowed && <DeleteContactButton person={person} onDeleted={onDeleted} />}</td>}
     </tr>;
 });

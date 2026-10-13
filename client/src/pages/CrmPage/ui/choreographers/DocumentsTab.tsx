@@ -6,7 +6,9 @@ import {
 } from '@/entities/crm';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
-import { Field, RequestState, StatusBadge } from '../common';
+import { Field } from '@/shared/ui/Field';
+import { RequestState } from '@/shared/ui/RequestState';
+import { StatusBadge } from '@/shared/ui/StatusBadge';
 import cls from '../CrmPage.module.scss';
 import own from './Choreographers.module.scss';
 

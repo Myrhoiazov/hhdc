@@ -2,7 +2,9 @@ import { FormEvent, memo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { activatePrompt, createPromptVersion, EMAIL_PROMPT_KEYS, EmailPromptKey, PromptVersion } from '@/entities/crm';
 import { Button } from '@/shared/ui/Button';
-import { Field, RequestState, StatusBadge } from '../common';
+import { Field } from '@/shared/ui/Field';
+import { RequestState } from '@/shared/ui/RequestState';
+import { StatusBadge } from '@/shared/ui/StatusBadge';
 import cls from '../CrmPage.module.scss';
 import own from './Knowledge.module.scss';
 

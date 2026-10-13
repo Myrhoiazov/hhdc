@@ -2,12 +2,18 @@ import { memo, useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Event, getLedgerSummary, LEDGER_CATEGORIES, LedgerCategory, LedgerCategoryTotal, LedgerEntry, LedgerFilters, LedgerSummary, listEvents, listLedgerPage } from '@/entities/crm';
+import { formatDate } from '@/shared/lib/format/date';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
-import { Field, RequestState, StatusBadge, useNumbers } from './common';
+import { Field } from '@/shared/ui/Field';
+import { RequestState } from '@/shared/ui/RequestState';
+import { StatusBadge } from '@/shared/ui/StatusBadge';
+import { useNumbers } from '@/shared/lib/format/useNumbers';
+import { Pager } from '@/shared/ui/Pager';
+import { useListFilters } from '@/shared/lib/hooks/useListFilters/useListFilters';
 import { Bar, chartStyles, Tile } from './Charts';
 import { REFUNDABLE, RefundRequestForm } from './FinanceRefunds';
-import { listStyles as table, Pager, useListFilters } from './ListTable';
+import { listStyles as table } from './ListTable';
 import cls from './CrmPage.module.scss';
 import own from './FinanceLedger.module.scss';
 
@@ -99,7 +105,7 @@ const EntryRow = memo(({ entry, onRefunded }: { entry: LedgerEntry; onRefunded: 
     const text = useLedgerText(entry.currency);
     const done = () => { setRefunding(false); onRefunded(); };
     return <><tr>
-        <td className={table.secondary}><time dateTime={entry.date}>{new Date(entry.date).toLocaleDateString()}</time></td>
+        <td className={table.secondary}><time dateTime={entry.date}>{formatDate(entry.date)}</time></td>
         <td><span className={cls.badge}>{text.category(entry.category)}</span></td>
         <td><NamedLink to="/people" named={entry.person} /></td>
         <td className={table.optional}><NamedLink to="/events" named={entry.event} /></td>

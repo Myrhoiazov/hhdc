@@ -5,7 +5,9 @@ import { Campaign, CampaignPreview, createExport, DuplicateCandidate, listCampai
 import { useAction } from '@/shared/lib/useResource/useAction';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
-import { CrmLayout, RequestState, StatusBadge } from './common';
+import { CrmLayout } from './common';
+import { RequestState } from '@/shared/ui/RequestState';
+import { StatusBadge } from '@/shared/ui/StatusBadge';
 import cls from './CrmPage.module.scss';
 
 const EXPORTS = ['people', 'participants', 'registrations', 'orders', 'tickets', 'finance'];

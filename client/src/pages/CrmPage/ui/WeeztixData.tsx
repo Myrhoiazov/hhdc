@@ -1,10 +1,11 @@
 import { memo, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { importWeeztixContacts, listSyncRuns, previewWeeztixContacts, SyncRun, syncWeeztixCatalog, syncWeeztixSales, WeeztixContactsResult } from '@/entities/crm';
+import { formatDateTime } from '@/shared/lib/format/date';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { useAction } from '@/shared/lib/useResource/useAction';
 import { Button } from '@/shared/ui/Button';
-import { StatusBadge } from './common';
+import { StatusBadge } from '@/shared/ui/StatusBadge';
 import { listStyles as table } from './ListTable';
 import cls from './CrmPage.module.scss';
 import own from './WeeztixData.module.scss';
@@ -57,7 +58,7 @@ const ContactsPreview = memo(({ preview, busy, onImport }: { preview: WeeztixCon
 const RunRow = memo(({ run }: { run: SyncRun }) => {
     const { t } = useTranslation();
     return <tr>
-        <td className={table.secondary}><time dateTime={run.startedAt}>{new Date(run.startedAt).toLocaleString()}</time></td>
+        <td className={table.secondary}><time dateTime={run.startedAt}>{formatDateTime(run.startedAt)}</time></td>
         <td>{t(`Sync scope: ${run.metadata.scope ?? 'OTHER'}`, { defaultValue: run.metadata.scope ?? run.type })}</td>
         <td><StatusBadge status={run.status} /></td>
         <td className={table.number}>{run.createdCount}</td><td className={table.number}>{run.updatedCount}</td>

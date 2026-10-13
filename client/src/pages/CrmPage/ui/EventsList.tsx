@@ -2,10 +2,16 @@ import { FormEvent, memo, useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { createEvent, Event, EVENT_STATUSES, EventFilters, listEventsPage } from '@/entities/crm';
+import { formatDate } from '@/shared/lib/format/date';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
-import { CrmLayout, Field, RequestState, StatusBadge } from './common';
-import { listStyles as own, Pager, useListFilters } from './ListTable';
+import { CrmLayout } from './common';
+import { Field } from '@/shared/ui/Field';
+import { RequestState } from '@/shared/ui/RequestState';
+import { StatusBadge } from '@/shared/ui/StatusBadge';
+import { Pager } from '@/shared/ui/Pager';
+import { useListFilters } from '@/shared/lib/hooks/useListFilters/useListFilters';
+import { listStyles as own } from './ListTable';
 import cls from './CrmPage.module.scss';
 
 const NO_FILTERS: EventFilters = { q: '', status: '', period: '' };
@@ -38,7 +44,7 @@ const EventForm = memo(({ onSaved }: { onSaved: () => void }) => {
 
 // One date for a one-day event, a range otherwise.
 const eventDates = (event: Event): string => {
-    const [start, end] = [new Date(event.startAt).toLocaleDateString(), new Date(event.endAt).toLocaleDateString()];
+    const [start, end] = [formatDate(event.startAt), formatDate(event.endAt)];
     return start === end ? start : `${start} – ${end}`;
 };
 

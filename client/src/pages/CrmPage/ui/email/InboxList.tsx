@@ -1,5 +1,6 @@
 import { memo, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import { formatDate } from '@/shared/lib/format/date';
 import SearchIcon from '@/shared/assets/icons/search.svg';
 import { Conversation, isClient, ProviderConnection } from '@/entities/crm';
 import { classNames } from '@/shared/lib/classNames/classNames';
@@ -53,7 +54,7 @@ const senderName = (conversation: Conversation) => conversation.person?.displayN
     || conversation.person?.email || conversation.messages?.[0]?.sender || '—';
 const previewText = (conversation: Conversation) => conversation.messages?.[0]?.bodyText || '';
 const formatListDate = (value?: string) => value
-    ? new Date(value).toLocaleDateString(undefined, { day: '2-digit', month: 'short' }) : '';
+    ? formatDate(value, { day: '2-digit', month: 'short' }) : '';
 
 const STATE_BADGES: Record<MailState, { label: string; className: string }[]> = {
     NEW: [{ label: 'Incoming', className: cls.badgeIncoming }, { label: 'New', className: cls.badgeNew }],

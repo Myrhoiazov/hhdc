@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { addBioVersion, BIO_KINDS, BioKind, BioVersion, listBioVersions } from '@/entities/crm';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
-import { Field, RequestState } from '../common';
+import { Field } from '@/shared/ui/Field';
+import { RequestState } from '@/shared/ui/RequestState';
 import cls from '../CrmPage.module.scss';
 import own from './Choreographers.module.scss';
 

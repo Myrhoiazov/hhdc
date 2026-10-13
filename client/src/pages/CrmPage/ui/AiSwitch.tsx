@@ -4,7 +4,7 @@ import { activateAiProvider, ProviderConnection } from '@/entities/crm';
 import { classNames } from '@/shared/lib/classNames/classNames';
 import { useAction } from '@/shared/lib/useResource/useAction';
 import { activeAiProvider, generationCandidates } from '../model/activeAi';
-import { RequestState } from './common';
+import { RequestState } from '@/shared/ui/RequestState';
 import page from './CrmPage.module.scss';
 import cls from './AiSwitch.module.scss';
 

@@ -4,8 +4,11 @@ import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Event, getEvent, listTicketTypes } from '@/entities/crm';
 import { getUserAuthData } from '@/entities/User';
+import { formatDateTime } from '@/shared/lib/format/date';
 import { useResource } from '@/shared/lib/useResource/useResource';
-import { CrmLayout, RequestState, useNumbers } from './common';
+import { CrmLayout } from './common';
+import { RequestState } from '@/shared/ui/RequestState';
+import { useNumbers } from '@/shared/lib/format/useNumbers';
 import { EventDocuments } from './choreographers/EventDocuments';
 import { EventExpenses } from './EventExpenses';
 import { EventPeople } from './EventPeople';
@@ -29,7 +32,7 @@ const EventTicketTypes = memo(({ eventId }: { eventId: string }) => {
 
 const EventDates = memo(({ event }: { event: Event }) => (
     <section className={cls.panel}>
-        <p>{new Date(event.startAt).toLocaleString()} — {new Date(event.endAt).toLocaleString()}</p>
+        <p>{formatDateTime(event.startAt)} — {formatDateTime(event.endAt)}</p>
         <p>{event.timezone} · {event.venueName}</p>
     </section>
 ));

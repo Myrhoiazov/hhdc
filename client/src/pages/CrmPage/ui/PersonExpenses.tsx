@@ -2,8 +2,9 @@ import { memo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { listPersonExpenses } from '@/entities/crm';
+import { formatDate } from '@/shared/lib/format/date';
 import { useResource } from '@/shared/lib/useResource/useResource';
-import { RequestState } from './common';
+import { RequestState } from '@/shared/ui/RequestState';
 import { ExpenseTotals, useExpenseText } from './EventExpenses';
 import { listStyles as own } from './ListTable';
 import cls from './CrmPage.module.scss';
@@ -25,7 +26,7 @@ export const PersonExpenses = memo(({ personId }: { personId: string }) => {
             <div className={own.tableScroll}><table className={own.table}>
                 <thead><tr><th>{t('Date')}</th><th>{t('Event')}</th><th>{t('Category')}</th><th className={own.optional}>{t('Description')}</th><th className={own.number}>{t('Amount')}</th><th>{t('Status')}</th></tr></thead>
                 <tbody>{data.lines.map(line => <tr key={line.id}>
-                    <td className={own.secondary}>{line.date ? new Date(line.date).toLocaleDateString() : '—'}</td>
+                    <td className={own.secondary}>{line.date ? formatDate(line.date) : '—'}</td>
                     <td>{line.event ? <Link className={own.name} to={`/events/${line.event.id}`}>{line.event.name}</Link> : '—'}</td>
                     <td>{text.category(line.category)}</td>
                     <td className={`${own.secondary} ${own.optional}`}>{line.description || '—'}</td>

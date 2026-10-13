@@ -1,8 +1,10 @@
 import { memo, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChoreographerActivityItem, listChoreographerActivity } from '@/entities/crm';
+import { formatDateTime } from '@/shared/lib/format/date';
 import { Button } from '@/shared/ui/Button';
-import { Field, RequestState } from '../common';
+import { Field } from '@/shared/ui/Field';
+import { RequestState } from '@/shared/ui/RequestState';
 import cls from '../CrmPage.module.scss';
 import own from './Choreographers.module.scss';
 
@@ -22,7 +24,7 @@ const ActivityRow = memo(({ item }: { item: ChoreographerActivityItem }) => {
     return <li className={cls.row}>
         <span><strong>{t(`ACTIVITY_${item.type}`, { defaultValue: item.type.replace(/_/g, ' ').toLowerCase() })}</strong>
             <div className={own.secondary}>{[item.event?.name, item.actor].filter(Boolean).join(' · ')}</div></span>
-        <time className={own.secondary} dateTime={item.createdAt}>{new Date(item.createdAt).toLocaleString()}</time>
+        <time className={own.secondary} dateTime={item.createdAt}>{formatDateTime(item.createdAt)}</time>
     </li>;
 });
 
