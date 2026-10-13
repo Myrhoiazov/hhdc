@@ -1,4 +1,4 @@
-import { ProviderConnection } from '@/entities/crm';
+import { ProviderConnection } from '@/entities/Provider';
 
 const AI_PROVIDERS = ['OPENAI', 'OLLAMA'];
 

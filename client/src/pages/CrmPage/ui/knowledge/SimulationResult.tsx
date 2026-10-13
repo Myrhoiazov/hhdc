@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { SimulationKnowledge, SimulationView } from '@/entities/crm';
+import { SimulationKnowledge, SimulationView } from '@/entities/EmailSimulation';
 import { classNames } from '@/shared/lib/classNames/classNames';
 import cls from '../CrmPage.module.scss';
 import own from './Knowledge.module.scss';

@@ -40,4 +40,4 @@ export interface Activity {
     createdAt: string;
     entityType?: string;
 }
-export interface PageResult<T> { data: T[]; total: number }
+export type { PageResult } from '@/shared/api/request';

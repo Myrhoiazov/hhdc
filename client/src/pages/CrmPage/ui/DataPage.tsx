@@ -1,7 +1,9 @@
 import { memo, useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Campaign, CampaignPreview, createExport, DuplicateCandidate, listCampaigns, listDuplicates, mergePeople, previewCampaign, resolveDuplicate, scanDuplicates, sendCampaign } from '@/entities/crm';
+import { Campaign, CampaignPreview, listCampaigns, previewCampaign, sendCampaign } from '@/entities/Campaign';
+import { createExport } from '@/entities/DataExport';
+import { DuplicateCandidate, listDuplicates, mergePeople, resolveDuplicate, scanDuplicates } from '@/entities/Duplicate';
 import { useAction } from '@/shared/lib/useResource/useAction';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';

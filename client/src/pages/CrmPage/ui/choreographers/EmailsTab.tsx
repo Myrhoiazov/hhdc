@@ -1,9 +1,8 @@
 import { FormEvent, memo, useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import {
-    ChoreographerThread, Conversation, linkChoreographerThread, listChoreographerThreads, listConversations, unlinkChoreographerThread,
-} from '@/entities/crm';
+import { ChoreographerThread, linkChoreographerThread, listChoreographerThreads, unlinkChoreographerThread } from '@/entities/Choreographer';
+import { Conversation, listConversations } from '@/entities/crm';
 import { formatDate } from '@/shared/lib/format/date';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';

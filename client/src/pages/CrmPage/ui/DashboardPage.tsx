@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { getDashboard } from '@/entities/crm';
+import { getDashboard } from '@/entities/Dashboard';
 import { useCan } from '@/entities/User';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { CrmLayout } from './common';

@@ -1,9 +1,7 @@
 import { ChangeEvent, FormEvent, memo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-    ChoreographerHistoryItem, CONTRACT_STATUSES, DOCUMENT_TYPES, DocumentKind, fetchDocumentFile, FileDocument, INVOICE_STATUSES, listChoreographerDocuments,
-    listChoreographerHistory, MAX_DOCUMENT_BYTES, updateDocumentMetadata, uploadChoreographerDocument, uploadDocumentVersion,
-} from '@/entities/crm';
+import { ChoreographerHistoryItem, listChoreographerHistory } from '@/entities/Choreographer';
+import { CONTRACT_STATUSES, DOCUMENT_TYPES, DocumentKind, fetchDocumentFile, FileDocument, INVOICE_STATUSES, listChoreographerDocuments, MAX_DOCUMENT_BYTES, updateDocumentMetadata, uploadChoreographerDocument, uploadDocumentVersion } from '@/entities/Document';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
 import { Field } from '@/shared/ui/Field';

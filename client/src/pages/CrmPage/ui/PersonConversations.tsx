@@ -1,6 +1,8 @@
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Conversation, listConversations, listPrompts, listProviders, markConversationRead, Person, PromptVersion } from '@/entities/crm';
+import { Conversation, listConversations, markConversationRead, Person } from '@/entities/crm';
+import { listPrompts, PromptVersion } from '@/entities/Prompt';
+import { listProviders } from '@/entities/Provider';
 import { ComposeEmailModal, onEmailSent } from '@/features/composeEmail';
 import { formatDate } from '@/shared/lib/format/date';
 import { classNames } from '@/shared/lib/classNames/classNames';

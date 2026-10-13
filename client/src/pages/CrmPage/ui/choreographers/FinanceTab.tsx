@@ -1,10 +1,7 @@
 import { FormEvent, memo, ReactNode, useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import {
-    cancelChoreographerExpense, cancelFeeAgreement, ChoreographerExpense, CurrencyTotals, EXPENSE_CATEGORIES, EXPENSE_PAYERS, FEE_STATUSES, FeeAgreement,
-    FinanceAssignment, getChoreographerFinance, movePayout, PAYOUT_TYPES, PayoutRecord, PayoutStatus, recordChoreographerExpense, recordFeeAgreement, recordPayout,
-} from '@/entities/crm';
+import { cancelChoreographerExpense, cancelFeeAgreement, ChoreographerExpense, CurrencyTotals, EXPENSE_CATEGORIES, EXPENSE_PAYERS, FEE_STATUSES, FeeAgreement, FinanceAssignment, getChoreographerFinance, movePayout, PAYOUT_TYPES, PayoutRecord, PayoutStatus, recordChoreographerExpense, recordFeeAgreement, recordPayout } from '@/entities/Choreographer';
 import { formText } from '@/shared/lib/form/formText';
 import { formatDate } from '@/shared/lib/format/date';
 import { useResource } from '@/shared/lib/useResource/useResource';

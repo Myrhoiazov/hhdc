@@ -1,8 +1,10 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { connectWeeztix, startWeeztixAuthorization } from '@/entities/crm';
+import { connectWeeztix, startWeeztixAuthorization } from '@/entities/Provider';
 import { WeeztixConnect } from './WeeztixConnect';
 
-jest.mock('@/entities/crm', () => ({ connectWeeztix: jest.fn(), startWeeztixAuthorization: jest.fn() }));
+jest.mock('@/entities/Provider', () => ({
+    connectWeeztix: jest.fn(), startWeeztixAuthorization: jest.fn(),
+}));
 jest.mock('./WeeztixData', () => ({ WeeztixData: () => null }));
 
 const onConnected = jest.fn();

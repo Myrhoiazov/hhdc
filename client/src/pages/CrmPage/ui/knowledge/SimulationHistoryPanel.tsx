@@ -1,6 +1,6 @@
 import { memo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getSimulationRun, listSimulationRuns, SIMULATION_PAGE_SIZE, SimulationRun, SimulationRunSummary } from '@/entities/crm';
+import { getSimulationRun, listSimulationRuns, SIMULATION_PAGE_SIZE, SimulationRun, SimulationRunSummary } from '@/entities/EmailSimulation';
 import { formatDateTime } from '@/shared/lib/format/date';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button, ButtonTheme } from '@/shared/ui/Button';

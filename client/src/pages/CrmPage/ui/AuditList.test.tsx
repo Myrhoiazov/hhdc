@@ -1,8 +1,8 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { AuditEntry, getAuditOptions, listAuditPage } from '@/entities/crm';
+import { AuditEntry, getAuditOptions, listAuditPage } from '@/entities/Audit';
 import { AuditPage } from './AuditList';
 
-jest.mock('@/entities/crm', () => ({ getAuditOptions: jest.fn(), listAuditPage: jest.fn(), LIST_PAGE_SIZE: 25 }));
+jest.mock('@/entities/Audit', () => ({ getAuditOptions: jest.fn(), listAuditPage: jest.fn() }));
 jest.mock('@/widgets/Page', () => ({ Page: ({ children }: { children: React.ReactNode }) => <div>{children}</div> }));
 jest.mock('@/shared/lib/hooks/useDelayed/useDelayed', () => ({
     ...jest.requireActual('@/shared/lib/hooks/useDelayed/useDelayed'), useDelayed: (value: string) => value,

@@ -3,7 +3,10 @@ import { Conversation, listConversations, markConversationRead, Person } from '@
 import { PersonConversations } from './PersonConversations';
 
 jest.mock('@/entities/crm', () => ({
-    listConversations: jest.fn(), markConversationRead: jest.fn(), listPrompts: jest.fn(() => Promise.resolve([])),
+    listConversations: jest.fn(), markConversationRead: jest.fn(),
+}));
+jest.mock('@/entities/Prompt', () => ({ listPrompts: jest.fn(() => Promise.resolve([])) }));
+jest.mock('@/entities/Provider', () => ({
     listProviders: jest.fn(() => Promise.resolve({ data: [{ id: 'm1', name: 'Info', type: 'EMAIL', provider: 'IMAP', status: 'CONNECTED', settings: {} }], total: 1 })),
 }));
 jest.mock('@/features/composeEmail', () => ({

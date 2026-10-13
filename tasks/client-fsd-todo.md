@@ -19,17 +19,20 @@
 - [x] 2.2: `useNumbers`, форматтеры дат, `useDelayed`, `useListFilters`, `formText`, `messageOf` в `shared/lib`
 - [x] 2.3: `Permission`, `hasPermission`, `useCan` в `entities/User`
 - [x] 2.4: удаление мёртвого кода и двух пустых сторис
-- [ ] PR в `develop`
+- [x] PR #14 слит в `develop`
 
 ## Этап 3. `entities/crm` → доменные сущности
 
-- [ ] `provider`, `finance`, `audit`, `user`, `dashboard`
-- [ ] `choreographer`
-- [ ] `knowledge`
-- [ ] `eventExpense`, `eventTeam`
-- [ ] `event`, `registration`
-- [ ] `person`
-- [ ] `communication`
+- [x] `Provider`, `Finance`, `Audit`, `Dashboard`, `Automation`, `Assistant`, `Operations`, `Duplicate`, `DataExport`,
+      `Campaign`, `Platform`, `Notification`, запросы сотрудников в `User`
+- [x] `Choreographer`, `Document`
+- [x] `Knowledge`, `Prompt`, `EmailSimulation`
+- [ ] PR части 1 в `develop`
+- [ ] Решение по ссылкам между сущностями основных страниц
+- [ ] `EventExpense`, `EventTeam`
+- [ ] `Event`, `Registration`, `Order`
+- [ ] `Person`
+- [ ] `Communication`
 - [ ] `entities/crm` удалён
 
 ## Этап 4. `pages/CrmPage` → страницы, виджеты, фичи

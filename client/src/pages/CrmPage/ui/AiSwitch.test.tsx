@@ -1,8 +1,8 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { activateAiProvider, ProviderConnection } from '@/entities/crm';
+import { activateAiProvider, ProviderConnection } from '@/entities/Provider';
 import { AiSwitch } from './AiSwitch';
 
-jest.mock('@/entities/crm', () => ({ activateAiProvider: jest.fn() }));
+jest.mock('@/entities/Provider', () => ({ activateAiProvider: jest.fn() }));
 
 const connection = (overrides: Partial<ProviderConnection>): ProviderConnection => ({
     id: 'p1', name: 'Ollama (local)', type: 'AI', provider: 'OLLAMA', status: 'CONNECTED', settings: { model: 'qwen3' }, ...overrides,

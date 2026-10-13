@@ -1,9 +1,6 @@
 import { FormEvent, memo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-    ChoreographerContact, CONTACT_KINDS, ContactKind, createChoreographerContact, deactivateChoreographerContact, listChoreographerContacts,
-    updateChoreographerContact,
-} from '@/entities/crm';
+import { ChoreographerContact, CONTACT_KINDS, ContactKind, createChoreographerContact, deactivateChoreographerContact, listChoreographerContacts, updateChoreographerContact } from '@/entities/Choreographer';
 import { formText } from '@/shared/lib/form/formText';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';

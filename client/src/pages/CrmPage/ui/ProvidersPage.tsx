@@ -1,6 +1,6 @@
 import { memo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { checkWeeztix, deleteProvider, listProviders, ProviderConnection, syncProvider, testProvider, updateProvider } from '@/entities/crm';
+import { checkWeeztix, deleteProvider, listProviders, ProviderConnection, syncProvider, testProvider, updateProvider } from '@/entities/Provider';
 import { formatDateTime } from '@/shared/lib/format/date';
 import { useAction } from '@/shared/lib/useResource/useAction';
 import { useResource } from '@/shared/lib/useResource/useResource';

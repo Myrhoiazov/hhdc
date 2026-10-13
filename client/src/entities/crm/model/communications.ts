@@ -1,6 +1,5 @@
 import { $apiPrivate } from '@/shared/api/api';
 import { Person, Event, PageResult } from './types';
-
 export interface MessageAttachment { filename: string; contentType: string; size: number }
 export interface Message {
     id: string;
@@ -25,11 +24,6 @@ export interface Conversation {
 export interface ConversationFilters { providerConnectionId?: string; q?: string; personId?: string }
 // A client is a person with at least one purchase.
 export const isClient = (person?: Person | null): boolean => (person?._count?.orders ?? 0) > 0;
-export interface KnowledgeDocument {
-    id: string; title: string; scope: string; content: string; status: string; eventId?: string | null; sourceType?: string; updatedAt?: string;
-}
-export interface KnowledgeFilters { q: string; scope: string; status: string }
-export const KNOWLEDGE_PAGE_SIZE = 25;
 // A letter with files is sent as multipart form data; without files it stays plain JSON.
 const withAttachments = (fields: Record<string, string>, files: File[]): Record<string, string> | FormData => {
     if (!files.length) return fields;
@@ -75,10 +69,3 @@ export interface BulkDispositionResult { applied: string[]; failed: { id: string
 // Several conversations at once; the answer names the ones the mailbox refused.
 export const applyBulkConversationDisposition = async (ids: string[], disposition: ConversationDisposition): Promise<BulkDispositionResult> =>
     (await $apiPrivate.post<{data: BulkDispositionResult}>('/conversations/disposition', { ids, disposition })).data.data;
-export const listKnowledge = async (filters: KnowledgeFilters, page: number): Promise<PageResult<KnowledgeDocument>> => {
-    const query = new URLSearchParams({ ...filters, page: String(page), pageSize: String(KNOWLEDGE_PAGE_SIZE) }).toString();
-    const result = (await $apiPrivate.get<{data: KnowledgeDocument[]; meta: {total: number}}>(`/knowledge?${query}`)).data;
-    return { data: result.data, total: result.meta.total };
-};
-export const saveKnowledge = async (input: Partial<KnowledgeDocument>, id?: string) => id ? $apiPrivate.patch(`/knowledge/${id}`, input) : $apiPrivate.post('/knowledge', input);
-export const deleteKnowledge = async (id: string) => $apiPrivate.delete(`/knowledge/${id}`);

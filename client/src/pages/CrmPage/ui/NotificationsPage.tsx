@@ -1,6 +1,6 @@
 import { memo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { listNotificationSettings, NOTIFICATION_GROUPS, NotificationGroup, NotificationSetting, setNotificationEnabled } from '@/entities/crm';
+import { listNotificationSettings, NOTIFICATION_GROUPS, NotificationGroup, NotificationSetting, setNotificationEnabled } from '@/entities/Notification';
 import { formatDateTime } from '@/shared/lib/format/date';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { CrmLayout } from './common';

@@ -1,4 +1,4 @@
-import type { ProviderInput, ProviderSettings } from '@/entities/crm';
+import type { ProviderInput, ProviderSettings } from '@/entities/Provider';
 
 export type FieldTarget = 'credentials' | 'settings';
 export interface ProviderField {

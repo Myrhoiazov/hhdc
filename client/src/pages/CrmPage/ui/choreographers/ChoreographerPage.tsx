@@ -1,7 +1,7 @@
 import { FormEvent, memo, useCallback, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ChoreographerDetail, ChoreographerProfileInput, getChoreographer, RELATIONSHIP_STATUSES, RelationshipStatus, updateChoreographer } from '@/entities/crm';
+import { ChoreographerDetail, ChoreographerProfileInput, getChoreographer, RELATIONSHIP_STATUSES, RelationshipStatus, updateChoreographer } from '@/entities/Choreographer';
 import { Can, useCan } from '@/entities/User';
 import { formText } from '@/shared/lib/form/formText';
 import { formatLongDate } from '@/shared/lib/format/date';

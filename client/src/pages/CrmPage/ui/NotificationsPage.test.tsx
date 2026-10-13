@@ -1,10 +1,12 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { listNotificationSettings, NotificationSetting, saveNotificationTemplate, sendTestNotification, setNotificationEnabled } from '@/entities/crm';
+import { listNotificationSettings, NotificationSetting, saveNotificationTemplate, sendTestNotification, setNotificationEnabled } from '@/entities/Notification';
 import { previewMessage } from './NotificationTemplate';
 import { NotificationsPage } from './NotificationsPage';
 
-jest.mock('@/entities/crm', () => ({
-    listNotificationSettings: jest.fn(), setNotificationEnabled: jest.fn(), saveNotificationTemplate: jest.fn(), sendTestNotification: jest.fn(), NOTIFICATION_GROUPS: ['SALES', 'EMAIL', 'PEOPLE_AND_FINANCE'],
+jest.mock('@/entities/Notification', () => ({
+    listNotificationSettings: jest.fn(), setNotificationEnabled: jest.fn(),
+    saveNotificationTemplate: jest.fn(), sendTestNotification: jest.fn(),
+    NOTIFICATION_GROUPS: ['SALES', 'EMAIL', 'PEOPLE_AND_FINANCE'],
 }));
 jest.mock('@/widgets/Page', () => ({ Page: ({ children }: { children: React.ReactNode }) => <div>{children}</div> }));
 

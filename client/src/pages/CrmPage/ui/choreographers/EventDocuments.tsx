@@ -1,7 +1,7 @@
 import { memo, useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FileDocument, listEventDocuments } from '@/entities/crm';
+import { FileDocument, listEventDocuments } from '@/entities/Document';
 import { useCan } from '@/entities/User';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';

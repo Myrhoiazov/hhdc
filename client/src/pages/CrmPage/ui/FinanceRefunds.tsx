@@ -1,6 +1,6 @@
 import { FormEvent, memo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { actOnRefund, Refund, requestRefund } from '@/entities/crm';
+import { actOnRefund, Refund, requestRefund } from '@/entities/Finance';
 import { useAction } from '@/shared/lib/useResource/useAction';
 import { Button } from '@/shared/ui/Button';
 import { Field } from '@/shared/ui/Field';

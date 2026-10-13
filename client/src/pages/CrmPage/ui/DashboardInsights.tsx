@@ -1,7 +1,7 @@
 import { memo, ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { CountryRow, DashboardInsights, EventMoney, getDashboardInsights, YearMoney } from '@/entities/crm';
+import { CountryRow, DashboardInsights, EventMoney, getDashboardInsights, YearMoney } from '@/entities/Dashboard';
 import { formatDate } from '@/shared/lib/format/date';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Bar, chartStyles as chart, Tile } from './Charts';

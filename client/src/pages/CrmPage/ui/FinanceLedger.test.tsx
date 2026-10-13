@@ -1,12 +1,14 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { getLedgerSummary, LedgerEntry, LedgerSummary, listEvents, listLedgerPage, requestRefund } from '@/entities/crm';
+import { getLedgerSummary, LedgerEntry, LedgerSummary, listLedgerPage, requestRefund } from '@/entities/Finance';
+import { listEvents } from '@/entities/crm';
 import { FinanceLedger } from './FinanceLedger';
 
-jest.mock('@/entities/crm', () => ({
-    listLedgerPage: jest.fn(), getLedgerSummary: jest.fn(), listEvents: jest.fn(), requestRefund: jest.fn(), actOnRefund: jest.fn(),
-    LIST_PAGE_SIZE: 25, LEDGER_CATEGORIES: ['TICKETS', 'REFUNDS', 'FEE', 'VENUE'],
+jest.mock('@/entities/Finance', () => ({
+    listLedgerPage: jest.fn(), getLedgerSummary: jest.fn(), requestRefund: jest.fn(),
+    actOnRefund: jest.fn(), LEDGER_CATEGORIES: ['TICKETS', 'REFUNDS', 'FEE', 'VENUE'],
 }));
+jest.mock('@/entities/crm', () => ({ listEvents: jest.fn() }));
 
 const entry = (overrides: Partial<LedgerEntry> = {}): LedgerEntry => ({
     id: 'PAYMENT:pay-1', kind: 'PAYMENT', category: 'TICKETS', direction: 'IN', date: '2026-05-04T10:00:00Z', amount: '445.35', currency: 'EUR', status: 'PAID',

@@ -1,6 +1,6 @@
 import { memo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AuditEntry, AuditFilters, AuditOptions, getAuditOptions, listAuditPage } from '@/entities/crm';
+import { AuditEntry, AuditFilters, AuditOptions, getAuditOptions, listAuditPage } from '@/entities/Audit';
 import { formatDateTime } from '@/shared/lib/format/date';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';

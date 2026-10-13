@@ -1,6 +1,7 @@
 import { memo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getDefaultEmailPrompts, listPrompts, listProviders } from '@/entities/crm';
+import { getDefaultEmailPrompts, listPrompts } from '@/entities/Prompt';
+import { listProviders } from '@/entities/Provider';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
 import { CrmLayout } from './common';

@@ -1,6 +1,6 @@
 import { FormEvent, memo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ApiKey, createApiKey, createWebhook, FeatureFlag, listApiKeys, listFeatureFlags, listWebhooks, revokeApiKey, setFeatureFlag } from '@/entities/crm';
+import { ApiKey, createApiKey, createWebhook, FeatureFlag, listApiKeys, listFeatureFlags, listWebhooks, revokeApiKey, setFeatureFlag } from '@/entities/Platform';
 import { useAction } from '@/shared/lib/useResource/useAction';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';

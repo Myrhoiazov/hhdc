@@ -1,6 +1,9 @@
 import { peopleListPath, readPeopleList, writePeopleList } from './peopleListUrl';
 
-jest.mock('@/entities/crm', () => ({ PERSON_ROLES: ['CUSTOMER', 'PARTICIPANT', 'CHOREOGRAPHER', 'STAFF', 'PARTNER'], PERSON_SOURCES: ['WEEZTIX', 'EMAIL', 'MANUAL', 'IMPORT', 'SYSTEM'] }));
+jest.mock('@/entities/crm', () => ({
+    PERSON_ROLES: ['CUSTOMER', 'PARTICIPANT', 'CHOREOGRAPHER', 'STAFF', 'PARTNER'],
+    PERSON_SOURCES: ['WEEZTIX', 'EMAIL', 'MANUAL', 'IMPORT', 'SYSTEM'],
+}));
 
 const NO_FILTERS = { q: '', role: '', source: '', purchases: '' } as const;
 

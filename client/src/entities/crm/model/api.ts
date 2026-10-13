@@ -1,22 +1,17 @@
 import { $apiPrivate } from '@/shared/api/api';
 import { LIST_PAGE_SIZE } from '@/shared/const/pagination';
 import { Activity, Event, Person, PersonRole, PageResult } from './types';
-
 const read = async <T,>(path: string) => (await $apiPrivate.get<{ data: T }>(path)).data.data;
 const list = async <T,>(path: string): Promise<PageResult<T>> => {
     const result = (await $apiPrivate.get<{ data: T[]; meta: { total: number } }>(path)).data;
     return { data: result.data, total: result.meta.total };
 };
-
-
 // The server reads the search text from `q`.
 export const listPeople = async (search = '') =>
     list<Person>(`/people?q=${encodeURIComponent(search)}&pageSize=100`);
-
 // People an expense can be paid to: choreographers, staff and partners.
 export const listPayees = async (search = '') =>
     list<Person>(`/people?q=${encodeURIComponent(search)}&payees=yes&pageSize=100`);
-
 export const PERSON_SOURCES = ['WEEZTIX', 'EMAIL', 'MANUAL', 'IMPORT', 'SYSTEM'] as const;
 export type PersonSource = typeof PERSON_SOURCES[number];
 export interface PeopleFilters { q: string; role: PersonRole | ''; source: PersonSource | ''; purchases: 'yes' | 'no' | '' }
@@ -72,15 +67,6 @@ export const registerPerson = async (eventId: string, personId: string) =>
     (await $apiPrivate.post(`/events/${eventId}/registrations`, { personId, status: 'CONFIRMED' })).data;
 export const assignChoreographer = async (eventId: string, personId: string) =>
     (await $apiPrivate.post(`/events/${eventId}/choreographers`, { personId, roleTitle: 'Choreographer', status: 'CONFIRMED' })).data;
-export interface MoneyTotals { tickets: number; revenue: string; discount: string; costs: string; result: string }
-export interface EventMoney extends MoneyTotals { id: string; name: string; startAt: string }
-export interface YearMoney extends MoneyTotals { year: number; events: EventMoney[] }
-export interface CountryRow { code: string; buyers: number; tickets: number; revenue: string }
-export interface DashboardInsights {
-    currency: string; totals: { revenue: string; costs: string; result: string; tickets: number; buyers: number; events: number };
-    years: YearMoney[]; countries: CountryRow[]; notGiven: number; notRecognised: number;
-}
-export const getDashboardInsights = async () => read<DashboardInsights>('/dashboard/insights');
 export const EVENT_EXPENSE_CATEGORIES = ['FEE', 'SALARY', 'TRAVEL', 'HOTEL', 'VENUE', 'MARKETING', 'EQUIPMENT', 'OTHER'] as const;
 export type EventExpenseCategory = typeof EVENT_EXPENSE_CATEGORIES[number];
 export type ExpenseStatus = 'PLANNED' | 'PAID' | 'CANCELLED';
@@ -118,16 +104,3 @@ export const updateTeamMember = async (eventId: string, memberId: string, change
     (await $apiPrivate.patch<{ data: TeamMember }>(`/events/${eventId}/team/${memberId}`, change)).data.data;
 export const removeTeamMember = async (eventId: string, memberId: string) => { await $apiPrivate.delete(`/events/${eventId}/team/${memberId}`); };
 export const listPersonTeamRoles = async (personId: string) => read<PersonTeamRole[]>(`/people/${personId}/team-roles`);
-export const getDashboard = async () => read<Record<string, number>>('/dashboard');
-export interface AuditEntry {
-    id: string; action: string; entityType: string; entityId: string | null; ipAddress: string | null; createdAt: string;
-    actor: { id: string; name: string; email: string } | null;
-}
-export interface AuditFilters { q: string; entityType: string; actorUserId: string; from: string; to: string }
-export interface AuditOptions { entityTypes: string[]; actors: { id: string; name: string; email: string }[] }
-export const listAuditPage = async (filters: AuditFilters, page: number) =>
-    list<AuditEntry>(`/audit?${new URLSearchParams({ ...filters, page: String(page), pageSize: String(LIST_PAGE_SIZE) }).toString()}`);
-export const getAuditOptions = async () => read<AuditOptions>('/audit/options');
-export const listUsers = async () => list<{id: string; name: string; email: string; isActive: boolean; roles: {role: {key: string}}[]}>('/users');
-export const createUser = async (input: {name: string; email: string; password: string; roles: string[]}) => $apiPrivate.post('/users', input);
-export const updateUser = async (id: string, input: {isActive: boolean}) => $apiPrivate.patch(`/users/${id}`, input);

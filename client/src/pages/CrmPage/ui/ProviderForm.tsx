@@ -1,6 +1,6 @@
 import { FormEvent, memo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { createProvider, ProviderConnection, ProviderInput, updateProvider } from '@/entities/crm';
+import { createProvider, ProviderConnection, ProviderInput, updateProvider } from '@/entities/Provider';
 import { classNames } from '@/shared/lib/classNames/classNames';
 import { useAction } from '@/shared/lib/useResource/useAction';
 import { Button } from '@/shared/ui/Button';

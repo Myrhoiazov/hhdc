@@ -1,6 +1,7 @@
 # План: приведение `client/` к Feature-Sliced Design
 
-Статус: этап 1 слит (PR #13). Этап 2 реализован 2026-10-13 в ветке `refactor/client-shared-kit`.
+Статус: этапы 1–2 слиты (PR #13, #14). Этап 3: первая часть (админские сущности, хореографы, документы, база знаний) —
+в ветке `refactor/client-entities-admin`; остались сущности основных страниц.
 Дата: 2026-10-13.
 
 ## Цель
@@ -175,14 +176,26 @@
 
 ### Этап 3. `entities/crm` → доменные сущности
 
-По одной ветке на группу. Сначала то, чем пользуются реже: `provider`, `finance`, `audit`, `user`, `dashboard` →
-`choreographer` → `knowledge`. Последними — сущности основных рабочих страниц (решение владельца от 2026-10-13:
-основные страницы — Почта, People, Events): `eventExpense` + `eventTeam` → `event` + `registration` → `person` →
-`communication`.
+Слайсы называются в PascalCase, как существующий `entities/User`.
 
-- У каждой сущности сегменты `api/` (запросы), `model/` (типы, константы, чистая логика), при необходимости `ui/`.
+**Часть 1 (сделано, ветка `refactor/client-entities-admin`).** `Provider`, `Finance`, `Audit`, `Dashboard`, `Automation`,
+`Assistant`, `Operations`, `Duplicate`, `DataExport`, `Campaign`, `Platform`, `Notification`, `Choreographer`, `Document`,
+`Knowledge`, `Prompt`, `EmailSimulation`; запросы списка сотрудников — в `entities/User`.
+
+**Часть 2 (осталось).** Сущности основных рабочих страниц (решение владельца от 2026-10-13: основные страницы — Почта,
+People, Events): `EventExpense` + `EventTeam` → `Event` + `Registration` + `Order` → `Person` → `Communication`.
+Их типы ссылаются друг на друга (`Event` → `Person`, `Conversation` → `Person` и `Event`), а сущность не импортирует
+соседнюю сущность. Перед переносом решается, как это выразить: краткие собственные типы вложенных записей
+(`EventPersonBrief`) или явные кросс-импорты `@x` с исключением в линтере.
+
+Правила для каждой сущности:
+
+- Сегменты `api/` (запросы) и `model/` (типы, константы, чистая логика), при необходимости `ui/`. Большая сущность
+  делит оба сегмента по частям (`Choreographer`: `mediaApi.ts` + `model/media.ts` и т. д.).
 - `index.ts` перечисляет экспорты поимённо, без `export *`.
-- Общие `read`/`list`/сборка query-строки → `shared/api`.
+- Ответы сервера разворачивают `readData`, `readPage`, `postData`, `patchData`, `putData`, `deleteData` из
+  `shared/api/request`.
+- Новые файлы сущностей отформатированы Prettier.
 - `entities/crm` удаляется, когда на него не осталось импортов.
 
 ### Этап 4. `pages/CrmPage` → страницы, виджеты, фичи

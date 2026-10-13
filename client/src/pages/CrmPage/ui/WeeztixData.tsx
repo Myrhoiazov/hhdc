@@ -1,6 +1,6 @@
 import { memo, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { importWeeztixContacts, listSyncRuns, previewWeeztixContacts, SyncRun, syncWeeztixCatalog, syncWeeztixSales, WeeztixContactsResult } from '@/entities/crm';
+import { importWeeztixContacts, listSyncRuns, previewWeeztixContacts, SyncRun, syncWeeztixCatalog, syncWeeztixSales, WeeztixContactsResult } from '@/entities/Provider';
 import { formatDateTime } from '@/shared/lib/format/date';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { useAction } from '@/shared/lib/useResource/useAction';
