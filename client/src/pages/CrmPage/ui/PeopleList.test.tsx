@@ -1,10 +1,10 @@
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { deletePerson, listPeoplePage, Person } from '@/entities/crm';
 import { PeoplePage } from './PeopleList';
 
 jest.mock('@/entities/crm', () => ({
-    listPeoplePage: jest.fn(), deletePerson: jest.fn(), LIST_PAGE_SIZE: 25, PERSON_SOURCES: ['WEEZTIX', 'EMAIL', 'MANUAL', 'IMPORT', 'SYSTEM'],
+    listPeoplePage: jest.fn(), deletePerson: jest.fn(), LIST_PAGE_SIZE: 25, PERSON_ROLES: ['CUSTOMER', 'PARTICIPANT', 'CHOREOGRAPHER', 'STAFF', 'PARTNER'], PERSON_SOURCES: ['WEEZTIX', 'EMAIL', 'MANUAL', 'IMPORT', 'SYSTEM'],
 }));
 let mockPermissions: string[] = [];
 jest.mock('react-redux', () => ({ useSelector: () => ({ permissions: mockPermissions }) }));
@@ -17,7 +17,18 @@ const person = (id: string, overrides: Partial<Person> = {}): Person => ({
 });
 
 const NO_FILTERS = { q: '', role: '', source: '', purchases: '' };
-const renderPage = () => render(<MemoryRouter><PeoplePage /></MemoryRouter>);
+// The contact page is stood in for by the address it was opened with and the list it came from.
+const Opened = () => {
+    const { pathname, state } = useLocation();
+    return <p>{`${pathname} from ${(state as { peopleList: string }).peopleList}`}</p>;
+};
+const Address = () => <output>{useLocation().search}</output>;
+const renderPage = (address = '/people') => render(<MemoryRouter initialEntries={[address]}><Routes>
+    <Route path="/people" element={<><PeoplePage /><Address /></>} />
+    <Route path="/people/:id" element={<Opened />} />
+</Routes></MemoryRouter>);
+// The pager stands above the table and under it; the tests turn pages with the upper one.
+const pagerButton = (name: string) => screen.getAllByRole('button', { name })[0];
 
 beforeEach(() => { jest.mocked(listPeoplePage).mockReset(); jest.mocked(deletePerson).mockReset(); mockPermissions = ['people.write']; });
 
@@ -43,19 +54,41 @@ test('pages are turned with the arrows and the current page is named', async () 
     jest.mocked(listPeoplePage).mockResolvedValue({ data: [person('p1')], total: 60 });
     renderPage();
 
-    await screen.findByRole('navigation');
-    expect(screen.getByRole('button', { name: 'Previous page' })).toBeDisabled();
-    fireEvent.click(screen.getByRole('button', { name: 'Next page' }));
+    expect(await screen.findAllByRole('navigation')).toHaveLength(2);
+    expect(pagerButton('Previous page')).toBeDisabled();
+    fireEvent.click(pagerButton('Next page'));
     await waitFor(() => expect(listPeoplePage).toHaveBeenLastCalledWith(NO_FILTERS, 2));
-    fireEvent.click(screen.getByRole('button', { name: 'Next page' }));
+    fireEvent.click(screen.getAllByRole('button', { name: 'Next page' })[1]);
     await waitFor(() => expect(listPeoplePage).toHaveBeenLastCalledWith(NO_FILTERS, 3));
-    expect(screen.getByRole('button', { name: 'Next page' })).toBeDisabled();
+    screen.getAllByRole('button', { name: 'Next page' }).forEach(button => expect(button).toBeDisabled());
+});
+
+test('the address keeps the page and the filters, and the list opens from them', async () => {
+    jest.mocked(listPeoplePage).mockResolvedValue({ data: [person('p1')], total: 60 });
+    renderPage('/people?source=EMAIL&page=2&role=NOBODY');
+
+    await screen.findAllByRole('navigation');
+    expect(listPeoplePage).toHaveBeenLastCalledWith({ ...NO_FILTERS, source: 'EMAIL' }, 2);
+    await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('?source=EMAIL&page=2'));
+    fireEvent.click(pagerButton('Next page'));
+    await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('?source=EMAIL&page=3'));
+    fireEvent.click(screen.getByRole('button', { name: 'Reset filters' }));
+    await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent(/^$/));
+});
+
+test('a contact is opened with the list it came from, so that it can lead back there', async () => {
+    jest.mocked(listPeoplePage).mockResolvedValue({ data: [person('p1')], total: 60 });
+    renderPage('/people?page=2');
+
+    fireEvent.click(await screen.findByRole('link', { name: 'Anna Berg' }));
+    expect(await screen.findByText('/people/p1 from /people?page=2')).toBeInTheDocument();
 });
 
 test('a filter narrows the list and returns to the first page; reset clears every filter', async () => {
     jest.mocked(listPeoplePage).mockResolvedValue({ data: [person('p1')], total: 60 });
     renderPage();
-    fireEvent.click(await screen.findByRole('button', { name: 'Next page' }));
+    await screen.findAllByRole('navigation');
+    fireEvent.click(pagerButton('Next page'));
     await waitFor(() => expect(listPeoplePage).toHaveBeenLastCalledWith(NO_FILTERS, 2));
 
     fireEvent.change(screen.getByLabelText('Source'), { target: { value: 'EMAIL' } });

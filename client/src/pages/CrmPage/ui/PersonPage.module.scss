@@ -1,0 +1,132 @@
+/* The page of a contact: who it is at a glance, then what happened with them next to what can be edited. */
+.facts {
+    display: grid;
+    margin: 0;
+    gap: 16px 24px;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.fact {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    gap: 4px;
+
+    dd {
+        margin: 0;
+        overflow-wrap: anywhere;
+    }
+
+    a {
+        color: inherit;
+        text-decoration: underline;
+        text-decoration-color: var(--sidebar-group-label-redesigned);
+        text-underline-offset: 3px;
+    }
+}
+
+.label {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--sidebar-group-label-redesigned);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+/* Roles the contact has are badges with a cross; a role it lacks is a dashed button that gives it. */
+.roles {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    border-top: 1px solid var(--card-border-redesigned);
+    gap: 8px;
+    padding-top: 16px;
+
+    .label {
+        margin-right: 8px;
+    }
+
+    .role {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding-right: 4px;
+    }
+
+    .removeRole {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        width: 18px;
+        height: 18px;
+        padding: 0;
+        font-size: 14px;
+        line-height: 1;
+        color: var(--sidebar-text-redesigned);
+        background: none;
+        border: 0;
+        border-radius: var(--radius-pill-redesigned);
+        cursor: pointer;
+
+        &:hover,
+        &:focus-visible {
+            color: var(--danger-text-redesigned);
+            background: var(--danger-bg-redesigned);
+        }
+    }
+
+    .addRole {
+        padding: 2px 10px;
+        font-size: 12px;
+        color: var(--sidebar-text-redesigned);
+        border-radius: var(--radius-pill-redesigned);
+        border-style: dashed;
+
+        &:hover,
+        &:focus-visible {
+            color: var(--sidebar-text-hover-redesigned);
+            opacity: 1;
+            border-color: var(--sidebar-text-redesigned);
+        }
+    }
+}
+
+.columns {
+    display: grid;
+    align-items: start;
+    gap: 24px;
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.main,
+.side {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    gap: 24px;
+}
+
+.formActions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.activityType {
+    overflow-wrap: anywhere;
+}
+
+.activityTime {
+    font-size: 13px;
+    color: var(--sidebar-text-redesigned);
+    white-space: nowrap;
+}
+
+@media (width >= 1200px) {
+    .columns {
+        grid-template-columns: minmax(0, 1fr) 360px;
+    }
+}

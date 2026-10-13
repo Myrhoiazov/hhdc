@@ -27,6 +27,7 @@ enum PersonRoleType {
   PARTICIPANT
   CHOREOGRAPHER
   STAFF
+  PARTNER
 }
 
 enum EventStatus {
