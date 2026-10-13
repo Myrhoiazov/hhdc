@@ -1,11 +1,11 @@
 import axios from 'axios';
-import type { StoreType } from '@/app/providers/StoreProvider';
-import { userActions } from '@/entities/User';
 
-let store: StoreType;
+// What the application does when the server no longer knows the session. The application gives it
+// (see `createReduxStore`): this layer knows neither the store nor the user.
+let onUnauthorized: (() => void) | undefined;
 let csrfToken: string | null = null;
 const unsafeMethods = new Set(['post', 'put', 'patch', 'delete']);
-export const injectStore = (nextStore: StoreType) => { store = nextStore; };
+export const setUnauthorizedHandler = (handler: (() => void) | undefined) => { onUnauthorized = handler; };
 export const csrfActions = {
     reset: () => { csrfToken = null; },
     set: (token: string) => { csrfToken = token; },
@@ -23,7 +23,7 @@ $apiPrivate.interceptors.request.use(async config => {
     return config;
 });
 $apiPrivate.interceptors.response.use(response => response, error => {
-    if (error.response?.status === 401) { csrfActions.reset(); store?.dispatch(userActions.logout()); }
+    if (error.response?.status === 401) { csrfActions.reset(); onUnauthorized?.(); }
     // The server explains a refusal in `error.message`. Screens show `cause.message`, so the reason
     // replaces the generic "Request failed with status code 400".
     const reason = error.response?.data?.error?.message;

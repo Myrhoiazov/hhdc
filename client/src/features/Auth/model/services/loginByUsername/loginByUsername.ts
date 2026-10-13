@@ -1,6 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { User, userActions } from '@/entities/User';
-import { ThunkConfig } from '@/app/providers/StoreProvider';
+import { ThunkConfig } from '@/shared/lib/store/StateSchema';
 import axios from 'axios';
 import { csrfActions } from '@/shared/api/api';
 

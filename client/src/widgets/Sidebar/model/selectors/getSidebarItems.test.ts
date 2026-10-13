@@ -1,4 +1,4 @@
-import { StateSchema } from '@/app/providers/StoreProvider';
+import { StateSchema } from '@/shared/lib/store/StateSchema';
 import { getSidebarItems } from './getSidebarItems';
 
 const stateFor = (permissions: string[]): StateSchema => ({ user: { _inited: true, authData: { id: '1', name: 'Owner', email: 'owner@example.test', roles: ['OWNER'], permissions } }, ui: { scroll: {} } });

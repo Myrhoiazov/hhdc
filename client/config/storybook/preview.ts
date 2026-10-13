@@ -1,8 +1,9 @@
 import type { Preview } from '@storybook/react'
-import { StyleDecorator } from '../../src/shared/config/storybook/StyleDecorator/StyleDecorator';
+// The styles of the application belong to its top layer, so the stories take them here, not through `shared`.
+import '../../src/app/styles/index.scss';
 import { ThemeDecorator } from '../../src/shared/config/storybook/ThemeDecorator/ThemeDecorator';
 import { RouterDecorator } from '../../src/shared/config/storybook/RouterDecorator/RouterDecorator';
-import { Theme } from '../../src/app/providers/ThemeProvider';
+import { Theme } from '../../src/shared/const/theme';
 
 const preview: Preview = {
     parameters: {
@@ -13,7 +14,7 @@ const preview: Preview = {
             },
         },
     },
-    decorators: [StyleDecorator, ThemeDecorator(Theme.LIGHT), RouterDecorator],
+    decorators: [ThemeDecorator(Theme.LIGHT), RouterDecorator],
 };
 
 export default preview;

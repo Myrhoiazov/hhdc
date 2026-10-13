@@ -1,8 +1,8 @@
 import { configureStore, Reducer, ReducersMapObject } from '@reduxjs/toolkit';
-import { userReducer } from '@/entities/User';
+import { userActions, userReducer } from '@/entities/User';
 import { StateSchema, ReduxStoreWithManager } from './StateSchema';
 import { createReducerManager } from './reducerManager';
-import { $api, $apiPrivate, injectStore } from '@/shared/api/api';
+import { $api, $apiPrivate, setUnauthorizedHandler } from '@/shared/api/api';
 import { uiReducer } from '@/features/UI';
 
 export function createReduxStore(
@@ -32,10 +32,8 @@ export function createReduxStore(
     });
 
     (store as ReduxStoreWithManager).reducerManager = reducerManager;
-    injectStore(store);
+    // The server no longer knows the session: the user is signed out here as well.
+    setUnauthorizedHandler(() => store.dispatch(userActions.logout()));
 
     return store;
 }
-
-export type AppDispatch = ReturnType<typeof createReduxStore>['dispatch'];
-export type StoreType = ReturnType<typeof createReduxStore>;

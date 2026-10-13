@@ -19,8 +19,16 @@
   `entities/*/ui/*`).
 - Слоистая архитектура (Feature-Sliced Design): `app → pages → widgets → features → entities →
   shared`. Слайс импортирует только из публичного API своего слоя (`index.ts`) или слоя ниже —
-  никогда не вбок и не вверх. Проверяется `eslint-plugin-denys-fix-fsd-path-plugin`
-  (`path-checker`, жёсткая ошибка).
+  никогда не вбок и не вверх. Проверяется линтером, жёсткая ошибка: `no-restricted-imports`
+  (наборы `layerConfigs` в `client/eslint.config.mjs`) запрещает импорт вверх, в соседний слайс и
+  вглубь чужого слайса (`@/entities/User/model/...`); `path-checker` из
+  `eslint-plugin-denys-fix-fsd-path-plugin` требует относительных путей внутри своего слайса.
+  Тестам и сторис дополнительно разрешён `@/app/providers/*` — для обёрток рендера.
+- Типы стора (`StateSchema`, `ThunkConfig`, `AppDispatch`) лежат в `shared/lib/store/StateSchema.ts`.
+  Слайс с редьюсером добавляет своё поле в `StateSchema` через `declare module` рядом со своими
+  типами (см. `entities/User/model/types/user.ts`) — так нижним слоям не нужен импорт из `app`.
+- `shared/api` не знает о сторе: реакцию на ответ 401 приложение передаёт через
+  `setUnauthorizedHandler` (см. `createReduxStore`).
 - Алиас пути `@/*` → `client/src/*`. Никогда не импортируй напрямую вглубь чужого слайса —
   импортируй его `index.ts`.
 - Включено правило `i18next/no-literal-string` — новый текст в UI должен идти через `t()` (глобально

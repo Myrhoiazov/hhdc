@@ -7,7 +7,7 @@ import NotFoundPage from './NotFoundPage';
 jest.mock('@/shared/api/api', () => ({
     $api: { get: jest.fn() },
     $apiPrivate: { get: jest.fn() },
-    injectStore: jest.fn(),
+    setUnauthorizedHandler: jest.fn(),
     csrfActions: { reset: jest.fn() },
 }));
 

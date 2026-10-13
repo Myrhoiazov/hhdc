@@ -7,7 +7,7 @@ import LoginPage from './LoginPage';
 jest.mock('@/shared/api/api', () => ({
     $api: { get: jest.fn(() => Promise.resolve({ data: { telegram: false } })), post: jest.fn() },
     $apiPrivate: { get: jest.fn() },
-    injectStore: jest.fn(),
+    setUnauthorizedHandler: jest.fn(),
     csrfActions: { reset: jest.fn() },
 }));
 

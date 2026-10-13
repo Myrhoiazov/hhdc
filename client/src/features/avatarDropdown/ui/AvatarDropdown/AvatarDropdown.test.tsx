@@ -9,7 +9,7 @@ import { User } from '@/entities/User';
 jest.mock('@/shared/api/api', () => ({
     $api: { get: jest.fn() },
     $apiPrivate: { post: jest.fn() },
-    injectStore: jest.fn(),
+    setUnauthorizedHandler: jest.fn(),
     csrfActions: { reset: jest.fn() },
 }));
 

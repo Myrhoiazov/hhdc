@@ -5,7 +5,7 @@ import { createReduxStore } from '@/app/providers/StoreProvider';
 import { $api } from '@/shared/api/api';
 import LoginForm from './LoginForm';
 
-jest.mock('@/shared/api/api', () => ({ $api: {post: jest.fn()}, $apiPrivate: {}, injectStore: jest.fn(), csrfActions: {set: jest.fn(), reset: jest.fn()} }));
+jest.mock('@/shared/api/api', () => ({ $api: {post: jest.fn()}, $apiPrivate: {}, setUnauthorizedHandler: jest.fn(), csrfActions: {set: jest.fn(), reset: jest.fn()} }));
 test('email login establishes the session and calls onSuccess', async () => {
     const onSuccess = jest.fn();
     ($api.post as jest.Mock).mockResolvedValue({data: {data: {user: {id: '1', name: 'Team', email: 'team@example.test', roles: ['OWNER'], permissions: []}, csrfToken: 'test-csrf'}}});

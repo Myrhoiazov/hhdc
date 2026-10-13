@@ -1,3 +1,3 @@
-import { StateSchema } from '@/app/providers/StoreProvider';
+import { StateSchema } from '@/shared/lib/store/StateSchema';
 
 export const getLoginError = (state: StateSchema) => state?.loginForm?.error;
