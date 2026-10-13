@@ -6,8 +6,13 @@ import { addPersonRole, savePerson } from '@/entities/crm';
 import { userReducer } from '@/entities/User';
 import { Navbar } from './Navbar';
 
-jest.mock('@/entities/crm', () => ({ PERSON_ROLES: ['CUSTOMER', 'PARTICIPANT', 'CHOREOGRAPHER', 'STAFF', 'PARTNER'], savePerson: jest.fn(), addPersonRole: jest.fn(), composeEmail: jest.fn() }));
-jest.mock('@/entities/Provider', () => ({ listProviders: jest.fn().mockResolvedValue({ data: [], total: 0 }) }));
+jest.mock('@/entities/crm', () => ({
+    PERSON_ROLES: ['CUSTOMER', 'PARTICIPANT', 'CHOREOGRAPHER', 'STAFF', 'PARTNER'],
+    savePerson: jest.fn(), addPersonRole: jest.fn(), composeEmail: jest.fn(),
+}));
+jest.mock('@/entities/Provider', () => ({
+    listProviders: jest.fn().mockResolvedValue({ data: [], total: 0 }),
+}));
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({ ...jest.requireActual('react-router-dom'), useNavigate: () => mockNavigate }));
 

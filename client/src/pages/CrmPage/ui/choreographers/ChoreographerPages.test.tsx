@@ -14,9 +14,47 @@ import { dueAtEndOfDay, isOverdue } from './NotesTab';
 import { payoutActions } from './FinanceTab';
 import { movePhoto, photoProblem } from './MediaTab';
 
-jest.mock('@/entities/Choreographer', () => ({ RELATIONSHIP_STATUSES: ['NEW', 'CONTACTED', 'NEGOTIATING', 'ACTIVE', 'RETURNING', 'INACTIVE', 'DO_NOT_CONTACT'], CHOREOGRAPHER_PAGE_SIZE: 25, listChoreographers: jest.fn(), getChoreographer: jest.fn(), createChoreographer: jest.fn(), updateChoreographer: jest.fn(), BIO_KINDS: ['SHORT', 'FULL', 'PROMO'], CONTACT_KINDS: ['SELF_SECONDARY', 'MANAGER', 'AGENT', 'ASSISTANT', 'ACCOUNTING', 'OTHER'], MEDIA_RIGHTS: ['UNKNOWN', 'PERMITTED', 'RESTRICTED'], MAX_CHOREOGRAPHER_PHOTOS: 10, MAX_PHOTO_BYTES: 10 * 1024 * 1024, listBioVersions: jest.fn(), addBioVersion: jest.fn(), listChoreographerContacts: jest.fn(), createChoreographerContact: jest.fn(), updateChoreographerContact: jest.fn(), deactivateChoreographerContact: jest.fn(), listChoreographerPhotos: jest.fn(), uploadChoreographerPhoto: jest.fn(), updateChoreographerPhoto: jest.fn(), reorderChoreographerPhotos: jest.fn(), removeChoreographerPhoto: jest.fn(), fetchChoreographerPhoto: jest.fn(), ASSIGNMENT_STATUSES: ['INVITED', 'CONFIRMED', 'CANCELLED', 'COMPLETED'], LOGISTICS_STATUSES: ['NOT_REQUIRED', 'PENDING', 'BOOKED', 'CANCELLED'], listChoreographerHistory: jest.fn(), assignChoreographerToEvent: jest.fn(), updateChoreographerAssignment: jest.fn(), FEE_STATUSES: ['PROPOSED', 'COUNTERED', 'AGREED'], EXPENSE_CATEGORIES: ['TRAVEL', 'HOTEL', 'PER_DIEM', 'TRANSFER', 'EQUIPMENT', 'OTHER'], EXPENSE_PAYERS: ['ORGANIZER', 'CHOREOGRAPHER', 'OTHER'], PAYOUT_TYPES: ['ADVANCE', 'FEE', 'REIMBURSEMENT', 'OTHER'], getChoreographerFinance: jest.fn(), recordFeeAgreement: jest.fn(), cancelFeeAgreement: jest.fn(), recordChoreographerExpense: jest.fn(), cancelChoreographerExpense: jest.fn(), recordPayout: jest.fn(), movePayout: jest.fn(), listChoreographerThreads: jest.fn(), linkChoreographerThread: jest.fn(), unlinkChoreographerThread: jest.fn(), listChoreographerActivity: jest.fn(), TASK_PRIORITIES: ['LOW', 'NORMAL', 'HIGH'], listChoreographerNotes: jest.fn(), addChoreographerNote: jest.fn(), updateChoreographerNote: jest.fn(), removeChoreographerNote: jest.fn(), listChoreographerTasks: jest.fn(), addChoreographerTask: jest.fn() }));
-jest.mock('@/entities/crm', () => ({ listPeople: jest.fn(), listEvents: jest.fn(), listConversations: jest.fn() }));
-jest.mock('@/entities/Document', () => ({ DOCUMENT_TYPES: ['CONTRACT', 'INVOICE', 'RIDER', 'TRAVEL', 'HOTEL', 'OTHER'], CONTRACT_STATUSES: ['DRAFT', 'READY', 'SENT', 'SIGNED', 'EXPIRED', 'CANCELLED'], INVOICE_STATUSES: ['RECEIVED', 'REVIEWED', 'APPROVED', 'PARTIALLY_PAID', 'PAID', 'CANCELLED', 'DISPUTED'], MAX_DOCUMENT_BYTES: 20 * 1024 * 1024, listChoreographerDocuments: jest.fn(), listEventDocuments: jest.fn(), uploadChoreographerDocument: jest.fn(), uploadDocumentVersion: jest.fn(), updateDocumentMetadata: jest.fn(), fetchDocumentFile: jest.fn() }));
+jest.mock('@/entities/Choreographer', () => ({
+    RELATIONSHIP_STATUSES: ['NEW', 'CONTACTED', 'NEGOTIATING', 'ACTIVE', 'RETURNING', 'INACTIVE', 'DO_NOT_CONTACT'],
+    CHOREOGRAPHER_PAGE_SIZE: 25, listChoreographers: jest.fn(), getChoreographer: jest.fn(),
+    createChoreographer: jest.fn(), updateChoreographer: jest.fn(),
+    BIO_KINDS: ['SHORT', 'FULL', 'PROMO'],
+    CONTACT_KINDS: ['SELF_SECONDARY', 'MANAGER', 'AGENT', 'ASSISTANT', 'ACCOUNTING', 'OTHER'],
+    MEDIA_RIGHTS: ['UNKNOWN', 'PERMITTED', 'RESTRICTED'], MAX_CHOREOGRAPHER_PHOTOS: 10,
+    MAX_PHOTO_BYTES: 10 * 1024 * 1024, listBioVersions: jest.fn(), addBioVersion: jest.fn(),
+    listChoreographerContacts: jest.fn(), createChoreographerContact: jest.fn(),
+    updateChoreographerContact: jest.fn(), deactivateChoreographerContact: jest.fn(),
+    listChoreographerPhotos: jest.fn(), uploadChoreographerPhoto: jest.fn(),
+    updateChoreographerPhoto: jest.fn(), reorderChoreographerPhotos: jest.fn(),
+    removeChoreographerPhoto: jest.fn(), fetchChoreographerPhoto: jest.fn(),
+    ASSIGNMENT_STATUSES: ['INVITED', 'CONFIRMED', 'CANCELLED', 'COMPLETED'],
+    LOGISTICS_STATUSES: ['NOT_REQUIRED', 'PENDING', 'BOOKED', 'CANCELLED'],
+    listChoreographerHistory: jest.fn(), assignChoreographerToEvent: jest.fn(),
+    updateChoreographerAssignment: jest.fn(), FEE_STATUSES: ['PROPOSED', 'COUNTERED', 'AGREED'],
+    EXPENSE_CATEGORIES: ['TRAVEL', 'HOTEL', 'PER_DIEM', 'TRANSFER', 'EQUIPMENT', 'OTHER'],
+    EXPENSE_PAYERS: ['ORGANIZER', 'CHOREOGRAPHER', 'OTHER'],
+    PAYOUT_TYPES: ['ADVANCE', 'FEE', 'REIMBURSEMENT', 'OTHER'], getChoreographerFinance: jest.fn(),
+    recordFeeAgreement: jest.fn(), cancelFeeAgreement: jest.fn(),
+    recordChoreographerExpense: jest.fn(), cancelChoreographerExpense: jest.fn(),
+    recordPayout: jest.fn(), movePayout: jest.fn(), listChoreographerThreads: jest.fn(),
+    linkChoreographerThread: jest.fn(), unlinkChoreographerThread: jest.fn(),
+    listChoreographerActivity: jest.fn(), TASK_PRIORITIES: ['LOW', 'NORMAL', 'HIGH'],
+    listChoreographerNotes: jest.fn(), addChoreographerNote: jest.fn(),
+    updateChoreographerNote: jest.fn(), removeChoreographerNote: jest.fn(),
+    listChoreographerTasks: jest.fn(), addChoreographerTask: jest.fn(),
+}));
+jest.mock('@/entities/crm', () => ({
+    listPeople: jest.fn(), listEvents: jest.fn(), listConversations: jest.fn(),
+}));
+jest.mock('@/entities/Document', () => ({
+    DOCUMENT_TYPES: ['CONTRACT', 'INVOICE', 'RIDER', 'TRAVEL', 'HOTEL', 'OTHER'],
+    CONTRACT_STATUSES: ['DRAFT', 'READY', 'SENT', 'SIGNED', 'EXPIRED', 'CANCELLED'],
+    INVOICE_STATUSES: ['RECEIVED', 'REVIEWED', 'APPROVED', 'PARTIALLY_PAID', 'PAID', 'CANCELLED', 'DISPUTED'],
+    MAX_DOCUMENT_BYTES: 20 * 1024 * 1024, listChoreographerDocuments: jest.fn(),
+    listEventDocuments: jest.fn(), uploadChoreographerDocument: jest.fn(),
+    uploadDocumentVersion: jest.fn(), updateDocumentMetadata: jest.fn(),
+    fetchDocumentFile: jest.fn(),
+}));
 jest.mock('@/entities/Operations', () => ({ updateTaskStatus: jest.fn() }));
 
 const person = { id: 'person-1', firstName: 'Joanna', lastName: 'Gomez', displayName: 'Joanna Gomez', email: 'jojo@example.test', phone: null, country: 'US', language: 'en', status: 'ACTIVE' };
@@ -40,7 +78,8 @@ const renderAt = (path: string, permissions: string[]) => {
     </Routes></MemoryRouter></Provider>);
 };
 
-beforeEach(() => {
+// The profile itself, its biography, contacts, photos, events and fees.
+const mockProfileRequests = () => {
     jest.mocked(listChoreographers).mockReset();
     jest.mocked(listChoreographers).mockResolvedValue({ data: [{ person, profile, summary, coverPhotoId: null }], total: 1 });
     jest.mocked(getChoreographer).mockResolvedValue(detail);
@@ -67,6 +106,10 @@ beforeEach(() => {
         jest.mocked(mock).mockReset();
         jest.mocked(mock).mockResolvedValue({} as never);
     }
+};
+
+// Documents, conversations, activity, notes and follow-ups, and what the browser gives a download.
+const mockRecordRequests = () => {
     jest.mocked(listChoreographerDocuments).mockResolvedValue([]);
     jest.mocked(listEventDocuments).mockResolvedValue([]);
     jest.mocked(fetchDocumentFile).mockResolvedValue(new Blob(['%PDF']));
@@ -92,6 +135,11 @@ beforeEach(() => {
     window.open = jest.fn();
     URL.createObjectURL = jest.fn(() => 'blob:photo');
     URL.revokeObjectURL = jest.fn();
+};
+
+beforeEach(() => {
+    mockProfileRequests();
+    mockRecordRequests();
 });
 
 const ALL = ['choreographers.read', 'choreographers.update', 'choreographers.events.manage', 'choreographers.contacts.read', 'choreographers.contacts.manage', 'choreographers.media.manage'];

@@ -7,7 +7,13 @@ import { listPrompts } from '@/entities/Prompt';
 import { listProviders } from '@/entities/Provider';
 import { CommunicationsPage } from './CommunicationsPage';
 
-jest.mock('@/entities/crm', () => ({ isClient: (person?: { _count?: { orders: number } } | null) => (person?._count?.orders ?? 0) > 0, listConversations: jest.fn(), getConversation: jest.fn(), replyToConversation: jest.fn(), generateDraft: jest.fn(), approveDraft: jest.fn(), rejectDraft: jest.fn(), applyConversationDisposition: jest.fn(), markConversationRead: jest.fn(), composeEmail: jest.fn(), getUnreadByMailbox: jest.fn() }));
+jest.mock('@/entities/crm', () => ({
+    isClient: (person?: { _count?: { orders: number } } | null) => (person?._count?.orders ?? 0) > 0,
+    listConversations: jest.fn(), getConversation: jest.fn(), replyToConversation: jest.fn(),
+    generateDraft: jest.fn(), approveDraft: jest.fn(), rejectDraft: jest.fn(),
+    applyConversationDisposition: jest.fn(), markConversationRead: jest.fn(),
+    composeEmail: jest.fn(), getUnreadByMailbox: jest.fn(),
+}));
 jest.mock('@/entities/Prompt', () => ({ listPrompts: jest.fn() }));
 jest.mock('@/entities/Provider', () => ({ listProviders: jest.fn() }));
 

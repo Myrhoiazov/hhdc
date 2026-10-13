@@ -7,7 +7,11 @@ import { listPrompts } from '@/entities/Prompt';
 import { listProviders } from '@/entities/Provider';
 import { CommunicationsPage } from './CommunicationsPage';
 
-jest.mock('@/entities/crm', () => ({ isClient: () => false, listConversations: jest.fn(), getConversation: jest.fn(), applyConversationDisposition: jest.fn(), applyBulkConversationDisposition: jest.fn(), markConversationRead: jest.fn(), getUnreadByMailbox: jest.fn() }));
+jest.mock('@/entities/crm', () => ({
+    isClient: () => false, listConversations: jest.fn(), getConversation: jest.fn(),
+    applyConversationDisposition: jest.fn(), applyBulkConversationDisposition: jest.fn(),
+    markConversationRead: jest.fn(), getUnreadByMailbox: jest.fn(),
+}));
 jest.mock('@/entities/Prompt', () => ({ listPrompts: jest.fn() }));
 jest.mock('@/entities/Provider', () => ({ listProviders: jest.fn() }));
 

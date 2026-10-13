@@ -3,10 +3,17 @@ import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { deletePerson, listPeoplePage, Person } from '@/entities/crm';
 import { PeoplePage } from './PeopleList';
 
-jest.mock('@/entities/crm', () => ({ listPeoplePage: jest.fn(), deletePerson: jest.fn(), PERSON_ROLES: ['CUSTOMER', 'PARTICIPANT', 'CHOREOGRAPHER', 'STAFF', 'PARTNER'], PERSON_SOURCES: ['WEEZTIX', 'EMAIL', 'MANUAL', 'IMPORT', 'SYSTEM'] }));
+jest.mock('@/entities/crm', () => ({
+    listPeoplePage: jest.fn(), deletePerson: jest.fn(),
+    PERSON_ROLES: ['CUSTOMER', 'PARTICIPANT', 'CHOREOGRAPHER', 'STAFF', 'PARTNER'],
+    PERSON_SOURCES: ['WEEZTIX', 'EMAIL', 'MANUAL', 'IMPORT', 'SYSTEM'],
+}));
 let mockPermissions: string[] = [];
 jest.mock('react-redux', () => ({ useSelector: () => ({ permissions: mockPermissions }) }));
-jest.mock('@/entities/User', () => ({ getUserAuthData: jest.fn(), useCan: () => (permission: string) => mockPermissions.includes(permission) }));
+jest.mock('@/entities/User', () => ({
+    getUserAuthData: jest.fn(),
+    useCan: () => (permission: string) => mockPermissions.includes(permission),
+}));
 jest.mock('@/widgets/Page', () => ({ Page: ({ children }: { children: React.ReactNode }) => <div>{children}</div> }));
 
 const person = (id: string, overrides: Partial<Person> = {}): Person => ({

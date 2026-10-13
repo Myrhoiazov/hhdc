@@ -3,7 +3,11 @@ import { listNotificationSettings, NotificationSetting, saveNotificationTemplate
 import { previewMessage } from './NotificationTemplate';
 import { NotificationsPage } from './NotificationsPage';
 
-jest.mock('@/entities/Notification', () => ({ listNotificationSettings: jest.fn(), setNotificationEnabled: jest.fn(), saveNotificationTemplate: jest.fn(), sendTestNotification: jest.fn(), NOTIFICATION_GROUPS: ['SALES', 'EMAIL', 'PEOPLE_AND_FINANCE'] }));
+jest.mock('@/entities/Notification', () => ({
+    listNotificationSettings: jest.fn(), setNotificationEnabled: jest.fn(),
+    saveNotificationTemplate: jest.fn(), sendTestNotification: jest.fn(),
+    NOTIFICATION_GROUPS: ['SALES', 'EMAIL', 'PEOPLE_AND_FINANCE'],
+}));
 jest.mock('@/widgets/Page', () => ({ Page: ({ children }: { children: React.ReactNode }) => <div>{children}</div> }));
 
 const SALES_TEXT = '🎟 New ticket orders: {{orders}}\n{{link}}';

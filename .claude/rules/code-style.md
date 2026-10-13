@@ -29,6 +29,11 @@
   типами (см. `entities/User/model/types/user.ts`) — так нижним слоям не нужен импорт из `app`.
 - `shared/api` не знает о сторе: реакцию на ответ 401 приложение передаёт через
   `setUnauthorizedHandler` (см. `createReduxStore`).
+- Сущность — слайс `entities/<Name>` (PascalCase) с сегментами `api/` (запросы) и `model/` (типы, константы,
+  чистая логика) и `index.ts`, который перечисляет экспорты поимённо, без `export *`. Запросы разворачивают ответ
+  сервера через `readData` / `readPage` / `postData` / `patchData` / `putData` / `deleteData` из
+  `shared/api/request`, а не повторяют `(await $apiPrivate.get(...)).data.data`. В `entities/crm` ничего нового
+  не добавляй — слайс разбирается и будет удалён.
 - Общие блоки не пиши заново. Форма и списки: `shared/ui/Field`, `RequestState`, `StatusBadge`, `Pager`,
   `ConfirmDelete`. Хелперы: `shared/lib/format/date` (`formatDate`, `formatDateTime`, `formatLongDate`) вместо
   `toLocale*String`, `shared/lib/format/useNumbers` для денег и чисел, `shared/lib/form/formText` для текста поля
