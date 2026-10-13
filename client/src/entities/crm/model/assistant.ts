@@ -1,18 +1,15 @@
 import { $apiPrivate } from '@/shared/api/api';
-
 const read = async <T,>(path: string) => (await $apiPrivate.get<{ data: T }>(path)).data.data;
 const page = async <T,>(path: string) => {
     const result = (await $apiPrivate.get<{ data: T[]; meta: { total: number } }>(path)).data;
     return { data: result.data, total: result.meta.total };
 };
 const post = async <T,>(path: string, body?: unknown) => (await $apiPrivate.post<{ data: T }>(path, body)).data.data;
-
 export interface KnowledgeSyncSummary {
     created: number; updated: number; embedded: number; unchanged: number; editedInCrm: number; failed: string[];
 }
 // Brings the bundled knowledge files into the knowledge base and embeds them for the assistant.
 export const syncKnowledgeV2 = async (overwrite = false) => post<KnowledgeSyncSummary>('/knowledge/sync-v2', { overwrite });
-
 export const EMAIL_PROMPT_KEYS = ['email_classification', 'email_draft_body'] as const;
 export type EmailPromptKey = typeof EMAIL_PROMPT_KEYS[number];
 export interface PromptVersion { id: string; key: string; version: number; purpose: string; systemPrompt: string; status: string; createdAt: string }
@@ -20,7 +17,6 @@ export const listPrompts = async () => read<PromptVersion[]>('/ai/prompts');
 export const getDefaultEmailPrompts = async () => read<Record<EmailPromptKey, string>>('/ai/email-prompts/defaults');
 export const createPromptVersion = async (input: { key: string; purpose: string; systemPrompt: string }) => post<PromptVersion>('/ai/prompts', input);
 export const activatePrompt = async (id: string) => post<PromptVersion>(`/ai/prompts/${id}/activate`);
-
 export interface SimulationClassification {
     spam: boolean; needsReply: boolean; replyLanguage: string; intent: string; secondaryIntents: string[];
     needsCRM: boolean; needsHumanAction: boolean; urgency: string; confidence: number;

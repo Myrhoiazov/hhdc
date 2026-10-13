@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { Message } from '@/entities/crm';
 import { MessageThread } from './MessageThread';
 
-jest.mock('@/entities/crm', () => ({}), { virtual: true });
+
 
 const letter = (id: string, bodyText: string, extra: Partial<Message> = {}): Message => ({
     id, direction: 'INBOUND', sender: `${id}@example.test`, recipient: 'info@example.test', bodyText,

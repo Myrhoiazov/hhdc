@@ -3,9 +3,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { Event, listEventsPage } from '@/entities/crm';
 import { EventsPage } from './EventsList';
 
-jest.mock('@/entities/crm', () => ({
-    createEvent: jest.fn(), listEventsPage: jest.fn(), LIST_PAGE_SIZE: 25, EVENT_STATUSES: ['DRAFT', 'PUBLISHED', 'ACTIVE', 'COMPLETED', 'CANCELLED', 'ARCHIVED'],
-}));
+jest.mock('@/entities/crm', () => ({ createEvent: jest.fn(), listEventsPage: jest.fn(), EVENT_STATUSES: ['DRAFT', 'PUBLISHED', 'ACTIVE', 'COMPLETED', 'CANCELLED', 'ARCHIVED'] }));
 jest.mock('@/widgets/Page', () => ({ Page: ({ children }: { children: React.ReactNode }) => <div>{children}</div> }));
 
 const event = (id: string, overrides: Partial<Event> = {}): Event => ({

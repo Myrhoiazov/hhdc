@@ -2,29 +2,12 @@ import { fireEvent, render, screen, waitFor, within } from '@testing-library/rea
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { createReduxStore, ReduxStoreWithManager } from '@/app/providers/StoreProvider';
-import {
-    activatePrompt, createPromptVersion, deleteKnowledge, EmailSimulation, getDefaultEmailPrompts, listEvents, listKnowledge, listPrompts,
-    getSimulationRun, listProviders, listSimulationRuns, simulateEmail, syncKnowledgeV2,
-} from '@/entities/crm';
+import { activatePrompt, createPromptVersion, deleteKnowledge, EmailSimulation, getDefaultEmailPrompts, listEvents, listKnowledge, listPrompts, getSimulationRun, listSimulationRuns, simulateEmail, syncKnowledgeV2 } from '@/entities/crm';
+import { listProviders } from '@/entities/Provider';
 import { KnowledgePage } from './KnowledgePage';
 
-jest.mock('@/entities/crm', () => ({
-    EMAIL_PROMPT_KEYS: ['email_classification', 'email_draft_body'],
-    listKnowledge: jest.fn(), LIST_PAGE_SIZE: 25,
-    listEvents: jest.fn(),
-    saveKnowledge: jest.fn(),
-    deleteKnowledge: jest.fn(),
-    syncKnowledgeV2: jest.fn(),
-    listPrompts: jest.fn(),
-    getDefaultEmailPrompts: jest.fn(),
-    createPromptVersion: jest.fn(),
-    activatePrompt: jest.fn(),
-    simulateEmail: jest.fn(),
-    listProviders: jest.fn(),
-    listSimulationRuns: jest.fn(),
-    getSimulationRun: jest.fn(),
-    SIMULATION_PAGE_SIZE: 10,
-}), { virtual: true });
+jest.mock('@/entities/crm', () => ({ EMAIL_PROMPT_KEYS: ['email_classification', 'email_draft_body'], listKnowledge: jest.fn(), listEvents: jest.fn(), saveKnowledge: jest.fn(), deleteKnowledge: jest.fn(), syncKnowledgeV2: jest.fn(), listPrompts: jest.fn(), getDefaultEmailPrompts: jest.fn(), createPromptVersion: jest.fn(), activatePrompt: jest.fn(), simulateEmail: jest.fn(), listSimulationRuns: jest.fn(), getSimulationRun: jest.fn(), SIMULATION_PAGE_SIZE: 10 }));
+jest.mock('@/entities/Provider', () => ({ listProviders: jest.fn() }));
 
 const savedPrompt = { id: 'prompt-2', key: 'email_draft_body', version: 2, purpose: 'Shorter tone', systemPrompt: 'Answer briefly.', status: 'DRAFT', createdAt: '2026-10-07T10:00:00.000Z' };
 const ollama = { id: 'ai-1', name: 'Ollama (local)', type: 'AI', provider: 'OLLAMA', status: 'CONNECTED', settings: { model: 'qwen3:1.7b' } };

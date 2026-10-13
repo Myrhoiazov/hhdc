@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import { composeEmail, ProviderConnection } from '@/entities/crm';
+import { composeEmail } from '@/entities/crm';
+import { ProviderConnection } from '@/entities/Provider';
 
 export interface ComposeFields {
     providerId: string;

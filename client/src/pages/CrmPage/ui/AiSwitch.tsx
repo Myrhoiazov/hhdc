@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { activateAiProvider, ProviderConnection } from '@/entities/crm';
+import { activateAiProvider, ProviderConnection } from '@/entities/Provider';
 import { classNames } from '@/shared/lib/classNames/classNames';
 import { useAction } from '@/shared/lib/useResource/useAction';
 import { activeAiProvider, generationCandidates } from '../model/activeAi';

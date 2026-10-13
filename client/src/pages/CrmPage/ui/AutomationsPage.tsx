@@ -1,6 +1,6 @@
 import { FormEvent, memo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Automation, AutomationTest, createAutomation, getAutomationMeta, listAutomationRuns, listAutomations, setAutomationStatus, testAutomation } from '@/entities/crm';
+import { Automation, AutomationTest, createAutomation, getAutomationMeta, listAutomationRuns, listAutomations, setAutomationStatus, testAutomation } from '@/entities/Automation';
 import { formatDateTime } from '@/shared/lib/format/date';
 import { useAction } from '@/shared/lib/useResource/useAction';
 import { useResource } from '@/shared/lib/useResource/useResource';

@@ -2,24 +2,12 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { createReduxStore, ReduxStoreWithManager } from '@/app/providers/StoreProvider';
-import { applyConversationDisposition, approveDraft, composeEmail, Conversation, rejectDraft, replyToConversation, generateDraft, getConversation, listConversations, listPrompts, getUnreadByMailbox, listProviders, markConversationRead } from '@/entities/crm';
+import { applyConversationDisposition, approveDraft, composeEmail, Conversation, rejectDraft, replyToConversation, generateDraft, getConversation, listConversations, listPrompts, getUnreadByMailbox, markConversationRead } from '@/entities/crm';
+import { listProviders } from '@/entities/Provider';
 import { CommunicationsPage } from './CommunicationsPage';
 
-jest.mock('@/entities/crm', () => ({
-    isClient: (person?: { _count?: { orders: number } } | null) => (person?._count?.orders ?? 0) > 0,
-    listConversations: jest.fn(),
-    getConversation: jest.fn(),
-    listProviders: jest.fn(),
-    replyToConversation: jest.fn(),
-    generateDraft: jest.fn(),
-    approveDraft: jest.fn(),
-    rejectDraft: jest.fn(),
-    applyConversationDisposition: jest.fn(),
-    markConversationRead: jest.fn(),
-    composeEmail: jest.fn(),
-    listPrompts: jest.fn(),
-    getUnreadByMailbox: jest.fn(),
-}), { virtual: true });
+jest.mock('@/entities/crm', () => ({ isClient: (person?: { _count?: { orders: number } } | null) => (person?._count?.orders ?? 0) > 0, listConversations: jest.fn(), getConversation: jest.fn(), replyToConversation: jest.fn(), generateDraft: jest.fn(), approveDraft: jest.fn(), rejectDraft: jest.fn(), applyConversationDisposition: jest.fn(), markConversationRead: jest.fn(), composeEmail: jest.fn(), listPrompts: jest.fn(), getUnreadByMailbox: jest.fn() }));
+jest.mock('@/entities/Provider', () => ({ listProviders: jest.fn() }));
 
 const mailboxA = { id: 'mail-a', name: 'DDC NL', type: 'EMAIL', provider: 'IMAP', status: 'CONNECTED', settings: {} };
 const aiProvider = { id: 'ai-1', name: 'Ollama (local)', type: 'AI', provider: 'OLLAMA', status: 'CONNECTED', settings: { model: 'qwen3:1.7b' } };

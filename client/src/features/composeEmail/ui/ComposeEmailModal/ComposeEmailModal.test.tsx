@@ -1,9 +1,11 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { composeEmail, listProviders } from '@/entities/crm';
+import { composeEmail } from '@/entities/crm';
+import { listProviders } from '@/entities/Provider';
 import { onEmailSent } from '../../model/emailSent';
 import { ComposeEmailModal } from './ComposeEmailModal';
 
-jest.mock('@/entities/crm', () => ({ composeEmail: jest.fn(), listProviders: jest.fn() }));
+jest.mock('@/entities/crm', () => ({ composeEmail: jest.fn() }));
+jest.mock('@/entities/Provider', () => ({ listProviders: jest.fn() }));
 
 const mailboxA = { id: 'mail-a', name: 'DDC NL', type: 'EMAIL', provider: 'IMAP', status: 'CONNECTED', settings: {} };
 const mailboxB = { id: 'mail-b', name: 'Camp EU', type: 'EMAIL', provider: 'GMAIL', status: 'CONNECTED', settings: {} };

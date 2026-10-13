@@ -1,7 +1,7 @@
 import { FormEvent, memo, useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { AiProposal, askAssistant, AssistantAnswer, decideProposal, getReviewQueue } from '@/entities/crm';
+import { AiProposal, askAssistant, AssistantAnswer, decideProposal, getReviewQueue } from '@/entities/Assistant';
 import { formatDate } from '@/shared/lib/format/date';
 import { useAction } from '@/shared/lib/useResource/useAction';
 import { useResource } from '@/shared/lib/useResource/useResource';

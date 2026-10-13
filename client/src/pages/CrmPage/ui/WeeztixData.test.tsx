@@ -1,8 +1,8 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { importWeeztixContacts, listSyncRuns, previewWeeztixContacts, SyncRun, syncWeeztixCatalog, syncWeeztixSales } from '@/entities/crm';
+import { importWeeztixContacts, listSyncRuns, previewWeeztixContacts, SyncRun, syncWeeztixCatalog, syncWeeztixSales } from '@/entities/Provider';
 import { WeeztixData } from './WeeztixData';
 
-jest.mock('@/entities/crm', () => ({ listSyncRuns: jest.fn(), importWeeztixContacts: jest.fn(), previewWeeztixContacts: jest.fn(), syncWeeztixCatalog: jest.fn(), syncWeeztixSales: jest.fn() }));
+jest.mock('@/entities/Provider', () => ({ listSyncRuns: jest.fn(), importWeeztixContacts: jest.fn(), previewWeeztixContacts: jest.fn(), syncWeeztixCatalog: jest.fn(), syncWeeztixSales: jest.fn() }));
 
 const counts = { orders: 1448, contacts: 1168, created: 1148, linked: 20, known: 0, ambiguous: 0, failed: 0 };
 

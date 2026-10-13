@@ -1,6 +1,5 @@
 import { $apiPrivate } from '@/shared/api/api';
 import { Person, Event, PageResult } from './types';
-
 export interface MessageAttachment { filename: string; contentType: string; size: number }
 export interface Message {
     id: string;

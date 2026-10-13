@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ProviderConnection } from '@/entities/crm';
+import { ProviderConnection } from '@/entities/Provider';
 import { Button, ButtonTheme } from '@/shared/ui/Button';
 import cls from '../CommunicationsPage.module.scss';
 

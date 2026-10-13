@@ -1,6 +1,7 @@
 import { memo, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { approveDraft, Conversation, Draft, DraftModelChoice, generateDraft, PromptVersion, ProviderConnection, rejectDraft, replyToConversation } from '@/entities/crm';
+import { approveDraft, Conversation, Draft, DraftModelChoice, generateDraft, PromptVersion, rejectDraft, replyToConversation } from '@/entities/crm';
+import { ProviderConnection } from '@/entities/Provider';
 import { classNames } from '@/shared/lib/classNames/classNames';
 import { Button, ButtonTheme } from '@/shared/ui/Button';
 import { RequestState } from '@/shared/ui/RequestState';

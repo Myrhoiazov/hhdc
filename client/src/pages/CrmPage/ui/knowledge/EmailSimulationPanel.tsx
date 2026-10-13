@@ -1,6 +1,7 @@
 import { FormEvent, memo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { EmailSimulation, PromptVersion, ProviderConnection, simulateEmail } from '@/entities/crm';
+import { EmailSimulation, PromptVersion, simulateEmail } from '@/entities/crm';
+import { ProviderConnection } from '@/entities/Provider';
 import { Button } from '@/shared/ui/Button';
 import { Field } from '@/shared/ui/Field';
 import { RequestState } from '@/shared/ui/RequestState';

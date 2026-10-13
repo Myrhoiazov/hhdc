@@ -1,9 +1,9 @@
 import { render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { DashboardInsights, getDashboardInsights } from '@/entities/crm';
+import { DashboardInsights, getDashboardInsights } from '@/entities/Dashboard';
 import { DashboardInsightsPanel } from './DashboardInsights';
 
-jest.mock('@/entities/crm', () => ({ getDashboardInsights: jest.fn() }));
+jest.mock('@/entities/Dashboard', () => ({ getDashboardInsights: jest.fn() }));
 
 const event = (id: string, name: string, revenue: string) => ({ id, name, startAt: '2026-05-15T10:00:00Z', tickets: 445, revenue, discount: '9665.00', costs: '6200.00', result: '133215.00' });
 const country = (index: number) => ({ code: ['DE', 'NL', 'FR', 'UA', 'PL', 'BE', 'CH', 'GB', 'IT', 'IE', 'CZ', 'FI', 'IL', 'LU'][index], buyers: 220 - index * 10, tickets: 300 - index * 10, revenue: '1000.00' });

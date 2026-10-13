@@ -1,6 +1,6 @@
 import { FormEvent, memo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { connectWeeztix, startWeeztixAuthorization } from '@/entities/crm';
+import { connectWeeztix, startWeeztixAuthorization } from '@/entities/Provider';
 import { Button } from '@/shared/ui/Button';
 import { Field } from '@/shared/ui/Field';
 import { WeeztixData } from './WeeztixData';
