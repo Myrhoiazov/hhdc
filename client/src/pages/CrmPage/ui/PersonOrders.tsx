@@ -7,7 +7,9 @@ import { useResource } from '@/shared/lib/useResource/useResource';
 import { classNames } from '@/shared/lib/classNames/classNames';
 import { RequestState } from '@/shared/ui/RequestState';
 import { useNumbers } from '@/shared/lib/format/useNumbers';
-import cls from './CrmPage.module.scss';
+import { Panel } from '@/shared/ui/Panel';
+import { Badge, BadgeTone } from '@/shared/ui/Badge';
+import cls from '@/shared/ui/layout/layout.module.scss';
 import own from './PersonOrders.module.scss';
 
 const useMoney = (currency: string) => {
@@ -73,6 +75,10 @@ const OrderDetails = memo(({ order }: { order: PersonOrder }) => {
 
 const SETTLED = ['PAID'];
 const UNDONE = ['CANCELLED', 'REFUNDED'];
+const orderTone = (status: string): BadgeTone | undefined => {
+    if (SETTLED.includes(status)) return 'success';
+    return UNDONE.includes(status) ? 'danger' : undefined;
+};
 
 const OrderCard = memo(({ order }: { order: PersonOrder }) => {
     const { t } = useTranslation();
@@ -84,7 +90,7 @@ const OrderCard = memo(({ order }: { order: PersonOrder }) => {
             <span className={own.event}>{order.event?.name ?? '—'}</span>
             <span className={own.count}>{t('Tickets: {{count}}', { count: order.tickets.length })}</span>
             <span className={own.total}>{money(order.total)}</span>
-            <span className={classNames(cls.badge, { [cls.success]: SETTLED.includes(order.status), [cls.danger]: UNDONE.includes(order.status) }, [own.status])}>{status(order.status)}</span>
+            <Badge tone={orderTone(order.status)} className={own.status}>{status(order.status)}</Badge>
             {!order.boughtByPerson && <span className={classNames(cls.muted, {}, [own.note])}>{t('Bought by someone else')}</span>}
         </summary>
         <div className={own.body}><OrderDetails order={order} /></div>
@@ -96,9 +102,9 @@ export const PersonOrders = memo(({ personId }: { personId: string }) => {
     const { t } = useTranslation();
     const load = useCallback(() => listPersonOrders(personId), [personId]);
     const orders = useResource(load);
-    return <section className={cls.panel} aria-label={t('Purchases')}><h2>{t('Purchases')}</h2>
+    return <Panel aria-label={t('Purchases')}><h2>{t('Purchases')}</h2>
         <RequestState error={orders.error} loading={orders.loading} />
         {orders.data?.map(order => <OrderCard key={order.id} order={order} />)}
         {orders.data?.length === 0 && <p className={cls.muted}>{t('No purchases yet')}</p>}
-    </section>;
+    </Panel>;
 });

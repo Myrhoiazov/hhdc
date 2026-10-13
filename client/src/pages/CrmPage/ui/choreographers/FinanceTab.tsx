@@ -9,7 +9,8 @@ import { Button } from '@/shared/ui/Button';
 import { Field } from '@/shared/ui/Field';
 import { RequestState } from '@/shared/ui/RequestState';
 import { StatusBadge } from '@/shared/ui/StatusBadge';
-import cls from '../CrmPage.module.scss';
+import { Panel } from '@/shared/ui/Panel';
+import cls from '@/shared/ui/layout/layout.module.scss';
 import { PersonExpenses } from '../PersonExpenses';
 import own from './Choreographers.module.scss';
 
@@ -170,12 +171,12 @@ export const FinanceTab = memo(({ personId, rights }: { personId: string; rights
     };
     return <>
         <RequestState error={error || finance.error} loading={finance.loading && !finance.data} />
-        {finance.data?.years.map(({ year, totals }) => <section className={cls.panel} key={year} aria-label={`${t('Finance')} ${year}`}>
+        {finance.data?.years.map(({ year, totals }) => <Panel key={year} aria-label={`${t('Finance')} ${year}`}>
             <h2>{year}</h2>
             <TotalsTable totals={totals} />
             {finance.data?.assignments.filter((item) => item.year === year).map((item) => <AssignmentLedger key={item.id} assignment={item} rights={rights} run={run} />)}
-        </section>)}
-        {finance.data?.assignments.length === 0 && <section className={cls.panel}><p className={cls.muted}>{t('Finance is recorded per event. Add the choreographer to an event first.')}</p></section>}
+        </Panel>)}
+        {finance.data?.assignments.length === 0 && <Panel><p className={cls.muted}>{t('Finance is recorded per event. Add the choreographer to an event first.')}</p></Panel>}
         <PersonExpenses personId={personId} />
     </>;
 });

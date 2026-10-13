@@ -5,7 +5,7 @@ import { listProviders } from '@/entities/Provider';
 import { onEmailSent } from '@/features/composeEmail';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { useConversationPages } from '../model/useConversationPages';
-import { CrmLayout } from './common';
+import { CrmLayout } from '@/widgets/Page';
 import { RequestState } from '@/shared/ui/RequestState';
 import { AccountOverview, MailboxNavigation } from './email/MailboxNavigation';
 import { EmailWorkspace } from './email/EmailWorkspace';

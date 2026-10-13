@@ -8,7 +8,7 @@ jest.mock('@/entities/Notification', () => ({
     saveNotificationTemplate: jest.fn(), sendTestNotification: jest.fn(),
     NOTIFICATION_GROUPS: ['SALES', 'EMAIL', 'PEOPLE_AND_FINANCE'],
 }));
-jest.mock('@/widgets/Page', () => ({ Page: ({ children }: { children: React.ReactNode }) => <div>{children}</div> }));
+jest.mock('@/widgets/Page/Page', () => ({ Page: ({ children }: { children: React.ReactNode }) => <div>{children}</div> }));
 
 const SALES_TEXT = '🎟 New ticket orders: {{orders}}\n{{link}}';
 const salesField = () => within(screen.getByRole('region', { name: 'Notification group: SALES' })).getByRole('textbox');

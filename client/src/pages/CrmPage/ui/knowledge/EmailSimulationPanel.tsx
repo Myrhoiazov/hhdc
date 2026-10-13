@@ -6,9 +6,10 @@ import { ProviderConnection } from '@/entities/Provider';
 import { Button } from '@/shared/ui/Button';
 import { Field } from '@/shared/ui/Field';
 import { RequestState } from '@/shared/ui/RequestState';
+import { Panel } from '@/shared/ui/Panel';
 import { SimulationHistoryPanel } from './SimulationHistoryPanel';
 import { SimulationResult } from './SimulationResult';
-import cls from '../CrmPage.module.scss';
+import cls from '@/shared/ui/layout/layout.module.scss';
 
 const PromptSelect = memo(({ label, name, prompts }: { label: string; name: string; prompts: PromptVersion[] }) => {
     const { t } = useTranslation();
@@ -55,7 +56,7 @@ export const EmailSimulationPanel = memo(({ prompts, providers }: { prompts: Pro
         // A failed run is recorded too, so the history is refreshed either way.
         finally { setBusy(false); setRuns((count) => count + 1); }
     };
-    return <><section className={cls.panel}>
+    return <><Panel>
         <h2>{t('Email simulation')}</h2>
         <p className={cls.muted}>{t('Paste a customer email to see how the assistant would answer it. Nothing is sent; the run is kept in the history below.')}</p>
         <form className={cls.grid} onSubmit={submit}>
@@ -68,5 +69,5 @@ export const EmailSimulationPanel = memo(({ prompts, providers }: { prompts: Pro
         </form>
         <RequestState error={error} loading={false} />
         {simulation && <SimulationResult simulation={simulation} />}
-    </section><SimulationHistoryPanel refreshKey={runs} /></>;
+    </Panel><SimulationHistoryPanel refreshKey={runs} /></>;
 });

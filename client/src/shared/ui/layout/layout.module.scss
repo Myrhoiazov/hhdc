@@ -1,37 +1,13 @@
-.CrmPage {
+/* Layout helpers shared by the CRM pages: how blocks, form grids, rows and their texts are laid
+   out. Surfaces and pills are components (`Panel`, `Badge`); these are the classes between them. */
+
+/* Blocks under each other with the gap of a page. */
+.stack {
     display: flex;
     flex-direction: column;
     width: 100%;
     color: var(--sidebar-text-hover-redesigned);
     gap: 24px;
-}
-
-/* The way back to the list the page was opened from: a link that looks like the outline button. */
-.back {
-    padding: 8px 16px;
-    font: var(--font-m);
-    color: var(--sidebar-text-hover-redesigned);
-    background: var(--sidebar-bg-redesigned);
-    border: 1px solid var(--card-border-redesigned);
-    border-radius: var(--radius-sm-redesigned);
-    transition: background 0.15s ease;
-    align-self: flex-start;
-    text-decoration: none;
-
-    &:hover,
-    &:focus-visible {
-        background: var(--sidebar-hover-bg-redesigned);
-    }
-}
-
-.panel {
-    display: flex;
-    flex-direction: column;
-    padding: 24px;
-    background: var(--sidebar-bg-redesigned);
-    border: 1px solid var(--card-border-redesigned);
-    border-radius: var(--radius-md-redesigned);
-    gap: 16px;
 }
 
 .grid {
@@ -69,26 +45,12 @@
     }
 }
 
-.roles {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-}
 .error { color: var(--danger-text-redesigned); }
 
 .actions {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-}
-
-.badge {
-    padding: 2px 10px;
-    font-size: 12px;
-    color: var(--sidebar-text-hover-redesigned);
-    background: var(--sidebar-hover-bg-redesigned);
-    border: 1px solid var(--card-border-redesigned);
-    border-radius: var(--radius-pill-redesigned);
 }
 
 .success {

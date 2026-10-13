@@ -6,14 +6,16 @@ import { useCan } from '@/entities/User';
 import { formatDate } from '@/shared/lib/format/date';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
+import { Badge } from '@/shared/ui/Badge';
+import { Panel } from '@/shared/ui/Panel';
 import { readPeopleList, writePeopleList } from '../model/peopleListUrl';
-import { CrmLayout } from './common';
+import { CrmLayout } from '@/widgets/Page';
 import { Field } from '@/shared/ui/Field';
 import { RequestState } from '@/shared/ui/RequestState';
 import { Pager } from '@/shared/ui/Pager';
 import { useListFilters } from '@/shared/lib/hooks/useListFilters/useListFilters';
-import cls from './CrmPage.module.scss';
-import { listStyles as own } from './ListTable';
+import cls from '@/shared/ui/layout/layout.module.scss';
+import { listStyles as own } from '@/shared/ui/ListTable';
 import { DeleteContactButton } from './PersonRemoval';
 
 const NO_FILTERS: PeopleFilters = { q: '', role: '', source: '', purchases: '' };
@@ -70,7 +72,7 @@ const PersonRow = memo(({ person, onDeleted }: RowProps) => {
         <td className={own.secondary}>{person.email && person.email !== name ? person.email : '—'}</td>
         <td className={`${own.secondary} ${own.optional} ${own.whole}`}>{person.phone || '—'}</td>
         <td className={`${own.secondary} ${own.optional}`}>{person.country || '—'}</td>
-        <td><span className={own.badges}>{person.roles.map(item => <span className={cls.badge} key={item.role}>{t(item.role)}</span>)}</span></td>
+        <td><span className={own.badges}>{person.roles.map(item => <Badge key={item.role}>{t(item.role)}</Badge>)}</span></td>
         <td className={`${own.secondary} ${own.optional}`}>{person.source ? t(`Person source: ${person.source}`, { defaultValue: person.source }) : '—'}</td>
         <td className={own.number}>{person._count?.orders ?? 0}</td>
         <td className={`${own.secondary} ${own.optional} ${own.whole}`}>{person.createdAt ? formatDate(person.createdAt) : '—'}</td>
@@ -98,7 +100,7 @@ export const PeoplePage = memo(() => {
     const refresh = useCallback(() => { void people.list.refresh(); }, [people.list]);
     return <CrmLayout title="People">
         <PeopleFiltersBar filters={people.filters} filtered={people.filtered} onChange={people.change} onReset={people.reset} />
-        <section className={cls.panel} aria-label={t('All contacts')}>
+        <Panel aria-label={t('All contacts')}>
             <div className={own.summary}>
                 <h2>{t('All contacts')}</h2>
                 {data && <div className={own.summaryEnd}>
@@ -110,6 +112,6 @@ export const PeoplePage = memo(() => {
             {data && data.total > 0 && <PeopleTable people={data.data} onDeleted={canDelete ? refresh : undefined} />}
             {data?.total === 0 && <p className={cls.muted}>{t(people.filtered ? 'No contacts match the filters' : 'No contacts yet')}</p>}
             {data && <Pager page={people.page} total={data.total} onChange={people.setPage} />}
-        </section>
+        </Panel>
     </CrmLayout>;
 });

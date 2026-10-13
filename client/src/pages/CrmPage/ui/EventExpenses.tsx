@@ -13,8 +13,10 @@ import { RequestState } from '@/shared/ui/RequestState';
 import { useNumbers } from '@/shared/lib/format/useNumbers';
 import { ConfirmDelete } from '@/shared/ui/ConfirmDelete';
 import { useDelayed } from '@/shared/lib/hooks/useDelayed/useDelayed';
-import { listStyles as own } from './ListTable';
-import cls from './CrmPage.module.scss';
+import { Badge } from '@/shared/ui/Badge';
+import { Panel } from '@/shared/ui/Panel';
+import { listStyles as own } from '@/shared/ui/ListTable';
+import cls from '@/shared/ui/layout/layout.module.scss';
 import form from './EventExpenses.module.scss';
 
 const MIN_SEARCH = 2;
@@ -67,7 +69,7 @@ const ExpenseRow = memo(({ line, ...actions }: RowActions & { line: ExpenseLine 
             {line.teamMember && <span className={form.role}>{line.teamMember.roleTitle}</span>}</td>
         <td className={`${own.secondary} ${own.optional}`}>{line.description || (own_ ? '—' : t("From the choreographer's card"))}</td>
         <td className={own.number}>{text.money(line.amount)}</td>
-        <td><span className={cls.badge}>{text.status(line.status)}</span></td>
+        <td><Badge>{text.status(line.status)}</Badge></td>
         <td>{own_ && actions.canEdit
             ? <RowButtons line={line} {...actions} />
             : !own_ && <span className={own.secondary}>{t("From the choreographer's card")}</span>}</td>
@@ -240,7 +242,7 @@ export const EventExpenses = memo(({ eventId, canEdit, version = 0, onChanged }:
     const refresh = useCallback(() => { void expenses.refresh(); onChanged?.(); }, [expenses, onChanged]);
     const changes = useExpenseChanges(eventId, refresh);
     const { data } = expenses;
-    return <section id="event-expenses" className={cls.panel} aria-label={t('Expenses')}>
+    return <Panel id="event-expenses" aria-label={t('Expenses')}>
         <h2>{t('Expenses')}</h2>
         <RequestState error={expenses.error || changes.error} loading={expenses.loading && !data} />
         {data && data.lines.length > 0 && <>
@@ -251,5 +253,5 @@ export const EventExpenses = memo(({ eventId, canEdit, version = 0, onChanged }:
         </>}
         {data?.lines.length === 0 && <p className={cls.muted}>{t('No expenses recorded for this event yet')}</p>}
         {canEdit && <AddExpense eventId={eventId} team={team} onSaved={refresh} />}
-    </section>;
+    </Panel>;
 });

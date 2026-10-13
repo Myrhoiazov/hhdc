@@ -4,8 +4,9 @@ import { EventSales, getEventSales } from '@/entities/Event';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { RequestState } from '@/shared/ui/RequestState';
 import { useNumbers } from '@/shared/lib/format/useNumbers';
+import { Panel } from '@/shared/ui/Panel';
 import { Bar, chartStyles as own, Tile } from './Charts';
-import cls from './CrmPage.module.scss';
+import cls from '@/shared/ui/layout/layout.module.scss';
 
 const useFormat = (currency: string) => {
     const { i18n } = useTranslation();
@@ -39,7 +40,7 @@ const BarChart = memo(({ title, nameLabel, amountLabel, lines, currency }: Chart
     const format = useFormat(currency);
     const largest = Math.max(0, ...lines.map(line => Number(line.amount)));
     if (!lines.length) return null;
-    return <section className={cls.panel} aria-label={t(title)}>
+    return <Panel aria-label={t(title)}>
         <h3>{t(title)}</h3>
         <div role="table" aria-label={t(title)}>
             <div className={`${own.barRow} ${own.columnHead}`} role="row">
@@ -53,7 +54,7 @@ const BarChart = memo(({ title, nameLabel, amountLabel, lines, currency }: Chart
                 <span role="cell" className={own.number}>{format.money(line.amount)}</span>
             </div>)}
         </div>
-    </section>;
+    </Panel>;
 });
 
 const SalesReport = memo(({ sales }: { sales: EventSales }) => {
@@ -82,6 +83,6 @@ export const EventSalesPanel = memo(({ eventId }: { eventId: string }) => {
     return <section id="event-sales" className={own.report} aria-label={t('Ticket sales')}><h2>{t('Ticket sales')}</h2>
         <RequestState error={sales.error} loading={sales.loading} />
         {sales.data && hasSales && <SalesReport sales={sales.data} />}
-        {sales.data && !hasSales && <p className={`${cls.panel} ${cls.muted}`}>{t('No tickets sold yet')}</p>}
+        {sales.data && !hasSales && <Panel as="p" className={cls.muted}>{t('No tickets sold yet')}</Panel>}
     </section>;
 });

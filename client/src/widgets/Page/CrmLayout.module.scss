@@ -1,0 +1,25 @@
+.CrmLayout {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    color: var(--sidebar-text-hover-redesigned);
+    gap: 24px;
+}
+
+/* The way back to the list the page was opened from: a link that looks like the outline button. */
+.back {
+    padding: 8px 16px;
+    font: var(--font-m);
+    color: var(--sidebar-text-hover-redesigned);
+    background: var(--sidebar-bg-redesigned);
+    border: 1px solid var(--card-border-redesigned);
+    border-radius: var(--radius-sm-redesigned);
+    transition: background 0.15s ease;
+    align-self: flex-start;
+    text-decoration: none;
+
+    &:hover,
+    &:focus-visible {
+        background: var(--sidebar-hover-bg-redesigned);
+    }
+}

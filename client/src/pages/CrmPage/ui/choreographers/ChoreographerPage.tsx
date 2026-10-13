@@ -8,10 +8,11 @@ import { formatLongDate } from '@/shared/lib/format/date';
 import { classNames } from '@/shared/lib/classNames/classNames';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
-import { CrmLayout } from '../common';
+import { CrmLayout } from '@/widgets/Page';
 import { Field } from '@/shared/ui/Field';
 import { RequestState } from '@/shared/ui/RequestState';
 import { StatusBadge } from '@/shared/ui/StatusBadge';
+import { Panel } from '@/shared/ui/Panel';
 import { ActivityTab } from './ActivityTab';
 import { BioVersions } from './BioVersions';
 import { ChoreographerAvatar } from './ChoreographerAvatar';
@@ -23,7 +24,7 @@ import { EventsTab } from './EventsTab';
 import { FinanceTab } from './FinanceTab';
 import { MediaTab } from './MediaTab';
 import { NotesTab } from './NotesTab';
-import cls from '../CrmPage.module.scss';
+import cls from '@/shared/ui/layout/layout.module.scss';
 import own from './Choreographers.module.scss';
 
 // A tab is listed only for people who may read it; the server enforces the same permission.
@@ -88,23 +89,23 @@ const OverviewTab = memo(({ detail }: { detail: ChoreographerDetail }) => {
     const { t } = useTranslation();
     const { person, profile, assignments } = detail;
     return <>
-        <section className={cls.panel} aria-label={t('Contact')}><h2>{t('Contact')}</h2>
+        <Panel aria-label={t('Contact')}><h2>{t('Contact')}</h2>
             <dl className={own.definition}>
                 <dt>{t('Email')}</dt><dd>{person.email ?? '—'}</dd>
                 <dt>{t('Phone')}</dt><dd>{person.phone ?? '—'}</dd>
                 <dt>{t('Languages')}</dt><dd>{profile.languages.join(', ') || '—'}</dd>
             </dl>
             <Link to={`/people/${person.id}`}>{t('Open contact card')}</Link>
-        </section>
-        <section className={cls.panel} aria-label={t('Events')}><h2>{t('Events')}</h2>
+        </Panel>
+        <Panel aria-label={t('Events')}><h2>{t('Events')}</h2>
             {assignments.map((assignment) => <div className={cls.row} key={assignment.id}>
                 <Link to={`/events/${assignment.event.id}`}>{assignment.event.name}</Link>
                 <span className={own.secondary}>{`${formatLongDate(assignment.event.startAt)} · ${assignment.roleTitle}`}</span>
                 <StatusBadge status={assignment.status} />
             </div>)}
             {!assignments.length && <p className={cls.muted}>{t('Not assigned to any event yet.')}</p>}
-        </section>
-        <section className={cls.panel}><h2>{t('Profile checklist')}</h2><Checklist items={detail.checklist} /></section>
+        </Panel>
+        <Panel><h2>{t('Profile checklist')}</h2><Checklist items={detail.checklist} /></Panel>
     </>;
 });
 
@@ -137,7 +138,7 @@ const BiographyForm = memo(({ detail, onSaved }: { detail: ChoreographerDetail; 
         catch (cause) { setError(cause instanceof Error ? cause.message : t('Unable to save')); }
         finally { setBusy(false); }
     };
-    return <form className={cls.panel} onSubmit={submit} aria-label={t('Biography')}><h2>{t('Biography')}</h2>
+    return <Panel as="form" onSubmit={submit} aria-label={t('Biography')}><h2>{t('Biography')}</h2>
         <div className={cls.grid}>
             <Field label="Stage name"><input name="stageName" maxLength={200} defaultValue={profile.stageName ?? ''} /></Field>
             <Field label="Relationship"><select name="relationshipStatus" defaultValue={profile.relationshipStatus}>
@@ -153,7 +154,7 @@ const BiographyForm = memo(({ detail, onSaved }: { detail: ChoreographerDetail; 
         </div>
         <RequestState error={error} loading={false} />
         <div className={cls.actions}><Button type="submit" disabled={busy}>{t('Save')}</Button></div>
-    </form>;
+    </Panel>;
 });
 
 const ExternalLink = memo(({ url }: { url: string | null }) => (url ? <a href={url} target="_blank" rel="noreferrer noopener">{url}</a> : <>—</>));
@@ -161,7 +162,7 @@ const ExternalLink = memo(({ url }: { url: string | null }) => (url ? <a href={u
 const BiographyView = memo(({ detail }: { detail: ChoreographerDetail }) => {
     const { t } = useTranslation();
     const { profile } = detail;
-    return <section className={cls.panel} aria-label={t('Biography')}><h2>{t('Biography')}</h2>
+    return <Panel aria-label={t('Biography')}><h2>{t('Biography')}</h2>
         <p className={own.bio}>{profile.bioFull || profile.bioShort || t('No biography yet.')}</p>
         <dl className={own.definition}>
             <dt>{t('Time zone')}</dt><dd>{profile.timezone ?? '—'}</dd>
@@ -170,7 +171,7 @@ const BiographyView = memo(({ detail }: { detail: ChoreographerDetail }) => {
             <dt>{t('YouTube')}</dt><dd><ExternalLink url={profile.youtubeUrl} /></dd>
             <dt>{t('Website')}</dt><dd><ExternalLink url={profile.websiteUrl} /></dd>
         </dl>
-    </section>;
+    </Panel>;
 });
 
 export const ChoreographerPage = memo(() => {

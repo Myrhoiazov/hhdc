@@ -6,8 +6,9 @@ import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button, ButtonTheme } from '@/shared/ui/Button';
 import { RequestState } from '@/shared/ui/RequestState';
 import { StatusBadge } from '@/shared/ui/StatusBadge';
+import { Panel } from '@/shared/ui/Panel';
 import { SimulationResult } from './SimulationResult';
-import cls from '../CrmPage.module.scss';
+import cls from '@/shared/ui/layout/layout.module.scss';
 import own from './Knowledge.module.scss';
 
 const HistoryRow = memo(({ run, onOpen }: { run: SimulationRunSummary; onOpen: (id: string) => void }) => {
@@ -66,12 +67,12 @@ export const SimulationHistoryPanel = memo(({ refreshKey }: { refreshKey: number
         setError('');
         getSimulationRun(id).then(setRun).catch((cause) => setError(cause instanceof Error ? cause.message : 'Request failed'));
     }, []);
-    return <section className={cls.panel} aria-label={t('Simulation history')}>
+    return <Panel aria-label={t('Simulation history')}>
         <h2>{t('Simulation history')}</h2>
         <RequestState error={error || history.error} loading={history.loading} />
         {history.data && (history.data.total
             ? <><HistoryTable runs={history.data.data} onOpen={open} /><Pager page={page} total={history.data.total} onChange={setPage} /></>
             : <p className={cls.muted}>{t('No simulations yet.')}</p>)}
         {run && <RunDetail run={run} onClose={() => setRun(undefined)} />}
-    </section>;
+    </Panel>;
 });

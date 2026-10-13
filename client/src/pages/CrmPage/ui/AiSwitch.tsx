@@ -5,7 +5,8 @@ import { classNames } from '@/shared/lib/classNames/classNames';
 import { useAction } from '@/shared/lib/useResource/useAction';
 import { activeAiProvider, generationCandidates } from '../model/activeAi';
 import { RequestState } from '@/shared/ui/RequestState';
-import page from './CrmPage.module.scss';
+import { Panel } from '@/shared/ui/Panel';
+import page from '@/shared/ui/layout/layout.module.scss';
 import cls from './AiSwitch.module.scss';
 
 interface AiOptionProps { provider: ProviderConnection; active: boolean; busy: boolean; onChoose: (provider: ProviderConnection) => void }
@@ -33,7 +34,7 @@ export const AiSwitch = memo(({ providers, refresh }: { providers: ProviderConne
         if (provider.id === active?.id) return;
         if (window.confirm(t('Switch answers and drafts to {{name}}?', { name: provider.name }))) void action.run(() => activateAiProvider(provider.id));
     };
-    return <section className={classNames(page.panel, {}, [cls.AiSwitch])} aria-label={t('Answering model')}>
+    return <Panel className={cls.AiSwitch} aria-label={t('Answering model')}>
         <div className={cls.intro}>
             <h3>{t('Answering model')}</h3>
             <p className={page.muted}>{t('Assistant answers and email drafts are written by the chosen model. Knowledge search keeps its own model.')}</p>
@@ -42,5 +43,5 @@ export const AiSwitch = memo(({ providers, refresh }: { providers: ProviderConne
             {candidates.map(item => <AiOption key={item.id} provider={item} active={item.id === active?.id} busy={action.busy} onChoose={choose} />)}
         </div>
         <RequestState error={action.error} loading={false} />
-    </section>;
+    </Panel>;
 });

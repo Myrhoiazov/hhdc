@@ -5,14 +5,15 @@ import { createEvent, Event, EVENT_STATUSES, EventFilters, listEventsPage } from
 import { formatDate } from '@/shared/lib/format/date';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
-import { CrmLayout } from './common';
+import { CrmLayout } from '@/widgets/Page';
 import { Field } from '@/shared/ui/Field';
 import { RequestState } from '@/shared/ui/RequestState';
 import { StatusBadge } from '@/shared/ui/StatusBadge';
 import { Pager } from '@/shared/ui/Pager';
 import { useListFilters } from '@/shared/lib/hooks/useListFilters/useListFilters';
-import { listStyles as own } from './ListTable';
-import cls from './CrmPage.module.scss';
+import { Panel } from '@/shared/ui/Panel';
+import { listStyles as own } from '@/shared/ui/ListTable';
+import cls from '@/shared/ui/layout/layout.module.scss';
 
 const NO_FILTERS: EventFilters = { q: '', status: '', period: '' };
 
@@ -31,7 +32,7 @@ const EventForm = memo(({ onSaved }: { onSaved: () => void }) => {
         } catch (cause) { setError(cause instanceof Error ? cause.message : t('Unable to save')); }
         finally { setSaving(false); }
     };
-    return <form className={cls.panel} onSubmit={submit}><h2>{t('Create event')}</h2><div className={cls.grid}>
+    return <Panel as="form" onSubmit={submit}><h2>{t('Create event')}</h2><div className={cls.grid}>
         <Field label="Name"><input name="name" required /></Field>
         <Field label="Slug"><input name="slug" pattern="[a-z0-9-]+" required /></Field>
         <Field label="Starts at"><input name="startAt" type="datetime-local" required /></Field>
@@ -39,7 +40,7 @@ const EventForm = memo(({ onSaved }: { onSaved: () => void }) => {
         <Field label="Timezone"><input name="timezone" defaultValue="Europe/Amsterdam" required /></Field>
         <Field label="Venue"><input name="venueName" /></Field>
         <Field label="Capacity"><input name="capacity" type="number" min="1" /></Field>
-    </div><RequestState error={error} loading={false} /><Button type="submit" disabled={saving}>{t('Save')}</Button></form>;
+    </div><RequestState error={error} loading={false} /><Button type="submit" disabled={saving}>{t('Save')}</Button></Panel>;
 });
 
 // One date for a one-day event, a range otherwise.
@@ -100,7 +101,7 @@ export const EventsPage = memo(() => {
     const { data } = events.list;
     return <CrmLayout title="Events">
         <EventFiltersBar filters={events.filters} filtered={events.filtered} onChange={events.change} onReset={events.reset} />
-        <section className={cls.panel} aria-label={t('All events')}>
+        <Panel aria-label={t('All events')}>
             <div className={own.summary}>
                 <h2>{t('All events')}</h2>
                 {data && <span className={cls.muted}>{t('Events found: {{count}}', { count: data.total })}</span>}
@@ -109,7 +110,7 @@ export const EventsPage = memo(() => {
             {data && data.total > 0 && <EventsTable events={data.data} />}
             {data?.total === 0 && <p className={cls.muted}>{t(events.filtered ? 'No events match the filters' : 'No events yet')}</p>}
             {data && <Pager page={events.page} total={data.total} onChange={events.setPage} />}
-        </section>
+        </Panel>
         <EventForm onSaved={() => void events.list.refresh()} />
     </CrmLayout>;
 });

@@ -7,7 +7,8 @@ import { Button } from '@/shared/ui/Button';
 import { Field } from '@/shared/ui/Field';
 import { RequestState } from '@/shared/ui/RequestState';
 import { StatusBadge } from '@/shared/ui/StatusBadge';
-import cls from '../CrmPage.module.scss';
+import { Panel } from '@/shared/ui/Panel';
+import cls from '@/shared/ui/layout/layout.module.scss';
 import own from './Choreographers.module.scss';
 
 type Run = (work: () => Promise<unknown>) => Promise<boolean>;
@@ -98,7 +99,7 @@ const UploadForm = memo(({ personId, assignments, run }: { personId: string; ass
             invoiceNumber: text(form, 'invoiceNumber'), issuerName: text(form, 'issuerName'), amount: text(form, 'amount'), currency: text(form, 'currency'),
         })).then((saved) => { if (saved) element.reset(); });
     };
-    return <form className={cls.panel} onSubmit={submit} aria-label={t('Upload document')}><h2>{t('Upload document')}</h2>
+    return <Panel as="form" onSubmit={submit} aria-label={t('Upload document')}><h2>{t('Upload document')}</h2>
         <div className={cls.grid}>
             <Field label="File"><input name="file" type="file" required accept=".pdf,.docx,.jpg,.jpeg,.png,.webp" /></Field>
             <Field label="Document type"><select value={type} onChange={(event) => setType(event.target.value as DocumentKind)}>
@@ -112,7 +113,7 @@ const UploadForm = memo(({ personId, assignments, run }: { personId: string; ass
         <p className={cls.muted}>{t('PDF, DOCX, JPEG, PNG or WebP, up to 20 MB.')}</p>
         {error && <p role="alert" className={cls.error}>{error}</p>}
         <div className={cls.actions}><Button type="submit">{t('Upload document')}</Button></div>
-    </form>;
+    </Panel>;
 });
 
 export const DocumentsTab = memo(({ personId, canManage }: { personId: string; canManage: boolean }) => {
@@ -129,10 +130,10 @@ export const DocumentsTab = memo(({ personId, canManage }: { personId: string; c
     };
     return <>
         <RequestState error={error || documents.error} loading={documents.loading && !documents.data} />
-        <section className={cls.panel} aria-label={t('Documents')}><h2>{t('Documents')}</h2>
+        <Panel aria-label={t('Documents')}><h2>{t('Documents')}</h2>
             {documents.data?.map((document) => <DocumentRow key={document.id} document={document} canManage={canManage} run={run} />)}
             {documents.data?.length === 0 && <p className={cls.muted}>{t('No documents yet.')}</p>}
-        </section>
+        </Panel>
         {canManage && <UploadForm personId={personId} assignments={assignments.data ?? []} run={run} />}
     </>;
 });

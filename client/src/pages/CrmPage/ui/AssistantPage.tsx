@@ -6,10 +6,11 @@ import { formatDate } from '@/shared/lib/format/date';
 import { useAction } from '@/shared/lib/useResource/useAction';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
-import { CrmLayout } from './common';
+import { CrmLayout } from '@/widgets/Page';
 import { Field } from '@/shared/ui/Field';
 import { RequestState } from '@/shared/ui/RequestState';
-import cls from './CrmPage.module.scss';
+import { Panel } from '@/shared/ui/Panel';
+import cls from '@/shared/ui/layout/layout.module.scss';
 
 // A proposal changes nothing until the staff member confirms it here.
 const ProposalCard = memo(({ proposal, onDecided }: { proposal: AiProposal; onDecided: () => void }) => {
@@ -30,11 +31,11 @@ const ProposalCard = memo(({ proposal, onDecided }: { proposal: AiProposal; onDe
 
 const AnswerPanel = memo(({ result, onDecided }: { result: AssistantAnswer; onDecided: () => void }) => {
     const { t } = useTranslation();
-    return <section className={cls.panel}>
+    return <Panel>
         <p>{result.answer}</p>
         {result.references.length > 0 && <p className={cls.muted}>{t('Sources')}: {result.references.map(item => item.tool).join(', ')}</p>}
         {result.proposal && <ProposalCard proposal={result.proposal} onDecided={onDecided} />}
-    </section>;
+    </Panel>;
 });
 
 const ReviewQueuePanel = memo(({ version }: { version: number }) => {
@@ -42,7 +43,7 @@ const ReviewQueuePanel = memo(({ version }: { version: number }) => {
     const load = useCallback(() => getReviewQueue(), [version]); // eslint-disable-line react-hooks/exhaustive-deps
     const queue = useResource(load);
     const refresh = useCallback(() => { void queue.refresh(); }, [queue]);
-    return <section className={cls.panel}>
+    return <Panel>
         <h2>{t('AI Review Queue')}</h2>
         <RequestState error={queue.error} loading={queue.loading} />
         {queue.data && <>
@@ -53,7 +54,7 @@ const ReviewQueuePanel = memo(({ version }: { version: number }) => {
             {queue.data.proposals.length === 0 && <p className={cls.muted}>{t('Nothing awaits confirmation')}</p>}
             {queue.data.proposals.map(item => <ProposalCard key={item.id} proposal={item} onDecided={refresh} />)}
         </>}
-    </section>;
+    </Panel>;
 });
 
 export const AssistantPage = memo(() => {
@@ -68,12 +69,12 @@ export const AssistantPage = memo(() => {
     };
     const onDecided = useCallback(() => { setResult(undefined); setVersion(current => current + 1); }, []);
     return <CrmLayout title="AI Assistant">
-        <form className={cls.panel} onSubmit={submit}>
+        <Panel as="form" onSubmit={submit}>
             <Field label="Ask about people, events, registrations or tasks"><textarea name="question" rows={3} minLength={3} required /></Field>
             <p className={cls.muted}>{t('The assistant reads only what your role may see and never changes data on its own.')}</p>
             <RequestState error={action.error} loading={action.busy} />
             <Button type="submit" disabled={action.busy}>{t('Ask')}</Button>
-        </form>
+        </Panel>
         {result && <AnswerPanel result={result} onDecided={onDecided} />}
         <ReviewQueuePanel version={version} />
     </CrmLayout>;

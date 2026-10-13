@@ -13,7 +13,7 @@ jest.mock('@/entities/Person', () => ({
 jest.mock('@/entities/EventTeam', () => ({ listPersonTeamRoles: jest.fn() }));
 jest.mock('react-redux', () => ({ useSelector: () => ({ permissions: [] }) }));
 jest.mock('@/entities/User', () => ({ getUserAuthData: jest.fn(), useCan: () => () => false }));
-jest.mock('@/widgets/Page', () => ({ Page: ({ children }: { children: React.ReactNode }) => <div>{children}</div> }));
+jest.mock('@/widgets/Page/Page', () => ({ Page: ({ children }: { children: React.ReactNode }) => <div>{children}</div> }));
 jest.mock('./PersonConversations', () => ({ PersonConversations: () => null }));
 jest.mock('./PersonExpenses', () => ({ PersonExpenses: () => null }));
 jest.mock('./PersonOrders', () => ({ PersonOrders: () => null }));

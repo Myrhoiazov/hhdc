@@ -4,11 +4,12 @@ import { useTranslation } from 'react-i18next';
 import { CountryRow, DashboardInsights, EventMoney, getDashboardInsights, YearMoney } from '@/entities/Dashboard';
 import { formatDate } from '@/shared/lib/format/date';
 import { useResource } from '@/shared/lib/useResource/useResource';
+import { Panel } from '@/shared/ui/Panel';
 import { Bar, chartStyles as chart, Tile } from './Charts';
 import { RequestState } from '@/shared/ui/RequestState';
 import { useNumbers } from '@/shared/lib/format/useNumbers';
-import { listStyles as table } from './ListTable';
-import cls from './CrmPage.module.scss';
+import { listStyles as table } from '@/shared/ui/ListTable';
+import cls from '@/shared/ui/layout/layout.module.scss';
 import own from './DashboardInsights.module.scss';
 
 const COUNTRIES_SHOWN = 12;
@@ -75,12 +76,12 @@ const Years = memo(({ data }: { data: DashboardInsights }) => {
     const { t } = useTranslation();
     const largest = Math.max(0, ...data.years.map(year => Number(year.revenue)));
     const noCosts = Number(data.totals.costs) === 0;
-    return <section className={cls.panel} aria-label={t('Income and costs by year')}>
+    return <Panel aria-label={t('Income and costs by year')}>
         <h2>{t('Income and costs by year')}</h2>
         <p className={cls.muted}>{t('Income is the price of the tickets sold, without the service fee of the ticket shop. Costs are the expenses entered on events plus the expenses and agreed fees recorded for choreographers.')}</p>
         {noCosts && <p className={cls.muted}>{t("No costs are recorded yet, so the result equals the income. Add expenses on the page of an event to see them here.")}</p>}
         <div>{data.years.map((year, index) => <YearBlock key={year.year} year={year} largest={largest} currency={data.currency} open={index === 0} />)}</div>
-    </section>;
+    </Panel>;
 });
 
 // The countries after the first dozen are added up into one line, so the list stays readable.
@@ -111,7 +112,7 @@ const Countries = memo(({ data }: { data: DashboardInsights }) => {
     const format = useFormat(data.currency);
     const { shown, rest, restCount } = foldCountries(data.countries);
     const largest = Math.max(0, ...shown.map(row => row.buyers));
-    return <section className={cls.panel} aria-label={t('Buyers by country')}>
+    return <Panel aria-label={t('Buyers by country')}>
         <h2>{t('Buyers by country')}</h2>
         <div role="table" aria-label={t('Buyers by country')}>
             <div className={`${own.countryRow} ${chart.columnHead}`} role="row">
@@ -122,7 +123,7 @@ const Countries = memo(({ data }: { data: DashboardInsights }) => {
             {rest && <CountryLine name={t('Other countries: {{count}}', { count: restCount })} row={rest} largest={largest} currency={data.currency} />}
         </div>
         <p className={cls.muted}>{t('Country not given: {{notGiven}} buyers. Country not recognised: {{notRecognised}} buyers.', { notGiven: data.notGiven, notRecognised: data.notRecognised })} {t('Countries are typed by buyers at checkout; the same country in different languages is counted as one.')}</p>
-    </section>;
+    </Panel>;
 });
 
 // What the events earned and cost, by year and event, and where the buyers come from.

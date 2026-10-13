@@ -7,8 +7,9 @@ import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
 import { RequestState } from '@/shared/ui/RequestState';
 import { StatusBadge } from '@/shared/ui/StatusBadge';
+import { Panel } from '@/shared/ui/Panel';
 import { openDocumentFile } from './DocumentsTab';
-import cls from '../CrmPage.module.scss';
+import cls from '@/shared/ui/layout/layout.module.scss';
 import own from './Choreographers.module.scss';
 
 const EventDocumentRow = memo(({ document, onOpen }: { document: FileDocument; onOpen: (id: string) => void }) => {
@@ -30,12 +31,12 @@ const EventDocumentList = memo(({ eventId }: { eventId: string }) => {
     const documents = useResource(load);
     const [error, setError] = useState('');
     const open = (id: string) => { setError(''); openDocumentFile(id).catch((cause) => setError(cause instanceof Error ? cause.message : t('Request failed'))); };
-    return <section id="event-documents" className={cls.panel} aria-label={t('Choreographer documents')}>
+    return <Panel id="event-documents" aria-label={t('Choreographer documents')}>
         <h2>{t('Choreographer documents')}</h2>
         <RequestState error={error || documents.error} loading={documents.loading && !documents.data} />
         {documents.data?.map((document) => <EventDocumentRow key={document.id} document={document} onOpen={open} />)}
         {documents.data?.length === 0 && <p className={cls.muted}>{t('No documents yet.')}</p>}
-    </section>;
+    </Panel>;
 });
 
 // The event shows the very same documents as the choreographer profile: same ids, no copies.

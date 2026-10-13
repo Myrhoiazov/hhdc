@@ -7,10 +7,12 @@ import { DuplicateCandidate, listDuplicates, mergePeople, resolveDuplicate, scan
 import { useAction } from '@/shared/lib/useResource/useAction';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
-import { CrmLayout } from './common';
+import { CrmLayout } from '@/widgets/Page';
 import { RequestState } from '@/shared/ui/RequestState';
 import { StatusBadge } from '@/shared/ui/StatusBadge';
-import cls from './CrmPage.module.scss';
+import { Badge } from '@/shared/ui/Badge';
+import { Panel } from '@/shared/ui/Panel';
+import cls from '@/shared/ui/layout/layout.module.scss';
 
 const EXPORTS = ['people', 'participants', 'registrations', 'orders', 'tickets', 'finance'];
 
@@ -37,7 +39,7 @@ const DuplicateRow = memo(({ candidate, refresh }: { candidate: DuplicateCandida
         <div className={cls.row}>
             <span><Link to={`/people/${personA.id}`}>{personA.displayName}</Link> · {personA.email || personA.phone}</span>
             <span><Link to={`/people/${personB.id}`}>{personB.displayName}</Link> · {personB.email || personB.phone}</span>
-            <span className={cls.badge}>{`${Math.round(candidate.score * 100)}% · ${candidate.reasons.map(reason => t(reason)).join(', ')}`}</span>
+            <Badge>{`${Math.round(candidate.score * 100)}% · ${candidate.reasons.map(reason => t(reason)).join(', ')}`}</Badge>
             <div className={cls.actions}>
                 <Button disabled={action.busy} onClick={merge}>{t('Merge')}</Button>
                 <Button disabled={action.busy} onClick={() => void action.run(() => resolveDuplicate(candidate.id, 'NOT_DUPLICATE'))}>{t('Not a duplicate')}</Button>
@@ -51,12 +53,12 @@ const ExportPanel = memo(() => {
     const { t } = useTranslation();
     const action = useAction();
     const download = (entity: string) => void action.run(async () => { const file = await createExport(entity); saveCsv(file.filename, file.csv); });
-    return <section className={cls.panel}>
+    return <Panel>
         <h2>{t('Export')}</h2>
         <p className={cls.muted}>{t('Every export is recorded in the audit log.')}</p>
         <div className={cls.actions}>{EXPORTS.map(entity => <Button key={entity} disabled={action.busy} onClick={() => download(entity)}>{t(entity)}</Button>)}</div>
         <RequestState error={action.error} loading={false} />
-    </section>;
+    </Panel>;
 });
 
 export const DuplicatesPage = memo(() => {
@@ -66,11 +68,11 @@ export const DuplicatesPage = memo(() => {
     const scan = useAction(refresh);
     return <CrmLayout title="Duplicates">
         <RequestState error={duplicates.error || scan.error} loading={duplicates.loading} />
-        <section className={cls.panel}>
+        <Panel>
             <Button disabled={scan.busy} onClick={() => void scan.run(scanDuplicates)}>{t('Scan for duplicates')}</Button>
             {duplicates.data?.total === 0 && <p>{t('No pending duplicate suggestions')}</p>}
             {duplicates.data?.data.map(item => <DuplicateRow key={item.id} candidate={item} refresh={refresh} />)}
-        </section>
+        </Panel>
         <ExportPanel />
     </CrmLayout>;
 });
@@ -113,10 +115,10 @@ export const CampaignsPage = memo(() => {
     const refresh = useCallback(() => { void campaigns.refresh(); }, [campaigns]);
     return <CrmLayout title="Campaigns">
         <RequestState error={campaigns.error} loading={campaigns.loading} />
-        <section className={cls.panel}>
+        <Panel>
             <p className={cls.muted}>{t('Only people with an active marketing-email consent receive campaigns.')}</p>
             {campaigns.data?.total === 0 && <p>{t('No campaigns yet')}</p>}
             {campaigns.data?.data.map(item => <CampaignRow key={item.id} campaign={item} refresh={refresh} />)}
-        </section>
+        </Panel>
     </CrmLayout>;
 });

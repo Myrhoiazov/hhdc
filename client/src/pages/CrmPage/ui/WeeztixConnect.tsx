@@ -3,8 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { connectWeeztix, startWeeztixAuthorization } from '@/entities/Provider';
 import { Button } from '@/shared/ui/Button';
 import { Field } from '@/shared/ui/Field';
+import { Panel } from '@/shared/ui/Panel';
 import { WeeztixData } from './WeeztixData';
-import cls from './CrmPage.module.scss';
+import cls from '@/shared/ui/layout/layout.module.scss';
 import own from './WeeztixConnect.module.scss';
 
 // Two steps: approve access in Weeztix (opens in a new tab), then bring back the address of the
@@ -55,7 +56,7 @@ export const WeeztixConnect = memo(({ connectionId, onConnected }: { connectionI
     const connected = Boolean(connectionId);
     const { t } = useTranslation();
     const flow = useWeeztixConnect(onConnected);
-    return <section className={cls.panel} aria-label={t('Weeztix')}>
+    return <Panel aria-label={t('Weeztix')}>
         <div className={own.header}>
             <div className={own.intro}>
                 <h2>{t('Weeztix')}</h2>
@@ -67,5 +68,5 @@ export const WeeztixConnect = memo(({ connectionId, onConnected }: { connectionI
         {flow.notice && <p role="status">{flow.notice}</p>}
         {flow.error && <p role="alert" className={cls.error}>{flow.error}</p>}
         {connectionId && <WeeztixData connectionId={connectionId} />}
-    </section>;
+    </Panel>;
 });

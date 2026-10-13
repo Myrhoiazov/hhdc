@@ -3,10 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { createUser, listUsers, updateUser } from '@/entities/User';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
-import { CrmLayout } from './common';
+import { CrmLayout } from '@/widgets/Page';
 import { Field } from '@/shared/ui/Field';
 import { RequestState } from '@/shared/ui/RequestState';
-import cls from './CrmPage.module.scss';
+import { Panel } from '@/shared/ui/Panel';
+import cls from '@/shared/ui/layout/layout.module.scss';
 
 const UserForm = memo(({ refresh }: {refresh: () => void}) => {
     const { t } = useTranslation();
@@ -18,7 +19,7 @@ const UserForm = memo(({ refresh }: {refresh: () => void}) => {
         catch (cause) { setError(cause instanceof Error ? cause.message : t('Request failed')); }
         finally { setBusy(false); }
     };
-    return <form className={cls.panel} onSubmit={submit}><h2>{t('Create user')}</h2><div className={cls.grid}><Field label="Name"><input name="name" required /></Field><Field label="Email"><input name="email" type="email" required /></Field><Field label="Password"><input name="password" type="password" minLength={12} autoComplete="new-password" required /></Field><Field label="Role"><select name="role">{['OWNER', 'ADMIN', 'EVENT_MANAGER', 'SUPPORT', 'VIEWER'].map(role => <option key={role} value={role}>{t(role)}</option>)}</select></Field></div><RequestState error={error} loading={false} /><Button type="submit" disabled={busy}>{t('Save')}</Button></form>;
+    return <Panel as="form" onSubmit={submit}><h2>{t('Create user')}</h2><div className={cls.grid}><Field label="Name"><input name="name" required /></Field><Field label="Email"><input name="email" type="email" required /></Field><Field label="Password"><input name="password" type="password" minLength={12} autoComplete="new-password" required /></Field><Field label="Role"><select name="role">{['OWNER', 'ADMIN', 'EVENT_MANAGER', 'SUPPORT', 'VIEWER'].map(role => <option key={role} value={role}>{t(role)}</option>)}</select></Field></div><RequestState error={error} loading={false} /><Button type="submit" disabled={busy}>{t('Save')}</Button></Panel>;
 });
 
 export const UsersPage = memo(() => {
@@ -29,5 +30,5 @@ export const UsersPage = memo(() => {
         try { await updateUser(id, {isActive}); await users.refresh(); }
         catch (cause) { setError(cause instanceof Error ? cause.message : t('Request failed')); }
     };
-    return <CrmLayout title="Users & Roles"><RequestState error={error || users.error} loading={users.loading} /><section className={cls.panel}>{users.data?.data.map(user => <div className={cls.row} key={user.id}><span>{user.name}</span><span>{user.email}</span><Button onClick={() => void toggle(user.id, !user.isActive)}>{t(user.isActive ? 'Disable' : 'Enable')}</Button></div>)}</section><UserForm refresh={() => void users.refresh()} /></CrmLayout>;
+    return <CrmLayout title="Users & Roles"><RequestState error={error || users.error} loading={users.loading} /><Panel>{users.data?.data.map(user => <div className={cls.row} key={user.id}><span>{user.name}</span><span>{user.email}</span><Button onClick={() => void toggle(user.id, !user.isActive)}>{t(user.isActive ? 'Disable' : 'Enable')}</Button></div>)}</Panel><UserForm refresh={() => void users.refresh()} /></CrmLayout>;
 });

@@ -2,7 +2,7 @@ import { memo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NotificationSetting, saveNotificationTemplate, sendTestNotification } from '@/entities/Notification';
 import { Button } from '@/shared/ui/Button';
-import cls from './CrmPage.module.scss';
+import cls from '@/shared/ui/layout/layout.module.scss';
 import own from './NotificationTemplate.module.scss';
 
 const PLACEHOLDER = /\{\{\s*([A-Za-z][A-Za-z0-9]*)\s*\}\}/g;

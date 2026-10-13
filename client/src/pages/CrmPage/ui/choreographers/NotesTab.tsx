@@ -8,7 +8,8 @@ import { Button } from '@/shared/ui/Button';
 import { Field } from '@/shared/ui/Field';
 import { RequestState } from '@/shared/ui/RequestState';
 import { StatusBadge } from '@/shared/ui/StatusBadge';
-import cls from '../CrmPage.module.scss';
+import { Panel } from '@/shared/ui/Panel';
+import cls from '@/shared/ui/layout/layout.module.scss';
 import own from './Choreographers.module.scss';
 
 type Run = (work: () => Promise<unknown>) => Promise<boolean>;
@@ -63,13 +64,13 @@ const NotesSection = memo(({ personId, canManage }: { personId: string; canManag
         try { await work(); await notes.refresh(); return true; }
         catch (cause) { setError(cause instanceof Error ? cause.message : t('Request failed')); return false; }
     };
-    return <section className={cls.panel} aria-label={t('Internal notes')}><h2>{t('Internal notes')}</h2>
+    return <Panel aria-label={t('Internal notes')}><h2>{t('Internal notes')}</h2>
         <p className={cls.muted}>{t('Visible to staff only. Never sent to the choreographer.')}</p>
         <RequestState error={error || notes.error} loading={notes.loading && !notes.data} />
         {notes.data?.map((note) => <NoteCard key={note.id} note={note} personId={personId} canManage={canManage} run={run} />)}
         {notes.data?.length === 0 && <p className={cls.muted}>{t('No notes yet.')}</p>}
         {canManage && <NoteForm personId={personId} run={run} />}
-    </section>;
+    </Panel>;
 });
 
 const TaskRow = memo(({ task, canManage, run }: { task: ChoreographerTask; canManage: boolean; run: Run }) => {
@@ -119,12 +120,12 @@ const TasksSection = memo(({ personId, canManage }: { personId: string; canManag
         try { await work(); await tasks.refresh(); return true; }
         catch (cause) { setError(cause instanceof Error ? cause.message : t('Request failed')); return false; }
     };
-    return <section className={cls.panel} aria-label={t('Follow-ups')}><h2>{t('Follow-ups')}</h2>
+    return <Panel aria-label={t('Follow-ups')}><h2>{t('Follow-ups')}</h2>
         <RequestState error={error || tasks.error} loading={tasks.loading && !tasks.data} />
         {tasks.data?.map((task) => <TaskRow key={task.id} task={task} canManage={canManage} run={run} />)}
         {tasks.data?.length === 0 && <p className={cls.muted}>{t('No follow-ups yet.')}</p>}
         {canManage && <TaskForm personId={personId} run={run} />}
-    </section>;
+    </Panel>;
 });
 
 export interface NotesTabProps { personId: string; canManageNotes: boolean; canReadTasks: boolean; canManageTasks: boolean }

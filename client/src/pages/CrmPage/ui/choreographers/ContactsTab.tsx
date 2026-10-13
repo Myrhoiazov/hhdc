@@ -7,7 +7,8 @@ import { Button } from '@/shared/ui/Button';
 import { Field } from '@/shared/ui/Field';
 import { RequestState } from '@/shared/ui/RequestState';
 import { StatusBadge } from '@/shared/ui/StatusBadge';
-import cls from '../CrmPage.module.scss';
+import { Panel } from '@/shared/ui/Panel';
+import cls from '@/shared/ui/layout/layout.module.scss';
 import own from './Choreographers.module.scss';
 
 
@@ -53,7 +54,7 @@ const ContactForm = memo(({ personId, onSaved }: { personId: string; onSaved: ()
         } catch (cause) { setError(cause instanceof Error ? cause.message : t('Unable to save')); }
         finally { setBusy(false); }
     };
-    return <form className={cls.panel} onSubmit={submit} aria-label={t('Add contact')}><h2>{t('Add contact')}</h2>
+    return <Panel as="form" onSubmit={submit} aria-label={t('Add contact')}><h2>{t('Add contact')}</h2>
         <div className={cls.grid}>
             <Field label="Contact type"><select name="kind" defaultValue="MANAGER">{CONTACT_KINDS.map((kind) => <option key={kind} value={kind}>{t(kind)}</option>)}</select></Field>
             <Field label="Name"><input name="name" maxLength={200} /></Field>
@@ -65,7 +66,7 @@ const ContactForm = memo(({ personId, onSaved }: { personId: string; onSaved: ()
         </div>
         <RequestState error={error} loading={false} />
         <div className={cls.actions}><Button type="submit" disabled={busy}>{t('Add contact')}</Button></div>
-    </form>;
+    </Panel>;
 });
 
 export const ContactsTab = memo(({ personId, canManage }: { personId: string; canManage: boolean }) => {
@@ -81,11 +82,11 @@ export const ContactsTab = memo(({ personId, canManage }: { personId: string; ca
     const deactivate = (contact: ChoreographerContact) => act(deactivateChoreographerContact(personId, contact.id));
     return <>
         <RequestState error={error || contacts.error} loading={contacts.loading && !contacts.data} />
-        <section className={cls.panel} aria-label={t('Contacts')}><h2>{t('Contacts')}</h2>
+        <Panel aria-label={t('Contacts')}><h2>{t('Contacts')}</h2>
             <p className={cls.muted}>{t('Managers, agents and other people who represent this choreographer. The main address is on the contact card.')}</p>
             {contacts.data?.map((contact) => <ContactRow key={contact.id} contact={contact} canManage={canManage} onMakePrimary={makePrimary} onDeactivate={deactivate} />)}
             {contacts.data?.length === 0 && <p className={cls.muted}>{t('No additional contacts yet.')}</p>}
-        </section>
+        </Panel>
         {canManage && <ContactForm personId={personId} onSaved={() => void contacts.refresh()} />}
     </>;
 });

@@ -1,8 +1,8 @@
 import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SimulationKnowledge, SimulationView } from '@/entities/EmailSimulation';
-import { classNames } from '@/shared/lib/classNames/classNames';
-import cls from '../CrmPage.module.scss';
+import { Badge } from '@/shared/ui/Badge';
+import cls from '@/shared/ui/layout/layout.module.scss';
 import own from './Knowledge.module.scss';
 
 const LAYER_TITLES: Record<string, string> = { rules: 'Business rules', facts: 'Current facts', faq: 'FAQ', examples: 'Style examples' };
@@ -11,13 +11,13 @@ const ClassificationSection = memo(({ simulation }: { simulation: SimulationView
     const { t } = useTranslation();
     const { classification, trace } = simulation;
     return <div className={own.badges}>
-        <span className={cls.badge}>{t('Language')}: {trace?.language ?? classification.replyLanguage}</span>
-        <span className={cls.badge}>{t('Intent')}: {[trace?.intent ?? classification.intent, ...(trace?.secondaryIntents ?? classification.secondaryIntents)].join(' + ')}</span>
-        {trace && <span className={cls.badge}>{t('Event year')}: {trace.eventYear}</span>}
-        <span className={classNames(cls.badge, { [cls.danger]: classification.spam })}>{t(classification.spam ? 'Spam' : 'Not spam')}</span>
-        <span className={cls.badge}>{t(classification.needsReply ? 'Needs a reply' : 'No reply needed')}</span>
-        {trace?.needsCRM && <span className={cls.badge}>{t(trace.crmFound ? 'CRM record used' : 'CRM record needed')}</span>}
-        {trace?.needsHumanAction && <span className={classNames(cls.badge, {}, [cls.danger])}>{t('Staff action required')}</span>}
+        <Badge>{t('Language')}: {trace?.language ?? classification.replyLanguage}</Badge>
+        <Badge>{t('Intent')}: {[trace?.intent ?? classification.intent, ...(trace?.secondaryIntents ?? classification.secondaryIntents)].join(' + ')}</Badge>
+        {trace && <Badge>{t('Event year')}: {trace.eventYear}</Badge>}
+        <Badge tone={classification.spam ? 'danger' : undefined}>{t(classification.spam ? 'Spam' : 'Not spam')}</Badge>
+        <Badge>{t(classification.needsReply ? 'Needs a reply' : 'No reply needed')}</Badge>
+        {trace?.needsCRM && <Badge>{t(trace.crmFound ? 'CRM record used' : 'CRM record needed')}</Badge>}
+        {trace?.needsHumanAction && <Badge tone="danger">{t('Staff action required')}</Badge>}
     </div>;
 });
 
@@ -27,12 +27,12 @@ const DraftSection = memo(({ simulation }: { simulation: SimulationView }) => {
     if (!draft) return <p className={cls.muted}>{t('The assistant would not draft a reply to this email.')}</p>;
     return <>
         <div className={own.badges}>
-            <span className={classNames(cls.badge, {}, [draft.needsStaffReview ? cls.danger : cls.success])}>
+            <Badge tone={draft.needsStaffReview ? 'danger' : 'success'}>
                 {t(draft.needsStaffReview ? 'Needs staff review' : 'Ready for approval')}
-            </span>
-            {trace && <span className={cls.badge}>{t(trace.answerability)}</span>}
-            <span className={cls.badge}>{t('Confidence')}: {Math.round(draft.confidence * 100)}%</span>
-            {trace && <span className={cls.badge}>{t('Attempts')}: {trace.attempts}</span>}
+            </Badge>
+            {trace && <Badge>{t(trace.answerability)}</Badge>}
+            <Badge>{t('Confidence')}: {Math.round(draft.confidence * 100)}%</Badge>
+            {trace && <Badge>{t('Attempts')}: {trace.attempts}</Badge>}
         </div>
         <pre className={own.draft}>{draft.body}</pre>
         {Boolean(trace?.warnings.length) && <ul className={own.warnings} aria-label={t('Warnings')}>
@@ -45,7 +45,7 @@ const KnowledgeSection = memo(({ knowledge }: { knowledge: SimulationKnowledge[]
     const { t } = useTranslation();
     if (!knowledge.length) return <p className={cls.muted}>{t('No knowledge was found for this email.')}</p>;
     return <div className={own.knowledge}>{knowledge.map((item) => <details key={`${item.layer}:${item.chunkId}`}>
-        <summary><span className={cls.badge}>{t(LAYER_TITLES[item.layer] ?? item.layer)}</span> {item.chunkId} · {item.score.toFixed(2)}</summary>
+        <summary><Badge>{t(LAYER_TITLES[item.layer] ?? item.layer)}</Badge> {item.chunkId} · {item.score.toFixed(2)}</summary>
         <pre>{item.content}</pre>
     </details>)}</div>;
 });
