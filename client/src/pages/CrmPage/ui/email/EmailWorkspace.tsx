@@ -1,5 +1,5 @@
 import { memo, useCallback, useEffect, useState } from 'react';
-import { BulkDispositionResult, Conversation, markConversationRead } from '@/entities/crm';
+import { BulkDispositionResult, Conversation, markConversationRead } from '@/entities/Conversation';
 import { PromptVersion } from '@/entities/Prompt';
 import { ProviderConnection } from '@/entities/Provider';
 import { classNames } from '@/shared/lib/classNames/classNames';

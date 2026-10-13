@@ -1,9 +1,9 @@
 import { FormEvent, memo, useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import {
-    addTeamMember, createEventExpense, listEventTeam, listPeople, removeTeamMember, TEAM_PERSON_ROLES, TeamMember, TeamMemberChange, TeamPersonRole, updateTeamMember,
-} from '@/entities/crm';
+import { addTeamMember, listEventTeam, removeTeamMember, TEAM_PERSON_ROLES, TeamMember, TeamMemberChange, TeamPersonRole, updateTeamMember } from '@/entities/EventTeam';
+import { createEventExpense } from '@/entities/EventExpense';
+import { listPeople } from '@/entities/Person';
 import { formText } from '@/shared/lib/form/formText';
 import { useAction } from '@/shared/lib/useResource/useAction';
 import { useResource } from '@/shared/lib/useResource/useResource';

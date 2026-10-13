@@ -1,0 +1,25 @@
+export {
+    listConversations,
+    getConversation,
+    markConversationRead,
+    getUnreadByMailbox,
+    replyToConversation,
+    generateDraft,
+    approveDraft,
+    rejectDraft,
+    composeEmail,
+    applyConversationDisposition,
+    applyBulkConversationDisposition,
+} from './api/conversationApi';
+export type {
+    MessageAttachment,
+    Message,
+    DraftSnapshot,
+    Draft,
+    Conversation,
+    ConversationFilters,
+    DraftModelChoice,
+    ComposeEmailInput,
+    ConversationDisposition,
+    BulkDispositionResult,
+} from './model/types';

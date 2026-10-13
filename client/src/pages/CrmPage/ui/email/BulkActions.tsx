@@ -1,6 +1,6 @@
 import { memo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { applyBulkConversationDisposition, BulkDispositionResult, ConversationDisposition } from '@/entities/crm';
+import { applyBulkConversationDisposition, BulkDispositionResult, ConversationDisposition } from '@/entities/Conversation';
 import { Button, ButtonTheme } from '@/shared/ui/Button';
 import cls from '../CommunicationsPage.module.scss';
 

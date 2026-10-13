@@ -1,13 +1,18 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { createEventExpense, deleteEventExpense, ExpenseLine, ExpenseList, listEventExpenses, listEventTeam, listPayees, listPersonExpenses, updateEventExpense } from '@/entities/crm';
+import { createEventExpense, deleteEventExpense, ExpenseLine, ExpenseList, listEventExpenses, listPersonExpenses, updateEventExpense } from '@/entities/EventExpense';
+import { listEventTeam } from '@/entities/EventTeam';
+import { listPayees } from '@/entities/Person';
 import { EventExpenses } from './EventExpenses';
 import { PersonExpenses } from './PersonExpenses';
 
-jest.mock('@/entities/crm', () => ({
-    createEventExpense: jest.fn(), deleteEventExpense: jest.fn(), listEventExpenses: jest.fn(), listEventTeam: jest.fn(), listPayees: jest.fn(), listPersonExpenses: jest.fn(), updateEventExpense: jest.fn(),
+jest.mock('@/entities/EventExpense', () => ({
+    createEventExpense: jest.fn(), deleteEventExpense: jest.fn(), listEventExpenses: jest.fn(),
+    listPersonExpenses: jest.fn(), updateEventExpense: jest.fn(),
     EVENT_EXPENSE_CATEGORIES: ['FEE', 'SALARY', 'TRAVEL', 'HOTEL', 'VENUE', 'MARKETING', 'EQUIPMENT', 'OTHER'],
 }));
+jest.mock('@/entities/EventTeam', () => ({ listEventTeam: jest.fn() }));
+jest.mock('@/entities/Person', () => ({ listPayees: jest.fn() }));
 jest.mock('@/shared/lib/hooks/useDelayed/useDelayed', () => ({
     ...jest.requireActual('@/shared/lib/hooks/useDelayed/useDelayed'), useDelayed: (value: string) => value,
 }));

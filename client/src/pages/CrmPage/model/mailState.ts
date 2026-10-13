@@ -1,4 +1,4 @@
-import { Conversation } from '@/entities/crm';
+import { Conversation } from '@/entities/Conversation';
 
 // NEW: unread incoming mail. SENT: the last letter in the thread is ours. OPENED: incoming and read.
 export type MailState = 'NEW' | 'SENT' | 'OPENED';

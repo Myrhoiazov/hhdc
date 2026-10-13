@@ -3,7 +3,9 @@ import { Provider } from 'react-redux';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { createReduxStore, ReduxStoreWithManager } from '@/app/providers/StoreProvider';
 import { addBioVersion, assignChoreographerToEvent, ChoreographerFinance, addChoreographerNote, addChoreographerTask, ChoreographerTask, listChoreographerNotes, listChoreographerTasks, removeChoreographerNote, updateChoreographerNote, ChoreographerThread, linkChoreographerThread, listChoreographerActivity, listChoreographerThreads, unlinkChoreographerThread, getChoreographerFinance, movePayout, recordChoreographerExpense, recordFeeAgreement, recordPayout, ChoreographerContact, ChoreographerHistoryItem, listChoreographerHistory, updateChoreographerAssignment, ChoreographerDetail, ChoreographerPhoto, createChoreographer, createChoreographerContact, deactivateChoreographerContact, fetchChoreographerPhoto, getChoreographer, listBioVersions, listChoreographerContacts, listChoreographerPhotos, listChoreographers, removeChoreographerPhoto, reorderChoreographerPhotos, updateChoreographer, updateChoreographerPhoto, uploadChoreographerPhoto } from '@/entities/Choreographer';
-import { listConversations, listEvents, listPeople } from '@/entities/crm';
+import { listConversations } from '@/entities/Conversation';
+import { listEvents } from '@/entities/Event';
+import { listPeople } from '@/entities/Person';
 import { fetchDocumentFile, FileDocument, listChoreographerDocuments, listEventDocuments, updateDocumentMetadata, uploadChoreographerDocument, uploadDocumentVersion } from '@/entities/Document';
 import { updateTaskStatus } from '@/entities/Operations';
 import { ChoreographerPage } from './ChoreographerPage';
@@ -43,9 +45,9 @@ jest.mock('@/entities/Choreographer', () => ({
     updateChoreographerNote: jest.fn(), removeChoreographerNote: jest.fn(),
     listChoreographerTasks: jest.fn(), addChoreographerTask: jest.fn(),
 }));
-jest.mock('@/entities/crm', () => ({
-    listPeople: jest.fn(), listEvents: jest.fn(), listConversations: jest.fn(),
-}));
+jest.mock('@/entities/Person', () => ({ listPeople: jest.fn() }));
+jest.mock('@/entities/Event', () => ({ listEvents: jest.fn() }));
+jest.mock('@/entities/Conversation', () => ({ listConversations: jest.fn() }));
 jest.mock('@/entities/Document', () => ({
     DOCUMENT_TYPES: ['CONTRACT', 'INVOICE', 'RIDER', 'TRAVEL', 'HOTEL', 'OTHER'],
     CONTRACT_STATUSES: ['DRAFT', 'READY', 'SENT', 'SIGNED', 'EXPIRED', 'CANCELLED'],

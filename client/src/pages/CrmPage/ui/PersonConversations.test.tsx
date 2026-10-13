@@ -1,8 +1,9 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { Conversation, listConversations, markConversationRead, Person } from '@/entities/crm';
+import { Conversation, listConversations, markConversationRead } from '@/entities/Conversation';
+import { Person } from '@/entities/Person';
 import { PersonConversations } from './PersonConversations';
 
-jest.mock('@/entities/crm', () => ({
+jest.mock('@/entities/Conversation', () => ({
     listConversations: jest.fn(), markConversationRead: jest.fn(),
 }));
 jest.mock('@/entities/Prompt', () => ({ listPrompts: jest.fn(() => Promise.resolve([])) }));

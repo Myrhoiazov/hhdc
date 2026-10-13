@@ -1,7 +1,7 @@
 import { FormEvent, memo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { deleteKnowledge, KnowledgeDocument, KnowledgeFilters, listKnowledge, saveKnowledge } from '@/entities/Knowledge';
-import { listEvents } from '@/entities/crm';
+import { listEvents } from '@/entities/Event';
 import { formatDate } from '@/shared/lib/format/date';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';

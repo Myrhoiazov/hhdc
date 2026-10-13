@@ -1,9 +1,9 @@
 import { memo, useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import {
-    assignChoreographer, Event, EventRegistration, listEventRegistrations, listPeople, registerPerson, REGISTRATION_STATUSES, RegistrationFilters, REGISTRATIONS_PAGE_SIZE,
-} from '@/entities/crm';
+import { assignChoreographer, Event } from '@/entities/Event';
+import { EventRegistration, listEventRegistrations, registerPerson, REGISTRATION_STATUSES, RegistrationFilters, REGISTRATIONS_PAGE_SIZE } from '@/entities/Registration';
+import { listPeople } from '@/entities/Person';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
 import { Field } from '@/shared/ui/Field';

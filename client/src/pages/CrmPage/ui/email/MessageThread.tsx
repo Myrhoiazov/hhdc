@@ -1,6 +1,6 @@
 import { memo, useCallback, useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Message } from '@/entities/crm';
+import { Message } from '@/entities/Conversation';
 import { formatDateTime } from '@/shared/lib/format/date';
 import { classNames } from '@/shared/lib/classNames/classNames';
 import { formatFileSize } from '@/features/composeEmail';

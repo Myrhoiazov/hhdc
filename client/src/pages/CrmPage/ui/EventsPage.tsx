@@ -1,7 +1,7 @@
 import { memo, useCallback, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Event, getEvent, listTicketTypes } from '@/entities/crm';
+import { Event, getEvent, listTicketTypes } from '@/entities/Event';
 import { Can, useCan } from '@/entities/User';
 import { formatDateTime } from '@/shared/lib/format/date';
 import { useResource } from '@/shared/lib/useResource/useResource';

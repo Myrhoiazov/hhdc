@@ -27,23 +27,26 @@
       `Campaign`, `Platform`, `Notification`, запросы сотрудников в `User`
 - [x] `Choreographer`, `Document`
 - [x] `Knowledge`, `Prompt`, `EmailSimulation`
-- [ ] PR части 1 в `develop`
-- [ ] Решение по ссылкам между сущностями основных страниц
-- [ ] `EventExpense`, `EventTeam`
-- [ ] `Event`, `Registration`, `Order`
-- [ ] `Person`
-- [ ] `Communication`
-- [ ] `entities/crm` удалён
+- [x] PR #15 (часть 1) слит в `develop`
+- [x] Ссылки между сущностями — через `@x`, с исключением в линтере только для слоя `entities`
+- [x] `EventExpense`, `EventTeam`
+- [x] `Event`, `Registration`, `Order`
+- [x] `Person`
+- [x] `Conversation`
+- [x] `entities/crm` удалён
+- [ ] PR #16 (часть 2) открыт, ждёт слияния
 
 ## Этап 4. `pages/CrmPage` → страницы, виджеты, фичи
 
-- [ ] Финансы, провайдеры, аудит, настройки
-- [ ] Хореографы
-- [ ] База знаний
-- [ ] Events
-- [ ] People
-- [ ] Почта
-- [ ] `pages/CrmPage` удалён
+Условие начала: запущен Docker, PR #16 слит.
+
+- [ ] 4.0: общий каркас — `widgets/CrmLayout`, общие стили в `shared/ui`, починка `storybook:build`
+- [ ] 4.1: финансы, провайдеры, аудит, настройки, дашборд
+- [ ] 4.2: хореографы
+- [ ] 4.3: база знаний
+- [ ] 4.4: Events
+- [ ] 4.5: People
+- [ ] 4.6: Почта; `pages/CrmPage` удалён
 
 ## Этап 5. Prettier как правило
 

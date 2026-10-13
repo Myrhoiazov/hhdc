@@ -1,7 +1,8 @@
 import { memo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { applyConversationDisposition, Conversation, ConversationDisposition, getConversation, isClient } from '@/entities/crm';
+import { applyConversationDisposition, Conversation, ConversationDisposition, getConversation } from '@/entities/Conversation';
+import { isClient } from '@/entities/Person';
 import { PromptVersion } from '@/entities/Prompt';
 import { ProviderConnection } from '@/entities/Provider';
 import { classNames } from '@/shared/lib/classNames/classNames';

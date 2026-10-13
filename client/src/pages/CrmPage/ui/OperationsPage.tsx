@@ -1,7 +1,7 @@
 import { FormEvent, memo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { checkIn, CheckinResult, getOperationsHealth, listTasks, Task, updateTaskStatus } from '@/entities/Operations';
-import { listEvents } from '@/entities/crm';
+import { listEvents } from '@/entities/Event';
 import { formatDate, formatTime } from '@/shared/lib/format/date';
 import { classNames } from '@/shared/lib/classNames/classNames';
 import { useAction } from '@/shared/lib/useResource/useAction';

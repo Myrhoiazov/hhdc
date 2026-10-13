@@ -1,7 +1,7 @@
 import { memo, useCallback, useEffect, useState } from 'react';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { listPeoplePage, PeopleFilters, Person, PERSON_ROLES as ROLES, PERSON_SOURCES } from '@/entities/crm';
+import { listPeoplePage, PeopleFilters, Person, PERSON_ROLES as ROLES, PERSON_SOURCES } from '@/entities/Person';
 import { useCan } from '@/entities/User';
 import { formatDate } from '@/shared/lib/format/date';
 import { useResource } from '@/shared/lib/useResource/useResource';

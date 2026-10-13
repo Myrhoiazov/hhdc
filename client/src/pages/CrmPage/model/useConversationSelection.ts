@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Conversation } from '@/entities/crm';
+import { Conversation } from '@/entities/Conversation';
 
 const NOTHING: ReadonlySet<string> = new Set();
 

@@ -1,9 +1,9 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { Event, listEventsPage } from '@/entities/crm';
+import { Event, listEventsPage } from '@/entities/Event';
 import { EventsPage } from './EventsList';
 
-jest.mock('@/entities/crm', () => ({
+jest.mock('@/entities/Event', () => ({
     createEvent: jest.fn(), listEventsPage: jest.fn(),
     EVENT_STATUSES: ['DRAFT', 'PUBLISHED', 'ACTIVE', 'COMPLETED', 'CANCELLED', 'ARCHIVED'],
 }));

@@ -1,7 +1,7 @@
 import { FormEvent, memo, ReactNode, useCallback, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Activity, addPersonRole, getPerson, getPersonActivity, Person, PERSON_ROLES, PersonRole, removePersonRole, savePerson } from '@/entities/crm';
+import { Activity, addPersonRole, getPerson, getPersonActivity, Person, PERSON_ROLES, PersonRole, removePersonRole, savePerson } from '@/entities/Person';
 import { formatDate, formatDateTime } from '@/shared/lib/format/date';
 import { classNames } from '@/shared/lib/classNames/classNames';
 import { Can, useCan } from '@/entities/User';

@@ -1,12 +1,16 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { addTeamMember, createEventExpense, listEventTeam, listPeople, removeTeamMember, TeamMember, updateTeamMember } from '@/entities/crm';
+import { addTeamMember, listEventTeam, removeTeamMember, TeamMember, updateTeamMember } from '@/entities/EventTeam';
+import { createEventExpense } from '@/entities/EventExpense';
+import { listPeople } from '@/entities/Person';
 import { EventTeam } from './EventTeam';
 
-jest.mock('@/entities/crm', () => ({
-    addTeamMember: jest.fn(), createEventExpense: jest.fn(), listEventTeam: jest.fn(), listPeople: jest.fn(), removeTeamMember: jest.fn(), updateTeamMember: jest.fn(),
-    TEAM_PERSON_ROLES: ['STAFF', 'PARTNER'],
+jest.mock('@/entities/EventTeam', () => ({
+    addTeamMember: jest.fn(), listEventTeam: jest.fn(), removeTeamMember: jest.fn(),
+    updateTeamMember: jest.fn(), TEAM_PERSON_ROLES: ['STAFF', 'PARTNER'],
 }));
+jest.mock('@/entities/EventExpense', () => ({ createEventExpense: jest.fn() }));
+jest.mock('@/entities/Person', () => ({ listPeople: jest.fn() }));
 jest.mock('@/shared/lib/hooks/useDelayed/useDelayed', () => ({
     ...jest.requireActual('@/shared/lib/hooks/useDelayed/useDelayed'), useDelayed: (value: string) => value,
 }));

@@ -1,9 +1,9 @@
 import { FormEvent, memo, useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import {
-    createEventExpense, deleteEventExpense, EVENT_EXPENSE_CATEGORIES, EventExpenseCategory, EventExpenseInput, ExpenseLine, ExpenseList, ExpenseStatus, listEventExpenses, listEventTeam, listPayees, TeamMember, updateEventExpense,
-} from '@/entities/crm';
+import { createEventExpense, deleteEventExpense, EVENT_EXPENSE_CATEGORIES, EventExpenseCategory, EventExpenseInput, ExpenseLine, ExpenseList, ExpenseStatus, listEventExpenses, updateEventExpense } from '@/entities/EventExpense';
+import { listEventTeam, TeamMember } from '@/entities/EventTeam';
+import { listPayees } from '@/entities/Person';
 import { formatDate } from '@/shared/lib/format/date';
 import { useAction } from '@/shared/lib/useResource/useAction';
 import { useResource } from '@/shared/lib/useResource/useResource';
