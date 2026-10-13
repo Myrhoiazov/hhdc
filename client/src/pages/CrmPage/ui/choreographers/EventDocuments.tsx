@@ -1,9 +1,8 @@
 import { memo, useCallback, useState } from 'react';
-import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FileDocument, listEventDocuments } from '@/entities/crm';
-import { getUserAuthData } from '@/entities/User';
+import { useCan } from '@/entities/User';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
 import { RequestState } from '@/shared/ui/RequestState';
@@ -41,6 +40,6 @@ const EventDocumentList = memo(({ eventId }: { eventId: string }) => {
 
 // The event shows the very same documents as the choreographer profile: same ids, no copies.
 export const EventDocuments = memo(({ eventId }: { eventId: string }) => {
-    const permissions = useSelector(getUserAuthData)?.permissions ?? [];
-    return permissions.includes('documents.read') ? <EventDocumentList eventId={eventId} /> : null;
+    const can = useCan();
+    return can('documents.read') ? <EventDocumentList eventId={eventId} /> : null;
 });

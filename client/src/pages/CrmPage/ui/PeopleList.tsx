@@ -1,9 +1,8 @@
 import { memo, useCallback, useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { listPeoplePage, PeopleFilters, Person, PERSON_ROLES as ROLES, PERSON_SOURCES } from '@/entities/crm';
-import { getUserAuthData } from '@/entities/User';
+import { useCan } from '@/entities/User';
 import { formatDate } from '@/shared/lib/format/date';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
@@ -95,7 +94,7 @@ export const PeoplePage = memo(() => {
     const { t } = useTranslation();
     const people = usePeopleList();
     const { data } = people.list;
-    const canDelete = (useSelector(getUserAuthData)?.permissions ?? []).includes('people.write');
+    const canDelete = useCan()('people.write');
     const refresh = useCallback(() => { void people.list.refresh(); }, [people.list]);
     return <CrmLayout title="People">
         <PeopleFiltersBar filters={people.filters} filtered={people.filtered} onChange={people.change} onReset={people.reset} />

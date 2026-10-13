@@ -1,11 +1,10 @@
 import { memo, useCallback, useState } from 'react';
-import { useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
     CHOREOGRAPHER_PAGE_SIZE, ChoreographerListItem, createChoreographer, listChoreographers, listPeople, RELATIONSHIP_STATUSES, RelationshipStatus,
 } from '@/entities/crm';
-import { getUserAuthData } from '@/entities/User';
+import { useCan } from '@/entities/User';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
 import { CrmLayout } from '../common';
@@ -83,7 +82,7 @@ const Pager = memo(({ page, total, onChange }: { page: number; total: number; on
 
 export const ChoreographersPage = memo(() => {
     const { t } = useTranslation();
-    const permissions = useSelector(getUserAuthData)?.permissions ?? [];
+    const can = useCan();
     const [q, setQ] = useState('');
     const [status, setStatus] = useState<RelationshipStatus | ''>('');
     const [page, setPage] = useState(1);
@@ -103,6 +102,6 @@ export const ChoreographersPage = memo(() => {
             {list.data?.total === 0 && <p className={cls.muted}>{t('No choreographers found')}</p>}
             {list.data && <Pager page={page} total={list.data.total} onChange={setPage} />}
         </section>
-        {permissions.includes('choreographers.create') && <AddChoreographer />}
+        {can('choreographers.create') && <AddChoreographer />}
     </CrmLayout>;
 });

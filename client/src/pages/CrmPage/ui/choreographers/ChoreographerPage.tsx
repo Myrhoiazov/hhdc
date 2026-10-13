@@ -1,9 +1,8 @@
 import { FormEvent, memo, useCallback, useState } from 'react';
-import { useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ChoreographerDetail, ChoreographerProfileInput, getChoreographer, RELATIONSHIP_STATUSES, RelationshipStatus, updateChoreographer } from '@/entities/crm';
-import { getUserAuthData } from '@/entities/User';
+import { Can, useCan } from '@/entities/User';
 import { formText } from '@/shared/lib/form/formText';
 import { formatLongDate } from '@/shared/lib/format/date';
 import { classNames } from '@/shared/lib/classNames/classNames';
@@ -71,10 +70,10 @@ const ProfileHeader = memo(({ detail }: { detail: ChoreographerDetail }) => {
     </header>;
 });
 
-const ProfileTabs = memo(({ personId, active, permissions }: { personId: string; active: TabId; permissions: string[] }) => {
+const ProfileTabs = memo(({ personId, active, can }: { personId: string; active: TabId; can: Can }) => {
     const { t } = useTranslation();
     return <nav className={own.tabs} aria-label={t('Profile sections')}>
-        {TABS.filter((tab) => permissions.includes(tab.permission)).map((tab) => <Link key={tab.id} to={`/people/choreographers/${personId}/${tab.id}`} aria-current={tab.id === active ? 'page' : undefined}
+        {TABS.filter((tab) => can(tab.permission)).map((tab) => <Link key={tab.id} to={`/people/choreographers/${personId}/${tab.id}`} aria-current={tab.id === active ? 'page' : undefined}
             className={classNames(own.tab, { [own.activeTab]: tab.id === active })}>{t(tab.label)}</Link>)}
     </nav>;
 });
@@ -176,16 +175,16 @@ const BiographyView = memo(({ detail }: { detail: ChoreographerDetail }) => {
 
 export const ChoreographerPage = memo(() => {
     const { id = '', tab } = useParams<{ id: string; tab?: string }>();
-    const permissions = useSelector(getUserAuthData)?.permissions ?? [];
+    const can = useCan();
     const load = useCallback(() => getChoreographer(id), [id]);
     const detail = useResource(load);
-    const active: TabId = TABS.some((item) => item.id === tab && permissions.includes(item.permission)) ? tab as TabId : 'overview';
-    const canEdit = permissions.includes('choreographers.update');
+    const active: TabId = TABS.some((item) => item.id === tab && can(item.permission)) ? tab as TabId : 'overview';
+    const canEdit = can('choreographers.update');
     return <CrmLayout title="Choreographer">
         <RequestState error={detail.error} loading={detail.loading && !detail.data} />
         {detail.data && <>
             <ProfileHeader detail={detail.data} />
-            <ProfileTabs personId={id} active={active} permissions={permissions} />
+            <ProfileTabs personId={id} active={active} can={can} />
             {active === 'overview' && <OverviewTab detail={detail.data} />}
             {active === 'biography' && <>
                 {canEdit
@@ -193,15 +192,15 @@ export const ChoreographerPage = memo(() => {
                     : <BiographyView detail={detail.data} />}
                 <BioVersions personId={id} canEdit={canEdit} />
             </>}
-            {active === 'events' && <EventsTab personId={id} canManage={permissions.includes('choreographers.events.manage')} />}
-            {active === 'finance' && <FinanceTab personId={id} rights={{ canWrite: permissions.includes('choreographers.finance.write'), canConfirm: permissions.includes('choreographers.payments.confirm') }} />}
-            {active === 'documents' && <DocumentsTab personId={id} canManage={permissions.includes('documents.write')} />}
-            {active === 'emails' && <EmailsTab personId={id} canLink={permissions.includes('choreographers.conversations.link')} />}
+            {active === 'events' && <EventsTab personId={id} canManage={can('choreographers.events.manage')} />}
+            {active === 'finance' && <FinanceTab personId={id} rights={{ canWrite: can('choreographers.finance.write'), canConfirm: can('choreographers.payments.confirm') }} />}
+            {active === 'documents' && <DocumentsTab personId={id} canManage={can('documents.write')} />}
+            {active === 'emails' && <EmailsTab personId={id} canLink={can('choreographers.conversations.link')} />}
             {active === 'activity' && <ActivityTab personId={id} />}
-            {active === 'notes' && <NotesTab personId={id} canManageNotes={permissions.includes('choreographers.notes.manage')}
-                canReadTasks={permissions.includes('tasks.read')} canManageTasks={permissions.includes('tasks.write')} />}
-            {active === 'media' && <MediaTab personId={id} canManage={permissions.includes('choreographers.media.manage')} onChanged={() => void detail.refresh()} />}
-            {active === 'contacts' && <ContactsTab personId={id} canManage={permissions.includes('choreographers.contacts.manage')} />}
+            {active === 'notes' && <NotesTab personId={id} canManageNotes={can('choreographers.notes.manage')}
+                canReadTasks={can('tasks.read')} canManageTasks={can('tasks.write')} />}
+            {active === 'media' && <MediaTab personId={id} canManage={can('choreographers.media.manage')} onChanged={() => void detail.refresh()} />}
+            {active === 'contacts' && <ContactsTab personId={id} canManage={can('choreographers.contacts.manage')} />}
         </>}
     </CrmLayout>;
 });

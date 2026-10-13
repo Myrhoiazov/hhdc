@@ -8,7 +8,7 @@ jest.mock('@/entities/crm', () => ({
 }));
 let mockPermissions: string[] = [];
 jest.mock('react-redux', () => ({ useSelector: () => ({ permissions: mockPermissions }) }));
-jest.mock('@/entities/User', () => ({ getUserAuthData: jest.fn() }));
+jest.mock('@/entities/User', () => ({ getUserAuthData: jest.fn(), useCan: () => (permission: string) => mockPermissions.includes(permission) }));
 jest.mock('@/widgets/Page', () => ({ Page: ({ children }: { children: React.ReactNode }) => <div>{children}</div> }));
 
 const person = (id: string, overrides: Partial<Person> = {}): Person => ({
