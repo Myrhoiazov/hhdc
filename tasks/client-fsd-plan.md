@@ -1,6 +1,6 @@
 # План: приведение `client/` к Feature-Sliced Design
 
-Статус: этап 1 реализован 2026-10-13 в ветке `refactor/client-fsd-boundaries`; не закрыт Browser QA (см. todo).
+Статус: этап 1 слит (PR #13). Этап 2 реализован 2026-10-13 в ветке `refactor/client-shared-kit`.
 Дата: 2026-10-13.
 
 ## Цель
@@ -167,6 +167,8 @@
   SCSS-модулем на `-redesigned` токенах; три объявления `Field` сводятся к одному.
 - 2.2 `useNumbers`, форматтер дат, `useDelayed`, `useListFilters`, чтение полей `FormData`, единое извлечение
   сообщения об ошибке для `useAction`/`useResource` → `shared/lib`, с прямыми тестами.
+  Из разбора `FormData` в `shared` уходит только повторявшийся хелпер `formText`; разбор конкретных форм —
+  доменная логика, она переезжает в `model` своих слайсов на этапе 4.
 - 2.3 `hasPermission` и тип `Permission` → `entities/User`; 25 строковых проверок переходят на него.
 - 2.4 Удаление мёртвого кода и пустых папок из списка выше. Заодно — две закомментированные сторис без экспорта по умолчанию
   (`LoginForm.stories.tsx`, `AvatarDropdown.stories.tsx`), из-за которых `storybook:build` падает уже на `develop`.

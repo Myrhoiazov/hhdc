@@ -2,7 +2,7 @@ import { memo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { KnowledgeSyncSummary, syncKnowledgeV2 } from '@/entities/crm';
 import { Button } from '@/shared/ui/Button';
-import { RequestState } from '../common';
+import { RequestState } from '@/shared/ui/RequestState';
 import cls from '../CrmPage.module.scss';
 
 const SyncResult = memo(({ summary }: { summary: KnowledgeSyncSummary }) => {

@@ -4,9 +4,12 @@ import {
     addChoreographerNote, addChoreographerTask, ChoreographerNote, ChoreographerTask, listChoreographerNotes, listChoreographerTasks, removeChoreographerNote,
     TASK_PRIORITIES, updateChoreographerNote, updateTaskStatus,
 } from '@/entities/crm';
+import { formatDate } from '@/shared/lib/format/date';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
-import { Field, RequestState, StatusBadge } from '../common';
+import { Field } from '@/shared/ui/Field';
+import { RequestState } from '@/shared/ui/RequestState';
+import { StatusBadge } from '@/shared/ui/StatusBadge';
 import cls from '../CrmPage.module.scss';
 import own from './Choreographers.module.scss';
 
@@ -23,7 +26,7 @@ const NoteCard = memo(({ note, personId, canManage, run }: { note: Choreographer
     const label = note.content.slice(0, 40);
     return <article className={own.assignment} aria-label={label}>
         <div className={own.headerTop}>
-            <div className={own.secondary}>{[new Date(note.createdAt).toLocaleDateString(), note.createdByName].filter(Boolean).join(' · ')}</div>
+            <div className={own.secondary}>{[formatDate(note.createdAt), note.createdByName].filter(Boolean).join(' · ')}</div>
             {note.isPinned && <span className={own.chip}>{t('Pinned')}</span>}
         </div>
         <p className={own.bio}>{note.content}</p>
@@ -76,7 +79,7 @@ const TaskRow = memo(({ task, canManage, run }: { task: ChoreographerTask; canMa
     const overdue = isOverdue(task);
     return <div className={cls.row}>
         <span><strong>{task.title}</strong>
-            <div className={own.secondary}>{[task.dueDate ? `${t('Due')}: ${new Date(task.dueDate).toLocaleDateString()}` : t('No due date'), task.assignee?.name, t(`PRIORITY_${task.priority}`)].filter(Boolean).join(' · ')}</div></span>
+            <div className={own.secondary}>{[task.dueDate ? `${t('Due')}: ${formatDate(task.dueDate)}` : t('No due date'), task.assignee?.name, t(`PRIORITY_${task.priority}`)].filter(Boolean).join(' · ')}</div></span>
         <span className={cls.actions}>
             {overdue && <span className={own.chip}>{t('Overdue')}</span>}
             <StatusBadge status={task.status} />

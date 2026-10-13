@@ -1,14 +1,16 @@
 import { FormEvent, memo, ReactNode, useCallback, useState } from 'react';
-import { useSelector } from 'react-redux';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Activity, addPersonRole, getPerson, getPersonActivity, Person, PERSON_ROLES, PersonRole, removePersonRole, savePerson } from '@/entities/crm';
+import { formatDate, formatDateTime } from '@/shared/lib/format/date';
 import { classNames } from '@/shared/lib/classNames/classNames';
-import { getUserAuthData } from '@/entities/User';
+import { Can, useCan } from '@/entities/User';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button, ButtonTheme } from '@/shared/ui/Button';
 import { peopleListPath } from '../model/peopleListUrl';
-import { CrmLayout, Field, RequestState } from './common';
+import { CrmLayout } from './common';
+import { Field } from '@/shared/ui/Field';
+import { RequestState } from '@/shared/ui/RequestState';
 import { PersonConversations } from './PersonConversations';
 import { PersonExpenses } from './PersonExpenses';
 import { PersonOrders } from './PersonOrders';
@@ -99,7 +101,7 @@ const PersonSummary = memo(({ person, onSaved }: PersonProps) => {
             <Fact label="Phone">{contactLink('tel', person.phone)}</Fact>
             <Fact label="Country">{person.country || '—'}</Fact>
             <Fact label="Source">{person.source ? t(`Person source: ${person.source}`, { defaultValue: person.source }) : '—'}</Fact>
-            <Fact label="Added">{person.createdAt ? new Date(person.createdAt).toLocaleDateString() : '—'}</Fact>
+            <Fact label="Added">{person.createdAt ? formatDate(person.createdAt) : '—'}</Fact>
         </dl>
         <PersonRoles person={person} onSaved={onSaved} />
     </section>;
@@ -108,27 +110,27 @@ const PersonSummary = memo(({ person, onSaved }: PersonProps) => {
 const PersonActivity = memo(({ activity }: { activity: Activity[] | undefined }) => {
     const { t } = useTranslation();
     return <>
-        {activity?.map(item => <div className={cls.row} key={item.id}><span className={own.activityType}>{t(item.type)}</span><time className={own.activityTime}>{new Date(item.createdAt).toLocaleString()}</time></div>)}
+        {activity?.map(item => <div className={cls.row} key={item.id}><span className={own.activityType}>{t(item.type)}</span><time className={own.activityTime}>{formatDateTime(item.createdAt)}</time></div>)}
         {activity?.length === 0 && <p className={cls.muted}>{t('No activity yet')}</p>}
     </>;
 });
 
-interface PersonBodyProps extends PersonProps { permissions: string[]; activity: ReactNode; onDeleted: () => void }
+interface PersonBodyProps extends PersonProps { can: Can; activity: ReactNode; onDeleted: () => void }
 
 // What happened with the contact takes the wide column; what can be changed about it stands beside.
-const PersonBody = memo(({ person, permissions, activity, onSaved, onDeleted }: PersonBodyProps) => <>
+const PersonBody = memo(({ person, can, activity, onSaved, onDeleted }: PersonBodyProps) => <>
     <PersonSummary person={person} onSaved={onSaved} />
     <div className={own.columns}>
         <div className={own.main}>
             <PersonOrders personId={person.id} />
             <PersonConversations person={person} />
             <PersonTeamRoles personId={person.id} />
-            {permissions.includes('finance.read') && <PersonExpenses personId={person.id} />}
+            {can('finance.read') && <PersonExpenses personId={person.id} />}
             {activity}
         </div>
         <aside className={own.side}>
             <PersonForm key={person.id} person={person} onSaved={onSaved} />
-            {permissions.includes('people.write') && <PersonRemovalPanel person={person} onDeleted={onDeleted} />}
+            {can('people.write') && <PersonRemovalPanel person={person} onDeleted={onDeleted} />}
         </aside>
     </div>
 </>);
@@ -142,7 +144,7 @@ export const PersonPage = memo(() => {
     const activity = useResource(loadActivity);
     const navigate = useNavigate();
     const listPath = peopleListPath(useLocation().state);
-    const permissions = useSelector(getUserAuthData)?.permissions ?? [];
+    const can = useCan();
     const refresh = () => { void person.refresh(); void activity.refresh(); };
     const timeline = <section className={cls.panel} aria-label={t('Activity timeline')}><h2>{t('Activity timeline')}</h2>
         <RequestState error={activity.error} loading={activity.loading && !activity.data} />
@@ -150,6 +152,6 @@ export const PersonPage = memo(() => {
     </section>;
     return <CrmLayout title={person.data ? personName(person.data) : 'Person'} back={{ to: listPath, label: 'Back to contacts' }}>
         <RequestState error={person.error} loading={person.loading && !person.data} />
-        {person.data && <PersonBody person={person.data} permissions={permissions} activity={timeline} onSaved={refresh} onDeleted={() => navigate(listPath)} />}
+        {person.data && <PersonBody person={person.data} can={can} activity={timeline} onSaved={refresh} onDeleted={() => navigate(listPath)} />}
     </CrmLayout>;
 });

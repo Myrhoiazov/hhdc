@@ -6,8 +6,13 @@ import {
 } from '@/entities/crm';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
-import { Field, RequestState, StatusBadge } from './common';
-import { listStyles as own, Pager, useDelayed, useListFilters } from './ListTable';
+import { Field } from '@/shared/ui/Field';
+import { RequestState } from '@/shared/ui/RequestState';
+import { StatusBadge } from '@/shared/ui/StatusBadge';
+import { Pager } from '@/shared/ui/Pager';
+import { useDelayed } from '@/shared/lib/hooks/useDelayed/useDelayed';
+import { useListFilters } from '@/shared/lib/hooks/useListFilters/useListFilters';
+import { listStyles as own } from './ListTable';
 import cls from './CrmPage.module.scss';
 
 const NO_FILTERS: RegistrationFilters = { q: '', status: '' };

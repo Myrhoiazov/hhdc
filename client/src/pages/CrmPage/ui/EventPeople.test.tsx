@@ -7,7 +7,9 @@ jest.mock('@/entities/crm', () => ({
     assignChoreographer: jest.fn(), listEventRegistrations: jest.fn(), listPeople: jest.fn(), registerPerson: jest.fn(),
     LIST_PAGE_SIZE: 25, REGISTRATIONS_PAGE_SIZE: 20, REGISTRATION_STATUSES: ['PENDING', 'CONFIRMED', 'CHECKED_IN', 'CANCELLED', 'NO_SHOW'],
 }));
-jest.mock('./ListTable', () => ({ ...jest.requireActual('./ListTable'), useDelayed: (value: string) => value }));
+jest.mock('@/shared/lib/hooks/useDelayed/useDelayed', () => ({
+    ...jest.requireActual('@/shared/lib/hooks/useDelayed/useDelayed'), useDelayed: (value: string) => value,
+}));
 
 const person = { id: 'p1', displayName: 'Anna Berg', firstName: 'Anna', lastName: 'Berg', email: 'anna@example.test', phone: '+31600000001', country: 'Nederland' };
 const registration = (id: string, overrides: Partial<EventRegistration> = {}): EventRegistration => ({

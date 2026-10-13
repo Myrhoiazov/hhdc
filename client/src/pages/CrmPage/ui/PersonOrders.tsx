@@ -2,9 +2,11 @@ import { memo, ReactNode, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { listPersonOrders, PersonOrder, PersonTicket } from '@/entities/crm';
+import { formatDate, formatDateTime } from '@/shared/lib/format/date';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { classNames } from '@/shared/lib/classNames/classNames';
-import { RequestState, useNumbers } from './common';
+import { RequestState } from '@/shared/ui/RequestState';
+import { useNumbers } from '@/shared/lib/format/useNumbers';
 import cls from './CrmPage.module.scss';
 import own from './PersonOrders.module.scss';
 
@@ -59,7 +61,7 @@ const OrderDetails = memo(({ order }: { order: PersonOrder }) => {
         <Detail label="Total">{t('{{total}} (tickets {{subtotal}}, service fee {{fees}})', { total: money(order.total), subtotal: money(order.subtotal), fees: money(order.fees) })}</Detail>
         <Detail label="Status">{status(order.status)}</Detail>
         {order.shopName && <Detail label="Shop">{order.shopName}</Detail>}
-        <Detail label="Placed at">{new Date(order.orderedAt).toLocaleString()}</Detail>
+        <Detail label="Placed at">{formatDateTime(order.orderedAt)}</Detail>
         {order.answers.length > 0 && <Detail label="Booker information"><Answers answers={order.answers} /></Detail>}
         {order.payments.map(payment => <Detail key={payment.id} label="Payment">{payment.method || '—'} · {money(payment.amount)} · {status(payment.status)}</Detail>)}
         {order.externalId && <Detail label="Order ID">{order.externalId}</Detail>}
@@ -78,7 +80,7 @@ const OrderCard = memo(({ order }: { order: PersonOrder }) => {
     const status = useStatus();
     return <details className={own.order}>
         <summary className={own.summary}>
-            <time className={own.date}>{new Date(order.orderedAt).toLocaleDateString()}</time>
+            <time className={own.date}>{formatDate(order.orderedAt)}</time>
             <span className={own.event}>{order.event?.name ?? '—'}</span>
             <span className={own.count}>{t('Tickets: {{count}}', { count: order.tickets.length })}</span>
             <span className={own.total}>{money(order.total)}</span>

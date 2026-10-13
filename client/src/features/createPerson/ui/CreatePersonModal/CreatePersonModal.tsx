@@ -1,37 +1,33 @@
-import { FormEvent, memo, ReactNode, useState } from 'react';
+import { FormEvent, memo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { addPersonRole, Person, PERSON_ROLES as ROLES, PersonRole, savePerson } from '@/entities/crm';
+import { formText } from '@/shared/lib/form/formText';
 import { Button, ButtonTheme } from '@/shared/ui/Button';
+import { Field } from '@/shared/ui/Field';
 import { Modal } from '@/shared/ui/Modal';
 import cls from './CreatePersonModal.module.scss';
 
-const text = (form: FormData, name: string) => String(form.get(name) ?? '').trim();
 
 // Creates the person, then adds the chosen roles: a role is a separate record of the same Person.
 const createPerson = async (form: FormData): Promise<Person> => {
     const saved = await savePerson({
-        firstName: text(form, 'firstName'), lastName: text(form, 'lastName'),
-        email: text(form, 'email') || null, phone: text(form, 'phone') || null, notes: text(form, 'notes'),
+        firstName: formText(form, 'firstName'), lastName: formText(form, 'lastName'),
+        email: formText(form, 'email') || null, phone: formText(form, 'phone') || null, notes: formText(form, 'notes'),
     });
     await Promise.all(form.getAll('roles').map((role) => addPersonRole(saved.id, role as PersonRole)));
     return saved;
 };
 
-const Field = memo(({ label, children }: { label: string; children: ReactNode }) => {
-    const { t } = useTranslation();
-    return <label className={cls.field}><span>{t(label)}</span>{children}</label>;
-});
-
 const PersonFields = memo(() => {
     const { t } = useTranslation();
     return <>
         <div className={cls.grid}>
-            <Field label="First name"><input name="firstName" required autoFocus /></Field>
-            <Field label="Last name"><input name="lastName" required /></Field>
-            <Field label="Email"><input name="email" type="email" /></Field>
-            <Field label="Phone"><input name="phone" type="tel" /></Field>
+            <Field className={cls.field} label="First name"><input name="firstName" required autoFocus /></Field>
+            <Field className={cls.field} label="Last name"><input name="lastName" required /></Field>
+            <Field className={cls.field} label="Email"><input name="email" type="email" /></Field>
+            <Field className={cls.field} label="Phone"><input name="phone" type="tel" /></Field>
         </div>
-        <Field label="Notes"><textarea name="notes" rows={3} /></Field>
+        <Field className={cls.field} label="Notes"><textarea name="notes" rows={3} /></Field>
         <div className={cls.roles}>{ROLES.map((role) => <label key={role}><input name="roles" type="checkbox" value={role} /> {t(role)}</label>)}</div>
     </>;
 });

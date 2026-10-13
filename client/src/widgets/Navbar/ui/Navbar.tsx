@@ -2,7 +2,7 @@ import { memo, useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { getUserAuthData } from '@/entities/User';
+import { getUserAuthData, hasPermission } from '@/entities/User';
 import { classNames } from '@/shared/lib/classNames/classNames';
 import { Button } from '@/shared/ui/Button';
 import { LangSwitcher } from '@/shared/ui/LangSwitcher';
@@ -37,8 +37,8 @@ export const Navbar = memo(({ className, onMobileMenuToggle }: { className?: str
     return <div className={classNames(cls.Navbar, {}, [className])}>
         <div className={cls.left}><button className={cls.hamburger} onClick={onMobileMenuToggle} aria-label={t('Menu')}><span /><span /><span /></button><img className={cls.logo} src={logo} alt="" /><strong>{t('HHDC Event CRM')}</strong></div>
         <div className={cls.actions}>
-            {user.permissions.includes('communications.reply') && <ComposeEmailAction />}
-            {user.permissions.includes('people.write') && <CreatePersonAction />}
+            {hasPermission(user.permissions, 'communications.reply') && <ComposeEmailAction />}
+            {hasPermission(user.permissions, 'people.write') && <CreatePersonAction />}
             <LangSwitcher className={cls.langSwitcher} /><ThemeSwitcher className={cls.themeSwitcher} /><AvatarDropdown />
         </div>
     </div>;

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { approveDraft, Conversation, Draft, DraftModelChoice, generateDraft, PromptVersion, ProviderConnection, rejectDraft, replyToConversation } from '@/entities/crm';
 import { classNames } from '@/shared/lib/classNames/classNames';
 import { Button, ButtonTheme } from '@/shared/ui/Button';
-import { RequestState } from '../common';
+import { RequestState } from '@/shared/ui/RequestState';
 import { AttachmentPicker } from '@/features/composeEmail';
 import cls from '../CommunicationsPage.module.scss';
 

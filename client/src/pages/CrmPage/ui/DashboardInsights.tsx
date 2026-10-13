@@ -2,9 +2,11 @@ import { memo, ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { CountryRow, DashboardInsights, EventMoney, getDashboardInsights, YearMoney } from '@/entities/crm';
+import { formatDate } from '@/shared/lib/format/date';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Bar, chartStyles as chart, Tile } from './Charts';
-import { RequestState, useNumbers } from './common';
+import { RequestState } from '@/shared/ui/RequestState';
+import { useNumbers } from '@/shared/lib/format/useNumbers';
 import { listStyles as table } from './ListTable';
 import cls from './CrmPage.module.scss';
 import own from './DashboardInsights.module.scss';
@@ -44,7 +46,7 @@ const EventRows = memo(({ events, currency }: { events: EventMoney[]; currency: 
         </tr></thead>
         <tbody>{events.map(event => <tr key={event.id}>
             <td><Link className={table.name} to={`/events/${event.id}`}>{event.name}</Link></td>
-            <td className={`${table.secondary} ${table.optional}`}>{new Date(event.startAt).toLocaleDateString()}</td>
+            <td className={`${table.secondary} ${table.optional}`}>{formatDate(event.startAt)}</td>
             <td className={table.number}>{format.count(event.tickets)}</td>
             <td className={table.number}>{format.money(event.revenue)}</td>
             <td className={`${table.number} ${table.optional}`}>{format.money(event.discount)}</td>

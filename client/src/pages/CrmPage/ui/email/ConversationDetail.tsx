@@ -5,7 +5,8 @@ import { applyConversationDisposition, Conversation, ConversationDisposition, ge
 import { classNames } from '@/shared/lib/classNames/classNames';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button, ButtonTheme } from '@/shared/ui/Button';
-import { RequestState, StatusBadge } from '../common';
+import { RequestState } from '@/shared/ui/RequestState';
+import { StatusBadge } from '@/shared/ui/StatusBadge';
 import { ConversationComposer } from './ConversationComposer';
 import { MessageThread } from './MessageThread';
 import cls from '../CommunicationsPage.module.scss';

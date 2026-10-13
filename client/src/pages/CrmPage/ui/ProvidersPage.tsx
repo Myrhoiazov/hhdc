@@ -1,12 +1,16 @@
 import { memo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { checkWeeztix, deleteProvider, listProviders, ProviderConnection, syncProvider, testProvider, updateProvider } from '@/entities/crm';
+import { formatDateTime } from '@/shared/lib/format/date';
 import { useAction } from '@/shared/lib/useResource/useAction';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
 import { PROVIDER_FORMS, providerFormFor } from '../model/providerForms';
 import { AiSwitch } from './AiSwitch';
-import { CrmLayout, Field, RequestState, StatusBadge } from './common';
+import { CrmLayout } from './common';
+import { Field } from '@/shared/ui/Field';
+import { RequestState } from '@/shared/ui/RequestState';
+import { StatusBadge } from '@/shared/ui/StatusBadge';
 import { ProviderForm } from './ProviderForm';
 import { WeeztixConnect } from './WeeztixConnect';
 import cls from './CrmPage.module.scss';
@@ -16,7 +20,7 @@ const GROUP_TITLES: Record<string, string> = {
     EMAIL: 'Email', AI: 'AI', TICKETING: 'Ticketing', PAYMENT: 'Payments', STORAGE: 'Storage', MESSAGING: 'Messaging', SIGNATURE: 'Signature',
 };
 
-const formatTime = (value?: string | null) => (value ? new Date(value).toLocaleString() : '—');
+const formatTime = (value?: string | null) => (value ? formatDateTime(value) : '—');
 
 // Each card action resolves to the notice shown under the card.
 const useProviderActions = (provider: ProviderConnection, refresh: () => void) => {

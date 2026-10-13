@@ -7,7 +7,7 @@ import {
 import { classNames } from '@/shared/lib/classNames/classNames';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
-import { RequestState } from '../common';
+import { RequestState } from '@/shared/ui/RequestState';
 import { usePhotoUrl } from './usePhotoUrl';
 import cls from '../CrmPage.module.scss';
 import own from './Choreographers.module.scss';

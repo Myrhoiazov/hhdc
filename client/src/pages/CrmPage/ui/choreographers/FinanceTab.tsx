@@ -5,9 +5,13 @@ import {
     cancelChoreographerExpense, cancelFeeAgreement, ChoreographerExpense, CurrencyTotals, EXPENSE_CATEGORIES, EXPENSE_PAYERS, FEE_STATUSES, FeeAgreement,
     FinanceAssignment, getChoreographerFinance, movePayout, PAYOUT_TYPES, PayoutRecord, PayoutStatus, recordChoreographerExpense, recordFeeAgreement, recordPayout,
 } from '@/entities/crm';
+import { formText } from '@/shared/lib/form/formText';
+import { formatDate } from '@/shared/lib/format/date';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
-import { Field, RequestState, StatusBadge } from '../common';
+import { Field } from '@/shared/ui/Field';
+import { RequestState } from '@/shared/ui/RequestState';
+import { StatusBadge } from '@/shared/ui/StatusBadge';
 import cls from '../CrmPage.module.scss';
 import { PersonExpenses } from '../PersonExpenses';
 import own from './Choreographers.module.scss';
@@ -17,7 +21,6 @@ export interface FinanceRights { canWrite: boolean; canConfirm: boolean }
 type Run = (work: () => Promise<unknown>) => Promise<boolean>;
 
 const money = (amount: string | null, currency: string) => (amount === null ? '—' : `${amount} ${currency}`);
-const text = (form: FormData, name: string) => String(form.get(name) ?? '').trim();
 
 // One row per currency: nothing is ever summed across currencies.
 const TotalsTable = memo(({ totals }: { totals: CurrencyTotals[] }) => {
@@ -43,7 +46,7 @@ const LedgerRow = memo(({ title, detail, status, children }: { title: string; de
 const Agreements = memo(({ items, rights, run }: { items: FeeAgreement[]; rights: FinanceRights; run: Run }) => {
     const { t } = useTranslation();
     return <>{items.map((item) => <LedgerRow key={item.id} title={money(item.amount, item.currency)} status={item.status}
-        detail={[new Date(item.createdAt).toLocaleDateString(), item.notes].filter(Boolean).join(' · ')}>
+        detail={[formatDate(item.createdAt), item.notes].filter(Boolean).join(' · ')}>
         {rights.canWrite && ['PROPOSED', 'COUNTERED', 'AGREED'].includes(item.status)
             && <Button aria-label={`${t('Cancel entry')}: ${money(item.amount, item.currency)}`} onClick={() => void run(() => cancelFeeAgreement(item.id))}>{t('Cancel entry')}</Button>}
     </LedgerRow>)}</>;
@@ -74,7 +77,7 @@ export const payoutActions = (status: PayoutStatus, rights: FinanceRights): Payo
 const Payments = memo(({ items, rights, run }: { items: PayoutRecord[]; rights: FinanceRights; run: Run }) => {
     const { t } = useTranslation();
     return <>{items.map((item) => <LedgerRow key={item.id} status={item.status} title={`${t(`PAYOUT_${item.type}`)}: ${money(item.amount, item.currency)}`}
-        detail={[item.paymentDate ? new Date(item.paymentDate).toLocaleDateString() : '', item.reference].filter(Boolean).join(' · ')}>
+        detail={[item.paymentDate ? formatDate(item.paymentDate) : '', item.reference].filter(Boolean).join(' · ')}>
         {payoutActions(item.status, rights).map((target) => <Button key={target} aria-label={`${t(`MOVE_${target}`)}: ${money(item.amount, item.currency)}`}
             onClick={() => void run(() => movePayout(item.id, target))}>{t(`MOVE_${target}`)}</Button>)}
     </LedgerRow>)}</>;
@@ -91,7 +94,7 @@ const FeeForm = memo(({ assignmentId, run }: { assignmentId: string; run: Run })
         event.preventDefault();
         const element = event.currentTarget;
         const form = new FormData(element);
-        void run(() => recordFeeAgreement(assignmentId, { status: text(form, 'status'), amount: text(form, 'amount'), currency: text(form, 'currency'), notes: text(form, 'notes') })).then((saved) => { if (saved) element.reset(); });
+        void run(() => recordFeeAgreement(assignmentId, { status: formText(form, 'status'), amount: formText(form, 'amount'), currency: formText(form, 'currency'), notes: formText(form, 'notes') })).then((saved) => { if (saved) element.reset(); });
     };
     return <form className={cls.grid} onSubmit={submit} aria-label={t('Record fee')}>
         <Field label="Negotiation step"><select name="status" defaultValue="PROPOSED">{FEE_STATUSES.map((status) => <option key={status} value={status}>{t(status)}</option>)}</select></Field>
@@ -108,8 +111,8 @@ const ExpenseForm = memo(({ assignmentId, run }: { assignmentId: string; run: Ru
         const element = event.currentTarget;
         const form = new FormData(element);
         void run(() => recordChoreographerExpense(assignmentId, {
-            category: text(form, 'category'), currency: text(form, 'currency'), estimatedAmount: text(form, 'estimatedAmount') || null, actualAmount: text(form, 'actualAmount') || null,
-            paidBy: text(form, 'paidBy'), reimbursable: form.get('reimbursable') === 'on', description: text(form, 'description'),
+            category: formText(form, 'category'), currency: formText(form, 'currency'), estimatedAmount: formText(form, 'estimatedAmount') || null, actualAmount: formText(form, 'actualAmount') || null,
+            paidBy: formText(form, 'paidBy'), reimbursable: form.get('reimbursable') === 'on', description: formText(form, 'description'),
         })).then((saved) => { if (saved) element.reset(); });
     };
     return <form className={cls.grid} onSubmit={submit} aria-label={t('Record expense')}>
@@ -130,7 +133,7 @@ const PaymentForm = memo(({ assignmentId, run }: { assignmentId: string; run: Ru
         event.preventDefault();
         const element = event.currentTarget;
         const form = new FormData(element);
-        void run(() => recordPayout(assignmentId, { type: text(form, 'type'), amount: text(form, 'amount'), currency: text(form, 'currency'), status: 'PLANNED', reference: text(form, 'reference') })).then((saved) => { if (saved) element.reset(); });
+        void run(() => recordPayout(assignmentId, { type: formText(form, 'type'), amount: formText(form, 'amount'), currency: formText(form, 'currency'), status: 'PLANNED', reference: formText(form, 'reference') })).then((saved) => { if (saved) element.reset(); });
     };
     return <form className={cls.grid} onSubmit={submit} aria-label={t('Record payment')}>
         <Field label="Payment type"><select name="type" defaultValue="FEE">{PAYOUT_TYPES.map((item) => <option key={item} value={item}>{t(`PAYOUT_${item}`)}</option>)}</select></Field>

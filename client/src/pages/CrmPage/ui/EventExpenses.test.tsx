@@ -8,7 +8,9 @@ jest.mock('@/entities/crm', () => ({
     createEventExpense: jest.fn(), deleteEventExpense: jest.fn(), listEventExpenses: jest.fn(), listEventTeam: jest.fn(), listPayees: jest.fn(), listPersonExpenses: jest.fn(), updateEventExpense: jest.fn(),
     EVENT_EXPENSE_CATEGORIES: ['FEE', 'SALARY', 'TRAVEL', 'HOTEL', 'VENUE', 'MARKETING', 'EQUIPMENT', 'OTHER'],
 }));
-jest.mock('./ListTable', () => ({ ...jest.requireActual('./ListTable'), useDelayed: (value: string) => value }));
+jest.mock('@/shared/lib/hooks/useDelayed/useDelayed', () => ({
+    ...jest.requireActual('@/shared/lib/hooks/useDelayed/useDelayed'), useDelayed: (value: string) => value,
+}));
 
 const line = (id: string, overrides: Partial<ExpenseLine> = {}): ExpenseLine => ({
     id, source: 'EVENT', category: 'SALARY', description: 'Front desk', amount: '450.00', currency: 'EUR', status: 'PLANNED', date: '2027-05-21',

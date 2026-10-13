@@ -3,7 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { actOnRefund, Refund, requestRefund } from '@/entities/crm';
 import { useAction } from '@/shared/lib/useResource/useAction';
 import { Button } from '@/shared/ui/Button';
-import { Field, RequestState, StatusBadge } from './common';
+import { Field } from '@/shared/ui/Field';
+import { RequestState } from '@/shared/ui/RequestState';
+import { StatusBadge } from '@/shared/ui/StatusBadge';
 import cls from './CrmPage.module.scss';
 
 export const REFUNDABLE = ['PAID', 'PARTIALLY_REFUNDED'];

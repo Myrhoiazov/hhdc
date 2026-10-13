@@ -4,7 +4,9 @@ import { AuditPage } from './AuditList';
 
 jest.mock('@/entities/crm', () => ({ getAuditOptions: jest.fn(), listAuditPage: jest.fn(), LIST_PAGE_SIZE: 25 }));
 jest.mock('@/widgets/Page', () => ({ Page: ({ children }: { children: React.ReactNode }) => <div>{children}</div> }));
-jest.mock('./ListTable', () => ({ ...jest.requireActual('./ListTable'), useDelayed: (value: string) => value }));
+jest.mock('@/shared/lib/hooks/useDelayed/useDelayed', () => ({
+    ...jest.requireActual('@/shared/lib/hooks/useDelayed/useDelayed'), useDelayed: (value: string) => value,
+}));
 
 const actor = { id: 'u1', name: 'Test Admin', email: 'admin@example.test' };
 const entry = (id: string, overrides: Partial<AuditEntry> = {}): AuditEntry => ({

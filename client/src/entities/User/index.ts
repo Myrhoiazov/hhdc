@@ -20,3 +20,8 @@ export {
     UserSchema,
     User,
 } from './model/types/user';
+
+export { getUserPermissions } from './model/selectors/getUserPermissions/getUserPermissions';
+export { hasPermission } from './model/lib/hasPermission';
+export { useCan } from './model/lib/useCan';
+export type { Permission, Can } from './model/types/permission';

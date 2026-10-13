@@ -1,8 +1,10 @@
 import { memo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { listNotificationSettings, NOTIFICATION_GROUPS, NotificationGroup, NotificationSetting, setNotificationEnabled } from '@/entities/crm';
+import { formatDateTime } from '@/shared/lib/format/date';
 import { useResource } from '@/shared/lib/useResource/useResource';
-import { CrmLayout, RequestState } from './common';
+import { CrmLayout } from './common';
+import { RequestState } from '@/shared/ui/RequestState';
 import { NotificationTemplate } from './NotificationTemplate';
 import cls from './CrmPage.module.scss';
 import own from './NotificationsPage.module.scss';
@@ -28,7 +30,7 @@ const ChangedBy = memo(({ setting }: { setting: NotificationSetting }) => {
     const { t } = useTranslation();
     if (!setting.updatedAt) return null;
     const who = setting.updatedBy ? setting.updatedBy.name || setting.updatedBy.email : t('Unknown');
-    return <span className={own.meta}>{t('Changed by {{who}}, {{when}}', { who, when: new Date(setting.updatedAt).toLocaleString() })}</span>;
+    return <span className={own.meta}>{t('Changed by {{who}}, {{when}}', { who, when: formatDateTime(setting.updatedAt) })}</span>;
 });
 
 interface RowProps { setting: NotificationSetting; saving: boolean; error: string; onToggle: (setting: NotificationSetting) => void; onSaved: () => void }

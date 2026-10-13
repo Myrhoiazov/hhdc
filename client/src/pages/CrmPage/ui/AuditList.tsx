@@ -1,10 +1,15 @@
 import { memo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AuditEntry, AuditFilters, AuditOptions, getAuditOptions, listAuditPage } from '@/entities/crm';
+import { formatDateTime } from '@/shared/lib/format/date';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
-import { CrmLayout, Field, RequestState } from './common';
-import { listStyles as own, Pager, useListFilters } from './ListTable';
+import { CrmLayout } from './common';
+import { Field } from '@/shared/ui/Field';
+import { RequestState } from '@/shared/ui/RequestState';
+import { Pager } from '@/shared/ui/Pager';
+import { useListFilters } from '@/shared/lib/hooks/useListFilters/useListFilters';
+import { listStyles as own } from './ListTable';
 import cls from './CrmPage.module.scss';
 
 const NO_FILTERS: AuditFilters = { q: '', entityType: '', actorUserId: '', from: '', to: '' };
@@ -40,7 +45,7 @@ const AuditFiltersBar = memo(({ filters, options, filtered, onChange, onReset }:
 const AuditRow = memo(({ entry }: { entry: AuditEntry }) => {
     const { t } = useTranslation();
     return <tr>
-        <td className={own.secondary}><time dateTime={entry.createdAt}>{new Date(entry.createdAt).toLocaleString()}</time></td>
+        <td className={own.secondary}><time dateTime={entry.createdAt}>{formatDateTime(entry.createdAt)}</time></td>
         <td>{entry.actor ? entry.actor.name || entry.actor.email : <span className={own.secondary}>{t('System')}</span>}</td>
         <td><strong>{t(entry.action)}</strong></td>
         <td><span className={cls.badge}>{entry.entityType}</span></td>

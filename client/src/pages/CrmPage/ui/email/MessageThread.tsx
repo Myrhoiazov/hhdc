@@ -1,6 +1,7 @@
 import { memo, useCallback, useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Message } from '@/entities/crm';
+import { formatDateTime } from '@/shared/lib/format/date';
 import { classNames } from '@/shared/lib/classNames/classNames';
 import { formatFileSize } from '@/features/composeEmail';
 import { Button, ButtonTheme } from '@/shared/ui/Button';
@@ -56,7 +57,7 @@ const MessageCard = memo(({ message, expanded, onToggle }: MessageCardProps) => 
             <span className={classNames(cls.messageChevron, { [cls.messageChevronOpen]: expanded })} aria-hidden="true" />
             <strong>{t(outbound ? 'You' : 'From {{sender}}', { sender: message.sender })}</strong>
             {!expanded && <span className={cls.messagePreview}>{messagePreview(message.bodyText)}</span>}
-            <time>{new Date(message.sentAt || message.receivedAt || message.createdAt).toLocaleString()}</time>
+            <time>{formatDateTime(message.sentAt || message.receivedAt || message.createdAt)}</time>
         </button>
         {expanded && <MessageBody id={bodyId} message={message} />}
     </article>;

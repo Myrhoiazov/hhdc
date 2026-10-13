@@ -1,9 +1,5 @@
 import { useCallback, useState } from 'react';
-
-const messageOf = (cause: unknown) => {
-    const apiMessage = (cause as { response?: { data?: { error?: { message?: string } } } })?.response?.data?.error?.message;
-    return apiMessage || (cause instanceof Error ? cause.message : 'Request failed');
-};
+import { messageOf } from './messageOf';
 
 // Runs a mutation with shared busy/error state; resolves to true when it succeeded.
 export const useAction = (onDone?: () => void) => {

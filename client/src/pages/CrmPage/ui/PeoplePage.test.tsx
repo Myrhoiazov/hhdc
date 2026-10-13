@@ -8,7 +8,7 @@ jest.mock('@/entities/crm', () => ({
     PERSON_ROLES: ['CUSTOMER', 'PARTICIPANT', 'CHOREOGRAPHER', 'STAFF', 'PARTNER'], PERSON_SOURCES: ['WEEZTIX', 'EMAIL', 'MANUAL', 'IMPORT', 'SYSTEM'],
 }));
 jest.mock('react-redux', () => ({ useSelector: () => ({ permissions: [] }) }));
-jest.mock('@/entities/User', () => ({ getUserAuthData: jest.fn() }));
+jest.mock('@/entities/User', () => ({ getUserAuthData: jest.fn(), useCan: () => () => false }));
 jest.mock('@/widgets/Page', () => ({ Page: ({ children }: { children: React.ReactNode }) => <div>{children}</div> }));
 jest.mock('./PersonConversations', () => ({ PersonConversations: () => null }));
 jest.mock('./PersonExpenses', () => ({ PersonExpenses: () => null }));

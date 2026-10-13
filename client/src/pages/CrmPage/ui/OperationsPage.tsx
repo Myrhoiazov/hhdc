@@ -1,11 +1,15 @@
 import { FormEvent, memo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { checkIn, CheckinResult, getOperationsHealth, listEvents, listTasks, Task, updateTaskStatus } from '@/entities/crm';
+import { formatDate, formatTime } from '@/shared/lib/format/date';
 import { classNames } from '@/shared/lib/classNames/classNames';
 import { useAction } from '@/shared/lib/useResource/useAction';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
-import { CrmLayout, Field, RequestState, StatusBadge } from './common';
+import { CrmLayout } from './common';
+import { Field } from '@/shared/ui/Field';
+import { RequestState } from '@/shared/ui/RequestState';
+import { StatusBadge } from '@/shared/ui/StatusBadge';
 import cls from './CrmPage.module.scss';
 
 const HEALTH_LABELS: [string, 'failedJobs' | 'failedOutbox' | 'pendingOutbox' | 'failedWebhooks' | 'failedAutomationRuns'][] = [
@@ -29,7 +33,7 @@ const TaskRow = memo(({ task, refresh }: { task: Task; refresh: () => void }) =>
     const action = useAction(refresh);
     return <div className={cls.row}>
         <span>{task.title}</span>
-        <span className={cls.muted}>{t(task.priority)}{task.dueDate ? ` · ${new Date(task.dueDate).toLocaleDateString()}` : ''}</span>
+        <span className={cls.muted}>{t(task.priority)}{task.dueDate ? ` · ${formatDate(task.dueDate)}` : ''}</span>
         <StatusBadge status={task.status} />
         {task.status !== 'DONE' && <Button disabled={action.busy} onClick={() => void action.run(() => updateTaskStatus(task.id, 'DONE'))}>{t('Complete')}</Button>}
     </div>;
@@ -54,7 +58,7 @@ const CheckinOutcome = memo(({ result, error }: { result?: CheckinResult; error:
     return <div role="status" className={classNames(cls.result, {}, [cls.success])}>
         <strong>{result.registration.person.displayName}</strong>
         <p>{result.registration.event.name}{result.registration.ticket ? ` · ${result.registration.ticket.ticketType}` : ''}</p>
-        <p>{t('Checked in')} {new Date(result.checkedInAt).toLocaleTimeString()}</p>
+        <p>{t('Checked in')} {formatTime(result.checkedInAt)}</p>
     </div>;
 });
 

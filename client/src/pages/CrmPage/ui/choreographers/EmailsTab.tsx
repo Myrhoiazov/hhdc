@@ -4,9 +4,12 @@ import { useTranslation } from 'react-i18next';
 import {
     ChoreographerThread, Conversation, linkChoreographerThread, listChoreographerThreads, listConversations, unlinkChoreographerThread,
 } from '@/entities/crm';
+import { formatDate } from '@/shared/lib/format/date';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
-import { Field, RequestState, StatusBadge } from '../common';
+import { Field } from '@/shared/ui/Field';
+import { RequestState } from '@/shared/ui/RequestState';
+import { StatusBadge } from '@/shared/ui/StatusBadge';
 import cls from '../CrmPage.module.scss';
 import own from './Choreographers.module.scss';
 
@@ -18,7 +21,7 @@ const ThreadCard = memo(({ thread, canLink, onUnlink }: { thread: ChoreographerT
     return <article className={own.assignment} aria-label={thread.subject}>
         <div className={own.headerTop}>
             <div><strong>{thread.subject}</strong>
-                <div className={own.secondary}>{[new Date(thread.lastMessageAt).toLocaleDateString(), thread.event?.name, message ? `${message.sender} → ${message.recipient}` : ''].filter(Boolean).join(' · ')}</div></div>
+                <div className={own.secondary}>{[formatDate(thread.lastMessageAt), thread.event?.name, message ? `${message.sender} → ${message.recipient}` : ''].filter(Boolean).join(' · ')}</div></div>
             <span className={own.chips}><span className={own.chip}>{t(`PROVENANCE_${thread.provenance}`)}</span><StatusBadge status={thread.status} /></span>
         </div>
         {message && <p className={own.bio}>{message.preview}</p>}

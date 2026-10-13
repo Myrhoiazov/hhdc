@@ -5,13 +5,15 @@ import {
     ASSIGNMENT_STATUSES, AssignmentStatus, AssignmentUpdate, assignChoreographerToEvent, ChoreographerHistoryItem, listChoreographerHistory, listEvents,
     LOGISTICS_STATUSES, LogisticsStatus, updateChoreographerAssignment,
 } from '@/entities/crm';
+import { formatLongDate } from '@/shared/lib/format/date';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
-import { Field, RequestState, StatusBadge } from '../common';
+import { Field } from '@/shared/ui/Field';
+import { RequestState } from '@/shared/ui/RequestState';
+import { StatusBadge } from '@/shared/ui/StatusBadge';
 import cls from '../CrmPage.module.scss';
 import own from './Choreographers.module.scss';
 
-const formatDate = (value: string) => new Date(value).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
 
 // Newest year first; the items inside a year keep the order the server gave them.
 export const groupByYear = (items: ChoreographerHistoryItem[]): [number, ChoreographerHistoryItem[]][] => {
@@ -32,7 +34,7 @@ const AssignmentCard = memo(({ item, canManage, onUpdate }: { item: Choreographe
     return <article className={own.assignment} aria-label={item.event.name}>
         <div className={own.headerTop}>
             <div><Link to={`/events/${item.event.id}`}>{item.event.name}</Link>
-                <div className={own.secondary}>{[`${formatDate(item.event.startAt)} – ${formatDate(item.event.endAt)}`, item.event.city, item.roleTitle].filter(Boolean).join(' · ')}</div></div>
+                <div className={own.secondary}>{[`${formatLongDate(item.event.startAt)} – ${formatLongDate(item.event.endAt)}`, item.event.city, item.roleTitle].filter(Boolean).join(' · ')}</div></div>
             <span className={own.chips}><span className={own.chip}>{t(`TIMING_${item.timing}`)}</span><StatusBadge status={item.status} /></span>
         </div>
         {item.sessions.length > 0 && <div className={own.secondary}>{`${t('Sessions')}: ${item.sessions.map((session) => session.name).join(', ')}`}</div>}

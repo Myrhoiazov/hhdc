@@ -1,4 +1,5 @@
 import { $apiPrivate } from '@/shared/api/api';
+import { LIST_PAGE_SIZE } from '@/shared/const/pagination';
 import { Activity, Event, Person, PersonRole, PageResult } from './types';
 
 const read = async <T,>(path: string) => (await $apiPrivate.get<{ data: T }>(path)).data.data;
@@ -7,8 +8,6 @@ const list = async <T,>(path: string): Promise<PageResult<T>> => {
     return { data: result.data, total: result.meta.total };
 };
 
-// Rows on one page of a list page (people, events).
-export const LIST_PAGE_SIZE = 25;
 
 // The server reads the search text from `q`.
 export const listPeople = async (search = '') =>

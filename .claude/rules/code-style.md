@@ -29,6 +29,12 @@
   типами (см. `entities/User/model/types/user.ts`) — так нижним слоям не нужен импорт из `app`.
 - `shared/api` не знает о сторе: реакцию на ответ 401 приложение передаёт через
   `setUnauthorizedHandler` (см. `createReduxStore`).
+- Общие блоки не пиши заново. Форма и списки: `shared/ui/Field`, `RequestState`, `StatusBadge`, `Pager`,
+  `ConfirmDelete`. Хелперы: `shared/lib/format/date` (`formatDate`, `formatDateTime`, `formatLongDate`) вместо
+  `toLocale*String`, `shared/lib/format/useNumbers` для денег и чисел, `shared/lib/form/formText` для текста поля
+  формы, `shared/lib/hooks/useDelayed` и `useListFilters` для поиска и фильтров списка.
+- Права: `const can = useCan(); can('finance.read')` из `@/entities/User` (вне компонентов — `hasPermission`).
+  Имя права — тип `Permission`; не сравнивай права строками через `permissions.includes(...)`.
 - Алиас пути `@/*` → `client/src/*`. Никогда не импортируй напрямую вглубь чужого слайса —
   импортируй его `index.ts`.
 - Включено правило `i18next/no-literal-string` — новый текст в UI должен идти через `t()` (глобально

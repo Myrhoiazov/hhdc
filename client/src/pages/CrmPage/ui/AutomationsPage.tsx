@@ -1,10 +1,14 @@
 import { FormEvent, memo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Automation, AutomationTest, createAutomation, getAutomationMeta, listAutomationRuns, listAutomations, setAutomationStatus, testAutomation } from '@/entities/crm';
+import { formatDateTime } from '@/shared/lib/format/date';
 import { useAction } from '@/shared/lib/useResource/useAction';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
-import { CrmLayout, Field, RequestState, StatusBadge } from './common';
+import { CrmLayout } from './common';
+import { Field } from '@/shared/ui/Field';
+import { RequestState } from '@/shared/ui/RequestState';
+import { StatusBadge } from '@/shared/ui/StatusBadge';
 import cls from './CrmPage.module.scss';
 
 const DEFAULT_CONDITIONS = '{"all": []}';
@@ -54,7 +58,7 @@ const AutomationRuns = memo(({ id }: { id: string }) => {
         <RequestState error={runs.error} loading={runs.loading} />
         {runs.data?.total === 0 && <p className={cls.muted}>{t('No runs yet')}</p>}
         {runs.data?.data.map(run => <div className={cls.row} key={run.id}>
-            <time>{new Date(run.startedAt).toLocaleString()}</time>
+            <time>{formatDateTime(run.startedAt)}</time>
             <span>{run.actionRuns.map(item => `${item.input.type}: ${item.status}`).join(' → ')}</span>
             <span>{run.error}</span>
             <StatusBadge status={run.dryRun ? 'DRY_RUN' : run.status} />
