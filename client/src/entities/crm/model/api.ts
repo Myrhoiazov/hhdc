@@ -64,9 +64,11 @@ export interface EventRegistration {
     person: { id: string; displayName: string; firstName: string; lastName: string; email: string | null; phone: string | null; country: string | null };
     ticket: { ticketType: string; status: string } | null;
 }
+// The registrations of an event are one block among many on its page, so a page of them is shorter.
+export const REGISTRATIONS_PAGE_SIZE = 20;
 export interface RegistrationFilters { q: string; status: typeof REGISTRATION_STATUSES[number] | '' }
 export const listEventRegistrations = async (eventId: string, filters: RegistrationFilters, page: number) =>
-    list<EventRegistration>(`/events/${eventId}/registrations?${new URLSearchParams({ ...filters, page: String(page), pageSize: String(LIST_PAGE_SIZE) }).toString()}`);
+    list<EventRegistration>(`/events/${eventId}/registrations?${new URLSearchParams({ ...filters, page: String(page), pageSize: String(REGISTRATIONS_PAGE_SIZE) }).toString()}`);
 export const registerPerson = async (eventId: string, personId: string) =>
     (await $apiPrivate.post(`/events/${eventId}/registrations`, { personId, status: 'CONFIRMED' })).data;
 export const assignChoreographer = async (eventId: string, personId: string) =>
