@@ -11,6 +11,7 @@ const SECTIONS: Array<{ id: string; label: string }> = [
     { id: 'event-registrations', label: 'Registrations' },
     { id: 'event-choreographers', label: 'Choreographers' },
     { id: 'event-add-person', label: 'Add a person' },
+    { id: 'event-team', label: 'Team' },
     { id: 'event-documents', label: 'Documents' },
 ];
 

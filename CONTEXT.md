@@ -16,6 +16,7 @@ Person is the central identity. CUSTOMER, PARTICIPANT, CHOREOGRAPHER, STAFF and 
 | Person | One identity with multiple business roles; replaces legacy Client. |
 | Registration | A Person participating in an Event. |
 | EventChoreographer | A Person with the CHOREOGRAPHER role assigned to an Event. |
+| EventTeamMember | A Person working on an Event in a named role (project administrator, videographer, equipment supplier), as STAFF or PARTNER. One Person may hold several roles on one Event. The pay of a role is the EventExpense rows that name it. |
 | Order / Ticket | Normalized ticketing records; buyer and holder are separate relationships. |
 | Event edition | A dated camp instance with its venue, programme, capacity, and operational settings. |
 | Communication | An inbound or outbound email, note, template, or team conversation connected to event work. |

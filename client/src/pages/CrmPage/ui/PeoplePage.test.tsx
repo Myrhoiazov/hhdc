@@ -1,10 +1,10 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { addPersonRole, getPerson, getPersonActivity, Person, removePersonRole, savePerson } from '@/entities/crm';
+import { addPersonRole, getPerson, getPersonActivity, listPersonTeamRoles, Person, removePersonRole, savePerson } from '@/entities/crm';
 import { PersonPage } from './PeoplePage';
 
 jest.mock('@/entities/crm', () => ({
-    getPerson: jest.fn(), getPersonActivity: jest.fn(), savePerson: jest.fn(), addPersonRole: jest.fn(), removePersonRole: jest.fn(),
+    getPerson: jest.fn(), getPersonActivity: jest.fn(), savePerson: jest.fn(), addPersonRole: jest.fn(), removePersonRole: jest.fn(), listPersonTeamRoles: jest.fn(),
     PERSON_ROLES: ['CUSTOMER', 'PARTICIPANT', 'CHOREOGRAPHER', 'STAFF', 'PARTNER'], PERSON_SOURCES: ['WEEZTIX', 'EMAIL', 'MANUAL', 'IMPORT', 'SYSTEM'],
 }));
 jest.mock('react-redux', () => ({ useSelector: () => ({ permissions: [] }) }));
@@ -24,6 +24,7 @@ const renderPage = (state?: unknown) => render(<MemoryRouter initialEntries={[{ 
 beforeEach(() => {
     jest.mocked(getPerson).mockResolvedValue(anna);
     jest.mocked(getPersonActivity).mockResolvedValue({ data: [], total: 0 });
+    jest.mocked(listPersonTeamRoles).mockResolvedValue([]);
 });
 
 test('the back link returns to the page of the list the contact was opened from', async () => {
@@ -81,4 +82,17 @@ test('saving says so, until the form is changed again', async () => {
     expect(await screen.findByText('Saved')).toBeInTheDocument();
     fireEvent.change(screen.getByLabelText('First name'), { target: { value: 'Anne' } });
     expect(screen.queryByText('Saved')).not.toBeInTheDocument();
+});
+
+test('the events a contact worked on are listed with the role; a contact who never did has no such block', async () => {
+    const { unmount } = renderPage();
+    await screen.findByRole('heading', { name: 'Anna Berg' });
+    expect(screen.queryByRole('region', { name: 'Work on events' })).not.toBeInTheDocument();
+    unmount();
+
+    jest.mocked(listPersonTeamRoles).mockResolvedValue([{ id: 'm1', roleTitle: 'Videographer', duties: null, event: { id: 'e1', name: 'Dance Camp', startAt: '2027-05-21T10:00:00Z' } }]);
+    renderPage();
+    const block = await screen.findByRole('region', { name: 'Work on events' });
+    expect(within(block).getByRole('link', { name: 'Dance Camp' })).toHaveAttribute('href', '/events/e1');
+    expect(within(block).getByText('Videographer')).toBeInTheDocument();
 });

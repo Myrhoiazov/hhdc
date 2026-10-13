@@ -2,7 +2,7 @@ import { memo, useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
-    assignChoreographer, Event, EventRegistration, listEventRegistrations, listPeople, registerPerson, REGISTRATION_STATUSES, RegistrationFilters,
+    assignChoreographer, Event, EventRegistration, listEventRegistrations, listPeople, registerPerson, REGISTRATION_STATUSES, RegistrationFilters, REGISTRATIONS_PAGE_SIZE,
 } from '@/entities/crm';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
@@ -65,16 +65,21 @@ const Registrations = memo(({ eventId }: { eventId: string }) => {
     const { t } = useTranslation();
     const people = useRegistrations(eventId);
     const { data } = people.list;
+    // The same pager stands above the table and under it.
+    const pager = data && <Pager page={people.page} total={data.total} pageSize={REGISTRATIONS_PAGE_SIZE} onChange={people.setPage} />;
     return <section id="event-registrations" className={cls.panel} aria-label={t('Registrations')}>
         <div className={own.summary}>
             <h2>{t('Registrations')}</h2>
-            {data && <span className={cls.muted}>{t('People found: {{count}}', { count: data.total })}</span>}
+            {data && <div className={own.summaryEnd}>
+                <span className={cls.muted}>{t('People found: {{count}}', { count: data.total })}</span>
+                {pager}
+            </div>}
         </div>
         <RegistrationFiltersBar filters={people.filters} filtered={people.filtered} onChange={people.change} onReset={people.reset} />
         <RequestState error={people.list.error} loading={people.list.loading && !data} />
         {data && data.total > 0 && <RegistrationsTable registrations={data.data} />}
         {data?.total === 0 && <p className={cls.muted}>{t(people.filtered ? 'No registrations match the filters' : 'No registrations yet')}</p>}
-        {data && <Pager page={people.page} total={data.total} onChange={people.setPage} />}
+        {pager}
     </section>;
 });
 

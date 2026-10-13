@@ -35,9 +35,12 @@ export const useListFilters = <Filters extends { q: string }>(none: Filters, sta
     return { filters, applied, page, setPage, change, filtered: Object.values(filters).some(Boolean), reset: () => change(none) };
 };
 
-export const Pager = memo(({ page, total, onChange }: { page: number; total: number; onChange: (page: number) => void }) => {
+interface PagerProps { page: number; total: number; onChange: (page: number) => void; pageSize?: number }
+
+// `pageSize` is named by a list whose pages are not of the common size.
+export const Pager = memo(({ page, total, onChange, pageSize }: PagerProps) => {
     const { t } = useTranslation();
-    const pages = Math.max(1, Math.ceil(total / LIST_PAGE_SIZE));
+    const pages = Math.max(1, Math.ceil(total / (pageSize ?? LIST_PAGE_SIZE)));
     if (pages === 1) return null;
     return <nav className={own.pager} aria-label={t('Page {{page}} of {{pages}}', { page, pages })}>
         <Button disabled={page <= 1} aria-label={t('Previous page')} onClick={() => onChange(page - 1)}>←</Button>

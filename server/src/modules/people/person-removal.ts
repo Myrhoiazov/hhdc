@@ -9,7 +9,7 @@ export const REMOVAL_BLOCKERS = ['WEEZTIX', 'PURCHASES', 'EVENTS', 'FINANCE', 'C
 export type RemovalBlocker = typeof REMOVAL_BLOCKERS[number];
 export interface PersonRemoval { allowed: boolean; blockers: RemovalBlocker[] }
 
-const TIES = { orders: true, tickets: true, payments: true, refunds: true, registrations: true, choreographerAssignments: true, eventExpenses: true, consents: true, deliveryLogs: true } as const;
+const TIES = { orders: true, tickets: true, payments: true, refunds: true, registrations: true, choreographerAssignments: true, teamAssignments: true, eventExpenses: true, consents: true, deliveryLogs: true } as const;
 const TIES_SELECT = { id: true, source: true, choreographerProfile: { select: { personId: true } }, _count: { select: TIES } } as const;
 type PersonTies = Prisma.PersonGetPayload<{ select: typeof TIES_SELECT }>;
 
@@ -38,7 +38,7 @@ const toFacts = (person: PersonTies, linked: Set<string>): RemovalFacts => {
     return {
         source: person.source, linkedToWeeztix: linked.has(person.id),
         purchases: count.orders + count.tickets + count.payments + count.refunds,
-        events: count.registrations + count.choreographerAssignments,
+        events: count.registrations + count.choreographerAssignments + count.teamAssignments,
         expenses: count.eventExpenses, choreographer: Boolean(person.choreographerProfile), mailings: count.consents + count.deliveryLogs,
     };
 };
