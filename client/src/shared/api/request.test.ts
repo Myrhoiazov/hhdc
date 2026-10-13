@@ -1,6 +1,6 @@
 import { AxiosAdapter, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { $apiPrivate, csrfActions } from './api';
-import { patchData, postData, putData, readData, readPage } from './request';
+import { deleteData, patchData, postData, putData, readData, readPage } from './request';
 
 const calls: InternalAxiosRequestConfig[] = [];
 const answerWith = (data: unknown): AxiosAdapter => async config => {
@@ -39,4 +39,12 @@ test.each([
     await expect(send<{ id: string }>('/events', { name: 'Camp' })).resolves.toEqual({ id: '1', name: 'Camp' });
     expect(lastCall().method).toBe(method);
     expect(JSON.parse(lastCall().data)).toEqual({ name: 'Camp' });
+});
+
+test('a deletion gives the answer of the server and can carry a body', async () => {
+    $apiPrivate.defaults.adapter = answerWith({ data: { unlinked: true } });
+
+    await expect(deleteData<{ unlinked: boolean }>('/links/1', { data: { note: 'wrong person' } })).resolves.toEqual({ unlinked: true });
+    expect(lastCall().method).toBe('delete');
+    expect(JSON.parse(lastCall().data)).toEqual({ note: 'wrong person' });
 });

@@ -1,6 +1,6 @@
 import { FormEvent, memo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { addBioVersion, BIO_KINDS, BioKind, BioVersion, listBioVersions } from '@/entities/crm';
+import { addBioVersion, BIO_KINDS, BioKind, BioVersion, listBioVersions } from '@/entities/Choreographer';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
 import { Field } from '@/shared/ui/Field';

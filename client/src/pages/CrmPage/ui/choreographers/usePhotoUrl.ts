@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { fetchChoreographerPhoto } from '@/entities/crm';
+import { fetchChoreographerPhoto } from '@/entities/Choreographer';
 
 // Photos are private, so the thumbnail is fetched with the staff session and shown from memory.
 // Returns an empty string until the image is loaded, and when there is no photo.

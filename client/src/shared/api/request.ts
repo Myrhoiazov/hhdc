@@ -1,3 +1,4 @@
+import { AxiosRequestConfig } from 'axios';
 import { $apiPrivate } from './api';
 
 // One page of a list and how many rows the whole list has.
@@ -30,3 +31,7 @@ export const patchData = async <T>(path: string, body?: unknown) =>
 
 export const putData = async <T>(path: string, body?: unknown) =>
     (await $apiPrivate.put<Envelope<T>>(path, body)).data.data;
+
+// A deletion the server answers: `config.data` carries a body when the server asks for one.
+export const deleteData = async <T>(path: string, config?: AxiosRequestConfig) =>
+    (await $apiPrivate.delete<Envelope<T>>(path, config)).data.data;

@@ -2,11 +2,17 @@ import { fireEvent, render, screen, waitFor, within } from '@testing-library/rea
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { createReduxStore, ReduxStoreWithManager } from '@/app/providers/StoreProvider';
-import { activatePrompt, createPromptVersion, deleteKnowledge, EmailSimulation, getDefaultEmailPrompts, listEvents, listKnowledge, listPrompts, getSimulationRun, listSimulationRuns, simulateEmail, syncKnowledgeV2 } from '@/entities/crm';
+import { activatePrompt, createPromptVersion, getDefaultEmailPrompts, listPrompts } from '@/entities/Prompt';
+import { deleteKnowledge, listKnowledge, syncKnowledgeV2 } from '@/entities/Knowledge';
+import { EmailSimulation, getSimulationRun, listSimulationRuns, simulateEmail } from '@/entities/EmailSimulation';
+import { listEvents } from '@/entities/crm';
 import { listProviders } from '@/entities/Provider';
 import { KnowledgePage } from './KnowledgePage';
 
-jest.mock('@/entities/crm', () => ({ EMAIL_PROMPT_KEYS: ['email_classification', 'email_draft_body'], listKnowledge: jest.fn(), listEvents: jest.fn(), saveKnowledge: jest.fn(), deleteKnowledge: jest.fn(), syncKnowledgeV2: jest.fn(), listPrompts: jest.fn(), getDefaultEmailPrompts: jest.fn(), createPromptVersion: jest.fn(), activatePrompt: jest.fn(), simulateEmail: jest.fn(), listSimulationRuns: jest.fn(), getSimulationRun: jest.fn(), SIMULATION_PAGE_SIZE: 10 }));
+jest.mock('@/entities/Prompt', () => ({ EMAIL_PROMPT_KEYS: ['email_classification', 'email_draft_body'], listPrompts: jest.fn(), getDefaultEmailPrompts: jest.fn(), createPromptVersion: jest.fn(), activatePrompt: jest.fn() }));
+jest.mock('@/entities/Knowledge', () => ({ listKnowledge: jest.fn(), saveKnowledge: jest.fn(), deleteKnowledge: jest.fn(), syncKnowledgeV2: jest.fn() }));
+jest.mock('@/entities/crm', () => ({ listEvents: jest.fn() }));
+jest.mock('@/entities/EmailSimulation', () => ({ simulateEmail: jest.fn(), listSimulationRuns: jest.fn(), getSimulationRun: jest.fn(), SIMULATION_PAGE_SIZE: 10 }));
 jest.mock('@/entities/Provider', () => ({ listProviders: jest.fn() }));
 
 const savedPrompt = { id: 'prompt-2', key: 'email_draft_body', version: 2, purpose: 'Shorter tone', systemPrompt: 'Answer briefly.', status: 'DRAFT', createdAt: '2026-10-07T10:00:00.000Z' };

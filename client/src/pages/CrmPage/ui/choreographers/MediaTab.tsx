@@ -1,9 +1,6 @@
 import { ChangeEvent, DragEvent, memo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-    ChoreographerPhoto, listChoreographerPhotos, MAX_CHOREOGRAPHER_PHOTOS, MAX_PHOTO_BYTES, MEDIA_RIGHTS, MediaRights,
-    removeChoreographerPhoto, reorderChoreographerPhotos, updateChoreographerPhoto, uploadChoreographerPhoto,
-} from '@/entities/crm';
+import { ChoreographerPhoto, listChoreographerPhotos, MAX_CHOREOGRAPHER_PHOTOS, MAX_PHOTO_BYTES, MEDIA_RIGHTS, MediaRights, removeChoreographerPhoto, reorderChoreographerPhotos, updateChoreographerPhoto, uploadChoreographerPhoto } from '@/entities/Choreographer';
 import { classNames } from '@/shared/lib/classNames/classNames';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';

@@ -2,7 +2,8 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { Conversation, listConversations, markConversationRead, Person } from '@/entities/crm';
 import { PersonConversations } from './PersonConversations';
 
-jest.mock('@/entities/crm', () => ({ listConversations: jest.fn(), markConversationRead: jest.fn(), listPrompts: jest.fn(() => Promise.resolve([])) }));
+jest.mock('@/entities/crm', () => ({ listConversations: jest.fn(), markConversationRead: jest.fn() }));
+jest.mock('@/entities/Prompt', () => ({ listPrompts: jest.fn(() => Promise.resolve([])) }));
 jest.mock('@/entities/Provider', () => ({ listProviders: jest.fn(() => Promise.resolve({ data: [{ id: 'm1', name: 'Info', type: 'EMAIL', provider: 'IMAP', status: 'CONNECTED', settings: {} }], total: 1 })) }));
 jest.mock('@/features/composeEmail', () => ({
     ComposeEmailModal: ({ isOpen, recipient }: { isOpen: boolean; recipient?: string }) => (isOpen ? <div role="dialog">{`New email to ${recipient}`}</div> : null),

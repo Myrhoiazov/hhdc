@@ -1,6 +1,6 @@
 import { memo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { KnowledgeSyncSummary, syncKnowledgeV2 } from '@/entities/crm';
+import { KnowledgeSyncSummary, syncKnowledgeV2 } from '@/entities/Knowledge';
 import { Button } from '@/shared/ui/Button';
 import { RequestState } from '@/shared/ui/RequestState';
 import cls from '../CrmPage.module.scss';

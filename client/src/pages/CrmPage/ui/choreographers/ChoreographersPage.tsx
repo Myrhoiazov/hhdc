@@ -1,9 +1,8 @@
 import { memo, useCallback, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import {
-    CHOREOGRAPHER_PAGE_SIZE, ChoreographerListItem, createChoreographer, listChoreographers, listPeople, RELATIONSHIP_STATUSES, RelationshipStatus,
-} from '@/entities/crm';
+import { CHOREOGRAPHER_PAGE_SIZE, ChoreographerListItem, createChoreographer, listChoreographers, RELATIONSHIP_STATUSES, RelationshipStatus } from '@/entities/Choreographer';
+import { listPeople } from '@/entities/crm';
 import { useCan } from '@/entities/User';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';

@@ -1,6 +1,6 @@
 import { memo, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChoreographerActivityItem, listChoreographerActivity } from '@/entities/crm';
+import { ChoreographerActivityItem, listChoreographerActivity } from '@/entities/Choreographer';
 import { formatDateTime } from '@/shared/lib/format/date';
 import { Button } from '@/shared/ui/Button';
 import { Field } from '@/shared/ui/Field';
