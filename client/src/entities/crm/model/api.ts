@@ -29,6 +29,7 @@ export const savePerson = async (input: Partial<Person>, id?: string) =>
 export const deletePerson = async (id: string) => { await $apiPrivate.delete(`/people/${id}`); };
 export const addPersonRole = async (id: string, role: PersonRole) =>
     (await $apiPrivate.post(`/people/${id}/roles`, { role })).data;
+export const removePersonRole = async (id: string, role: PersonRole) => { await $apiPrivate.delete(`/people/${id}/roles/${role}`); };
 export const getPersonActivity = async (id: string) =>
     list<Activity>(`/people/${id}/activity`);
 export const listEvents = async () => list<Event>('/events');

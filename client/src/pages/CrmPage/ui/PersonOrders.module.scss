@@ -1,0 +1,115 @@
+.order {
+    border-bottom: 1px solid var(--card-border-redesigned);
+
+    &:last-of-type {
+        border-bottom: 0;
+    }
+}
+
+/* One purchase in one line, in columns that line up between purchases. The arrow says it opens. */
+.summary {
+    display: grid;
+    align-items: center;
+    padding: 12px 8px;
+    border-radius: var(--radius-sm-redesigned);
+    cursor: pointer;
+    gap: 4px 16px;
+    grid-template-columns: 12px 96px minmax(0, 1fr) auto 104px 128px;
+    list-style: none;
+
+    &::-webkit-details-marker {
+        display: none;
+    }
+
+    &::before {
+        width: 6px;
+        height: 6px;
+        transition: transform 0.15s ease;
+        border-bottom: 2px solid var(--sidebar-text-redesigned);
+        border-right: 2px solid var(--sidebar-text-redesigned);
+        content: '';
+        transform: rotate(-45deg);
+    }
+
+    &:hover,
+    &:focus-visible {
+        background: var(--sidebar-hover-bg-redesigned);
+    }
+}
+
+.order[open] > .summary::before {
+    transform: rotate(45deg);
+}
+
+.date {
+    color: var(--sidebar-text-redesigned);
+}
+
+.event {
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.count {
+    color: var(--sidebar-text-redesigned);
+    white-space: nowrap;
+}
+
+.total {
+    font-weight: 600;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.status {
+    justify-self: start;
+}
+
+.note {
+    font-size: 13px;
+    grid-column: 3 / -1;
+}
+
+.body {
+    padding: 0 8px 16px 36px;
+}
+
+@media (width <= 700px) {
+    .summary {
+        grid-template-columns: 12px minmax(0, 1fr) auto;
+    }
+
+    .event {
+        grid-column: 2 / -1;
+        grid-row: 1;
+    }
+
+    .date {
+        grid-column: 2;
+        grid-row: 2;
+    }
+
+    .status {
+        grid-column: 3;
+        grid-row: 2;
+        justify-self: end;
+    }
+
+    .count {
+        grid-column: 2;
+        grid-row: 3;
+    }
+
+    .total {
+        grid-column: 3;
+        grid-row: 3;
+    }
+
+    .note {
+        grid-column: 2 / -1;
+    }
+
+    .body {
+        padding-left: 8px;
+    }
+}

@@ -6,7 +6,7 @@ The target contract is the [Event & Talent CRM V1 specification](docs/spec/event
 
 HHDC Admin is an internal administration workspace for High Heels Dance Camp, a dance event. It supports event operations: client and contact records, event communications, email, payments, content and documents, users, roles, and settings.
 
-Person is the central identity. CUSTOMER, PARTICIPANT, CHOREOGRAPHER and STAFF are roles of the same Person. EventChoreographer is an event assignment, Registration is participation, and ticket buyers can differ from ticket holders. School students, classes, lessons, attendance and branches are obsolete workflows to remove.
+Person is the central identity. CUSTOMER, PARTICIPANT, CHOREOGRAPHER, STAFF and PARTNER are roles of the same Person. EventChoreographer is an event assignment, Registration is participation, and ticket buyers can differ from ticket holders. School students, classes, lessons, attendance and branches are obsolete workflows to remove.
 
 ## Domain language
 

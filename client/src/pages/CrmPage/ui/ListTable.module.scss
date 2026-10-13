@@ -25,6 +25,14 @@
     gap: 12px;
 }
 
+/* The right end of the summary: the count and the pager that repeats the one under the table. */
+.summaryEnd {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
 .tableScroll {
     overflow-x: auto;
 }
@@ -86,6 +94,11 @@
 .secondary {
     color: var(--sidebar-text-redesigned);
     overflow-wrap: anywhere;
+}
+
+/* Dates and phone numbers are read whole: they never break in the middle. */
+.whole {
+    white-space: nowrap;
 }
 
 .number {
