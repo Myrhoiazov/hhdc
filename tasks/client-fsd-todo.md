@@ -24,21 +24,23 @@
 
 ## Этап 3. `entities/crm` → доменные сущности
 
-- [ ] `person`
-- [ ] `event`, `registration`
-- [ ] `eventExpense`, `eventTeam`
-- [ ] `choreographer`
-- [ ] `communication`, `knowledge`
 - [ ] `provider`, `finance`, `audit`, `user`, `dashboard`
+- [ ] `choreographer`
+- [ ] `knowledge`
+- [ ] `eventExpense`, `eventTeam`
+- [ ] `event`, `registration`
+- [ ] `person`
+- [ ] `communication`
 - [ ] `entities/crm` удалён
 
 ## Этап 4. `pages/CrmPage` → страницы, виджеты, фичи
 
-- [ ] События
-- [ ] Люди
-- [ ] Хореографы
-- [ ] Почта и база знаний
 - [ ] Финансы, провайдеры, аудит, настройки
+- [ ] Хореографы
+- [ ] База знаний
+- [ ] Events
+- [ ] People
+- [ ] Почта
 - [ ] `pages/CrmPage` удалён
 
 ## Этап 5. Prettier как правило
