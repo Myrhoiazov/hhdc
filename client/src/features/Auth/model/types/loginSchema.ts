@@ -6,3 +6,9 @@ export interface LoginSchema {
     isLoading: boolean;
     error?: ServerError;
 }
+
+declare module '@/shared/lib/store/StateSchema' {
+    interface StateSchema {
+        loginForm?: LoginSchema;
+    }
+}

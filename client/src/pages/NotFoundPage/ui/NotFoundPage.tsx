@@ -2,7 +2,7 @@ import { memo } from 'react';
 import { classNames } from '@/shared/lib/classNames/classNames';
 import s from './NotFoundPage.module.scss';
 import { useTranslation } from 'react-i18next';
-import { Page } from '@/widgets/Page/Page';
+import { Page } from '@/widgets/Page';
 
 interface NotFoundPageProps {
     className?: string;

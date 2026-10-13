@@ -1,5 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { ThunkConfig } from '@/app/providers/StoreProvider';
+import { ThunkConfig } from '@/shared/lib/store/StateSchema';
 import { userActions } from '../slice/userSlice';
 import { csrfActions } from '@/shared/api/api';
 

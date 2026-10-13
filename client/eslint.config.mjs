@@ -8,6 +8,35 @@ import pluginReact from 'eslint-plugin-react';
 import i18next from 'eslint-plugin-i18next';
 import globals from 'globals';
 
+// Feature-Sliced Design: a layer imports only the layers below it, and a slice of another layer
+// only through its public API (`index.ts`). `path-checker` keeps imports inside a slice relative.
+const LAYERS = ['shared', 'entities', 'features', 'widgets', 'pages', 'app'];
+const SLICED_LAYERS = ['entities', 'features', 'widgets', 'pages'];
+
+const publicApiPattern = {
+    group: SLICED_LAYERS.map(layer => `@/${layer}/*/**`),
+    message: 'Import a slice through its public API: @/<layer>/<slice>.',
+};
+const layerPattern = (layer, forbidden) => ({
+    group: forbidden.flatMap(name => [`@/${name}`, `@/${name}/**`]),
+    message: `The ${layer} layer imports only the layers below it (app → pages → widgets → features → entities → shared), never a neighbouring slice.`,
+});
+// A slice never imports another slice of its own layer, so the layer itself is forbidden too;
+// inside a slice imports are relative. `shared` and `app` have segments instead of slices.
+const forbiddenFor = layer => LAYERS.slice(LAYERS.indexOf(layer) + (SLICED_LAYERS.includes(layer) ? 0 : 1));
+const layerRule = (layer, forbidden = forbiddenFor(layer)) => ['error', {
+    patterns: [publicApiPattern, ...(forbidden.length ? [layerPattern(layer, forbidden)] : [])],
+}];
+const layerConfigs = LAYERS.map(layer => ({
+    files: [`src/${layer}/**/*.{ts,tsx}`],
+    rules: { 'no-restricted-imports': layerRule(layer) },
+}));
+// Tests and stories render through the providers of the application; everything else still holds.
+const testLayerConfigs = LAYERS.filter(layer => layer !== 'app').map(layer => ({
+    files: [`src/${layer}/**/*.{test,stories}.{ts,tsx}`],
+    rules: { 'no-restricted-imports': layerRule(layer, forbiddenFor(layer).filter(name => name !== 'app')) },
+}));
+
 export default defineConfig([
     js.configs.recommended,
     tseslint.configs.recommended,
@@ -55,6 +84,8 @@ export default defineConfig([
             indent: 'off',
         },
     },
+    ...layerConfigs,
+    ...testLayerConfigs,
     {
         files: ['**/src/**/*.test.{js,ts,jsx,tsx}'],
         rules: {

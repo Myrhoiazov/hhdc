@@ -7,7 +7,7 @@ import { TwoFactorForm } from './TwoFactorForm';
 jest.mock('@/shared/api/api', () => ({
     $api: { post: jest.fn() },
     $apiPrivate: { get: jest.fn() },
-    injectStore: jest.fn(),
+    setUnauthorizedHandler: jest.fn(),
     csrfActions: { reset: jest.fn(), set: jest.fn() },
 }));
 

@@ -1,6 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-import { ThunkConfig } from '@/app/providers/StoreProvider';
+import { ThunkConfig } from '@/shared/lib/store/StateSchema';
 import { readServerError, ServerError } from '../loginByUsername/loginByUsername';
 
 interface ResendServerError extends ServerError {

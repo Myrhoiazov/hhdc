@@ -13,7 +13,7 @@ import logo from '@/shared/assets/logo/hhdc-logo.png';
 import { classNames } from '@/shared/lib/classNames/classNames';
 import { Fill, Icon } from '@/shared/ui/Icon/Icon';
 import { LangSwitcher } from '@/shared/ui/LangSwitcher/LangSwitcher';
-import { Page } from '@/widgets/Page/Page';
+import { Page } from '@/widgets/Page';
 import s from './LoginPage.module.scss';
 
 interface LoginPageProps {
