@@ -1,8 +1,8 @@
 import { render, screen, within } from '@testing-library/react';
-import { getEventSales } from '@/entities/crm';
+import { getEventSales } from '@/entities/Event';
 import { EventSalesPanel } from './EventSalesPanel';
 
-jest.mock('@/entities/crm', () => ({ getEventSales: jest.fn() }));
+jest.mock('@/entities/Event', () => ({ getEventSales: jest.fn() }));
 
 const empty = { currency: 'EUR', tickets: 0, withdrawn: 0, orders: 0, buyers: 0, revenue: '0.00', discount: '0.00', byType: [], byMonth: [], coupons: [] };
 

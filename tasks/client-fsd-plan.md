@@ -1,8 +1,7 @@
 # План: приведение `client/` к Feature-Sliced Design
 
-Статус: этапы 1–2 слиты (PR #13, #14). Этап 3: первая часть (админские сущности, хореографы, документы, база знаний) —
-в ветке `refactor/client-entities-admin`; остались сущности основных страниц.
-Дата: 2026-10-13.
+Статус: этапы 1–2 слиты (PR #13, #14), часть 1 этапа 3 слита (PR #15). Часть 2 этапа 3 реализована 2026-10-14 в ветке
+`refactor/client-entities-core`: `entities/crm` удалён.
 
 ## Цель
 
@@ -182,11 +181,13 @@
 `Assistant`, `Operations`, `Duplicate`, `DataExport`, `Campaign`, `Platform`, `Notification`, `Choreographer`, `Document`,
 `Knowledge`, `Prompt`, `EmailSimulation`; запросы списка сотрудников — в `entities/User`.
 
-**Часть 2 (осталось).** Сущности основных рабочих страниц (решение владельца от 2026-10-13: основные страницы — Почта,
-People, Events): `EventExpense` + `EventTeam` → `Event` + `Registration` + `Order` → `Person` → `Communication`.
-Их типы ссылаются друг на друга (`Event` → `Person`, `Conversation` → `Person` и `Event`), а сущность не импортирует
-соседнюю сущность. Перед переносом решается, как это выразить: краткие собственные типы вложенных записей
-(`EventPersonBrief`) или явные кросс-импорты `@x` с исключением в линтере.
+**Часть 2 (сделано, ветка `refactor/client-entities-core`).** Сущности основных рабочих страниц: `Person`, `Event`,
+`Registration`, `Order`, `EventExpense`, `EventTeam`, `Conversation`. `entities/crm` удалён.
+
+Типы этих сущностей ссылаются друг на друга (`Event` → `Person`, `Conversation` → `Person` и `Event`). Сущность не
+импортирует соседнюю через `index.ts`; связь объявлена явно файлом `@x`: `entities/Person/@x/event.ts` перечисляет
+ровно то, что сущности `Event` можно знать о `Person`. Линтер пропускает `@/entities/<Slice>/@x/<consumer>` только
+внутри слоя `entities`.
 
 Правила для каждой сущности:
 
@@ -196,7 +197,6 @@ People, Events): `EventExpense` + `EventTeam` → `Event` + `Registration` + `Or
 - Ответы сервера разворачивают `readData`, `readPage`, `postData`, `patchData`, `putData`, `deleteData` из
   `shared/api/request`.
 - Новые файлы сущностей отформатированы Prettier.
-- `entities/crm` удаляется, когда на него не осталось импортов.
 
 ### Этап 4. `pages/CrmPage` → страницы, виджеты, фичи
 

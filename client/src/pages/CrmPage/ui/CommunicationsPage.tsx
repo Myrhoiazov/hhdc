@@ -1,5 +1,5 @@
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
-import { ConversationFilters, getUnreadByMailbox } from '@/entities/crm';
+import { ConversationFilters, getUnreadByMailbox } from '@/entities/Conversation';
 import { listPrompts, PromptVersion } from '@/entities/Prompt';
 import { listProviders } from '@/entities/Provider';
 import { onEmailSent } from '@/features/composeEmail';

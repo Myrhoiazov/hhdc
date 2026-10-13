@@ -2,7 +2,7 @@ import { FormEvent, memo, useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ASSIGNMENT_STATUSES, AssignmentStatus, AssignmentUpdate, assignChoreographerToEvent, ChoreographerHistoryItem, listChoreographerHistory, LOGISTICS_STATUSES, LogisticsStatus, updateChoreographerAssignment } from '@/entities/Choreographer';
-import { listEvents } from '@/entities/crm';
+import { listEvents } from '@/entities/Event';
 import { formatLongDate } from '@/shared/lib/format/date';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';

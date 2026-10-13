@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { deletePerson, Person } from '@/entities/crm';
+import { deletePerson, Person } from '@/entities/Person';
 import cls from './CrmPage.module.scss';
 import { ConfirmDelete } from '@/shared/ui/ConfirmDelete';
 

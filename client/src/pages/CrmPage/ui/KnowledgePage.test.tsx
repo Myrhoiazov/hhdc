@@ -5,7 +5,7 @@ import { createReduxStore, ReduxStoreWithManager } from '@/app/providers/StorePr
 import { activatePrompt, createPromptVersion, getDefaultEmailPrompts, listPrompts } from '@/entities/Prompt';
 import { deleteKnowledge, listKnowledge, syncKnowledgeV2 } from '@/entities/Knowledge';
 import { EmailSimulation, getSimulationRun, listSimulationRuns, simulateEmail } from '@/entities/EmailSimulation';
-import { listEvents } from '@/entities/crm';
+import { listEvents } from '@/entities/Event';
 import { listProviders } from '@/entities/Provider';
 import { KnowledgePage } from './KnowledgePage';
 
@@ -17,7 +17,7 @@ jest.mock('@/entities/Knowledge', () => ({
     listKnowledge: jest.fn(), saveKnowledge: jest.fn(), deleteKnowledge: jest.fn(),
     syncKnowledgeV2: jest.fn(),
 }));
-jest.mock('@/entities/crm', () => ({ listEvents: jest.fn() }));
+jest.mock('@/entities/Event', () => ({ listEvents: jest.fn() }));
 jest.mock('@/entities/EmailSimulation', () => ({
     simulateEmail: jest.fn(), listSimulationRuns: jest.fn(), getSimulationRun: jest.fn(),
     SIMULATION_PAGE_SIZE: 10,

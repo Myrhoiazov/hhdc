@@ -2,14 +2,15 @@ import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { addPersonRole, savePerson } from '@/entities/crm';
+import { addPersonRole, savePerson } from '@/entities/Person';
 import { userReducer } from '@/entities/User';
 import { Navbar } from './Navbar';
 
-jest.mock('@/entities/crm', () => ({
+jest.mock('@/entities/Person', () => ({
     PERSON_ROLES: ['CUSTOMER', 'PARTICIPANT', 'CHOREOGRAPHER', 'STAFF', 'PARTNER'],
-    savePerson: jest.fn(), addPersonRole: jest.fn(), composeEmail: jest.fn(),
+    savePerson: jest.fn(), addPersonRole: jest.fn(),
 }));
+jest.mock('@/entities/Conversation', () => ({ composeEmail: jest.fn() }));
 jest.mock('@/entities/Provider', () => ({
     listProviders: jest.fn().mockResolvedValue({ data: [], total: 0 }),
 }));

@@ -1,4 +1,4 @@
-import { PeopleFilters, PERSON_ROLES, PERSON_SOURCES } from '@/entities/crm';
+import { PeopleFilters, PERSON_ROLES, PERSON_SOURCES } from '@/entities/Person';
 
 // The filters and the page of the people list live in the address, so that coming back from a
 // contact — by the back link or by the browser — opens the list where it was left.

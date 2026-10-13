@@ -1,12 +1,16 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { addPersonRole, getPerson, getPersonActivity, listPersonTeamRoles, Person, removePersonRole, savePerson } from '@/entities/crm';
+import { addPersonRole, getPerson, getPersonActivity, Person, removePersonRole, savePerson } from '@/entities/Person';
+import { listPersonTeamRoles } from '@/entities/EventTeam';
 import { PersonPage } from './PeoplePage';
 
-jest.mock('@/entities/crm', () => ({
-    getPerson: jest.fn(), getPersonActivity: jest.fn(), savePerson: jest.fn(), addPersonRole: jest.fn(), removePersonRole: jest.fn(), listPersonTeamRoles: jest.fn(),
-    PERSON_ROLES: ['CUSTOMER', 'PARTICIPANT', 'CHOREOGRAPHER', 'STAFF', 'PARTNER'], PERSON_SOURCES: ['WEEZTIX', 'EMAIL', 'MANUAL', 'IMPORT', 'SYSTEM'],
+jest.mock('@/entities/Person', () => ({
+    getPerson: jest.fn(), getPersonActivity: jest.fn(), savePerson: jest.fn(),
+    addPersonRole: jest.fn(), removePersonRole: jest.fn(),
+    PERSON_ROLES: ['CUSTOMER', 'PARTICIPANT', 'CHOREOGRAPHER', 'STAFF', 'PARTNER'],
+    PERSON_SOURCES: ['WEEZTIX', 'EMAIL', 'MANUAL', 'IMPORT', 'SYSTEM'],
 }));
+jest.mock('@/entities/EventTeam', () => ({ listPersonTeamRoles: jest.fn() }));
 jest.mock('react-redux', () => ({ useSelector: () => ({ permissions: [] }) }));
 jest.mock('@/entities/User', () => ({ getUserAuthData: jest.fn(), useCan: () => () => false }));
 jest.mock('@/widgets/Page', () => ({ Page: ({ children }: { children: React.ReactNode }) => <div>{children}</div> }));

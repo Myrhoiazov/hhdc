@@ -1,6 +1,6 @@
 import { FormEvent, memo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { addPersonRole, Person, PERSON_ROLES as ROLES, PersonRole, savePerson } from '@/entities/crm';
+import { addPersonRole, Person, PERSON_ROLES as ROLES, PersonRole, savePerson } from '@/entities/Person';
 import { formText } from '@/shared/lib/form/formText';
 import { Button, ButtonTheme } from '@/shared/ui/Button';
 import { Field } from '@/shared/ui/Field';

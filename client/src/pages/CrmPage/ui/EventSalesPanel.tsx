@@ -1,6 +1,6 @@
 import { memo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { EventSales, getEventSales } from '@/entities/crm';
+import { EventSales, getEventSales } from '@/entities/Event';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { RequestState } from '@/shared/ui/RequestState';
 import { useNumbers } from '@/shared/lib/format/useNumbers';

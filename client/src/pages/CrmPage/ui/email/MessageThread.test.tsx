@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import { Message } from '@/entities/crm';
+import { Message } from '@/entities/Conversation';
 import { MessageThread } from './MessageThread';
 
 

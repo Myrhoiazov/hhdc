@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { composeEmail } from '@/entities/crm';
+import { composeEmail } from '@/entities/Conversation';
 import { ProviderConnection } from '@/entities/Provider';
 
 export interface ComposeFields {

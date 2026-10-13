@@ -1,7 +1,7 @@
 import { memo, useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Event, listEvents } from '@/entities/crm';
+import { Event, listEvents } from '@/entities/Event';
 import { getLedgerSummary, LEDGER_CATEGORIES, LedgerCategory, LedgerCategoryTotal, LedgerEntry, LedgerFilters, LedgerSummary, listLedgerPage } from '@/entities/Finance';
 import { formatDate } from '@/shared/lib/format/date';
 import { useResource } from '@/shared/lib/useResource/useResource';

@@ -1,6 +1,6 @@
 import { memo, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { approveDraft, Conversation, Draft, DraftModelChoice, generateDraft, rejectDraft, replyToConversation } from '@/entities/crm';
+import { approveDraft, Conversation, Draft, DraftModelChoice, generateDraft, rejectDraft, replyToConversation } from '@/entities/Conversation';
 import { PromptVersion } from '@/entities/Prompt';
 import { ProviderConnection } from '@/entities/Provider';
 import { classNames } from '@/shared/lib/classNames/classNames';

@@ -27,13 +27,14 @@
       `Campaign`, `Platform`, `Notification`, запросы сотрудников в `User`
 - [x] `Choreographer`, `Document`
 - [x] `Knowledge`, `Prompt`, `EmailSimulation`
-- [ ] PR части 1 в `develop`
-- [ ] Решение по ссылкам между сущностями основных страниц
-- [ ] `EventExpense`, `EventTeam`
-- [ ] `Event`, `Registration`, `Order`
-- [ ] `Person`
-- [ ] `Communication`
-- [ ] `entities/crm` удалён
+- [x] PR #15 (часть 1) слит в `develop`
+- [x] Ссылки между сущностями — через `@x`, с исключением в линтере только для слоя `entities`
+- [x] `EventExpense`, `EventTeam`
+- [x] `Event`, `Registration`, `Order`
+- [x] `Person`
+- [x] `Conversation`
+- [x] `entities/crm` удалён
+- [ ] PR части 2 в `develop`
 
 ## Этап 4. `pages/CrmPage` → страницы, виджеты, фичи
 

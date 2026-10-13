@@ -1,7 +1,7 @@
 import { memo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { listPersonTeamRoles } from '@/entities/crm';
+import { listPersonTeamRoles } from '@/entities/EventTeam';
 import { formatDate } from '@/shared/lib/format/date';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { RequestState } from '@/shared/ui/RequestState';

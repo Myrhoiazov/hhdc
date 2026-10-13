@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Conversation, ConversationFilters, listConversations } from '@/entities/crm';
+import { Conversation, ConversationFilters, listConversations } from '@/entities/Conversation';
 
 export const CONVERSATION_PAGE_SIZE = 25;
 

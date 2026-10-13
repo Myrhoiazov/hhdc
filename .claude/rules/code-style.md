@@ -32,8 +32,10 @@
 - Сущность — слайс `entities/<Name>` (PascalCase) с сегментами `api/` (запросы) и `model/` (типы, константы,
   чистая логика) и `index.ts`, который перечисляет экспорты поимённо, без `export *`. Запросы разворачивают ответ
   сервера через `readData` / `readPage` / `postData` / `patchData` / `putData` / `deleteData` из
-  `shared/api/request`, а не повторяют `(await $apiPrivate.get(...)).data.data`. В `entities/crm` ничего нового
-  не добавляй — слайс разбирается и будет удалён.
+  `shared/api/request`, а не повторяют `(await $apiPrivate.get(...)).data.data`. Сущность не импортирует соседнюю сущность. Если её типу нужен тип
+  соседа (`Event` содержит `Person`), сосед объявляет это файлом `@x`: `entities/Person/@x/event.ts` реэкспортирует
+  только нужные типы, а `Event` импортирует `@/entities/Person/@x/event`. Вне слоя `entities` такой импорт запрещён
+  линтером.
 - Общие блоки не пиши заново. Форма и списки: `shared/ui/Field`, `RequestState`, `StatusBadge`, `Pager`,
   `ConfirmDelete`. Хелперы: `shared/lib/format/date` (`formatDate`, `formatDateTime`, `formatLongDate`) вместо
   `toLocale*String`, `shared/lib/format/useNumbers` для денег и чисел, `shared/lib/form/formText` для текста поля

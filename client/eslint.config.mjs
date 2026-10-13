@@ -13,19 +13,24 @@ import globals from 'globals';
 const LAYERS = ['shared', 'entities', 'features', 'widgets', 'pages', 'app'];
 const SLICED_LAYERS = ['entities', 'features', 'widgets', 'pages'];
 
-const publicApiPattern = {
-    group: SLICED_LAYERS.map(layer => `@/${layer}/*/**`),
+// One entity may name the types of another through `@/entities/<Slice>/@x/<consumer>`: the file
+// lists exactly what that consumer may know. Only entities import it; everybody else sees a deep import.
+const CROSS_IMPORT = '[^/]+/@x/[^/]+$';
+const publicApiPattern = layer => ({
+    regex: layer === 'entities'
+        ? `^@/(?:features|widgets|pages)/[^/]+/.+|^@/entities/(?!${CROSS_IMPORT})[^/]+/.+`
+        : `^@/(?:${SLICED_LAYERS.join('|')})/[^/]+/.+`,
     message: 'Import a slice through its public API: @/<layer>/<slice>.',
-};
+});
 const layerPattern = (layer, forbidden) => ({
-    group: forbidden.flatMap(name => [`@/${name}`, `@/${name}/**`]),
+    regex: `^@/(?:${forbidden.join('|')})(?:/${layer === 'entities' ? `(?!${CROSS_IMPORT})` : ''}|$)`,
     message: `The ${layer} layer imports only the layers below it (app → pages → widgets → features → entities → shared), never a neighbouring slice.`,
 });
 // A slice never imports another slice of its own layer, so the layer itself is forbidden too;
 // inside a slice imports are relative. `shared` and `app` have segments instead of slices.
 const forbiddenFor = layer => LAYERS.slice(LAYERS.indexOf(layer) + (SLICED_LAYERS.includes(layer) ? 0 : 1));
 const layerRule = (layer, forbidden = forbiddenFor(layer)) => ['error', {
-    patterns: [publicApiPattern, ...(forbidden.length ? [layerPattern(layer, forbidden)] : [])],
+    patterns: [publicApiPattern(layer), ...(forbidden.length ? [layerPattern(layer, forbidden)] : [])],
 }];
 const layerConfigs = LAYERS.map(layer => ({
     files: [`src/${layer}/**/*.{ts,tsx}`],

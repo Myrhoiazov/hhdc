@@ -2,13 +2,15 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { createReduxStore, ReduxStoreWithManager } from '@/app/providers/StoreProvider';
-import { applyConversationDisposition, approveDraft, composeEmail, Conversation, rejectDraft, replyToConversation, generateDraft, getConversation, listConversations, getUnreadByMailbox, markConversationRead } from '@/entities/crm';
+import { applyConversationDisposition, approveDraft, composeEmail, Conversation, rejectDraft, replyToConversation, generateDraft, getConversation, listConversations, getUnreadByMailbox, markConversationRead } from '@/entities/Conversation';
 import { listPrompts } from '@/entities/Prompt';
 import { listProviders } from '@/entities/Provider';
 import { CommunicationsPage } from './CommunicationsPage';
 
-jest.mock('@/entities/crm', () => ({
+jest.mock('@/entities/Person', () => ({
     isClient: (person?: { _count?: { orders: number } } | null) => (person?._count?.orders ?? 0) > 0,
+}));
+jest.mock('@/entities/Conversation', () => ({
     listConversations: jest.fn(), getConversation: jest.fn(), replyToConversation: jest.fn(),
     generateDraft: jest.fn(), approveDraft: jest.fn(), rejectDraft: jest.fn(),
     applyConversationDisposition: jest.fn(), markConversationRead: jest.fn(),
