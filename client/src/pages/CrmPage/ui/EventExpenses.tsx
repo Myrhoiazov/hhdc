@@ -1,7 +1,7 @@
 import { FormEvent, memo, useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { createEventExpense, deleteEventExpense, EVENT_EXPENSE_CATEGORIES, EventExpenseCategory, EventExpenseInput, ExpenseLine, ExpenseList, ExpenseStatus, listEventExpenses, updateEventExpense } from '@/entities/EventExpense';
+import { createEventExpense, deleteEventExpense, EVENT_EXPENSE_CATEGORIES, EventExpenseCategory, EventExpenseInput, ExpenseLine, ExpenseStatus, listEventExpenses, updateEventExpense, ExpenseTotals, useExpenseText } from '@/entities/EventExpense';
 import { listEventTeam, TeamMember } from '@/entities/EventTeam';
 import { listPayees } from '@/entities/Person';
 import { formatDate } from '@/shared/lib/format/date';
@@ -10,7 +10,6 @@ import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
 import { Field } from '@/shared/ui/Field';
 import { RequestState } from '@/shared/ui/RequestState';
-import { useNumbers } from '@/shared/lib/format/useNumbers';
 import { ConfirmDelete } from '@/shared/ui/ConfirmDelete';
 import { useDelayed } from '@/shared/lib/hooks/useDelayed/useDelayed';
 import { Badge } from '@/shared/ui/Badge';
@@ -20,25 +19,6 @@ import cls from '@/shared/ui/layout/layout.module.scss';
 import form from './EventExpenses.module.scss';
 
 const MIN_SEARCH = 2;
-
-export const useExpenseText = (currency = 'EUR') => {
-    const { t } = useTranslation();
-    const { money } = useNumbers(currency);
-    return {
-        money,
-        category: (category: string) => t(`Expense: ${category}`, { defaultValue: category }),
-        status: (status: string) => t(`Expense status: ${status}`, { defaultValue: status }),
-    };
-};
-
-export const ExpenseTotals = memo(({ totals }: { totals: ExpenseList['totals'] }) => {
-    const { t } = useTranslation();
-    const text = useExpenseText();
-    return <div className={form.totals}>
-        <p><strong>{t('Total: {{total}} · paid: {{paid}} · still to pay: {{planned}}', { total: text.money(totals.total), paid: text.money(totals.paid), planned: text.money(totals.planned) })}</strong></p>
-        {totals.byCategory.length > 0 && <p className={cls.muted}>{totals.byCategory.map(item => `${text.category(item.category)}: ${text.money(item.amount)}`).join(' · ')}</p>}
-    </div>;
-});
 
 // What can be done with an expense of the event; a line from a choreographer's card is changed there.
 const NEXT_STATUS: Record<string, Array<[ExpenseStatus, string]>> = {

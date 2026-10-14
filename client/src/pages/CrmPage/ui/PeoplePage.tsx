@@ -13,7 +13,7 @@ import { CrmLayout } from '@/widgets/Page';
 import { Field } from '@/shared/ui/Field';
 import { RequestState } from '@/shared/ui/RequestState';
 import { PersonConversations } from './PersonConversations';
-import { PersonExpenses } from './PersonExpenses';
+import { PersonExpenses } from '@/widgets/PersonExpenses';
 import { PersonOrders } from './PersonOrders';
 import { PersonRemovalPanel } from './PersonRemoval';
 import { PersonTeamRoles } from './PersonTeamRoles';

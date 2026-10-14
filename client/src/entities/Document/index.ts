@@ -19,3 +19,4 @@ export type {
     FileDocument,
     DocumentUploadInput,
 } from './model/types';
+export { openDocumentFile } from './lib/openDocumentFile';
