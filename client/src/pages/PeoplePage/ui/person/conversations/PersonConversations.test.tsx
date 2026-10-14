@@ -6,7 +6,11 @@ import { PersonConversations } from './PersonConversations';
 jest.mock('@/entities/Conversation', () => ({
     listConversations: jest.fn(), markConversationRead: jest.fn(),
 }));
-jest.mock('@/entities/Prompt', () => ({ listPrompts: jest.fn(() => Promise.resolve([])) }));
+// The request is replaced inside the entity, so its own choice of the reply prompts still runs.
+jest.mock('@/entities/Prompt/api/promptApi', () => ({
+    ...jest.requireActual('@/entities/Prompt/api/promptApi'),
+    listPrompts: jest.fn(() => Promise.resolve([])),
+}));
 jest.mock('@/entities/Provider', () => ({
     listProviders: jest.fn(() => Promise.resolve({ data: [{ id: 'm1', name: 'Info', type: 'EMAIL', provider: 'IMAP', status: 'CONNECTED', settings: {} }], total: 1 })),
 }));

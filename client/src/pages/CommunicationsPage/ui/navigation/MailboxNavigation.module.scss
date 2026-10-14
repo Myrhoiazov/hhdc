@@ -1,0 +1,113 @@
+.viewTabs {
+    display: flex;
+    min-height: 44px;
+    border-bottom: 1px solid var(--card-border-redesigned);
+    gap: 28px;
+
+    button {
+        position: relative;
+        padding: 8px 2px 12px;
+        font-weight: 600;
+        color: var(--sidebar-text-redesigned);
+        border-radius: 0;
+    }
+}
+
+.viewTabs .activeTab {
+    color: var(--sidebar-text-hover-redesigned);
+
+    &::after {
+        position: absolute;
+        right: 0;
+        bottom: -1px;
+        left: 0;
+        height: 3px;
+        background: var(--primary-redesigned);
+        border-radius: var(--radius-pill-redesigned);
+        content: '';
+    }
+}
+
+.accountOverview {
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+    background: var(--sidebar-bg-redesigned);
+    border: 1px solid var(--card-border-redesigned);
+    border-radius: var(--radius-lg-redesigned);
+    gap: 20px;
+}
+
+.sectionHeading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+
+    h2,
+    p {
+        margin: 0;
+    }
+
+    p {
+        color: var(--sidebar-text-redesigned);
+        margin-top: 6px;
+    }
+}
+
+.manageLink {
+    padding: 9px 14px;
+    color: var(--primary-redesigned);
+    border: 1px solid var(--primary-redesigned);
+    border-radius: var(--radius-sm-redesigned);
+}
+
+.accountGrid {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.accountCard {
+    display: grid;
+    align-items: center;
+    padding: 16px;
+    background: var(--sidebar-hover-bg-redesigned);
+    border: 1px solid var(--card-border-redesigned);
+    border-radius: var(--radius-md-redesigned);
+    gap: 12px;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+
+    p {
+        margin: 4px 0 0;
+        font-size: 12px;
+        color: var(--sidebar-text-redesigned);
+    }
+}
+
+.accountMark {
+    display: grid;
+    width: 40px;
+    height: 40px;
+    font-weight: 700;
+    color: var(--primary-redesigned);
+    background: var(--primary-soft-bg-redesigned);
+    border-radius: var(--radius-pill-redesigned);
+    place-items: center;
+}
+
+.accountStatus {
+    padding: 3px 9px;
+    font-size: 12px;
+    color: var(--success-text-redesigned);
+    background: var(--success-bg-redesigned);
+    border: 1px solid var(--success-text-redesigned);
+    border-radius: var(--radius-pill-redesigned);
+}
+
+@media (width <= 720px) {
+    .sectionHeading {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
