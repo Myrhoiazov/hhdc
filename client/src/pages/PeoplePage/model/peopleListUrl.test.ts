@@ -21,7 +21,9 @@ test('filters and the page survive the way into the address and back', () => {
 });
 
 test('values the list does not know are dropped instead of being sent to the server', () => {
-    const read = readPeopleList(new URLSearchParams('role=ADMIN&source=nowhere&purchases=maybe&page=-3'));
+    const read = readPeopleList(
+        new URLSearchParams('role=ADMIN&source=nowhere&purchases=maybe&page=-3')
+    );
     expect(read).toEqual({ filters: NO_FILTERS, page: 1 });
     expect(readPeopleList(new URLSearchParams('page=abc')).page).toBe(1);
 });

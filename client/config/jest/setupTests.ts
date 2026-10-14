@@ -22,15 +22,17 @@ if (typeof global.ResizeObserver === 'undefined') {
 // jsdom doesn't implement IntersectionObserver; useInfiniteScroll (Page, list pagination) needs it.
 // Tests that assert on intersection behavior itself still install their own mock to control it.
 if (typeof global.IntersectionObserver === 'undefined') {
-    global.IntersectionObserver = fromAny(class IntersectionObserver {
-        observe() {}
-        unobserve() {}
-        disconnect() {}
-        takeRecords(): IntersectionObserverEntry[] {
-            return [];
+    global.IntersectionObserver = fromAny(
+        class IntersectionObserver {
+            observe() {}
+            unobserve() {}
+            disconnect() {}
+            takeRecords(): IntersectionObserverEntry[] {
+                return [];
+            }
+            root = null;
+            rootMargin = '';
+            thresholds = [];
         }
-        root = null;
-        rootMargin = '';
-        thresholds = [];
-    });
+    );
 }

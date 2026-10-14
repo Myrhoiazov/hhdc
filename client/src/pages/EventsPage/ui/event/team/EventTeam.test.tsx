@@ -20,7 +20,9 @@ jest.mock('@/entities/EventTeam', () => ({
 }));
 jest.mock('@/entities/EventExpense', () => ({ createEventExpense: jest.fn() }));
 jest.mock('@/entities/Person', () => ({
-    ...jest.requireActual('@/entities/Person'), listPeople: jest.fn() }));
+    ...jest.requireActual('@/entities/Person'),
+    listPeople: jest.fn(),
+}));
 jest.mock('@/shared/lib/hooks/useDelayed/useDelayed', () => ({
     ...jest.requireActual('@/shared/lib/hooks/useDelayed/useDelayed'),
     useDelayed: (value: string) => value,

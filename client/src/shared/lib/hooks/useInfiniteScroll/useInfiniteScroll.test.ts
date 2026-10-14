@@ -11,10 +11,12 @@ describe('useInfiniteScroll', () => {
         observe = jest.fn();
         unobserve = jest.fn();
 
-        (global as unknown as { IntersectionObserver: unknown }).IntersectionObserver = jest.fn((callback) => {
-            intersectionCallback = callback;
-            return { observe, unobserve, disconnect: jest.fn() };
-        });
+        (global as unknown as { IntersectionObserver: unknown }).IntersectionObserver = jest.fn(
+            (callback) => {
+                intersectionCallback = callback;
+                return { observe, unobserve, disconnect: jest.fn() };
+            }
+        );
     });
 
     function makeRef<T extends HTMLElement>(element: T): RefObject<T> {
@@ -70,7 +72,9 @@ describe('useInfiniteScroll', () => {
         const triggerRef = makeRef(triggerElement);
         const callback = jest.fn();
 
-        const { unmount } = renderHook(() => useInfiniteScroll({ callback, wrapperRef, triggerRef }));
+        const { unmount } = renderHook(() =>
+            useInfiniteScroll({ callback, wrapperRef, triggerRef })
+        );
         unmount();
 
         expect(unobserve).toHaveBeenCalledWith(triggerElement);

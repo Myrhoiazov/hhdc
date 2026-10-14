@@ -2,20 +2,39 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { createReduxStore, ReduxStoreWithManager } from '@/app/providers/StoreProvider';
-import { applyConversationDisposition, approveDraft, composeEmail, Conversation, rejectDraft, replyToConversation, generateDraft, getConversation, listConversations, getUnreadByMailbox, markConversationRead } from '@/entities/Conversation';
+import {
+    applyConversationDisposition,
+    approveDraft,
+    composeEmail,
+    Conversation,
+    rejectDraft,
+    replyToConversation,
+    generateDraft,
+    getConversation,
+    listConversations,
+    getUnreadByMailbox,
+    markConversationRead,
+} from '@/entities/Conversation';
 import { listPrompts } from '@/entities/Prompt';
 import { listProviders } from '@/entities/Provider';
 import { CommunicationsPage } from './CommunicationsPage';
 
 jest.mock('@/entities/Person', () => ({
     ...jest.requireActual('@/entities/Person'),
-    isClient: (person?: { _count?: { orders: number } } | null) => (person?._count?.orders ?? 0) > 0,
+    isClient: (person?: { _count?: { orders: number } } | null) =>
+        (person?._count?.orders ?? 0) > 0,
 }));
 jest.mock('@/entities/Conversation', () => ({
-    listConversations: jest.fn(), getConversation: jest.fn(), replyToConversation: jest.fn(),
-    generateDraft: jest.fn(), approveDraft: jest.fn(), rejectDraft: jest.fn(),
-    applyConversationDisposition: jest.fn(), markConversationRead: jest.fn(),
-    composeEmail: jest.fn(), getUnreadByMailbox: jest.fn(),
+    listConversations: jest.fn(),
+    getConversation: jest.fn(),
+    replyToConversation: jest.fn(),
+    generateDraft: jest.fn(),
+    approveDraft: jest.fn(),
+    rejectDraft: jest.fn(),
+    applyConversationDisposition: jest.fn(),
+    markConversationRead: jest.fn(),
+    composeEmail: jest.fn(),
+    getUnreadByMailbox: jest.fn(),
 }));
 // The request is replaced inside the entity, so its own choice of the reply prompts still runs.
 jest.mock('@/entities/Prompt/api/promptApi', () => ({
@@ -24,19 +43,66 @@ jest.mock('@/entities/Prompt/api/promptApi', () => ({
 }));
 jest.mock('@/entities/Provider', () => ({ listProviders: jest.fn() }));
 
-const mailboxA = { id: 'mail-a', name: 'DDC NL', type: 'EMAIL', provider: 'IMAP', status: 'CONNECTED', settings: {} };
-const aiProvider = { id: 'ai-1', name: 'Ollama (local)', type: 'AI', provider: 'OLLAMA', status: 'CONNECTED', settings: { model: 'qwen3:1.7b' } };
-const mailboxB = { id: 'mail-b', name: 'Camp EU', type: 'EMAIL', provider: 'GMAIL', status: 'CONNECTED', settings: {} };
+const mailboxA = {
+    id: 'mail-a',
+    name: 'DDC NL',
+    type: 'EMAIL',
+    provider: 'IMAP',
+    status: 'CONNECTED',
+    settings: {},
+};
+const aiProvider = {
+    id: 'ai-1',
+    name: 'Ollama (local)',
+    type: 'AI',
+    provider: 'OLLAMA',
+    status: 'CONNECTED',
+    settings: { model: 'qwen3:1.7b' },
+};
+const mailboxB = {
+    id: 'mail-b',
+    name: 'Camp EU',
+    type: 'EMAIL',
+    provider: 'GMAIL',
+    status: 'CONNECTED',
+    settings: {},
+};
 const conversation: Conversation = {
-    id: 'conversation-a', subject: 'Ticket question', status: 'OPEN', lastMessageAt: '2026-10-07T10:00:00.000Z',
-    person: { id: 'person-a', firstName: 'Ada', lastName: 'Lovelace', email: 'ada@example.test', status: 'ACTIVE', roles: [] },
-    messages: [{ id: 'message-a', direction: 'INBOUND', sender: 'ada@example.test', recipient: 'info@example.test', bodyText: 'Can I join?', providerConnectionId: 'mail-a', createdAt: '2026-10-07T10:00:00.000Z' }],
+    id: 'conversation-a',
+    subject: 'Ticket question',
+    status: 'OPEN',
+    lastMessageAt: '2026-10-07T10:00:00.000Z',
+    person: {
+        id: 'person-a',
+        firstName: 'Ada',
+        lastName: 'Lovelace',
+        email: 'ada@example.test',
+        status: 'ACTIVE',
+        roles: [],
+    },
+    messages: [
+        {
+            id: 'message-a',
+            direction: 'INBOUND',
+            sender: 'ada@example.test',
+            recipient: 'info@example.test',
+            bodyText: 'Can I join?',
+            providerConnectionId: 'mail-a',
+            createdAt: '2026-10-07T10:00:00.000Z',
+        },
+    ],
     drafts: [],
 };
 
 const renderPage = () => {
     const store = createReduxStore() as ReduxStoreWithManager;
-    return render(<Provider store={store}><MemoryRouter><CommunicationsPage /></MemoryRouter></Provider>);
+    return render(
+        <Provider store={store}>
+            <MemoryRouter>
+                <CommunicationsPage />
+            </MemoryRouter>
+        </Provider>
+    );
 };
 
 beforeEach(() => {
@@ -46,7 +112,11 @@ beforeEach(() => {
     jest.mocked(getUnreadByMailbox).mockResolvedValue({});
     jest.mocked(listConversations).mockResolvedValue({ data: [conversation], total: 1 });
     jest.mocked(getConversation).mockResolvedValue(conversation);
-    jest.mocked(generateDraft).mockResolvedValue({ id: 'draft-a', content: 'AI answer', status: 'GENERATED' });
+    jest.mocked(generateDraft).mockResolvedValue({
+        id: 'draft-a',
+        content: 'AI answer',
+        status: 'GENERATED',
+    });
     jest.mocked(generateDraft).mockClear();
     jest.mocked(approveDraft).mockReset();
     jest.mocked(approveDraft).mockResolvedValue({} as never);
@@ -66,7 +136,13 @@ test('email workspace filters conversations by connected account', async () => {
     expect(screen.getByRole('button', { name: 'All inboxes' })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Camp EU' }));
 
-    await waitFor(() => expect(listConversations).toHaveBeenLastCalledWith({ providerConnectionId: 'mail-b' }, 1, 25));
+    await waitFor(() =>
+        expect(listConversations).toHaveBeenLastCalledWith(
+            { providerConnectionId: 'mail-b' },
+            1,
+            25
+        )
+    );
 });
 
 test('an AI draft lands in the reply field and sending it approves the edited text', async () => {
@@ -82,21 +158,33 @@ test('an AI draft lands in the reply field and sending it approves the edited te
     fireEvent.change(reply, { target: { value: 'AI answer, edited' } });
     fireEvent.click(screen.getByRole('button', { name: 'Send reply' }));
 
-    await waitFor(() => expect(approveDraft).toHaveBeenCalledWith('draft-a', 'AI answer, edited', []));
+    await waitFor(() =>
+        expect(approveDraft).toHaveBeenCalledWith('draft-a', 'AI answer, edited', [])
+    );
     expect(replyToConversation).not.toHaveBeenCalled();
 });
 
 test('a draft can be generated on a chosen provider and model, and discarded', async () => {
-    jest.mocked(listProviders).mockResolvedValue({ data: [mailboxA, mailboxB, aiProvider], total: 3 });
+    jest.mocked(listProviders).mockResolvedValue({
+        data: [mailboxA, mailboxB, aiProvider],
+        total: 3,
+    });
     renderPage();
 
     fireEvent.click(await screen.findByRole('button', { name: /Ticket question/ }));
-    fireEvent.change(await screen.findByLabelText('AI model for this reply (testing)'), { target: { value: 'ai-1' } });
+    fireEvent.change(await screen.findByLabelText('AI model for this reply (testing)'), {
+        target: { value: 'ai-1' },
+    });
     expect(screen.getByLabelText('Model')).toHaveAttribute('placeholder', 'qwen3:1.7b');
     fireEvent.change(screen.getByLabelText('Model'), { target: { value: 'gpt-4o-mini' } });
     fireEvent.click(screen.getByRole('button', { name: 'Generate AI draft' }));
 
-    await waitFor(() => expect(generateDraft).toHaveBeenCalledWith('conversation-a', { providerConnectionId: 'ai-1', model: 'gpt-4o-mini' }));
+    await waitFor(() =>
+        expect(generateDraft).toHaveBeenCalledWith('conversation-a', {
+            providerConnectionId: 'ai-1',
+            model: 'gpt-4o-mini',
+        })
+    );
     fireEvent.click(await screen.findByRole('button', { name: 'Discard AI draft' }));
     await waitFor(() => expect(rejectDraft).toHaveBeenCalledWith('draft-a'));
     await waitFor(() => expect(screen.getByLabelText('Reply message')).toHaveValue(''));
@@ -118,15 +206,22 @@ test('email workspace confirms and moves a conversation to spam', async () => {
     fireEvent.click(await screen.findByRole('button', { name: /Ticket question/ }));
     fireEvent.click(await screen.findByRole('button', { name: 'Move to spam' }));
 
-    await waitFor(() => expect(applyConversationDisposition).toHaveBeenCalledWith('conversation-a', 'SPAM'));
+    await waitFor(() =>
+        expect(applyConversationDisposition).toHaveBeenCalledWith('conversation-a', 'SPAM')
+    );
     expect(window.confirm).toHaveBeenCalledWith('Move this conversation to spam?');
 });
 
 test('an unread conversation is announced on the list and read when opened', async () => {
-    jest.mocked(listConversations).mockResolvedValue({ data: [{ ...conversation, unreadCount: 1 }], total: 1 });
+    jest.mocked(listConversations).mockResolvedValue({
+        data: [{ ...conversation, unreadCount: 1 }],
+        total: 1,
+    });
     renderPage();
 
-    const item = await screen.findByRole('button', { name: 'Unread — ada@example.test — Ticket question' });
+    const item = await screen.findByRole('button', {
+        name: 'Unread — ada@example.test — Ticket question',
+    });
     expect(item).toBeInTheDocument();
     expect(markConversationRead).not.toHaveBeenCalled();
 
@@ -138,10 +233,14 @@ test('an unread conversation is announced on the list and read when opened', asy
 });
 
 test('email workspace loads and appends another conversation page', async () => {
-    const secondConversation = { ...conversation, id: 'conversation-b', subject: 'Second question' };
-    jest.mocked(listConversations).mockImplementation(async (_filters, page) => (
+    const secondConversation = {
+        ...conversation,
+        id: 'conversation-b',
+        subject: 'Second question',
+    };
+    jest.mocked(listConversations).mockImplementation(async (_filters, page) =>
         page === 2 ? { data: [secondConversation], total: 2 } : { data: [conversation], total: 2 }
-    ));
+    );
     renderPage();
 
     expect(await screen.findByText('Ticket question')).toBeInTheDocument();
@@ -154,10 +253,15 @@ test('email workspace loads and appends another conversation page', async () => 
 });
 
 test('email workspace keeps loaded pages when a conversation is opened', async () => {
-    const secondConversation = { ...conversation, id: 'conversation-b', subject: 'Second question', unreadCount: 1 };
-    jest.mocked(listConversations).mockImplementation(async (_filters, page) => (
+    const secondConversation = {
+        ...conversation,
+        id: 'conversation-b',
+        subject: 'Second question',
+        unreadCount: 1,
+    };
+    jest.mocked(listConversations).mockImplementation(async (_filters, page) =>
         page === 2 ? { data: [secondConversation], total: 2 } : { data: [conversation], total: 2 }
-    ));
+    );
     renderPage();
 
     fireEvent.click(await screen.findByRole('button', { name: 'Load more' }));
@@ -170,11 +274,17 @@ test('email workspace keeps loaded pages when a conversation is opened', async (
 });
 
 test('email workspace returns to the first page when the mailbox changes', async () => {
-    const secondConversation = { ...conversation, id: 'conversation-b', subject: 'Second question' };
+    const secondConversation = {
+        ...conversation,
+        id: 'conversation-b',
+        subject: 'Second question',
+    };
     const filtered = { ...conversation, id: 'conversation-c', subject: 'Camp EU question' };
     jest.mocked(listConversations).mockImplementation(async (filters, page) => {
         if (filters?.providerConnectionId) return { data: [filtered], total: 1 };
-        return page === 2 ? { data: [secondConversation], total: 2 } : { data: [conversation], total: 2 };
+        return page === 2
+            ? { data: [secondConversation], total: 2 }
+            : { data: [conversation], total: 2 };
     });
     renderPage();
 
@@ -204,17 +314,37 @@ test('a reply carries the attached file', async () => {
     renderPage();
 
     fireEvent.click(await screen.findByRole('button', { name: /Ticket question/ }));
-    fireEvent.change(await screen.findByLabelText('Reply message'), { target: { value: 'Here is the price list' } });
+    fireEvent.change(await screen.findByLabelText('Reply message'), {
+        target: { value: 'Here is the price list' },
+    });
     fireEvent.change(screen.getByLabelText('Attach file'), { target: { files: [price] } });
     fireEvent.click(screen.getByRole('button', { name: 'Send reply' }));
 
-    await waitFor(() => expect(replyToConversation).toHaveBeenCalledWith('conversation-a', 'Here is the price list', 'mail-a', [price]));
+    await waitFor(() =>
+        expect(replyToConversation).toHaveBeenCalledWith(
+            'conversation-a',
+            'Here is the price list',
+            'mail-a',
+            [price]
+        )
+    );
 });
 
 test('files sent with a message are listed in the thread', async () => {
-    jest.mocked(getConversation).mockResolvedValue({ ...conversation, messages: [{
-        ...conversation.messages![0], direction: 'OUTBOUND', rawData: { attachments: [{ filename: 'price.pdf', contentType: 'application/pdf', size: 20480 }] },
-    }] });
+    jest.mocked(getConversation).mockResolvedValue({
+        ...conversation,
+        messages: [
+            {
+                ...conversation.messages![0],
+                direction: 'OUTBOUND',
+                rawData: {
+                    attachments: [
+                        { filename: 'price.pdf', contentType: 'application/pdf', size: 20480 },
+                    ],
+                },
+            },
+        ],
+    });
     renderPage();
 
     fireEvent.click(await screen.findByRole('button', { name: /Ticket question/ }));
@@ -224,25 +354,48 @@ test('files sent with a message are listed in the thread', async () => {
 });
 
 test('the list tells sent, new and opened letters apart', async () => {
-    const sent = { ...conversation, id: 'conversation-s', subject: 'Our offer', messages: [{ ...conversation.messages![0], id: 'message-s', direction: 'OUTBOUND' }] };
-    const fresh = { ...conversation, id: 'conversation-n', subject: 'Fresh question', unreadCount: 1 };
-    jest.mocked(listConversations).mockResolvedValue({ data: [sent, fresh, conversation], total: 3 });
+    const sent = {
+        ...conversation,
+        id: 'conversation-s',
+        subject: 'Our offer',
+        messages: [{ ...conversation.messages![0], id: 'message-s', direction: 'OUTBOUND' }],
+    };
+    const fresh = {
+        ...conversation,
+        id: 'conversation-n',
+        subject: 'Fresh question',
+        unreadCount: 1,
+    };
+    jest.mocked(listConversations).mockResolvedValue({
+        data: [sent, fresh, conversation],
+        total: 3,
+    });
     renderPage();
 
     const sentItem = await screen.findByRole('button', { name: 'Sent — Our offer' });
     expect(sentItem).toHaveTextContent('To: ada@example.test');
     expect(sentItem).not.toHaveTextContent('Incoming');
-    const freshItem = screen.getByRole('button', { name: 'Unread — ada@example.test — Fresh question' });
+    const freshItem = screen.getByRole('button', {
+        name: 'Unread — ada@example.test — Fresh question',
+    });
     expect(freshItem).toHaveTextContent('Incoming');
     expect(freshItem).toHaveTextContent('New');
     expect(screen.getByRole('button', { name: 'Ticket question' })).toHaveTextContent('Opened');
 });
 
 test('an AI draft says when a person has to check it', async () => {
-    jest.mocked(getConversation).mockResolvedValue({ ...conversation, drafts: [{
-        id: 'draft-r', content: 'Draft text', status: 'GENERATED', confidence: 0.3,
-        contextSnapshot: { needsStaffReview: true, warnings: ['no_current_facts'] },
-    }] });
+    jest.mocked(getConversation).mockResolvedValue({
+        ...conversation,
+        drafts: [
+            {
+                id: 'draft-r',
+                content: 'Draft text',
+                status: 'GENERATED',
+                confidence: 0.3,
+                contextSnapshot: { needsStaffReview: true, warnings: ['no_current_facts'] },
+            },
+        ],
+    });
     renderPage();
 
     fireEvent.click(await screen.findByRole('button', { name: /Ticket question/ }));
@@ -253,10 +406,29 @@ test('an AI draft says when a person has to check it', async () => {
 });
 
 test('a draft can be written with a saved reply prompt that is not active yet', async () => {
-    jest.mocked(listProviders).mockResolvedValue({ data: [mailboxA, mailboxB, aiProvider], total: 3 });
+    jest.mocked(listProviders).mockResolvedValue({
+        data: [mailboxA, mailboxB, aiProvider],
+        total: 3,
+    });
     jest.mocked(listPrompts).mockResolvedValue([
-        { id: 'prompt-2', key: 'email_draft_body', version: 2, purpose: 'Shorter tone', systemPrompt: 'Answer briefly.', status: 'DRAFT', createdAt: '2026-10-07T10:00:00.000Z' },
-        { id: 'prompt-c', key: 'email_classification', version: 1, purpose: 'Classifier', systemPrompt: 'Classify.', status: 'ACTIVE', createdAt: '2026-10-07T10:00:00.000Z' },
+        {
+            id: 'prompt-2',
+            key: 'email_draft_body',
+            version: 2,
+            purpose: 'Shorter tone',
+            systemPrompt: 'Answer briefly.',
+            status: 'DRAFT',
+            createdAt: '2026-10-07T10:00:00.000Z',
+        },
+        {
+            id: 'prompt-c',
+            key: 'email_classification',
+            version: 1,
+            purpose: 'Classifier',
+            systemPrompt: 'Classify.',
+            status: 'ACTIVE',
+            createdAt: '2026-10-07T10:00:00.000Z',
+        },
     ]);
     renderPage();
 
@@ -267,11 +439,16 @@ test('a draft can be written with a saved reply prompt that is not active yet', 
     fireEvent.change(prompt, { target: { value: 'prompt-2' } });
     fireEvent.click(screen.getByRole('button', { name: 'Generate AI draft' }));
 
-    await waitFor(() => expect(generateDraft).toHaveBeenCalledWith('conversation-a', { draftPromptId: 'prompt-2' }));
+    await waitFor(() =>
+        expect(generateDraft).toHaveBeenCalledWith('conversation-a', { draftPromptId: 'prompt-2' })
+    );
 });
 
 test('people who cannot read prompt versions still get the reply form', async () => {
-    jest.mocked(listProviders).mockResolvedValue({ data: [mailboxA, mailboxB, aiProvider], total: 3 });
+    jest.mocked(listProviders).mockResolvedValue({
+        data: [mailboxA, mailboxB, aiProvider],
+        total: 3,
+    });
     jest.mocked(listPrompts).mockRejectedValue(new Error('Permission required'));
     renderPage();
 
@@ -283,13 +460,19 @@ test('people who cannot read prompt versions still get the reply form', async ()
 
 test('a letter from a person with purchases is labelled as a client in the list and in the thread', async () => {
     const buyer = { ...conversation.person!, _count: { orders: 2 } };
-    jest.mocked(listConversations).mockResolvedValue({ data: [{ ...conversation, person: buyer }], total: 1 });
+    jest.mocked(listConversations).mockResolvedValue({
+        data: [{ ...conversation, person: buyer }],
+        total: 1,
+    });
     jest.mocked(getConversation).mockResolvedValue({ ...conversation, person: buyer });
     renderPage();
 
     fireEvent.click(await screen.findByRole('button', { name: /Ticket question/ }));
     await waitFor(() => expect(screen.getAllByText('Client')).toHaveLength(2));
-    expect(screen.getByRole('link', { name: 'Open contact card' })).toHaveAttribute('href', '/people/person-a');
+    expect(screen.getByRole('link', { name: 'Open contact card' })).toHaveAttribute(
+        'href',
+        '/people/person-a'
+    );
 });
 
 test('a letter from someone without purchases has no client label', async () => {
@@ -301,7 +484,10 @@ test('a letter from someone without purchases has no client label', async () => 
 
 test('each mailbox tab shows how many conversations are unread, and the number is reloaded after reading one', async () => {
     jest.mocked(getUnreadByMailbox).mockResolvedValue({ 'mail-a': 2, 'mail-b': 1 });
-    jest.mocked(listConversations).mockResolvedValue({ data: [{ ...conversation, unreadCount: 1 }], total: 1 });
+    jest.mocked(listConversations).mockResolvedValue({
+        data: [{ ...conversation, unreadCount: 1 }],
+        total: 1,
+    });
     renderPage();
 
     expect(await screen.findByRole('button', { name: 'DDC NL — Unread: 2' })).toBeInTheDocument();
@@ -309,7 +495,9 @@ test('each mailbox tab shows how many conversations are unread, and the number i
     expect(screen.getByRole('button', { name: 'All inboxes — Unread: 3' })).toBeInTheDocument();
 
     jest.mocked(getUnreadByMailbox).mockResolvedValue({ 'mail-a': 1, 'mail-b': 1 });
-    fireEvent.click(screen.getByRole('button', { name: 'Unread — ada@example.test — Ticket question' }));
+    fireEvent.click(
+        screen.getByRole('button', { name: 'Unread — ada@example.test — Ticket question' })
+    );
 
     expect(await screen.findByRole('button', { name: 'DDC NL — Unread: 1' })).toBeInTheDocument();
 });
@@ -324,7 +512,10 @@ test('a reply names the mailbox the letter came to and offers no other one', asy
 });
 
 test('a thread that no mailbox owns still lets the sender be chosen', async () => {
-    jest.mocked(getConversation).mockResolvedValue({ ...conversation, messages: [{ ...conversation.messages![0], providerConnectionId: null }] });
+    jest.mocked(getConversation).mockResolvedValue({
+        ...conversation,
+        messages: [{ ...conversation.messages![0], providerConnectionId: null }],
+    });
     renderPage();
     fireEvent.click(await screen.findByRole('button', { name: 'Ticket question' }));
 
@@ -333,11 +524,17 @@ test('a thread that no mailbox owns still lets the sender be chosen', async () =
 
 test('opening another conversation shows only its own letters', async () => {
     const other: Conversation = {
-        ...conversation, id: 'conversation-b', subject: 'Stall request',
-        messages: [{ ...conversation.messages![0], id: 'message-b', bodyText: 'May I put up a stall?' }],
+        ...conversation,
+        id: 'conversation-b',
+        subject: 'Stall request',
+        messages: [
+            { ...conversation.messages![0], id: 'message-b', bodyText: 'May I put up a stall?' },
+        ],
     };
     jest.mocked(listConversations).mockResolvedValue({ data: [conversation, other], total: 2 });
-    jest.mocked(getConversation).mockImplementation(async (id) => (id === other.id ? other : conversation));
+    jest.mocked(getConversation).mockImplementation(async (id) =>
+        id === other.id ? other : conversation
+    );
     const errors = jest.spyOn(console, 'error').mockImplementation(() => undefined);
     renderPage();
 
@@ -345,7 +542,9 @@ test('opening another conversation shows only its own letters', async () => {
     expect(await screen.findByRole('article')).toHaveTextContent('Can I join?');
     fireEvent.click(screen.getByRole('button', { name: /Stall request/ }));
 
-    await waitFor(() => expect(screen.getByRole('article')).toHaveTextContent('May I put up a stall?'));
+    await waitFor(() =>
+        expect(screen.getByRole('article')).toHaveTextContent('May I put up a stall?')
+    );
     expect(errors.mock.calls.flat().join(' ')).not.toMatch(/same key/);
     errors.mockRestore();
 });

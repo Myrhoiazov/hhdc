@@ -19,5 +19,11 @@ test('a time alone leaves the date out', () => {
 });
 
 test('a long date names the day, the month and the year', () => {
-    expect(formatLongDate(moment)).toBe(new Date(moment).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }));
+    expect(formatLongDate(moment)).toBe(
+        new Date(moment).toLocaleDateString(undefined, {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric',
+        })
+    );
 });

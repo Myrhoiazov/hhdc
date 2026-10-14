@@ -7,5 +7,5 @@ import { hasPermission } from './hasPermission';
 // What the signed-in user may do: `const can = useCan(); can('finance.read')`.
 export const useCan = (): Can => {
     const held = useSelector(getUserPermissions);
-    return useCallback(permission => hasPermission(held, permission), [held]);
+    return useCallback((permission) => hasPermission(held, permission), [held]);
 };

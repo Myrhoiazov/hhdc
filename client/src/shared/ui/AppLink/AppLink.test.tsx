@@ -7,7 +7,7 @@ describe('AppLink', () => {
         render(
             <MemoryRouter>
                 <AppLink to="/clients">Clients</AppLink>
-            </MemoryRouter>,
+            </MemoryRouter>
         );
 
         const link = screen.getByText('Clients');
@@ -19,7 +19,7 @@ describe('AppLink', () => {
         render(
             <MemoryRouter>
                 <AppLink to="/clients">Clients</AppLink>
-            </MemoryRouter>,
+            </MemoryRouter>
         );
 
         expect(screen.getByText('Clients')).toHaveClass('primary');
@@ -28,8 +28,10 @@ describe('AppLink', () => {
     test('applies the given theme class', () => {
         render(
             <MemoryRouter>
-                <AppLink to="/clients" theme={AppLinkTheme.RED}>Clients</AppLink>
-            </MemoryRouter>,
+                <AppLink to="/clients" theme={AppLinkTheme.RED}>
+                    Clients
+                </AppLink>
+            </MemoryRouter>
         );
 
         expect(screen.getByText('Clients')).toHaveClass('red');

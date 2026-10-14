@@ -25,5 +25,5 @@ export const resendTwoFactorCode = createAsyncThunk<void, void, ThunkConfig<Rese
                 retryAfterSeconds: retryAfterSecondsOf(error),
             });
         }
-    },
+    }
 );

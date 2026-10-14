@@ -19,18 +19,41 @@ export const AttachmentPicker = memo(({ files, disabled, onChange }: AttachmentP
         setError(selection.error);
         onChange(selection.files);
     };
-    return <div className={cls.AttachmentPicker}>
-        <label className={cls.attachButton}>
-            <input className={cls.srOnly} type="file" multiple disabled={disabled} onChange={onPick} />
-            {t('Attach file')}
-        </label>
-        {error && <span role="alert" className={cls.attachmentError}>{t(error)}</span>}
-        {files.length > 0 && <ul className={cls.attachmentList} aria-label={t('Attachments')}>
-            {files.map((file) => <li key={`${file.name}:${file.size}`}>
-                <span>{file.name}</span><small>{formatFileSize(file.size)}</small>
-                <button type="button" disabled={disabled} aria-label={`${t('Remove')} ${file.name}`}
-                    onClick={() => onChange(files.filter((kept) => kept !== file))}>×</button>
-            </li>)}
-        </ul>}
-    </div>;
+    return (
+        <div className={cls.AttachmentPicker}>
+            <label className={cls.attachButton}>
+                <input
+                    className={cls.srOnly}
+                    type="file"
+                    multiple
+                    disabled={disabled}
+                    onChange={onPick}
+                />
+                {t('Attach file')}
+            </label>
+            {error && (
+                <span role="alert" className={cls.attachmentError}>
+                    {t(error)}
+                </span>
+            )}
+            {files.length > 0 && (
+                <ul className={cls.attachmentList} aria-label={t('Attachments')}>
+                    {files.map((file) => (
+                        <li key={`${file.name}:${file.size}`}>
+                            <span>{file.name}</span>
+                            <small>{formatFileSize(file.size)}</small>
+                            <button
+                                type="button"
+                                disabled={disabled}
+                                aria-label={`${t('Remove')} ${file.name}`}
+                                onClick={() => onChange(files.filter((kept) => kept !== file))}
+                            >
+                                ×
+                            </button>
+                        </li>
+                    ))}
+                </ul>
+            )}
+        </div>
+    );
 });

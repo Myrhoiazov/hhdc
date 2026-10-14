@@ -1,6 +1,11 @@
 import { COUNTRIES_SHOWN, foldCountries } from './foldCountries';
 
-const country = (index: number) => ({ code: `C${index}`, buyers: 10, tickets: 20, revenue: '100.50' });
+const country = (index: number) => ({
+    code: `C${index}`,
+    buyers: 10,
+    tickets: 20,
+    revenue: '100.50',
+});
 
 test('a short list is shown whole', () => {
     const countries = [country(1), country(2)];

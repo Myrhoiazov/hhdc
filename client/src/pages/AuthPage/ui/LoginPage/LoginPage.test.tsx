@@ -19,7 +19,7 @@ describe('LoginPage', () => {
                 <MemoryRouter>
                     <LoginPage />
                 </MemoryRouter>
-            </Provider>,
+            </Provider>
         );
 
         // LoginForm is imported as its lazy/Suspense variant here (no Suspense

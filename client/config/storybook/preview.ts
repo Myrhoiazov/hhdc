@@ -1,4 +1,4 @@
-import type { Preview } from '@storybook/react'
+import type { Preview } from '@storybook/react';
 // The styles of the application belong to its top layer, so the stories take them here, not through `shared`.
 import '../../src/app/styles/index.scss';
 import { ThemeDecorator } from '../../src/shared/config/storybook/ThemeDecorator/ThemeDecorator';

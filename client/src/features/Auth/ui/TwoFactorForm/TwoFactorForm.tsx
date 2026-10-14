@@ -27,34 +27,35 @@ export interface TwoFactorFormProps {
     onBack: () => void;
 }
 
-export const TwoFactorForm = memo(({ className, maskedEmail, onSuccess, onBack }: TwoFactorFormProps) => {
-    const { t } = useTranslation();
-    const [error, setError] = useState<string>();
-    const {
-        code, trustDevice, setTrustDevice, isVerifying, onChangeCode, onSubmit,
-    } = useTwoFactorVerify(setError, onSuccess);
-    const { isResending, resendMessage, secondsLeft, onResend } = useTwoFactorResend(setError);
+export const TwoFactorForm = memo(
+    ({ className, maskedEmail, onSuccess, onBack }: TwoFactorFormProps) => {
+        const { t } = useTranslation();
+        const [error, setError] = useState<string>();
+        const { code, trustDevice, setTrustDevice, isVerifying, onChangeCode, onSubmit } =
+            useTwoFactorVerify(setError, onSuccess);
+        const { isResending, resendMessage, secondsLeft, onResend } = useTwoFactorResend(setError);
 
-    return (
-        <Card className={classNames(cls.TwoFactorForm, {}, [className])} padding="40">
-            <form onSubmit={onSubmit}>
-                <TwoFactorFormHeader maskedEmail={maskedEmail} />
-                <TwoFactorFormFields code={code} onChangeCode={onChangeCode} />
-                <CheckBox
-                    value={trustDevice}
-                    onChange={setTrustDevice}
-                    label={t('Запомнить это устройство на 30 дней')}
-                />
-                <FormMessage error={error} success={!error ? resendMessage : undefined} />
-                <TwoFactorFormActions
-                    isVerifying={isVerifying}
-                    codeLength={code.length}
-                    isResending={isResending}
-                    secondsLeft={secondsLeft}
-                    onResend={onResend}
-                    onBack={onBack}
-                />
-            </form>
-        </Card>
-    );
-});
+        return (
+            <Card className={classNames(cls.TwoFactorForm, {}, [className])} padding="40">
+                <form onSubmit={onSubmit}>
+                    <TwoFactorFormHeader maskedEmail={maskedEmail} />
+                    <TwoFactorFormFields code={code} onChangeCode={onChangeCode} />
+                    <CheckBox
+                        value={trustDevice}
+                        onChange={setTrustDevice}
+                        label={t('Запомнить это устройство на 30 дней')}
+                    />
+                    <FormMessage error={error} success={!error ? resendMessage : undefined} />
+                    <TwoFactorFormActions
+                        isVerifying={isVerifying}
+                        codeLength={code.length}
+                        isResending={isResending}
+                        secondsLeft={secondsLeft}
+                        onResend={onResend}
+                        onBack={onBack}
+                    />
+                </form>
+            </Card>
+        );
+    }
+);

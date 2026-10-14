@@ -7,30 +7,79 @@ import { EventPeople } from './EventPeople';
 
 jest.mock('@/entities/Event', () => ({ assignChoreographer: jest.fn() }));
 jest.mock('@/entities/Registration', () => ({
-    listEventRegistrations: jest.fn(), registerPerson: jest.fn(), REGISTRATIONS_PAGE_SIZE: 20,
+    listEventRegistrations: jest.fn(),
+    registerPerson: jest.fn(),
+    REGISTRATIONS_PAGE_SIZE: 20,
     REGISTRATION_STATUSES: ['PENDING', 'CONFIRMED', 'CHECKED_IN', 'CANCELLED', 'NO_SHOW'],
 }));
 jest.mock('@/entities/Person', () => ({
-    ...jest.requireActual('@/entities/Person'), listPeople: jest.fn() }));
+    ...jest.requireActual('@/entities/Person'),
+    listPeople: jest.fn(),
+}));
 jest.mock('@/shared/lib/hooks/useDelayed/useDelayed', () => ({
-    ...jest.requireActual('@/shared/lib/hooks/useDelayed/useDelayed'), useDelayed: (value: string) => value,
+    ...jest.requireActual('@/shared/lib/hooks/useDelayed/useDelayed'),
+    useDelayed: (value: string) => value,
 }));
 
-const person = { id: 'p1', displayName: 'Anna Berg', firstName: 'Anna', lastName: 'Berg', email: 'anna@example.test', phone: '+31600000001', country: 'Nederland' };
-const registration = (id: string, overrides: Partial<EventRegistration> = {}): EventRegistration => ({
-    id, status: 'CONFIRMED', registrationSource: 'WEEZTIX', createdAt: '2026-10-08T15:00:00Z', person, ticket: { ticketType: 'Early Bird | Full Pass', status: 'VALID' }, ...overrides,
+const person = {
+    id: 'p1',
+    displayName: 'Anna Berg',
+    firstName: 'Anna',
+    lastName: 'Berg',
+    email: 'anna@example.test',
+    phone: '+31600000001',
+    country: 'Nederland',
+};
+const registration = (
+    id: string,
+    overrides: Partial<EventRegistration> = {}
+): EventRegistration => ({
+    id,
+    status: 'CONFIRMED',
+    registrationSource: 'WEEZTIX',
+    createdAt: '2026-10-08T15:00:00Z',
+    person,
+    ticket: { ticketType: 'Early Bird | Full Pass', status: 'VALID' },
+    ...overrides,
 });
 const event: Event = {
-    id: 'e1', name: 'Dance Camp', slug: 'dance-camp', status: 'PUBLISHED', startAt: '2027-05-21T10:00:00Z', endAt: '2027-05-23T18:00:00Z', timezone: 'Europe/Amsterdam',
-    choreographers: [{ id: 'c1', status: 'CONFIRMED', roleTitle: 'Choreographer', person: { id: 'p9', firstName: 'Mila', lastName: 'Novak', email: 'mila@example.test', status: 'ACTIVE', roles: [] } }],
+    id: 'e1',
+    name: 'Dance Camp',
+    slug: 'dance-camp',
+    status: 'PUBLISHED',
+    startAt: '2027-05-21T10:00:00Z',
+    endAt: '2027-05-23T18:00:00Z',
+    timezone: 'Europe/Amsterdam',
+    choreographers: [
+        {
+            id: 'c1',
+            status: 'CONFIRMED',
+            roleTitle: 'Choreographer',
+            person: {
+                id: 'p9',
+                firstName: 'Mila',
+                lastName: 'Novak',
+                email: 'mila@example.test',
+                status: 'ACTIVE',
+                roles: [],
+            },
+        },
+    ],
 };
 const NO_FILTERS = { q: '', status: '' };
 const onSaved = jest.fn();
-const renderPeople = (shown: Event = event) => render(<MemoryRouter><EventPeople event={shown} onSaved={onSaved} /></MemoryRouter>);
+const renderPeople = (shown: Event = event) =>
+    render(
+        <MemoryRouter>
+            <EventPeople event={shown} onSaved={onSaved} />
+        </MemoryRouter>
+    );
 
 beforeEach(() => {
     onSaved.mockReset();
-    jest.mocked(listEventRegistrations).mockReset().mockResolvedValue({ data: [registration('r1')], total: 1 });
+    jest.mocked(listEventRegistrations)
+        .mockReset()
+        .mockResolvedValue({ data: [registration('r1')], total: 1 });
     jest.mocked(listPeople).mockReset().mockResolvedValue({ data: [], total: 0 });
     jest.mocked(registerPerson).mockReset().mockResolvedValue({});
 });
@@ -42,34 +91,67 @@ test('a registered person is a table row like on the people page, with the ticke
     const link = await within(list).findByRole('link', { name: 'Anna Berg' });
     expect(link).toHaveAttribute('href', '/people/p1');
     const row = link.closest('tr') as HTMLElement;
-    for (const text of ['anna@example.test', '+31600000001', 'Nederland', 'Early Bird | Full Pass', 'CONFIRMED']) expect(within(row).getByText(text)).toBeInTheDocument();
+    for (const text of [
+        'anna@example.test',
+        '+31600000001',
+        'Nederland',
+        'Early Bird | Full Pass',
+        'CONFIRMED',
+    ])
+        expect(within(row).getByText(text)).toBeInTheDocument();
     expect(listEventRegistrations).toHaveBeenCalledWith('e1', NO_FILTERS, 1);
 });
 
 test('the list is searched, filtered by status and paged', async () => {
     // Twenty people a page: forty-one make three pages. The pager stands above the table and under it.
-    jest.mocked(listEventRegistrations).mockResolvedValue({ data: [registration('r1')], total: 41 });
+    jest.mocked(listEventRegistrations).mockResolvedValue({
+        data: [registration('r1')],
+        total: 41,
+    });
     renderPeople();
     const list = await screen.findByRole('region', { name: 'Registrations' });
 
     const next = () => within(list).getAllByRole('button', { name: 'Next page' });
     await within(list).findByRole('table');
     expect(next()).toHaveLength(2);
-    expect(list.querySelector('nav')?.compareDocumentPosition(within(list).getByRole('table')) ?? 0).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(
+        list.querySelector('nav')?.compareDocumentPosition(within(list).getByRole('table')) ?? 0
+    ).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
     fireEvent.click(next()[0]);
-    await waitFor(() => expect(listEventRegistrations).toHaveBeenLastCalledWith('e1', NO_FILTERS, 2));
+    await waitFor(() =>
+        expect(listEventRegistrations).toHaveBeenLastCalledWith('e1', NO_FILTERS, 2)
+    );
     expect(next()[1]).toBeEnabled();
     fireEvent.click(next()[1]);
-    await waitFor(() => expect(listEventRegistrations).toHaveBeenLastCalledWith('e1', NO_FILTERS, 3));
+    await waitFor(() =>
+        expect(listEventRegistrations).toHaveBeenLastCalledWith('e1', NO_FILTERS, 3)
+    );
     await waitFor(() => expect(next()[0]).toBeDisabled());
     fireEvent.change(within(list).getByLabelText('Status'), { target: { value: 'CHECKED_IN' } });
-    await waitFor(() => expect(listEventRegistrations).toHaveBeenLastCalledWith('e1', { q: '', status: 'CHECKED_IN' }, 1));
-    fireEvent.change(within(list).getByLabelText('Search by name, email or phone'), { target: { value: 'anna' } });
-    await waitFor(() => expect(listEventRegistrations).toHaveBeenLastCalledWith('e1', { q: 'anna', status: 'CHECKED_IN' }, 1));
+    await waitFor(() =>
+        expect(listEventRegistrations).toHaveBeenLastCalledWith(
+            'e1',
+            { q: '', status: 'CHECKED_IN' },
+            1
+        )
+    );
+    fireEvent.change(within(list).getByLabelText('Search by name, email or phone'), {
+        target: { value: 'anna' },
+    });
+    await waitFor(() =>
+        expect(listEventRegistrations).toHaveBeenLastCalledWith(
+            'e1',
+            { q: 'anna', status: 'CHECKED_IN' },
+            1
+        )
+    );
 });
 
 test('twenty registrations or fewer fit one page, so there is no pager', async () => {
-    jest.mocked(listEventRegistrations).mockResolvedValue({ data: [registration('r1')], total: 20 });
+    jest.mocked(listEventRegistrations).mockResolvedValue({
+        data: [registration('r1')],
+        total: 20,
+    });
     renderPeople();
     const list = await screen.findByRole('region', { name: 'Registrations' });
 
@@ -80,7 +162,10 @@ test('twenty registrations or fewer fit one page, so there is no pager', async (
 test('choreographers are listed with their role, or the page says none are assigned', async () => {
     const { unmount } = renderPeople();
     const list = await screen.findByRole('region', { name: 'Choreographers' });
-    expect(within(list).getByRole('link', { name: 'Mila Novak' })).toHaveAttribute('href', '/people/choreographers/p9/events');
+    expect(within(list).getByRole('link', { name: 'Mila Novak' })).toHaveAttribute(
+        'href',
+        '/people/choreographers/p9/events'
+    );
     expect(within(list).getByText('Choreographer')).toBeInTheDocument();
     unmount();
 
@@ -89,7 +174,20 @@ test('choreographers are listed with their role, or the page says none are assig
 });
 
 test('a person is found by typing and registered; the list is then read again', async () => {
-    jest.mocked(listPeople).mockResolvedValue({ data: [{ id: 'p2', firstName: 'Bo', lastName: 'Lind', displayName: 'Bo Lind', email: 'bo@example.test', status: 'ACTIVE', roles: [] }], total: 1 });
+    jest.mocked(listPeople).mockResolvedValue({
+        data: [
+            {
+                id: 'p2',
+                firstName: 'Bo',
+                lastName: 'Lind',
+                displayName: 'Bo Lind',
+                email: 'bo@example.test',
+                status: 'ACTIVE',
+                roles: [],
+            },
+        ],
+        total: 1,
+    });
     renderPeople();
     const form = await screen.findByRole('region', { name: 'Add a person to the event' });
     expect(within(form).getByRole('button', { name: 'Register participant' })).toBeDisabled();

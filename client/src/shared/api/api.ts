@@ -5,14 +5,20 @@ import axios from 'axios';
 let onUnauthorized: (() => void) | undefined;
 let csrfToken: string | null = null;
 const unsafeMethods = new Set(['post', 'put', 'patch', 'delete']);
-export const setUnauthorizedHandler = (handler: (() => void) | undefined) => { onUnauthorized = handler; };
+export const setUnauthorizedHandler = (handler: (() => void) | undefined) => {
+    onUnauthorized = handler;
+};
 export const csrfActions = {
-    reset: () => { csrfToken = null; },
-    set: (token: string) => { csrfToken = token; },
+    reset: () => {
+        csrfToken = null;
+    },
+    set: (token: string) => {
+        csrfToken = token;
+    },
 };
 export const $api = axios.create({ baseURL: `${__API__}/api/v1`, withCredentials: true });
 export const $apiPrivate = axios.create({ baseURL: `${__API__}/api/v1`, withCredentials: true });
-$apiPrivate.interceptors.request.use(async config => {
+$apiPrivate.interceptors.request.use(async (config) => {
     if (unsafeMethods.has((config.method || 'get').toLowerCase())) {
         if (!csrfToken) {
             const result = await $api.get<{ data: { csrfToken: string } }>('/auth/me');
@@ -22,11 +28,17 @@ $apiPrivate.interceptors.request.use(async config => {
     }
     return config;
 });
-$apiPrivate.interceptors.response.use(response => response, error => {
-    if (error.response?.status === 401) { csrfActions.reset(); onUnauthorized?.(); }
-    // The server explains a refusal in `error.message`. Screens show `cause.message`, so the reason
-    // replaces the generic "Request failed with status code 400".
-    const reason = error.response?.data?.error?.message;
-    if (typeof reason === 'string' && reason) error.message = reason;
-    return Promise.reject(error);
-});
+$apiPrivate.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response?.status === 401) {
+            csrfActions.reset();
+            onUnauthorized?.();
+        }
+        // The server explains a refusal in `error.message`. Screens show `cause.message`, so the reason
+        // replaces the generic "Request failed with status code 400".
+        const reason = error.response?.data?.error?.message;
+        if (typeof reason === 'string' && reason) error.message = reason;
+        return Promise.reject(error);
+    }
+);

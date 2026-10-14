@@ -9,7 +9,7 @@ export class ApiError extends Error {
     constructor(
         public readonly status: number,
         message: string,
-        public readonly fieldErrors: Record<string, string[]> = {},
+        public readonly fieldErrors: Record<string, string[]> = {}
     ) {
         super(message);
     }
@@ -25,10 +25,11 @@ export const apiFetch = async <T>(path: string, options: RequestInit = {}): Prom
 
     const response = await fetch(`/api/v1${path}`, { ...options, credentials: 'omit', headers });
     if (!response.ok) {
-        const body = await response.json().catch(() => ({})) as ApiFailureBody;
-        const message = response.status === 401 || response.status === 403
-            ? 'Нет доступа'
-            : body.message ?? `Ошибка запроса (${response.status})`;
+        const body = (await response.json().catch(() => ({}))) as ApiFailureBody;
+        const message =
+            response.status === 401 || response.status === 403
+                ? 'Нет доступа'
+                : (body.message ?? `Ошибка запроса (${response.status})`);
         throw new ApiError(response.status, message, body.details?.fieldErrors);
     }
     return response.json() as Promise<T>;

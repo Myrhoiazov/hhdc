@@ -34,23 +34,33 @@ const useLoginSubmit = (
     credentials: { email: string; password: string },
     captchaRequired: boolean,
     captcha: ReturnType<typeof useCaptchaChallenge>,
-    deps: { dispatch: ReturnType<typeof useAppDispatch>; onSuccess?: () => void; setPendingMaskedEmail: (value: string | undefined) => void },
+    deps: {
+        dispatch: ReturnType<typeof useAppDispatch>;
+        onSuccess?: () => void;
+        setPendingMaskedEmail: (value: string | undefined) => void;
+    }
 ) => {
     const { email, password } = credentials;
     const { captchaTokenRef, clearCaptchaToken } = captcha;
     const { dispatch, onSuccess, setPendingMaskedEmail } = deps;
 
-    const onChangeEmail = useCallback((value: string) => {
-        dispatch(loginActions.cleanError());
-        clearCaptchaToken(true);
-        dispatch(loginActions.setUseremail(value));
-    }, [clearCaptchaToken, dispatch]);
+    const onChangeEmail = useCallback(
+        (value: string) => {
+            dispatch(loginActions.cleanError());
+            clearCaptchaToken(true);
+            dispatch(loginActions.setUseremail(value));
+        },
+        [clearCaptchaToken, dispatch]
+    );
 
-    const onChangePassword = useCallback((value: string) => {
-        dispatch(loginActions.cleanError());
-        clearCaptchaToken(true);
-        dispatch(loginActions.setPassword(value));
-    }, [clearCaptchaToken, dispatch]);
+    const onChangePassword = useCallback(
+        (value: string) => {
+            dispatch(loginActions.cleanError());
+            clearCaptchaToken(true);
+            dispatch(loginActions.setPassword(value));
+        },
+        [clearCaptchaToken, dispatch]
+    );
 
     const onLoginClick = useCallback(async () => {
         const captchaTokenValue = captchaTokenRef.current;
@@ -70,12 +80,24 @@ const useLoginSubmit = (
         } else {
             onSuccess?.();
         }
-    }, [captchaRequired, clearCaptchaToken, onSuccess, dispatch, password, email, captchaTokenRef, setPendingMaskedEmail]);
+    }, [
+        captchaRequired,
+        clearCaptchaToken,
+        onSuccess,
+        dispatch,
+        password,
+        email,
+        captchaTokenRef,
+        setPendingMaskedEmail,
+    ]);
 
-    const onSubmit = useCallback((event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        void onLoginClick();
-    }, [onLoginClick]);
+    const onSubmit = useCallback(
+        (event: FormEvent<HTMLFormElement>) => {
+            event.preventDefault();
+            void onLoginClick();
+        },
+        [onLoginClick]
+    );
 
     return { onChangeEmail, onChangePassword, onSubmit };
 };
@@ -94,7 +116,7 @@ export const useLoginForm = ({ onSuccess }: UseLoginFormParams) => {
         { email, password },
         captchaRequired,
         captcha,
-        { dispatch, onSuccess, setPendingMaskedEmail },
+        { dispatch, onSuccess, setPendingMaskedEmail }
     );
 
     const onBackToCredentials = useCallback(() => {

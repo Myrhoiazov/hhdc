@@ -9,10 +9,21 @@ jest.mock('@/entities/Provider', () => ({
 }));
 
 const connection = (overrides: Partial<ProviderConnection>): ProviderConnection => ({
-    id: 'p1', name: 'Ollama (local)', type: 'AI', provider: 'OLLAMA', status: 'CONNECTED', settings: { model: 'qwen3' }, ...overrides,
+    id: 'p1',
+    name: 'Ollama (local)',
+    type: 'AI',
+    provider: 'OLLAMA',
+    status: 'CONNECTED',
+    settings: { model: 'qwen3' },
+    ...overrides,
 });
 const local = connection({});
-const cloud = connection({ id: 'p2', name: 'openai', provider: 'OPENAI', settings: { model: 'gpt-5' } });
+const cloud = connection({
+    id: 'p2',
+    name: 'openai',
+    provider: 'OPENAI',
+    settings: { model: 'gpt-5' },
+});
 const refresh = jest.fn();
 const option = (name: RegExp) => screen.getByRole('radio', { name });
 
@@ -31,7 +42,9 @@ test('the oldest connected provider is shown as active until another one is chos
 });
 
 test('the chosen provider is shown as active even when it is not the oldest', () => {
-    render(<AiSwitch providers={[local, { ...cloud, activeForGeneration: true }]} refresh={refresh} />);
+    render(
+        <AiSwitch providers={[local, { ...cloud, activeForGeneration: true }]} refresh={refresh} />
+    );
 
     expect(option(/openai/)).toBeChecked();
     expect(option(/Ollama \(local\)/)).not.toBeChecked();
@@ -59,17 +72,23 @@ test('nothing is switched when the question is declined or the active provider i
 });
 
 test('a refused switch shows the reason', async () => {
-    jest.mocked(activateAiProvider).mockRejectedValue(new Error('Enable the provider before choosing it'));
+    jest.mocked(activateAiProvider).mockRejectedValue(
+        new Error('Enable the provider before choosing it')
+    );
     render(<AiSwitch providers={[local, cloud]} refresh={refresh} />);
 
     fireEvent.click(option(/openai/));
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('Enable the provider before choosing it');
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+        'Enable the provider before choosing it'
+    );
     expect(refresh).not.toHaveBeenCalled();
 });
 
 test('a switched-off provider is not offered and the switch hides when none can answer', () => {
-    const { rerender } = render(<AiSwitch providers={[local, { ...cloud, status: 'DISABLED' }]} refresh={refresh} />);
+    const { rerender } = render(
+        <AiSwitch providers={[local, { ...cloud, status: 'DISABLED' }]} refresh={refresh} />
+    );
     expect(screen.getAllByRole('radio')).toHaveLength(1);
 
     rerender(<AiSwitch providers={[{ ...local, status: 'DISABLED' }]} refresh={refresh} />);

@@ -33,10 +33,7 @@ describe('userSlice', () => {
 
     test('stores the user and marks inited on initAuthData.fulfilled', () => {
         const initialState: UserSchema = { _inited: false };
-        const state = userReducer(
-            initialState,
-            initAuthData.fulfilled(user, 'requestId'),
-        );
+        const state = userReducer(initialState, initAuthData.fulfilled(user, 'requestId'));
 
         expect(state.authData).toEqual(user);
         expect(state._inited).toBe(true);
@@ -46,7 +43,7 @@ describe('userSlice', () => {
         const initialState: UserSchema = { _inited: false, authData: user };
         const state = userReducer(
             initialState,
-            initAuthData.rejected(new Error('fail'), 'requestId', undefined, 'error'),
+            initAuthData.rejected(new Error('fail'), 'requestId', undefined, 'error')
         );
 
         expect(state.authData).toBeUndefined();

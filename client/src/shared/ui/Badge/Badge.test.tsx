@@ -10,14 +10,18 @@ test('a badge without a tone is neutral', () => {
     expect(badge).not.toHaveClass('danger');
 });
 
-test.each(['success', 'danger'] as const)('a %s badge takes the colour of its tone', tone => {
+test.each(['success', 'danger'] as const)('a %s badge takes the colour of its tone', (tone) => {
     render(<Badge tone={tone}>Paid</Badge>);
 
     expect(screen.getByText('Paid')).toHaveClass('Badge', tone);
 });
 
 test('a class of the owner is added to the shared one', () => {
-    render(<Badge className="role" title="Role">Staff</Badge>);
+    render(
+        <Badge className="role" title="Role">
+            Staff
+        </Badge>
+    );
 
     expect(screen.getByTitle('Role')).toHaveClass('Badge', 'role');
 });

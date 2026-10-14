@@ -20,8 +20,13 @@ function renderForm(props: Partial<React.ComponentProps<typeof TwoFactorForm>> =
         onBack,
         ...render(
             <Provider store={store}>
-                <TwoFactorForm maskedEmail="d***@example.com" onSuccess={onSuccess} onBack={onBack} {...props} />
-            </Provider>,
+                <TwoFactorForm
+                    maskedEmail="d***@example.com"
+                    onSuccess={onSuccess}
+                    onBack={onBack}
+                    {...props}
+                />
+            </Provider>
         ),
     };
 }
@@ -56,7 +61,18 @@ test('strips non-digit characters and truncates to 6', () => {
 
 test('calls onSuccess after a successful verification', async () => {
     ($api.post as jest.Mock).mockResolvedValue({
-        data: { data: { user: { id: '1', name: 'Team', email: 'd@example.com', roles: ['OWNER'], permissions: [] }, csrfToken: 'test-csrf' } },
+        data: {
+            data: {
+                user: {
+                    id: '1',
+                    name: 'Team',
+                    email: 'd@example.com',
+                    roles: ['OWNER'],
+                    permissions: [],
+                },
+                csrfToken: 'test-csrf',
+            },
+        },
     });
     const { onSuccess } = renderForm();
 
@@ -68,9 +84,15 @@ test('calls onSuccess after a successful verification', async () => {
 });
 
 test('shows an error message when verification fails', async () => {
-    const error = new Error('Invalid') as Error & { isAxiosError: boolean; response: { status: number; data: unknown } };
+    const error = new Error('Invalid') as Error & {
+        isAxiosError: boolean;
+        response: { status: number; data: unknown };
+    };
     error.isAxiosError = true;
-    error.response = { status: 401, data: { error: { code: 'TWO_FACTOR_INVALID_CODE', message: 'Wrong confirmation code' } } };
+    error.response = {
+        status: 401,
+        data: { error: { code: 'TWO_FACTOR_INVALID_CODE', message: 'Wrong confirmation code' } },
+    };
     ($api.post as jest.Mock).mockRejectedValue(error);
     renderForm();
 

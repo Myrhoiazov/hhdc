@@ -10,7 +10,9 @@ beforeEach(() => {
     URL.revokeObjectURL = jest.fn();
     window.open = jest.fn();
 });
-afterEach(() => { jest.useRealTimers(); });
+afterEach(() => {
+    jest.useRealTimers();
+});
 
 test('the file is fetched with the session and opened in a new tab', async () => {
     await openDocumentFile('doc-1', 2);

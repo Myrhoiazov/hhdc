@@ -5,7 +5,6 @@ import { Skeleton } from '../Skeleton/Skeleton';
 import UserIcon from '../../assets/icons/user-filled.svg';
 import { AppImage } from '../AppImage';
 
-
 interface AvatarProps {
     className?: string;
     src?: string;
@@ -21,7 +20,7 @@ export const Avatar = ({ className, src, size = 100, alt }: AvatarProps) => {
             width: size,
             height: size,
         }),
-        [size],
+        [size]
     );
 
     const fallback = <Skeleton width={size} height={size} border="50%" />;

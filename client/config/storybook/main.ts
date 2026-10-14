@@ -7,7 +7,7 @@ const SRC = path.resolve(__dirname, '..', '..', 'src');
 
 // Storybook's own rule turns an SVG into a file; the application imports it as a component.
 const withoutSvg = (rule: RuleSetRule): RuleSetRule =>
-    (rule.test instanceof RegExp && rule.test.test('.svg') ? { ...rule, exclude: /\.svg$/i } : rule);
+    rule.test instanceof RegExp && rule.test.test('.svg') ? { ...rule, exclude: /\.svg$/i } : rule;
 
 const config: StorybookConfig = {
     stories: ['../../src/**/*.stories.@(js|jsx|mjs|ts|tsx)'],
@@ -20,7 +20,7 @@ const config: StorybookConfig = {
     framework: { name: '@storybook/react-webpack5', options: {} },
     // The stories are built the way the application is: the `@/` alias, SCSS modules, SVG
     // components and the constants webpack defines.
-    webpackFinal: async webpackConfig => {
+    webpackFinal: async (webpackConfig) => {
         const rules = (webpackConfig.module?.rules ?? []) as RuleSetRule[];
         return {
             ...webpackConfig,

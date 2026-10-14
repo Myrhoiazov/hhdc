@@ -2,7 +2,13 @@ import { activeAiProvider, generationCandidates } from './activeAi';
 import { ProviderConnection } from './types';
 
 const connection = (id: string, change: Partial<ProviderConnection> = {}): ProviderConnection => ({
-    id, name: id, type: 'AI', provider: 'OPENAI', status: 'CONNECTED', settings: {}, ...change,
+    id,
+    name: id,
+    type: 'AI',
+    provider: 'OPENAI',
+    status: 'CONNECTED',
+    settings: {},
+    ...change,
 });
 
 test('only connected AI providers that can write answers are candidates, in the order given', () => {
@@ -14,7 +20,7 @@ test('only connected AI providers that can write answers are candidates, in the 
         connection('openai'),
     ];
 
-    expect(generationCandidates(providers).map(item => item.id)).toEqual(['ollama', 'openai']);
+    expect(generationCandidates(providers).map((item) => item.id)).toEqual(['ollama', 'openai']);
 });
 
 test('the chosen provider answers', () => {

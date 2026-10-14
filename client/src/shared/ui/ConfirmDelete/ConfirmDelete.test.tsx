@@ -36,7 +36,12 @@ test('cancelling goes back without deleting', () => {
 });
 
 test('a refusal is shown next to the buttons when nobody takes it', async () => {
-    render(<ConfirmDelete label="Delete Anna" onDelete={jest.fn().mockRejectedValue(new Error('Has orders'))} />);
+    render(
+        <ConfirmDelete
+            label="Delete Anna"
+            onDelete={jest.fn().mockRejectedValue(new Error('Has orders'))}
+        />
+    );
 
     ask();
     confirm();
@@ -46,7 +51,13 @@ test('a refusal is shown next to the buttons when nobody takes it', async () => 
 
 test('a refusal is handed to the owner and the question is closed', async () => {
     const onError = jest.fn();
-    render(<ConfirmDelete label="Delete Anna" onDelete={jest.fn().mockRejectedValue(new Error('Has orders'))} onError={onError} />);
+    render(
+        <ConfirmDelete
+            label="Delete Anna"
+            onDelete={jest.fn().mockRejectedValue(new Error('Has orders'))}
+            onError={onError}
+        />
+    );
 
     ask();
     confirm();

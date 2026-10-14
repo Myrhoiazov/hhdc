@@ -45,7 +45,13 @@ const handleFileChange = (files: FileList | null, onChange?: (value: File | File
     }
 };
 
-const buildMods = (isFocused: boolean, readonly?: boolean, fullWidth?: boolean, addonLeft?: ReactNode, addonRight?: ReactNode): Mods => ({
+const buildMods = (
+    isFocused: boolean,
+    readonly?: boolean,
+    fullWidth?: boolean,
+    addonLeft?: ReactNode,
+    addonRight?: ReactNode
+): Mods => ({
     [cls.readonly]: readonly,
     [cls.focused]: isFocused,
     [cls.fullWidth]: fullWidth,
@@ -108,15 +114,15 @@ const InputControl = memo((props: InputControlProps) => {
     );
 });
 
-const createChangeHandler = (type: string, onChange: InputProps['onChange']) => (
-    e: React.ChangeEvent<HTMLInputElement>
-) => {
-    if (type === 'file') {
-        handleFileChange(e.target.files, onChange as (value: File | File[]) => void);
-    } else {
-        (onChange as (value: string | number) => void)?.(e.target.value);
-    }
-};
+const createChangeHandler =
+    (type: string, onChange: InputProps['onChange']) =>
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (type === 'file') {
+            handleFileChange(e.target.files, onChange as (value: File | File[]) => void);
+        } else {
+            (onChange as (value: string | number) => void)?.(e.target.value);
+        }
+    };
 
 export const Input = memo((props: InputProps) => {
     const {

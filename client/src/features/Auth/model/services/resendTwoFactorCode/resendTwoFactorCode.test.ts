@@ -11,10 +11,18 @@ beforeEach(() => {
     extra.api.post.mockClear();
 });
 
-function axiosError(status: number, message?: string, headers?: Record<string, string>): AxiosError {
+function axiosError(
+    status: number,
+    message?: string,
+    headers?: Record<string, string>
+): AxiosError {
     const error = new Error(message) as AxiosError;
     error.isAxiosError = true;
-    error.response = { status, data: message ? { error: { code: 'TWO_FACTOR_RESEND_COOLDOWN', message } } : undefined, headers } as never;
+    error.response = {
+        status,
+        data: message ? { error: { code: 'TWO_FACTOR_RESEND_COOLDOWN', message } } : undefined,
+        headers,
+    } as never;
     return error;
 }
 
@@ -28,12 +36,20 @@ test('posts the resend request and fulfills on success', async () => {
 });
 
 test('rejects with the server message and retryAfterSeconds from headers', async () => {
-    extra.api.post.mockRejectedValue(axiosError(429, 'Wait 30 s before sending the code again', { 'retry-after': '30' }));
+    extra.api.post.mockRejectedValue(
+        axiosError(429, 'Wait 30 s before sending the code again', { 'retry-after': '30' })
+    );
 
     const result = await resendTwoFactorCode()(dispatch, () => ({}) as never, extra as never);
 
     expect(result.meta.requestStatus).toBe('rejected');
-    expect(result.payload).toEqual(expect.objectContaining({ status: 429, message: 'Wait 30 s before sending the code again', retryAfterSeconds: 30 }));
+    expect(result.payload).toEqual(
+        expect.objectContaining({
+            status: 429,
+            message: 'Wait 30 s before sending the code again',
+            retryAfterSeconds: 30,
+        })
+    );
 });
 
 test('rejects with a generic message for a non-axios error', async () => {
@@ -41,5 +57,7 @@ test('rejects with a generic message for a non-axios error', async () => {
 
     const result = await resendTwoFactorCode()(dispatch, () => ({}) as never, extra as never);
 
-    expect(result.payload).toEqual(expect.objectContaining({ status: 500, message: 'Unknown error' }));
+    expect(result.payload).toEqual(
+        expect.objectContaining({ status: 500, message: 'Unknown error' })
+    );
 });

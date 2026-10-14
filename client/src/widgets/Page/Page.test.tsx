@@ -21,7 +21,7 @@ function renderPage(props: Partial<React.ComponentProps<typeof Page>> = {}, rout
                 <MemoryRouter initialEntries={[route]}>
                     <Page {...props}>content</Page>
                 </MemoryRouter>
-            </Provider>,
+            </Provider>
         ),
     };
 }
@@ -75,7 +75,7 @@ describe('Page', () => {
                 <MemoryRouter initialEntries={['/clients']}>
                     <Page>content</Page>
                 </MemoryRouter>
-            </Provider>,
+            </Provider>
         );
 
         act(() => {

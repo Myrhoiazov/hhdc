@@ -7,9 +7,7 @@ import { useTheme } from './useTheme';
 
 function renderWithTheme(theme?: Theme, setTheme = jest.fn()) {
     const wrapper = ({ children }: { children: ReactNode }) => (
-        <ThemeContext.Provider value={{ theme, setTheme }}>
-            {children}
-        </ThemeContext.Provider>
+        <ThemeContext.Provider value={{ theme, setTheme }}>{children}</ThemeContext.Provider>
     );
     return { setTheme, ...renderHook(() => useTheme(), { wrapper }) };
 }

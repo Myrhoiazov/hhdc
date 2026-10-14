@@ -9,16 +9,20 @@ interface SidebarItemGroupCollapsedProps {
     isChildActive: boolean;
 }
 
-export const SidebarItemGroupCollapsed = memo(({ item, isChildActive }: SidebarItemGroupCollapsedProps) => (
-    <div className={cls.collapsedGroup}>
-        <div className={classNames(cls.trigger, { [cls.active]: isChildActive })}>
-            <Icon
-                Svg={item.Icon}
-                width={20}
-                height={20}
-                className={classNames(cls.icon, {}, [item.iconColor === 'stroke' ? cls.iconStroke : cls.iconFill])}
-                color={item.iconColor ?? 'fill'}
-            />
+export const SidebarItemGroupCollapsed = memo(
+    ({ item, isChildActive }: SidebarItemGroupCollapsedProps) => (
+        <div className={cls.collapsedGroup}>
+            <div className={classNames(cls.trigger, { [cls.active]: isChildActive })}>
+                <Icon
+                    Svg={item.Icon}
+                    width={20}
+                    height={20}
+                    className={classNames(cls.icon, {}, [
+                        item.iconColor === 'stroke' ? cls.iconStroke : cls.iconFill,
+                    ])}
+                    color={item.iconColor ?? 'fill'}
+                />
+            </div>
         </div>
-    </div>
-));
+    )
+);

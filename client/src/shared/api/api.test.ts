@@ -1,16 +1,26 @@
 import { AxiosAdapter, AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { $api, $apiPrivate, csrfActions, setUnauthorizedHandler } from './api';
 
-const respond = (config: InternalAxiosRequestConfig, status: number, data: unknown = {}): AxiosResponse => (
-    { config, status, data, statusText: '', headers: {} }
-);
-const refuse = (status: number, data: unknown = {}): AxiosAdapter => async config => {
-    throw new AxiosError('Request failed', String(status), config, undefined, respond(config, status, data));
-};
-const accept: AxiosAdapter = async config => respond(config, 200);
+const respond = (
+    config: InternalAxiosRequestConfig,
+    status: number,
+    data: unknown = {}
+): AxiosResponse => ({ config, status, data, statusText: '', headers: {} });
+const refuse =
+    (status: number, data: unknown = {}): AxiosAdapter =>
+    async (config) => {
+        throw new AxiosError(
+            'Request failed',
+            String(status),
+            config,
+            undefined,
+            respond(config, status, data)
+        );
+    };
+const accept: AxiosAdapter = async (config) => respond(config, 200);
 
 let tokenRequests = 0;
-const giveToken: AxiosAdapter = async config => {
+const giveToken: AxiosAdapter = async (config) => {
     tokenRequests += 1;
     return respond(config, 200, { data: { csrfToken: `token-${tokenRequests}` } });
 };

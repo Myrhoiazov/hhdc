@@ -16,7 +16,8 @@ interface PageEnvelope<T> {
     meta: { total: number };
 }
 
-export const readData = async <T>(path: string) => (await $apiPrivate.get<Envelope<T>>(path)).data.data;
+export const readData = async <T>(path: string) =>
+    (await $apiPrivate.get<Envelope<T>>(path)).data.data;
 
 export const readPage = async <T>(path: string): Promise<PageResult<T>> => {
     const result = (await $apiPrivate.get<PageEnvelope<T>>(path)).data;

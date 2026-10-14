@@ -9,23 +9,27 @@ interface VerifyTwoFactorCodeProps {
     trustDevice?: boolean;
 }
 
-export const verifyTwoFactorCode = createAsyncThunk<User, VerifyTwoFactorCodeProps, ThunkConfig<ServerError>>(
-    'login/verifyTwoFactorCode',
-    async (payload, thunkAPI) => {
-        const { dispatch, extra, rejectWithValue } = thunkAPI;
-        try {
-            const response = await extra.api.post<{data: SessionResponse}>('/auth/login/2fa/verify', payload);
+export const verifyTwoFactorCode = createAsyncThunk<
+    User,
+    VerifyTwoFactorCodeProps,
+    ThunkConfig<ServerError>
+>('login/verifyTwoFactorCode', async (payload, thunkAPI) => {
+    const { dispatch, extra, rejectWithValue } = thunkAPI;
+    try {
+        const response = await extra.api.post<{ data: SessionResponse }>(
+            '/auth/login/2fa/verify',
+            payload
+        );
 
-            if (!response.data) {
-                throw new Error('No data received');
-            }
-
-            const { user, csrfToken } = response.data.data;
-            csrfActions.set(csrfToken);
-            dispatch(userActions.setAuthData(user));
-            return user;
-        } catch (error) {
-            return rejectWithValue(readServerError(error, 'Не удалось подтвердить код.'));
+        if (!response.data) {
+            throw new Error('No data received');
         }
-    },
-);
+
+        const { user, csrfToken } = response.data.data;
+        csrfActions.set(csrfToken);
+        dispatch(userActions.setAuthData(user));
+        return user;
+    } catch (error) {
+        return rejectWithValue(readServerError(error, 'Не удалось подтвердить код.'));
+    }
+});

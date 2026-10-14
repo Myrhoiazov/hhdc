@@ -1,7 +1,9 @@
 import { fullNameOf } from './fullName';
 
 test('the name a person goes by comes first', () => {
-    expect(fullNameOf({ displayName: 'Jojo', firstName: 'Joanna', lastName: 'Gomez' })).toBe('Jojo');
+    expect(fullNameOf({ displayName: 'Jojo', firstName: 'Joanna', lastName: 'Gomez' })).toBe(
+        'Jojo'
+    );
 });
 
 test('without it the first and last names are joined', () => {
