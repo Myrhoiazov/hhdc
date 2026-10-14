@@ -2,9 +2,10 @@ import { fireEvent, render, screen, waitFor, within } from '@testing-library/rea
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { addPersonRole, getPerson, getPersonActivity, Person, removePersonRole, savePerson } from '@/entities/Person';
 import { listPersonTeamRoles } from '@/entities/EventTeam';
-import { PersonPage } from './PeoplePage';
+import { PersonPage } from './PersonPage';
 
 jest.mock('@/entities/Person', () => ({
+    ...jest.requireActual('@/entities/Person'),
     getPerson: jest.fn(), getPersonActivity: jest.fn(), savePerson: jest.fn(),
     addPersonRole: jest.fn(), removePersonRole: jest.fn(),
     PERSON_ROLES: ['CUSTOMER', 'PARTICIPANT', 'CHOREOGRAPHER', 'STAFF', 'PARTNER'],
@@ -14,10 +15,10 @@ jest.mock('@/entities/EventTeam', () => ({ listPersonTeamRoles: jest.fn() }));
 jest.mock('react-redux', () => ({ useSelector: () => ({ permissions: [] }) }));
 jest.mock('@/entities/User', () => ({ getUserAuthData: jest.fn(), useCan: () => () => false }));
 jest.mock('@/widgets/Page/Page', () => ({ Page: ({ children }: { children: React.ReactNode }) => <div>{children}</div> }));
-jest.mock('./PersonConversations', () => ({ PersonConversations: () => null }));
+jest.mock('./conversations/PersonConversations', () => ({ PersonConversations: () => null }));
 jest.mock('@/widgets/PersonExpenses', () => ({ PersonExpenses: () => null }));
-jest.mock('./PersonOrders', () => ({ PersonOrders: () => null }));
-jest.mock('./PersonRemoval', () => ({ PersonRemovalPanel: () => null }));
+jest.mock('./orders/PersonOrders', () => ({ PersonOrders: () => null }));
+jest.mock('../PersonRemoval', () => ({ PersonRemovalPanel: () => null }));
 
 const anna: Person = { id: 'p1', firstName: 'Anna', lastName: 'Berg', displayName: 'Anna Berg', email: 'anna@example.test', phone: null, status: 'ACTIVE', roles: [{ role: 'CUSTOMER' }] };
 

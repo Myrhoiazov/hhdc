@@ -45,7 +45,8 @@ jest.mock('@/entities/Choreographer', () => ({
     updateChoreographerNote: jest.fn(), removeChoreographerNote: jest.fn(),
     listChoreographerTasks: jest.fn(), addChoreographerTask: jest.fn(),
 }));
-jest.mock('@/entities/Person', () => ({ listPeople: jest.fn() }));
+jest.mock('@/entities/Person', () => ({
+    ...jest.requireActual('@/entities/Person'), listPeople: jest.fn() }));
 jest.mock('@/entities/Event', () => ({ listEvents: jest.fn() }));
 jest.mock('@/entities/Conversation', () => ({ listConversations: jest.fn() }));
 jest.mock('@/entities/Document', () => ({

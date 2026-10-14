@@ -19,7 +19,8 @@ jest.mock('@/entities/EventTeam', () => ({
     TEAM_PERSON_ROLES: ['STAFF', 'PARTNER'],
 }));
 jest.mock('@/entities/EventExpense', () => ({ createEventExpense: jest.fn() }));
-jest.mock('@/entities/Person', () => ({ listPeople: jest.fn() }));
+jest.mock('@/entities/Person', () => ({
+    ...jest.requireActual('@/entities/Person'), listPeople: jest.fn() }));
 jest.mock('@/shared/lib/hooks/useDelayed/useDelayed', () => ({
     ...jest.requireActual('@/shared/lib/hooks/useDelayed/useDelayed'),
     useDelayed: (value: string) => value,

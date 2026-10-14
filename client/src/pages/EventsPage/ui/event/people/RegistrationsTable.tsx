@@ -4,11 +4,11 @@ import { useTranslation } from 'react-i18next';
 import { EventRegistration } from '@/entities/Registration';
 import { StatusBadge } from '@/shared/ui/StatusBadge';
 import { listStyles as own } from '@/shared/ui/ListTable';
-import { personName } from '../../../model/personName';
+import { fullNameOf } from '@/entities/Person';
 
 const RegistrationRow = memo(({ registration }: { registration: EventRegistration }) => {
     const { person } = registration;
-    const name = personName(person);
+    const name = fullNameOf(person) || '—';
     return (
         <tr>
             <td>

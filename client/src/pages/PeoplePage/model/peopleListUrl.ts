@@ -8,9 +8,11 @@ const PURCHASES = ['yes', 'no'] as const;
 
 // The address is typed by hand as well: a value the list does not know is no filter at all.
 const oneOf = <Value extends string>(value: string | null, allowed: readonly Value[]): Value | '' =>
-    allowed.find(item => item === value) ?? '';
+    allowed.find((item) => item === value) ?? '';
 
-export const readPeopleList = (params: URLSearchParams): { filters: PeopleFilters; page: number } => ({
+export const readPeopleList = (
+    params: URLSearchParams
+): { filters: PeopleFilters; page: number } => ({
     filters: {
         q: params.get('q') ?? '',
         role: oneOf(params.get('role'), PERSON_ROLES),
@@ -23,7 +25,9 @@ export const readPeopleList = (params: URLSearchParams): { filters: PeopleFilter
 // Only what differs from the plain list is written, so the plain list keeps the plain address.
 export const writePeopleList = (filters: PeopleFilters, page: number) => {
     const params = new URLSearchParams();
-    Object.entries(filters).forEach(([key, value]) => { if (value) params.set(key, value); });
+    Object.entries(filters).forEach(([key, value]) => {
+        if (value) params.set(key, value);
+    });
     if (page > 1) params.set('page', String(page));
     return params.toString();
 };

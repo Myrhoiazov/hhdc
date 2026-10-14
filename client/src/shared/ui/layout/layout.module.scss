@@ -80,3 +80,15 @@
     font-family: monospace;
     overflow-wrap: anywhere;
 }
+
+/* Read by screen readers, not shown: the label of a control that is clear from what surrounds it. */
+.srOnly {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    border: 0;
+    clip: rect(0, 0, 0, 0);
+    overflow: hidden;
+    white-space: nowrap;
+}

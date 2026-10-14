@@ -1,9 +1,10 @@
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { deletePerson, listPeoplePage, Person } from '@/entities/Person';
-import { PeoplePage } from './PeopleList';
+import { PeoplePage } from './PeoplePage';
 
 jest.mock('@/entities/Person', () => ({
+    ...jest.requireActual('@/entities/Person'),
     listPeoplePage: jest.fn(), deletePerson: jest.fn(),
     PERSON_ROLES: ['CUSTOMER', 'PARTICIPANT', 'CHOREOGRAPHER', 'STAFF', 'PARTNER'],
     PERSON_SOURCES: ['WEEZTIX', 'EMAIL', 'MANUAL', 'IMPORT', 'SYSTEM'],

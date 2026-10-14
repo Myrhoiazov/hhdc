@@ -8,6 +8,7 @@ import { listProviders } from '@/entities/Provider';
 import { CommunicationsPage } from './CommunicationsPage';
 
 jest.mock('@/entities/Person', () => ({
+    ...jest.requireActual('@/entities/Person'),
     isClient: (person?: { _count?: { orders: number } } | null) => (person?._count?.orders ?? 0) > 0,
 }));
 jest.mock('@/entities/Conversation', () => ({

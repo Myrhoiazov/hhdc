@@ -14,12 +14,17 @@ export const PersonTeamRoles = memo(({ personId }: { personId: string }) => {
     const load = useCallback(() => listPersonTeamRoles(personId), [personId]);
     const roles = useResource(load);
     if (!roles.error && !roles.data?.length) return null;
-    return <Panel aria-label={t('Work on events')}><h2>{t('Work on events')}</h2>
-        <RequestState error={roles.error} loading={false} />
-        {roles.data?.map(role => <div className={cls.row} key={role.id}>
-            <Link to={`/events/${role.event.id}`}>{role.event.name}</Link>
-            <span>{role.roleTitle}</span>
-            <span className={cls.muted}>{formatDate(role.event.startAt)}</span>
-        </div>)}
-    </Panel>;
+    return (
+        <Panel aria-label={t('Work on events')}>
+            <h2>{t('Work on events')}</h2>
+            <RequestState error={roles.error} loading={false} />
+            {roles.data?.map((role) => (
+                <div className={cls.row} key={role.id}>
+                    <Link to={`/events/${role.event.id}`}>{role.event.name}</Link>
+                    <span>{role.roleTitle}</span>
+                    <span className={cls.muted}>{formatDate(role.event.startAt)}</span>
+                </div>
+            ))}
+        </Panel>
+    );
 });

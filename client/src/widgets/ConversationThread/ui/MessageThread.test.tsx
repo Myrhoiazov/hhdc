@@ -2,14 +2,21 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { Message } from '@/entities/Conversation';
 import { MessageThread } from './MessageThread';
 
-
-
 const letter = (id: string, bodyText: string, extra: Partial<Message> = {}): Message => ({
-    id, direction: 'INBOUND', sender: `${id}@example.test`, recipient: 'info@example.test', bodyText,
-    createdAt: '2026-10-07T10:00:00.000Z', ...extra,
+    id,
+    direction: 'INBOUND',
+    sender: `${id}@example.test`,
+    recipient: 'info@example.test',
+    bodyText,
+    createdAt: '2026-10-07T10:00:00.000Z',
+    ...extra,
 });
 
-const thread = [letter('first', 'Is the camp sold out?'), letter('second', 'Any news?'), letter('third', 'Thank you!')];
+const thread = [
+    letter('first', 'Is the camp sold out?'),
+    letter('second', 'Any news?'),
+    letter('third', 'Thank you!'),
+];
 
 // The test i18n mock does not interpolate the sender, so headers are addressed by position.
 const toggleAt = (index: number) => screen.getAllByRole('button', { name: /^From/ })[index];
@@ -24,7 +31,10 @@ test('a long thread opens with only the latest letter unfolded', () => {
 });
 
 test('a folded letter shows the start of its text without the quoted history', () => {
-    const quoted = letter('quoted', 'Hello,\n\nPayment received.\n> On 4 Oct someone wrote:\n> Old text');
+    const quoted = letter(
+        'quoted',
+        'Hello,\n\nPayment received.\n> On 4 Oct someone wrote:\n> Old text'
+    );
     render(<MessageThread messages={[quoted, letter('last', 'Bye')]} />);
 
     expect(screen.getByText('Hello, Payment received.')).toBeInTheDocument();
