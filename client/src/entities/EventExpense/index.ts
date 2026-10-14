@@ -13,3 +13,5 @@ export type {
     ExpenseList,
     EventExpenseInput,
 } from './model/types';
+export { useExpenseText } from './lib/useExpenseText';
+export { ExpenseTotals } from './ui/ExpenseTotals/ExpenseTotals';

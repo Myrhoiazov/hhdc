@@ -1,6 +1,9 @@
 import { useCallback, useState } from 'react';
 import { messageOf } from './messageOf';
 
+// Runs the work of an action; resolves to true when it succeeded.
+export type ActionRun = (work: () => Promise<unknown>) => Promise<boolean>;
+
 // Runs a mutation with shared busy/error state; resolves to true when it succeeded.
 export const useAction = (onDone?: () => void) => {
     const [error, setError] = useState('');

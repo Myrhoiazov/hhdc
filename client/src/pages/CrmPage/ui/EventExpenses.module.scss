@@ -45,16 +45,6 @@
     margin-top: 2px;
 }
 
-.totals {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-
-    p {
-        margin: 0;
-    }
-}
-
 @media (width <= 900px) {
     .fields {
         grid-template-columns: repeat(2, minmax(0, 1fr));

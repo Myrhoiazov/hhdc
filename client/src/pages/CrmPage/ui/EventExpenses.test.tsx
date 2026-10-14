@@ -4,9 +4,11 @@ import { createEventExpense, deleteEventExpense, ExpenseLine, ExpenseList, listE
 import { listEventTeam } from '@/entities/EventTeam';
 import { listPayees } from '@/entities/Person';
 import { EventExpenses } from './EventExpenses';
-import { PersonExpenses } from './PersonExpenses';
+import { PersonExpenses } from '@/widgets/PersonExpenses';
 
 jest.mock('@/entities/EventExpense', () => ({
+    // How expenses are written and added up is the entity's own; only the requests are replaced.
+    ...jest.requireActual('@/entities/EventExpense'),
     createEventExpense: jest.fn(), deleteEventExpense: jest.fn(), listEventExpenses: jest.fn(),
     listPersonExpenses: jest.fn(), updateEventExpense: jest.fn(),
     EVENT_EXPENSE_CATEGORIES: ['FEE', 'SALARY', 'TRAVEL', 'HOTEL', 'VENUE', 'MARKETING', 'EQUIPMENT', 'OTHER'],

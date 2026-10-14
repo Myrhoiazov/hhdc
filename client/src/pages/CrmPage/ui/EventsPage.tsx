@@ -9,7 +9,7 @@ import { CrmLayout } from '@/widgets/Page';
 import { RequestState } from '@/shared/ui/RequestState';
 import { useNumbers } from '@/shared/lib/format/useNumbers';
 import { Panel } from '@/shared/ui/Panel';
-import { EventDocuments } from './choreographers/EventDocuments';
+import { EventDocuments } from '@/widgets/EventDocuments';
 import { EventExpenses } from './EventExpenses';
 import { EventPeople } from './EventPeople';
 import { EventSalesPanel } from './EventSalesPanel';
