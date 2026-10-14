@@ -1,6 +1,11 @@
 import { LoginPage } from '@/pages/AuthPage';
 import NotFoundPage from '@/pages/NotFoundPage';
-import { DashboardPage, PeoplePage, PersonPage, EventsPage, EventPage, AuditPage, ProvidersPage, UsersPage, CommunicationsPage, KnowledgePage, AutomationsPage, FinancePage, AssistantPage, OperationsPage, DuplicatesPage, ChoreographersPage, ChoreographerPage, CampaignsPage, PlatformPage, NotificationsPage } from '@/pages/CrmPage';
+import { DashboardPage, PeoplePage, PersonPage, EventsPage, EventPage, CommunicationsPage, KnowledgePage, AutomationsPage, FinancePage, AssistantPage, OperationsPage, DuplicatesPage, ChoreographersPage, ChoreographerPage, CampaignsPage } from '@/pages/CrmPage';
+import { AuditPage } from '@/pages/AuditPage';
+import { NotificationsPage } from '@/pages/NotificationsPage';
+import { PlatformPage } from '@/pages/PlatformPage';
+import { ProvidersPage } from '@/pages/ProvidersPage';
+import { UsersPage } from '@/pages/UsersPage';
 import { AppRoutes, AppRoutesProps, RoutePath } from '@/shared/config/routeConfig/routeConfig';
 
 const protectedRoute = (path: string, element: React.ReactNode): AppRoutesProps => ({ path, element, authOnly: true });
