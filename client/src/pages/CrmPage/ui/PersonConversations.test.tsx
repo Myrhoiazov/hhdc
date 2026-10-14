@@ -14,7 +14,7 @@ jest.mock('@/features/composeEmail', () => ({
     ComposeEmailModal: ({ isOpen, recipient }: { isOpen: boolean; recipient?: string }) => (isOpen ? <div role="dialog">{`New email to ${recipient}`}</div> : null),
     onEmailSent: jest.fn(() => () => undefined),
 }));
-jest.mock('./email/ConversationDetail', () => ({
+jest.mock('@/widgets/ConversationThread', () => ({
     ConversationDetail: ({ id, providers }: { id: string; providers: { name: string }[] }) => <div data-testid="thread">{`${id} via ${providers.map(provider => provider.name).join(',')}`}</div>,
 }));
 

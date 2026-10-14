@@ -12,7 +12,8 @@ import { RequestState } from '@/shared/ui/RequestState';
 import { StatusBadge } from '@/shared/ui/StatusBadge';
 import { ConversationComposer } from './ConversationComposer';
 import { MessageThread } from './MessageThread';
-import cls from '../CommunicationsPage.module.scss';
+import cls from './ConversationThread.module.scss';
+import { MailBadge } from '@/shared/ui/MailBadge';
 
 const ConversationActions = memo(({ id, onRemoved }: { id: string; onRemoved: () => void }) => {
     const { t } = useTranslation();
@@ -40,7 +41,7 @@ const ThreadHeader = memo(({ conversation, onBack, onRemoved }: { conversation: 
         <Button theme={ButtonTheme.CLEAR} className={cls.backButton} onClick={onBack}>{t('Back to inbox')}</Button>
         <div className={cls.threadTitle}><h2>{conversation.subject}</h2>
             <p>{conversation.person?.displayName || conversation.person?.email}
-                {isClient(conversation.person) && <> <span className={classNames(cls.mailBadge, {}, [cls.badgeClient])}>{t('Client')}</span></>}
+                {isClient(conversation.person) && <> <MailBadge tone="client">{t('Client')}</MailBadge></>}
                 {conversation.person && <> · <Link to={`/people/${conversation.person.id}`}>{t('Open contact card')}</Link></>}</p></div>
         <div className={cls.threadHeaderActions}>
             <StatusBadge status={conversation.status} />
@@ -49,9 +50,9 @@ const ThreadHeader = memo(({ conversation, onBack, onRemoved }: { conversation: 
     </header>;
 });
 
-const EmptyThread = memo(() => {
+const EmptyThread = memo(({ className }: { className?: string }) => {
     const { t } = useTranslation();
-    return <section className={cls.threadEmpty}><span aria-hidden="true">✉</span><h2>{t('Select a conversation')}</h2><p>{t('Choose a message from the inbox to read and reply.')}</p></section>;
+    return <section className={classNames(cls.threadEmpty, {}, [className])}><span aria-hidden="true">✉</span><h2>{t('Select a conversation')}</h2><p>{t('Choose a message from the inbox to read and reply.')}</p></section>;
 });
 
 interface DetailProps {
@@ -62,12 +63,14 @@ interface DetailProps {
     preferredProviderId: string;
     onBack: () => void;
     onRemoved: () => void;
+    // Laid on the root by the page that places the thread, e.g. to hide it on a phone until a letter is open.
+    className?: string;
 }
 
-const LoadedConversationDetail = memo(({ id, providers, aiProviders, replyPrompts, preferredProviderId, onBack, onRemoved }: DetailProps) => {
+const LoadedConversationDetail = memo(({ id, providers, aiProviders, replyPrompts, preferredProviderId, onBack, onRemoved, className }: DetailProps) => {
     const load = useCallback(() => getConversation(id), [id]);
     const thread = useResource(load);
-    return <section className={cls.threadPanel}>
+    return <section className={classNames(cls.threadPanel, {}, [className])}>
         <RequestState error={thread.error} loading={thread.loading} />
         {thread.data && <>
             <ThreadHeader conversation={thread.data} onBack={onBack} onRemoved={onRemoved} />
@@ -78,4 +81,4 @@ const LoadedConversationDetail = memo(({ id, providers, aiProviders, replyPrompt
     </section>;
 });
 
-export const ConversationDetail = memo((props: DetailProps) => (props.id ? <LoadedConversationDetail {...props} /> : <EmptyThread />));
+export const ConversationDetail = memo((props: DetailProps) => (props.id ? <LoadedConversationDetail {...props} /> : <EmptyThread className={props.className} />));

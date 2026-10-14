@@ -9,6 +9,8 @@ import { classNames } from '@/shared/lib/classNames/classNames';
 import { mailState, MailState } from '../../model/mailState';
 import { ConversationSelection } from '../../model/useConversationSelection';
 import cls from '../CommunicationsPage.module.scss';
+import { MailBadge, MailBadgeTone } from '@/shared/ui/MailBadge';
+import layout from '@/shared/ui/layout/layout.module.scss';
 
 const SEARCH_GLASS = '8 8 16 16';
 
@@ -45,7 +47,7 @@ export const InboxToolbar = memo((props: ToolbarProps) => {
         <label className={cls.searchBox}>
             {/* The glass is drawn in the middle of a larger canvas; the view is cut to the glass itself. */}
             <SearchIcon aria-hidden="true" viewBox={SEARCH_GLASS} />
-            <span className={cls.srOnly}>{t('Search email')}</span>
+            <span className={layout.srOnly}>{t('Search email')}</span>
             <input value={query} onChange={(event) => onQueryChange(event.target.value)}
                 placeholder={t('Search by subject, sender, or text…')} />
         </label>
@@ -58,10 +60,10 @@ const previewText = (conversation: Conversation) => conversation.messages?.[0]?.
 const formatListDate = (value?: string) => value
     ? formatDate(value, { day: '2-digit', month: 'short' }) : '';
 
-const STATE_BADGES: Record<MailState, { label: string; className: string }[]> = {
-    NEW: [{ label: 'Incoming', className: cls.badgeIncoming }, { label: 'New', className: cls.badgeNew }],
-    OPENED: [{ label: 'Incoming', className: cls.badgeIncoming }, { label: 'Opened', className: cls.badgeOpened }],
-    SENT: [{ label: 'Sent', className: cls.badgeSent }],
+const STATE_BADGES: Record<MailState, { label: string; tone: MailBadgeTone }[]> = {
+    NEW: [{ label: 'Incoming', tone: 'incoming' }, { label: 'New', tone: 'new' }],
+    OPENED: [{ label: 'Incoming', tone: 'incoming' }, { label: 'Opened', tone: 'opened' }],
+    SENT: [{ label: 'Sent', tone: 'sent' }],
 };
 
 const ConversationButton = memo(({ conversation, selected, onSelect }: {
@@ -82,9 +84,8 @@ const ConversationButton = memo(({ conversation, selected, onSelect }: {
             <time>{formatListDate(conversation.lastMessageAt)}</time></span>
         <span className={classNames(cls.itemSubject, { [cls.unreadText]: state === 'NEW' })}>{conversation.subject}</span>
         <span className={cls.itemPreview}>{previewText(conversation)}</span>
-        <span className={cls.itemBadges}>{STATE_BADGES[state].map((badge) => <span key={badge.label}
-            className={classNames(cls.mailBadge, {}, [badge.className])}>{t(badge.label)}</span>)}
-            {isClient(conversation.person) && <span className={classNames(cls.mailBadge, {}, [cls.badgeClient])}>{t('Client')}</span>}</span>
+        <span className={cls.itemBadges}>{STATE_BADGES[state].map((badge) => <MailBadge key={badge.label} tone={badge.tone}>{t(badge.label)}</MailBadge>)}
+            {isClient(conversation.person) && <MailBadge tone="client">{t('Client')}</MailBadge>}</span>
     </button>;
 });
 

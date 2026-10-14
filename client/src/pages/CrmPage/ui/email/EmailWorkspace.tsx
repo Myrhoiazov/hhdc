@@ -6,7 +6,7 @@ import { classNames } from '@/shared/lib/classNames/classNames';
 import { useConversationSelection } from '../../model/useConversationSelection';
 import { BulkActions } from './BulkActions';
 import { ConversationList, InboxToolbar } from './InboxList';
-import { ConversationDetail } from './ConversationDetail';
+import { ConversationDetail } from '@/widgets/ConversationThread';
 import cls from '../CommunicationsPage.module.scss';
 
 interface EmailWorkspaceProps {
@@ -54,7 +54,7 @@ export const EmailWorkspace = memo((props: EmailWorkspaceProps) => {
                 selectedId={selectedId} selection={selection} onSelect={selectConversation} onLoadMore={onLoadMore}>
                 {selection.selectedIds.length > 0 && <BulkActions selectedIds={selection.selectedIds} onClear={clear} onDone={onBulkDone} />}
             </ConversationList>
-            <ConversationDetail id={selectedId} providers={providers} aiProviders={aiProviders} replyPrompts={replyPrompts} preferredProviderId={providerId}
+            <ConversationDetail className={cls.threadSlot} id={selectedId} providers={providers} aiProviders={aiProviders} replyPrompts={replyPrompts} preferredProviderId={providerId}
                 onBack={() => setSelectedId('')} onRemoved={() => { setSelectedId(''); onConversationRemoved(); }} />
         </div>
     </>;

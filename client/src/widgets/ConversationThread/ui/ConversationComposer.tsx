@@ -3,11 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { approveDraft, Conversation, Draft, DraftModelChoice, generateDraft, rejectDraft, replyToConversation } from '@/entities/Conversation';
 import { PromptVersion } from '@/entities/Prompt';
 import { ProviderConnection } from '@/entities/Provider';
-import { classNames } from '@/shared/lib/classNames/classNames';
 import { Button, ButtonTheme } from '@/shared/ui/Button';
 import { RequestState } from '@/shared/ui/RequestState';
 import { AttachmentPicker } from '@/features/composeEmail';
-import cls from '../CommunicationsPage.module.scss';
+import cls from './ConversationThread.module.scss';
+import { MailBadge } from '@/shared/ui/MailBadge';
+import layout from '@/shared/ui/layout/layout.module.scss';
 
 const actionableDraft = (conversation: Conversation) => conversation.drafts?.find(
     (draft) => ['GENERATED', 'EDITED'].includes(draft.status),
@@ -22,9 +23,9 @@ const DraftAssessment = memo(({ draft }: { draft: Draft }) => {
     if (!snapshot && draft.confidence == null) return null;
     const review = snapshot?.needsStaffReview ?? false;
     return <div className={cls.draftAssessment}>
-        <span className={classNames(cls.mailBadge, {}, [review ? cls.badgeReview : cls.badgeNew])}>{t(review ? 'Needs staff review' : 'Ready for approval')}</span>
-        {snapshot?.answerability && <span className={classNames(cls.mailBadge, {}, [cls.badgeOpened])}>{t(snapshot.answerability)}</span>}
-        {draft.confidence != null && <span className={classNames(cls.mailBadge, {}, [cls.badgeOpened])}>{t('Confidence')}: {Math.round(draft.confidence * 100)}%</span>}
+        <MailBadge tone={review ? 'review' : 'new'}>{t(review ? 'Needs staff review' : 'Ready for approval')}</MailBadge>
+        {snapshot?.answerability && <MailBadge tone="opened">{t(snapshot.answerability)}</MailBadge>}
+        {draft.confidence != null && <MailBadge tone="opened">{t('Confidence')}: {Math.round(draft.confidence * 100)}%</MailBadge>}
         {Boolean(snapshot?.warnings?.length) && <small>{snapshot?.warnings?.join(' · ')}</small>}
     </div>;
 });
@@ -44,7 +45,7 @@ const AiModelPicker = memo(({ providers, prompts, choice, onChange }: {
                 {providers.map((provider) => <option key={provider.id} value={provider.id}>{`${provider.name} (${provider.provider})`}</option>)}
             </select>
         </label>
-        <label><span className={cls.srOnly}>{t('Model')}</span>
+        <label><span className={layout.srOnly}>{t('Model')}</span>
             <input className={cls.modelControl} value={choice.model ?? ''} maxLength={200} placeholder={String(selected?.settings.model ?? '')}
                 onChange={(event) => onChange({ ...choice, model: event.target.value.trim() || undefined })} />
         </label>

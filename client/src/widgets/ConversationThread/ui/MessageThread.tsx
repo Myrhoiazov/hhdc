@@ -5,7 +5,7 @@ import { formatDateTime } from '@/shared/lib/format/date';
 import { classNames } from '@/shared/lib/classNames/classNames';
 import { formatFileSize } from '@/features/composeEmail';
 import { Button, ButtonTheme } from '@/shared/ui/Button';
-import cls from '../CommunicationsPage.module.scss';
+import cls from './ConversationThread.module.scss';
 
 const PREVIEW_LENGTH = 160;
 

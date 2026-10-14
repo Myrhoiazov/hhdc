@@ -11,7 +11,7 @@ import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
 import { RequestState } from '@/shared/ui/RequestState';
 import { Panel } from '@/shared/ui/Panel';
-import { ConversationDetail } from './email/ConversationDetail';
+import { ConversationDetail } from '@/widgets/ConversationThread';
 import cls from '@/shared/ui/layout/layout.module.scss';
 import own from './PersonConversations.module.scss';
 
