@@ -44,8 +44,9 @@
 - [x] 4.1a: настройки — `UsersPage`, `PlatformPage`, `NotificationsPage`, `AuditPage`, `ProvidersPage`
 - [x] PR #18 (4.1a) слит в `develop`
 - [x] 4.1b: финансы и дашборд; графики в `shared/ui/Chart`, правила возвратов в `entities/Finance`
-- [ ] PR 4.1b в `develop`
-- [ ] 4.1c: автоматизации, операции, ассистент, дубликаты, рассылки
+- [x] PR #19 (4.1b) слит в `develop`
+- [x] 4.1c: автоматизации, операции, ассистент, дубликаты, рассылки
+- [ ] PR 4.1c в `develop`
 - [ ] 4.2: хореографы
 - [ ] 4.3: база знаний
 - [ ] 4.4: Events

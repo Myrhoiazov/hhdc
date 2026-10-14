@@ -1,7 +1,7 @@
 # План: приведение `client/` к Feature-Sliced Design
 
-Статус на 2026-10-14: этапы 1–3, задачи 4.0 и 4.1a слиты (PR #13–#18). Задача 4.1b (финансы и дашборд) — в ветке
-`refactor/client-finance-dashboard`.
+Статус на 2026-10-14: этапы 1–3, задачи 4.0, 4.1a, 4.1b слиты (PR #13–#19). Задача 4.1c — в ветке
+`refactor/client-operations-pages`; после неё задача 4.1 закрыта.
 
 ## Состояние после этапов 1–3
 
@@ -308,7 +308,10 @@
   Графики (`Bar`, `Tile`, `chartStyles`) нужны финансам, дашборду и продажам события — переехали в `shared/ui/Chart`.
   Правила возвратов (какой платёж можно вернуть, id платежа в операции, шаги возврата) — в `entities/Finance` с
   тестами; свёртка списка стран — в `model` дашборда с тестом.
-- **4.1c — операционные:** `AutomationsPage`, `OperationsPage`, `AssistantPage`, `DuplicatesPage`, `CampaignsPage`.
+- **4.1c — операционные (сделано, ветка `refactor/client-operations-pages`):** `AutomationsPage`, `OperationsPage`,
+  `AssistantPage`, `DuplicatesPage`, `CampaignsPage` (последние две раньше жили в одном `DataPage.tsx`). Разбор форм
+  автоматизации и отметки на входе — в `model` с тестами; выгрузка файла из браузера — `shared/lib/download/saveFile`
+  с тестом.
 
 **Acceptance criteria:**
 - [ ] У каждой страницы свой слайс в `pages/` с ленивой загрузкой (`*.async.tsx`).

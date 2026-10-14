@@ -1,6 +1,11 @@
 import { LoginPage } from '@/pages/AuthPage';
 import NotFoundPage from '@/pages/NotFoundPage';
-import { PeoplePage, PersonPage, EventsPage, EventPage, CommunicationsPage, KnowledgePage, AutomationsPage, AssistantPage, OperationsPage, DuplicatesPage, ChoreographersPage, ChoreographerPage, CampaignsPage } from '@/pages/CrmPage';
+import { PeoplePage, PersonPage, EventsPage, EventPage, CommunicationsPage, KnowledgePage, ChoreographersPage, ChoreographerPage } from '@/pages/CrmPage';
+import { AssistantPage } from '@/pages/AssistantPage';
+import { AutomationsPage } from '@/pages/AutomationsPage';
+import { CampaignsPage } from '@/pages/CampaignsPage';
+import { DuplicatesPage } from '@/pages/DuplicatesPage';
+import { OperationsPage } from '@/pages/OperationsPage';
 import { DashboardPage } from '@/pages/DashboardPage';
 import { FinancePage } from '@/pages/FinancePage';
 import { AuditPage } from '@/pages/AuditPage';
