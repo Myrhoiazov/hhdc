@@ -7,6 +7,7 @@ import { userReducer } from '@/entities/User';
 import { Navbar } from './Navbar';
 
 jest.mock('@/entities/Person', () => ({
+    ...jest.requireActual('@/entities/Person'),
     PERSON_ROLES: ['CUSTOMER', 'PARTICIPANT', 'CHOREOGRAPHER', 'STAFF', 'PARTNER'],
     savePerson: jest.fn(), addPersonRole: jest.fn(),
 }));

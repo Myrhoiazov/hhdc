@@ -2,7 +2,7 @@ import { memo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { assignChoreographer } from '@/entities/Event';
 import { registerPerson } from '@/entities/Registration';
-import { listPeople } from '@/entities/Person';
+import { listPeople, fullNameOf } from '@/entities/Person';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
 import { Field } from '@/shared/ui/Field';
@@ -12,7 +12,6 @@ import { Panel } from '@/shared/ui/Panel';
 import { listStyles as own } from '@/shared/ui/ListTable';
 import cls from '@/shared/ui/layout/layout.module.scss';
 import { MIN_SEARCH } from '../../../model/search';
-import { personName } from '../../../model/personName';
 
 // A contact is found by typing: the CRM holds more people than a single list can offer.
 export const AddPerson = memo(({ eventId, onSaved }: { eventId: string; onSaved: () => void }) => {
@@ -72,7 +71,7 @@ export const AddPerson = memo(({ eventId, onSaved }: { eventId: string; onSaved:
                             <option
                                 key={person.id}
                                 value={person.id}
-                            >{`${personName(person)} · ${person.email ?? '—'}`}</option>
+                            >{`${fullNameOf(person) || '—'} · ${person.email ?? '—'}`}</option>
                         ))}
                     </select>
                 </Field>

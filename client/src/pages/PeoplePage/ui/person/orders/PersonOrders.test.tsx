@@ -3,7 +3,8 @@ import { MemoryRouter } from 'react-router-dom';
 import { listPersonOrders, PersonOrder } from '@/entities/Order';
 import { PersonOrders } from './PersonOrders';
 
-jest.mock('@/entities/Order', () => ({ listPersonOrders: jest.fn() }));
+jest.mock('@/entities/Order', () => ({
+    ...jest.requireActual('@/entities/Order'), listPersonOrders: jest.fn() }));
 
 const order: PersonOrder = {
     id: 'o1', externalId: 'c7958037-0000', status: 'PAID', currency: 'EUR', subtotal: '390.00', fees: '0.79', total: '390.79', orderedAt: '2026-10-06T06:38:00Z',

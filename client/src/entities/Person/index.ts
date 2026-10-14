@@ -20,3 +20,4 @@ export type {
     PersonRemoval,
     Activity,
 } from './model/types';
+export { fullNameOf } from './model/fullName';

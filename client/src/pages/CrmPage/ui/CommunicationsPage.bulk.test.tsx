@@ -7,7 +7,8 @@ import { listPrompts } from '@/entities/Prompt';
 import { listProviders } from '@/entities/Provider';
 import { CommunicationsPage } from './CommunicationsPage';
 
-jest.mock('@/entities/Person', () => ({ isClient: () => false }));
+jest.mock('@/entities/Person', () => ({
+    ...jest.requireActual('@/entities/Person'), isClient: () => false }));
 jest.mock('@/entities/Conversation', () => ({
     listConversations: jest.fn(), getConversation: jest.fn(),
     applyConversationDisposition: jest.fn(), applyBulkConversationDisposition: jest.fn(),

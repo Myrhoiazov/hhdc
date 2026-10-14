@@ -6,7 +6,7 @@ import { StatusBadge } from '@/shared/ui/StatusBadge';
 import { Panel } from '@/shared/ui/Panel';
 import { listStyles as own } from '@/shared/ui/ListTable';
 import cls from '@/shared/ui/layout/layout.module.scss';
-import { personName } from '../../../model/personName';
+import { fullNameOf } from '@/entities/Person';
 
 export const Choreographers = memo(({ event }: { event: Event }) => {
     const { t } = useTranslation();
@@ -36,7 +36,7 @@ export const Choreographers = memo(({ event }: { event: Event }) => {
                                             className={own.name}
                                             to={`/people/choreographers/${item.person.id}/events`}
                                         >
-                                            {personName(item.person)}
+                                            {fullNameOf(item.person) || '—'}
                                         </Link>
                                     </td>
                                     <td className={own.secondary}>{item.person.email || '—'}</td>

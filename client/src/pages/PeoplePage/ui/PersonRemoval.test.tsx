@@ -2,7 +2,8 @@ import { render, screen } from '@testing-library/react';
 import { Person } from '@/entities/Person';
 import { PersonRemovalPanel } from './PersonRemoval';
 
-jest.mock('@/entities/Person', () => ({ deletePerson: jest.fn() }));
+jest.mock('@/entities/Person', () => ({
+    ...jest.requireActual('@/entities/Person'), deletePerson: jest.fn() }));
 
 const person = (removal: Person['removal']): Person => ({ id: 'p1', firstName: '', lastName: '', displayName: 'info@example.test', email: 'info@example.test', status: 'ACTIVE', roles: [], removal });
 

@@ -10,7 +10,8 @@ jest.mock('@/entities/Registration', () => ({
     listEventRegistrations: jest.fn(), registerPerson: jest.fn(), REGISTRATIONS_PAGE_SIZE: 20,
     REGISTRATION_STATUSES: ['PENDING', 'CONFIRMED', 'CHECKED_IN', 'CANCELLED', 'NO_SHOW'],
 }));
-jest.mock('@/entities/Person', () => ({ listPeople: jest.fn() }));
+jest.mock('@/entities/Person', () => ({
+    ...jest.requireActual('@/entities/Person'), listPeople: jest.fn() }));
 jest.mock('@/shared/lib/hooks/useDelayed/useDelayed', () => ({
     ...jest.requireActual('@/shared/lib/hooks/useDelayed/useDelayed'), useDelayed: (value: string) => value,
 }));

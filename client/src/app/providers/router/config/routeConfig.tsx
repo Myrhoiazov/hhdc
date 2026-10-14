@@ -1,6 +1,7 @@
 import { LoginPage } from '@/pages/AuthPage';
 import NotFoundPage from '@/pages/NotFoundPage';
-import { PeoplePage, PersonPage, CommunicationsPage } from '@/pages/CrmPage';
+import { CommunicationsPage } from '@/pages/CrmPage';
+import { PeoplePage, PersonPage } from '@/pages/PeoplePage';
 import { EventPage, EventsPage } from '@/pages/EventsPage';
 import { KnowledgePage } from '@/pages/KnowledgePage';
 import { ChoreographerPage, ChoreographersPage } from '@/pages/ChoreographersPage';
