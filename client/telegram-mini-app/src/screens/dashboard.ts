@@ -9,16 +9,13 @@ interface DashboardSummary {
 }
 
 export const renderDashboard = async (container: HTMLElement): Promise<void> => {
-    container.innerHTML =
-        '<div class="metric-grid" aria-label="Загрузка"><div class="metric-card skeleton"></div><div class="metric-card skeleton"></div><div class="metric-card skeleton"></div><div class="metric-card skeleton"></div></div>';
+    container.innerHTML = '<div class="metric-grid" aria-label="Загрузка"><div class="metric-card skeleton"></div><div class="metric-card skeleton"></div><div class="metric-card skeleton"></div><div class="metric-card skeleton"></div></div>';
     try {
         const [summary, countResult] = await Promise.all([
             apiFetch<DashboardSummary>('/mollie/dashboard/summary'),
             apiFetch<{ count: number }>('/clients/count'),
         ]);
-        const money = new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR' }).format(
-            summary.monthlyRevenue
-        );
+        const money = new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR' }).format(summary.monthlyRevenue);
         container.innerHTML = `
             <div class="section-heading"><div><h2>Сегодня в DDC</h2><p>Основные показатели школы</p></div></div>
             <section class="metric-grid" aria-label="Показатели DDC">

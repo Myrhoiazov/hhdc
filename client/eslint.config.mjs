@@ -122,6 +122,8 @@ export default defineConfig([
             // i18next runtime or participate in its Feature-Sliced Design import graph.
             'i18next/no-literal-string': 'off',
             'denys-fix-fsd-path-plugin/path-checker': 'off',
+            // Not reformatted with the SPA: Skylos would re-report its old innerHTML screens as new.
+            'prettier/prettier': 'off',
         },
     },
     {
