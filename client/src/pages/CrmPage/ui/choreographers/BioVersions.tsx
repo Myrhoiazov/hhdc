@@ -5,7 +5,8 @@ import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
 import { Field } from '@/shared/ui/Field';
 import { RequestState } from '@/shared/ui/RequestState';
-import cls from '../CrmPage.module.scss';
+import { Panel } from '@/shared/ui/Panel';
+import cls from '@/shared/ui/layout/layout.module.scss';
 import own from './Choreographers.module.scss';
 
 const VariantCard = memo(({ version, earlier }: { version: BioVersion; earlier: number }) => {
@@ -52,12 +53,12 @@ export const BioVersions = memo(({ personId, canEdit }: { personId: string; canE
     const versions = useResource(load);
     const all = versions.data ?? [];
     const earlier = (current: BioVersion) => all.filter((item) => !item.isCurrent && item.locale === current.locale && item.kind === current.kind).length;
-    return <section className={cls.panel} aria-label={t('Biography variants')}>
+    return <Panel aria-label={t('Biography variants')}>
         <h2>{t('Biography variants')}</h2>
         <p className={cls.muted}>{t('Translations and promotional texts. Each save keeps the previous version.')}</p>
         <RequestState error={versions.error} loading={versions.loading && !versions.data} />
         {all.filter((item) => item.isCurrent).map((item) => <VariantCard key={item.id} version={item} earlier={earlier(item)} />)}
         {versions.data?.length === 0 && <p className={cls.muted}>{t('No variants yet.')}</p>}
         {canEdit && <VersionForm personId={personId} onSaved={() => void versions.refresh()} />}
-    </section>;
+    </Panel>;
 });

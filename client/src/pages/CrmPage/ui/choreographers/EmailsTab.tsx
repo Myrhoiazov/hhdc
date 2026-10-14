@@ -9,7 +9,8 @@ import { Button } from '@/shared/ui/Button';
 import { Field } from '@/shared/ui/Field';
 import { RequestState } from '@/shared/ui/RequestState';
 import { StatusBadge } from '@/shared/ui/StatusBadge';
-import cls from '../CrmPage.module.scss';
+import { Panel } from '@/shared/ui/Panel';
+import cls from '@/shared/ui/layout/layout.module.scss';
 import own from './Choreographers.module.scss';
 
 const MIN_REASON = 3;
@@ -56,7 +57,7 @@ const LinkConversation = memo(({ personId, candidates, onLinked }: PickerProps) 
         catch (cause) { setError(cause instanceof Error ? cause.message : t('Request failed')); }
         finally { setBusy(false); }
     };
-    return <form className={cls.panel} onSubmit={submit} aria-label={t('Link conversation')}><h2>{t('Link conversation')}</h2>
+    return <Panel as="form" onSubmit={submit} aria-label={t('Link conversation')}><h2>{t('Link conversation')}</h2>
         <p className={cls.muted}>{t('Mail from a manager or an agency is never linked automatically: the same person may represent several choreographers.')}</p>
         <div className={cls.grid}>
             <Field label="Find conversation"><input value={search} onChange={(event) => setSearch(event.target.value)} /></Field>
@@ -70,7 +71,7 @@ const LinkConversation = memo(({ personId, candidates, onLinked }: PickerProps) 
         </div>
         {error && <p role="alert" className={cls.error}>{error}</p>}
         <div className={cls.actions}><Button type="submit" disabled={busy}>{t('Link conversation')}</Button></div>
-    </form>;
+    </Panel>;
 });
 
 export const EmailsTab = memo(({ personId, canLink }: { personId: string; canLink: boolean }) => {
@@ -89,11 +90,11 @@ export const EmailsTab = memo(({ personId, canLink }: { personId: string; canLin
     return <>
         <Field label="Search emails"><input value={q} onChange={(event) => setQ(event.target.value)} /></Field>
         <RequestState error={error || threads.error} loading={threads.loading && !threads.data} />
-        <section className={cls.panel} aria-label={t('Emails')}><h2>{t('Emails')}</h2>
+        <Panel aria-label={t('Emails')}><h2>{t('Emails')}</h2>
             {threads.data?.data.map((thread) => <ThreadCard key={thread.id} thread={thread} canLink={canLink} onUnlink={unlink} />)}
             {threads.data?.total === 0 && <p className={cls.muted}>{t('No correspondence is linked to this choreographer yet.')}</p>}
             <Link to="/email">{t('Open the Email workspace to read and reply')}</Link>
-        </section>
+        </Panel>
         {canLink && <LinkConversation personId={personId} candidates={threads.data?.candidates ?? []} onLinked={() => void threads.refresh()} />}
     </>;
 });

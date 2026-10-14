@@ -7,7 +7,7 @@ import { Button } from '@/shared/ui/Button';
 import { buildProviderInput, ProviderField, ProviderForm as ProviderFormDefinition } from '../model/providerForms';
 import { Field } from '@/shared/ui/Field';
 import { RequestState } from '@/shared/ui/RequestState';
-import cls from './CrmPage.module.scss';
+import cls from '@/shared/ui/layout/layout.module.scss';
 
 interface ProviderFormProps {
     definition: ProviderFormDefinition;

@@ -5,11 +5,12 @@ import { formatDateTime } from '@/shared/lib/format/date';
 import { useAction } from '@/shared/lib/useResource/useAction';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
-import { CrmLayout } from './common';
+import { CrmLayout } from '@/widgets/Page';
 import { Field } from '@/shared/ui/Field';
 import { RequestState } from '@/shared/ui/RequestState';
 import { StatusBadge } from '@/shared/ui/StatusBadge';
-import cls from './CrmPage.module.scss';
+import { Panel } from '@/shared/ui/Panel';
+import cls from '@/shared/ui/layout/layout.module.scss';
 
 const DEFAULT_CONDITIONS = '{"all": []}';
 const DEFAULT_CONFIG = '{"title": "Follow up"}';
@@ -27,7 +28,7 @@ const AutomationForm = memo(({ refresh }: { refresh: () => void }) => {
             actions: [{ type: String(form.get('actionType')), config: JSON.parse(String(form.get('config'))) }],
         }));
     };
-    return <form className={cls.panel} onSubmit={submit}>
+    return <Panel as="form" onSubmit={submit}>
         <h2>{t('Create automation')}</h2>
         <div className={cls.grid}>
             <Field label="Name"><input name="name" required /></Field>
@@ -39,7 +40,7 @@ const AutomationForm = memo(({ refresh }: { refresh: () => void }) => {
         <p className={cls.muted}>{t('New automations start as drafts. Test them before activating.')}</p>
         <RequestState error={action.error || meta.error} loading={false} />
         <Button type="submit" disabled={action.busy}>{t('Save')}</Button>
-    </form>;
+    </Panel>;
 });
 
 const TestReport = memo(({ report }: { report: AutomationTest }) => {
@@ -96,10 +97,10 @@ export const AutomationsPage = memo(() => {
     const refresh = useCallback(() => { void automations.refresh(); }, [automations]);
     return <CrmLayout title="Automations">
         <RequestState error={automations.error} loading={automations.loading} />
-        <section className={cls.panel}>
+        <Panel>
             {automations.data?.total === 0 && <p>{t('No automations yet')}</p>}
             {automations.data?.data.map(item => <AutomationRow key={item.id} automation={item} refresh={refresh} />)}
-        </section>
+        </Panel>
         <AutomationForm refresh={refresh} />
     </CrmLayout>;
 });

@@ -4,13 +4,15 @@ import { AuditEntry, AuditFilters, AuditOptions, getAuditOptions, listAuditPage 
 import { formatDateTime } from '@/shared/lib/format/date';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
-import { CrmLayout } from './common';
+import { CrmLayout } from '@/widgets/Page';
 import { Field } from '@/shared/ui/Field';
 import { RequestState } from '@/shared/ui/RequestState';
 import { Pager } from '@/shared/ui/Pager';
 import { useListFilters } from '@/shared/lib/hooks/useListFilters/useListFilters';
-import { listStyles as own } from './ListTable';
-import cls from './CrmPage.module.scss';
+import { Badge } from '@/shared/ui/Badge';
+import { Panel } from '@/shared/ui/Panel';
+import { listStyles as own } from '@/shared/ui/ListTable';
+import cls from '@/shared/ui/layout/layout.module.scss';
 
 const NO_FILTERS: AuditFilters = { q: '', entityType: '', actorUserId: '', from: '', to: '' };
 const NO_OPTIONS: AuditOptions = { entityTypes: [], actors: [] };
@@ -48,7 +50,7 @@ const AuditRow = memo(({ entry }: { entry: AuditEntry }) => {
         <td className={own.secondary}><time dateTime={entry.createdAt}>{formatDateTime(entry.createdAt)}</time></td>
         <td>{entry.actor ? entry.actor.name || entry.actor.email : <span className={own.secondary}>{t('System')}</span>}</td>
         <td><strong>{t(entry.action)}</strong></td>
-        <td><span className={cls.badge}>{entry.entityType}</span></td>
+        <td><Badge>{entry.entityType}</Badge></td>
         <td className={`${own.secondary} ${own.optional}`}>{entry.ipAddress || '—'}</td>
     </tr>;
 });
@@ -68,7 +70,7 @@ export const AuditPage = memo(() => {
     const { data } = audit.list;
     return <CrmLayout title="Audit log">
         <AuditFiltersBar filters={audit.filters} options={options.data ?? NO_OPTIONS} filtered={audit.filtered} onChange={audit.change} onReset={audit.reset} />
-        <section className={cls.panel} aria-label={t('All entries')}>
+        <Panel aria-label={t('All entries')}>
             <div className={own.summary}>
                 <h2>{t('All entries')}</h2>
                 {data && <span className={cls.muted}>{t('Entries found: {{count}}', { count: data.total })}</span>}
@@ -77,6 +79,6 @@ export const AuditPage = memo(() => {
             {data && data.total > 0 && <AuditTable entries={data.data} />}
             {data?.total === 0 && <p className={cls.muted}>{t(audit.filtered ? 'No entries match the filters' : 'The audit log is empty')}</p>}
             {data && <Pager page={audit.page} total={data.total} onChange={audit.setPage} />}
-        </section>
+        </Panel>
     </CrmLayout>;
 });

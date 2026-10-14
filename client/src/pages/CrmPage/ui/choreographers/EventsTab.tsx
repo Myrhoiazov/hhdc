@@ -9,7 +9,8 @@ import { Button } from '@/shared/ui/Button';
 import { Field } from '@/shared/ui/Field';
 import { RequestState } from '@/shared/ui/RequestState';
 import { StatusBadge } from '@/shared/ui/StatusBadge';
-import cls from '../CrmPage.module.scss';
+import { Panel } from '@/shared/ui/Panel';
+import cls from '@/shared/ui/layout/layout.module.scss';
 import own from './Choreographers.module.scss';
 
 
@@ -64,7 +65,7 @@ const AddToEvent = memo(({ personId, assignedEventIds, onSaved }: { personId: st
         } catch (cause) { setError(cause instanceof Error ? cause.message : t('Unable to save')); }
         finally { setBusy(false); }
     };
-    return <form className={cls.panel} onSubmit={submit} aria-label={t('Add to event')}><h2>{t('Add to event')}</h2>
+    return <Panel as="form" onSubmit={submit} aria-label={t('Add to event')}><h2>{t('Add to event')}</h2>
         <p className={cls.muted}>{t('Past editions can be linked too. If the event is not in the list, create it under Events first.')}</p>
         <div className={cls.grid}>
             <Field label="Event"><select name="eventId" required defaultValue="">
@@ -76,7 +77,7 @@ const AddToEvent = memo(({ personId, assignedEventIds, onSaved }: { personId: st
         </div>
         <RequestState error={error || events.error} loading={false} />
         <div className={cls.actions}><Button type="submit" disabled={busy}>{t('Add to event')}</Button></div>
-    </form>;
+    </Panel>;
 });
 
 export const EventsTab = memo(({ personId, canManage }: { personId: string; canManage: boolean }) => {
@@ -92,11 +93,11 @@ export const EventsTab = memo(({ personId, canManage }: { personId: string; canM
     const items = history.data ?? [];
     return <>
         <RequestState error={error || history.error} loading={history.loading && !history.data} />
-        {groupByYear(items).map(([year, group]) => <section className={cls.panel} key={year} aria-label={String(year)}>
+        {groupByYear(items).map(([year, group]) => <Panel key={year} aria-label={String(year)}>
             <h2>{year}</h2>
             {group.map((item) => <AssignmentCard key={item.id} item={item} canManage={canManage} onUpdate={update} />)}
-        </section>)}
-        {history.data?.length === 0 && <section className={cls.panel}><p className={cls.muted}>{t('Not assigned to any event yet.')}</p></section>}
+        </Panel>)}
+        {history.data?.length === 0 && <Panel><p className={cls.muted}>{t('Not assigned to any event yet.')}</p></Panel>}
         {canManage && <AddToEvent personId={personId} assignedEventIds={items.map((item) => item.event.id)} onSaved={() => void history.refresh()} />}
     </>;
 });

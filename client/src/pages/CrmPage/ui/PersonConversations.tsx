@@ -10,8 +10,9 @@ import { classNames } from '@/shared/lib/classNames/classNames';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
 import { RequestState } from '@/shared/ui/RequestState';
+import { Panel } from '@/shared/ui/Panel';
 import { ConversationDetail } from './email/ConversationDetail';
-import cls from './CrmPage.module.scss';
+import cls from '@/shared/ui/layout/layout.module.scss';
 import own from './PersonConversations.module.scss';
 
 const REPLY_PROMPT_KEY = 'email_draft_body';
@@ -78,7 +79,7 @@ export const PersonConversations = memo(({ person }: { person: Person }) => {
     const tools = useMailTools();
     const [composing, setComposing] = useState(false);
     const { data } = mail.threads;
-    return <section className={cls.panel} aria-label={t('Correspondence')}>
+    return <Panel aria-label={t('Correspondence')}>
         <div className={own.header}>
             <h2>{t('Correspondence')}</h2>
             <Button disabled={!person.email} onClick={() => setComposing(true)}>{t('Write an email')}</Button>
@@ -90,5 +91,5 @@ export const PersonConversations = memo(({ person }: { person: Person }) => {
         {data?.total === 0 && <p className={cls.muted}>{t('No correspondence with this person yet')}</p>}
         {mail.openId && <OpenThread id={mail.openId} tools={tools} onClose={mail.close} onRemoved={mail.removed} />}
         {person.email && <ComposeEmailModal isOpen={composing} onClose={() => setComposing(false)} recipient={person.email} />}
-    </section>;
+    </Panel>;
 });

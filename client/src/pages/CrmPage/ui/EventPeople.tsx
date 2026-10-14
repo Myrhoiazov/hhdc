@@ -12,8 +12,9 @@ import { StatusBadge } from '@/shared/ui/StatusBadge';
 import { Pager } from '@/shared/ui/Pager';
 import { useDelayed } from '@/shared/lib/hooks/useDelayed/useDelayed';
 import { useListFilters } from '@/shared/lib/hooks/useListFilters/useListFilters';
-import { listStyles as own } from './ListTable';
-import cls from './CrmPage.module.scss';
+import { Panel } from '@/shared/ui/Panel';
+import { listStyles as own } from '@/shared/ui/ListTable';
+import cls from '@/shared/ui/layout/layout.module.scss';
 
 const NO_FILTERS: RegistrationFilters = { q: '', status: '' };
 const MIN_SEARCH = 2;
@@ -72,7 +73,7 @@ const Registrations = memo(({ eventId }: { eventId: string }) => {
     const { data } = people.list;
     // The same pager stands above the table and under it.
     const pager = data && <Pager page={people.page} total={data.total} pageSize={REGISTRATIONS_PAGE_SIZE} onChange={people.setPage} />;
-    return <section id="event-registrations" className={cls.panel} aria-label={t('Registrations')}>
+    return <Panel id="event-registrations" aria-label={t('Registrations')}>
         <div className={own.summary}>
             <h2>{t('Registrations')}</h2>
             {data && <div className={own.summaryEnd}>
@@ -85,13 +86,13 @@ const Registrations = memo(({ eventId }: { eventId: string }) => {
         {data && data.total > 0 && <RegistrationsTable registrations={data.data} />}
         {data?.total === 0 && <p className={cls.muted}>{t(people.filtered ? 'No registrations match the filters' : 'No registrations yet')}</p>}
         {pager}
-    </section>;
+    </Panel>;
 });
 
 const Choreographers = memo(({ event }: { event: Event }) => {
     const { t } = useTranslation();
     const assigned = event.choreographers ?? [];
-    return <section id="event-choreographers" className={cls.panel} aria-label={t('Choreographers')}>
+    return <Panel id="event-choreographers" aria-label={t('Choreographers')}>
         <h2>{t('Choreographers')}</h2>
         {assigned.length === 0 && <p className={cls.muted}>{t('No choreographers assigned yet')}</p>}
         {assigned.length > 0 && <div className={own.tableScroll}><table className={own.table}>
@@ -103,7 +104,7 @@ const Choreographers = memo(({ event }: { event: Event }) => {
                 <td><StatusBadge status={item.status} /></td>
             </tr>)}</tbody>
         </table></div>}
-    </section>;
+    </Panel>;
 });
 
 // A contact is found by typing: the CRM holds more people than a single list can offer.
@@ -122,7 +123,7 @@ const AddPerson = memo(({ eventId, onSaved }: { eventId: string; onSaved: () => 
         catch (cause) { setError(cause instanceof Error ? cause.message : t('Unable to save')); }
         finally { setSaving(false); }
     };
-    return <section id="event-add-person" className={cls.panel} aria-label={t('Add a person to the event')}>
+    return <Panel id="event-add-person" aria-label={t('Add a person to the event')}>
         <h2>{t('Add a person to the event')}</h2>
         <p className={cls.muted}>{t('Type at least two letters of the name or email to find a contact.')}</p>
         <div className={own.filters}>
@@ -135,7 +136,7 @@ const AddPerson = memo(({ eventId, onSaved }: { eventId: string; onSaved: () => 
             <Button disabled={!personId || saving} onClick={() => void add('choreographer')}>{t('Assign choreographer')}</Button>
         </div>
         <RequestState error={error || found.error} loading={false} />
-    </section>;
+    </Panel>;
 });
 
 // Everyone connected to the event: the registered people, the choreographers, and a way to add one.

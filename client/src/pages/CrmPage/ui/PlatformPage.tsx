@@ -4,11 +4,12 @@ import { ApiKey, createApiKey, createWebhook, FeatureFlag, listApiKeys, listFeat
 import { useAction } from '@/shared/lib/useResource/useAction';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
-import { CrmLayout } from './common';
+import { CrmLayout } from '@/widgets/Page';
 import { Field } from '@/shared/ui/Field';
 import { RequestState } from '@/shared/ui/RequestState';
 import { StatusBadge } from '@/shared/ui/StatusBadge';
-import cls from './CrmPage.module.scss';
+import { Panel } from '@/shared/ui/Panel';
+import cls from '@/shared/ui/layout/layout.module.scss';
 
 const WEBHOOK_EVENTS = ['person.created', 'registration.created', 'ticket.created', 'checkin.completed', 'payment.paid', 'event.updated'];
 
@@ -32,12 +33,12 @@ const FlagsPanel = memo(() => {
     const { t } = useTranslation();
     const flags = useResource(listFeatureFlags);
     const refresh = useCallback(() => { void flags.refresh(); }, [flags]);
-    return <section className={cls.panel}>
+    return <Panel>
         <h2>{t('Feature flags')}</h2>
         <p className={cls.muted}>{t('Flags switch risky modules on or off. They do not grant permissions.')}</p>
         <RequestState error={flags.error} loading={flags.loading} />
         {flags.data?.map(item => <FlagRow key={item.key} flag={item} refresh={refresh} />)}
-    </section>;
+    </Panel>;
 });
 
 const ApiKeyRow = memo(({ apiKey, refresh }: { apiKey: ApiKey; refresh: () => void }) => {
@@ -65,7 +66,7 @@ const ApiKeysPanel = memo(() => {
         void action.run(async () => { setCreated((await createApiKey(String(values.get('name')), permissions)).key || ''); form.reset(); await keys.refresh(); });
     };
     const refresh = useCallback(() => { void keys.refresh(); }, [keys]);
-    return <section className={cls.panel}>
+    return <Panel>
         <h2>{t('API keys')}</h2>
         <RequestState error={keys.error || action.error} loading={keys.loading} />
         {keys.data?.map(item => <ApiKeyRow key={item.id} apiKey={item} refresh={refresh} />)}
@@ -75,7 +76,7 @@ const ApiKeysPanel = memo(() => {
             <Field label="Permissions (comma separated)"><input name="permissions" placeholder="events.read, people.read" required /></Field>
             <Button type="submit" disabled={action.busy}>{t('Create API key')}</Button>
         </form>
-    </section>;
+    </Panel>;
 });
 
 const WebhooksPanel = memo(() => {
@@ -90,7 +91,7 @@ const WebhooksPanel = memo(() => {
         const input = { name: String(values.get('name')), url: String(values.get('url')), events: values.getAll('events').map(String) };
         void action.run(async () => { setSecret((await createWebhook(input)).secret || ''); form.reset(); await hooks.refresh(); });
     };
-    return <section className={cls.panel}>
+    return <Panel>
         <h2>{t('Webhooks')}</h2>
         <RequestState error={hooks.error || action.error} loading={hooks.loading} />
         {hooks.data?.map(item => <div className={cls.row} key={item.id}><span>{item.name}</span><span className={cls.muted}>{item.url} · {item.events.join(', ')}</span><StatusBadge status={item.status} /></div>)}
@@ -101,7 +102,7 @@ const WebhooksPanel = memo(() => {
             <Field label="Events"><select name="events" multiple required>{WEBHOOK_EVENTS.map(item => <option key={item} value={item}>{item}</option>)}</select></Field>
             <Button type="submit" disabled={action.busy}>{t('Create webhook')}</Button>
         </form>
-    </section>;
+    </Panel>;
 });
 
 export const PlatformPage = memo(() => <CrmLayout title="Platform settings"><FlagsPanel /><ApiKeysPanel /><WebhooksPanel /></CrmLayout>);

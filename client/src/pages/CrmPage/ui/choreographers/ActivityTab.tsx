@@ -5,7 +5,8 @@ import { formatDateTime } from '@/shared/lib/format/date';
 import { Button } from '@/shared/ui/Button';
 import { Field } from '@/shared/ui/Field';
 import { RequestState } from '@/shared/ui/RequestState';
-import cls from '../CrmPage.module.scss';
+import { Panel } from '@/shared/ui/Panel';
+import cls from '@/shared/ui/layout/layout.module.scss';
 import own from './Choreographers.module.scss';
 
 // Filters are type prefixes; what the reader may not see is already left out by the server.
@@ -45,12 +46,12 @@ export const ActivityTab = memo(({ personId }: { personId: string }) => {
         finally { setLoading(false); }
     }, [personId, type]);
     useEffect(() => { void load(); }, [load]);
-    return <section className={cls.panel} aria-label={t('Activity')}><h2>{t('Activity')}</h2>
+    return <Panel aria-label={t('Activity')}><h2>{t('Activity')}</h2>
         <Field label="Show"><select value={type} onChange={(event) => setType(event.target.value)}>
             {FILTERS.map((filter) => <option key={filter.value} value={filter.value}>{t(filter.label)}</option>)}</select></Field>
         <RequestState error={error} loading={loading && !items.length} />
         <ul className={own.plainList}>{items.map((item) => <ActivityRow key={item.id} item={item} />)}</ul>
         {!loading && !items.length && <p className={cls.muted}>{t('Nothing has happened here yet.')}</p>}
         {nextBefore && <div className={cls.actions}><Button disabled={loading} onClick={() => void load(nextBefore)}>{t('Load more')}</Button></div>}
-    </section>;
+    </Panel>;
 });

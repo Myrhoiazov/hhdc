@@ -3,10 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { listNotificationSettings, NOTIFICATION_GROUPS, NotificationGroup, NotificationSetting, setNotificationEnabled } from '@/entities/Notification';
 import { formatDateTime } from '@/shared/lib/format/date';
 import { useResource } from '@/shared/lib/useResource/useResource';
-import { CrmLayout } from './common';
+import { CrmLayout } from '@/widgets/Page';
 import { RequestState } from '@/shared/ui/RequestState';
+import { Panel } from '@/shared/ui/Panel';
 import { NotificationTemplate } from './NotificationTemplate';
-import cls from './CrmPage.module.scss';
+import cls from '@/shared/ui/layout/layout.module.scss';
 import own from './NotificationsPage.module.scss';
 
 // A switch is saved at once. While it is being saved it cannot be pressed again, and a refusal
@@ -61,11 +62,11 @@ const GroupCard = memo(({ group, settings, savingKey, failed, onToggle, onSaved 
     const { t } = useTranslation();
     if (!settings.length) return null;
     const title = t(`Notification group: ${group}`);
-    return <section className={cls.panel} aria-label={title}>
+    return <Panel aria-label={title}>
         <h2 className={own.groupTitle}>{title}</h2>
         <ul className={own.rows}>{settings.map(setting => <SettingRow key={setting.key} setting={setting} saving={savingKey === setting.key}
             error={failed.key === setting.key ? failed.message || t('Unknown') : ''} onToggle={onToggle} onSaved={onSaved} />)}</ul>
-    </section>;
+    </Panel>;
 });
 
 // Which messages the bot sends to Telegram.

@@ -14,7 +14,7 @@ jest.mock('@/entities/User', () => ({
     getUserAuthData: jest.fn(),
     useCan: () => (permission: string) => mockPermissions.includes(permission),
 }));
-jest.mock('@/widgets/Page', () => ({ Page: ({ children }: { children: React.ReactNode }) => <div>{children}</div> }));
+jest.mock('@/widgets/Page/Page', () => ({ Page: ({ children }: { children: React.ReactNode }) => <div>{children}</div> }));
 
 const person = (id: string, overrides: Partial<Person> = {}): Person => ({
     id, firstName: 'Anna', lastName: 'Berg', displayName: 'Anna Berg', email: 'anna@example.test', phone: '+31600000001', status: 'ACTIVE', roles: [{ role: 'CUSTOMER' }],

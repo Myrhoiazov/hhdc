@@ -4,7 +4,7 @@ import { getDefaultEmailPrompts, listPrompts } from '@/entities/Prompt';
 import { listProviders } from '@/entities/Provider';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
-import { CrmLayout } from './common';
+import { CrmLayout } from '@/widgets/Page';
 import { RequestState } from '@/shared/ui/RequestState';
 import { EmailSimulationPanel } from './knowledge/EmailSimulationPanel';
 import { KnowledgeDocuments } from './knowledge/KnowledgeDocuments';

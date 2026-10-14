@@ -6,8 +6,8 @@ import { useResource } from '@/shared/lib/useResource/useResource';
 import { useAction } from '@/shared/lib/useResource/useAction';
 import { Button } from '@/shared/ui/Button';
 import { StatusBadge } from '@/shared/ui/StatusBadge';
-import { listStyles as table } from './ListTable';
-import cls from './CrmPage.module.scss';
+import { listStyles as table } from '@/shared/ui/ListTable';
+import cls from '@/shared/ui/layout/layout.module.scss';
 import own from './WeeztixData.module.scss';
 
 // A record Weeztix returned but the CRM could not read counts as failed: it was not saved.

@@ -7,7 +7,7 @@ jest.mock('@/entities/Event', () => ({
     createEvent: jest.fn(), listEventsPage: jest.fn(),
     EVENT_STATUSES: ['DRAFT', 'PUBLISHED', 'ACTIVE', 'COMPLETED', 'CANCELLED', 'ARCHIVED'],
 }));
-jest.mock('@/widgets/Page', () => ({ Page: ({ children }: { children: React.ReactNode }) => <div>{children}</div> }));
+jest.mock('@/widgets/Page/Page', () => ({ Page: ({ children }: { children: React.ReactNode }) => <div>{children}</div> }));
 
 const event = (id: string, overrides: Partial<Event> = {}): Event => ({
     id, name: 'Dance Camp 2027', slug: 'dance-camp-2027', status: 'PUBLISHED', startAt: '2027-05-21T10:00:00Z', endAt: '2027-05-23T18:00:00Z', timezone: 'Europe/Amsterdam',

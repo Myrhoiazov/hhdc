@@ -7,11 +7,12 @@ import { classNames } from '@/shared/lib/classNames/classNames';
 import { useAction } from '@/shared/lib/useResource/useAction';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
-import { CrmLayout } from './common';
+import { CrmLayout } from '@/widgets/Page';
 import { Field } from '@/shared/ui/Field';
 import { RequestState } from '@/shared/ui/RequestState';
 import { StatusBadge } from '@/shared/ui/StatusBadge';
-import cls from './CrmPage.module.scss';
+import { Panel } from '@/shared/ui/Panel';
+import cls from '@/shared/ui/layout/layout.module.scss';
 
 const HEALTH_LABELS: [string, 'failedJobs' | 'failedOutbox' | 'pendingOutbox' | 'failedWebhooks' | 'failedAutomationRuns'][] = [
     ['Failed jobs (24h)', 'failedJobs'], ['Failed background events', 'failedOutbox'], ['Queued background events', 'pendingOutbox'],
@@ -21,12 +22,12 @@ const HEALTH_LABELS: [string, 'failedJobs' | 'failedOutbox' | 'pendingOutbox' | 
 const HealthPanel = memo(() => {
     const { t } = useTranslation();
     const health = useResource(getOperationsHealth);
-    return <section className={cls.panel}>
+    return <Panel>
         <h2>{t('Integration health')}</h2>
         <RequestState error={health.error} loading={health.loading} />
         {health.data && HEALTH_LABELS.map(([label, key]) => <div className={cls.row} key={key}><span>{t(label)}</span><strong>{health.data?.[key]}</strong></div>)}
         {health.data?.providers.map(item => <div className={cls.row} key={item.id}><span>{item.name}</span><span className={cls.error}>{item.lastError}</span><StatusBadge status={item.status} /></div>)}
-    </section>;
+    </Panel>;
 });
 
 const TaskRow = memo(({ task, refresh }: { task: Task; refresh: () => void }) => {
@@ -44,12 +45,12 @@ const TasksPanel = memo(() => {
     const { t } = useTranslation();
     const tasks = useResource(listTasks);
     const refresh = useCallback(() => { void tasks.refresh(); }, [tasks]);
-    return <section className={cls.panel}>
+    return <Panel>
         <h2>{t('Tasks')}</h2>
         <RequestState error={tasks.error} loading={tasks.loading} />
         {tasks.data?.length === 0 && <p>{t('No tasks')}</p>}
         {tasks.data?.map(item => <TaskRow key={item.id} task={item} refresh={refresh} />)}
-    </section>;
+    </Panel>;
 });
 
 const CheckinOutcome = memo(({ result, error }: { result?: CheckinResult; error: string }) => {
@@ -76,7 +77,7 @@ const CheckinPanel = memo(() => {
         setResult(undefined);
         void action.run(async () => { setResult(await checkIn(String(values.get('code')), String(values.get('eventId')))); form.reset(); });
     };
-    return <form className={cls.panel} onSubmit={submit}>
+    return <Panel as="form" onSubmit={submit}>
         <h2>{t('Check-in')}</h2>
         <div className={cls.grid}>
             <Field label="Event"><select name="eventId"><option value="">{t('Any event')}</option>{events.data?.data.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></Field>
@@ -84,7 +85,7 @@ const CheckinPanel = memo(() => {
         </div>
         <Button type="submit" disabled={action.busy}>{t('Check in')}</Button>
         <CheckinOutcome result={result} error={action.error} />
-    </form>;
+    </Panel>;
 });
 
 export const OperationsPage = memo(() => <CrmLayout title="Operations"><CheckinPanel /><TasksPanel /><HealthPanel /></CrmLayout>);

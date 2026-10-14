@@ -1,0 +1,9 @@
+.Panel {
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+    background: var(--sidebar-bg-redesigned);
+    border: 1px solid var(--card-border-redesigned);
+    border-radius: var(--radius-md-redesigned);
+    gap: 16px;
+}

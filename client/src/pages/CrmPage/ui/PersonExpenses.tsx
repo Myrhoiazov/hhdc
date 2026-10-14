@@ -5,9 +5,11 @@ import { listPersonExpenses } from '@/entities/EventExpense';
 import { formatDate } from '@/shared/lib/format/date';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { RequestState } from '@/shared/ui/RequestState';
+import { Badge } from '@/shared/ui/Badge';
+import { Panel } from '@/shared/ui/Panel';
 import { ExpenseTotals, useExpenseText } from './EventExpenses';
-import { listStyles as own } from './ListTable';
-import cls from './CrmPage.module.scss';
+import { listStyles as own } from '@/shared/ui/ListTable';
+import cls from '@/shared/ui/layout/layout.module.scss';
 
 // What events planned for and paid to this person. The lines are entered on the event page;
 // here they are only read, so the person's page and the event never disagree.
@@ -17,7 +19,7 @@ export const PersonExpenses = memo(({ personId }: { personId: string }) => {
     const load = useCallback(() => listPersonExpenses(personId), [personId]);
     const expenses = useResource(load);
     const { data } = expenses;
-    return <section className={cls.panel} aria-label={t('Payments and expenses from events')}>
+    return <Panel aria-label={t('Payments and expenses from events')}>
         <h2>{t('Payments and expenses from events')}</h2>
         <RequestState error={expenses.error} loading={expenses.loading && !data} />
         {data?.lines.length === 0 && <p className={cls.muted}>{t('Nothing has been planned for or paid to this person on events yet')}</p>}
@@ -31,9 +33,9 @@ export const PersonExpenses = memo(({ personId }: { personId: string }) => {
                     <td>{text.category(line.category)}</td>
                     <td className={`${own.secondary} ${own.optional}`}>{line.description || '—'}</td>
                     <td className={own.number}>{text.money(line.amount)}</td>
-                    <td><span className={cls.badge}>{text.status(line.status)}</span></td>
+                    <td><Badge>{text.status(line.status)}</Badge></td>
                 </tr>)}</tbody>
             </table></div>
         </>}
-    </section>;
+    </Panel>;
 });

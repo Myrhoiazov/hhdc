@@ -12,10 +12,12 @@ import { StatusBadge } from '@/shared/ui/StatusBadge';
 import { useNumbers } from '@/shared/lib/format/useNumbers';
 import { Pager } from '@/shared/ui/Pager';
 import { useListFilters } from '@/shared/lib/hooks/useListFilters/useListFilters';
+import { Badge } from '@/shared/ui/Badge';
+import { Panel } from '@/shared/ui/Panel';
 import { Bar, chartStyles, Tile } from './Charts';
 import { REFUNDABLE, RefundRequestForm } from './FinanceRefunds';
-import { listStyles as table } from './ListTable';
-import cls from './CrmPage.module.scss';
+import { listStyles as table } from '@/shared/ui/ListTable';
+import cls from '@/shared/ui/layout/layout.module.scss';
 import own from './FinanceLedger.module.scss';
 
 export type LedgerView = 'dates' | 'categories';
@@ -107,7 +109,7 @@ const EntryRow = memo(({ entry, onRefunded }: { entry: LedgerEntry; onRefunded: 
     const done = () => { setRefunding(false); onRefunded(); };
     return <><tr>
         <td className={table.secondary}><time dateTime={entry.date}>{formatDate(entry.date)}</time></td>
-        <td><span className={cls.badge}>{text.category(entry.category)}</span></td>
+        <td><Badge>{text.category(entry.category)}</Badge></td>
         <td><NamedLink to="/people" named={entry.person} /></td>
         <td className={table.optional}><NamedLink to="/events" named={entry.event} /></td>
         <td className={`${table.secondary} ${table.optional}`}><EntryDescription entry={entry} /></td>
@@ -182,7 +184,7 @@ export const FinanceLedger = memo(({ onRefundRequested }: { onRefundRequested?: 
     return <>
         <LedgerFiltersBar filters={ledger.filters} events={events.data?.data ?? []} filtered={ledger.filtered} onChange={ledger.change} onReset={ledger.reset} />
         {summary && <LedgerTiles summary={summary} />}
-        <section className={cls.panel} aria-label={t('Operations')}>
+        <Panel aria-label={t('Operations')}>
             <div className={table.summary}>
                 <h2>{t('Operations')}</h2>
                 <ViewSwitch view={ledger.view} onChange={ledger.setView} />
@@ -191,6 +193,6 @@ export const FinanceLedger = memo(({ onRefundRequested }: { onRefundRequested?: 
             <RequestState error={ledger.list.error || ledger.summary.error || events.error} loading={loading} />
             <LedgerBody ledger={ledger} onRefunded={refunded} />
             <p className={cls.muted}>{t('Income is the price of the tickets that are still valid, as on the dashboard: without the fees of the ticket shop and of the payment method, and without tickets that were refunded, cancelled or transferred. Failed payments, payments of refunded orders, refunds that are not completed and cancelled expenses are listed but not counted.')}</p>
-        </section>
+        </Panel>
     </>;
 });

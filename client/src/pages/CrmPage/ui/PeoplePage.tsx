@@ -3,12 +3,13 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Activity, addPersonRole, getPerson, getPersonActivity, Person, PERSON_ROLES, PersonRole, removePersonRole, savePerson } from '@/entities/Person';
 import { formatDate, formatDateTime } from '@/shared/lib/format/date';
-import { classNames } from '@/shared/lib/classNames/classNames';
 import { Can, useCan } from '@/entities/User';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button, ButtonTheme } from '@/shared/ui/Button';
+import { Panel } from '@/shared/ui/Panel';
+import { Badge } from '@/shared/ui/Badge';
 import { peopleListPath } from '../model/peopleListUrl';
-import { CrmLayout } from './common';
+import { CrmLayout } from '@/widgets/Page';
 import { Field } from '@/shared/ui/Field';
 import { RequestState } from '@/shared/ui/RequestState';
 import { PersonConversations } from './PersonConversations';
@@ -16,7 +17,7 @@ import { PersonExpenses } from './PersonExpenses';
 import { PersonOrders } from './PersonOrders';
 import { PersonRemovalPanel } from './PersonRemoval';
 import { PersonTeamRoles } from './PersonTeamRoles';
-import cls from './CrmPage.module.scss';
+import cls from '@/shared/ui/layout/layout.module.scss';
 import own from './PersonPage.module.scss';
 
 const personName = (person: Person) => person.displayName || `${person.firstName} ${person.lastName}`;
@@ -40,7 +41,7 @@ const PersonForm = memo(({ person, onSaved }: { person: Person; onSaved: () => v
         finally { setSaving(false); }
     };
     // "Saved" is true only until the next keystroke: after it the form differs from what is stored.
-    return <form className={cls.panel} onSubmit={submit} onChange={() => setSaved(false)}><h2>{t('Edit contact')}</h2>
+    return <Panel as="form" onSubmit={submit} onChange={() => setSaved(false)}><h2>{t('Edit contact')}</h2>
         <div className={cls.grid}>
             <Field label="First name"><input name="firstName" defaultValue={person.firstName} required /></Field>
             <Field label="Last name"><input name="lastName" defaultValue={person.lastName} required /></Field>
@@ -53,7 +54,7 @@ const PersonForm = memo(({ person, onSaved }: { person: Person; onSaved: () => v
             {saved && <span role="status" className={cls.muted}>{t('Saved')}</span>}
             <Button type="submit" theme={ButtonTheme.BACKGROUND_INVERTED} disabled={saving}>{t('Save')}</Button>
         </div>
-    </form>;
+    </Panel>;
 });
 
 interface PersonProps { person: Person; onSaved: () => void }
@@ -62,10 +63,10 @@ interface PersonProps { person: Person; onSaved: () => void }
 // undone where it was given. A role it lacks is a dashed button that gives it.
 const RoleBadge = memo(({ role, onRemove }: { role: PersonRole; onRemove: (role: PersonRole) => void }) => {
     const { t } = useTranslation();
-    return <span className={classNames(cls.badge, {}, [own.role])}>
+    return <Badge className={own.role}>
         {t(role)}
         <button type="button" className={own.removeRole} aria-label={t('Remove the role {{role}}', { role: t(role) })} onClick={() => onRemove(role)}>×</button>
-    </span>;
+    </Badge>;
 });
 
 const PersonRoles = memo(({ person, onSaved }: PersonProps) => {
@@ -95,7 +96,7 @@ const contactLink = (scheme: 'mailto' | 'tel', value?: string | null) => (value 
 // Who the contact is, read at a glance: the form below is for changing it, not for reading it.
 const PersonSummary = memo(({ person, onSaved }: PersonProps) => {
     const { t } = useTranslation();
-    return <section className={cls.panel} aria-label={t('Contact summary')}>
+    return <Panel aria-label={t('Contact summary')}>
         <dl className={own.facts}>
             <Fact label="Email">{contactLink('mailto', person.email)}</Fact>
             <Fact label="Phone">{contactLink('tel', person.phone)}</Fact>
@@ -104,7 +105,7 @@ const PersonSummary = memo(({ person, onSaved }: PersonProps) => {
             <Fact label="Added">{person.createdAt ? formatDate(person.createdAt) : '—'}</Fact>
         </dl>
         <PersonRoles person={person} onSaved={onSaved} />
-    </section>;
+    </Panel>;
 });
 
 const PersonActivity = memo(({ activity }: { activity: Activity[] | undefined }) => {
@@ -146,10 +147,10 @@ export const PersonPage = memo(() => {
     const listPath = peopleListPath(useLocation().state);
     const can = useCan();
     const refresh = () => { void person.refresh(); void activity.refresh(); };
-    const timeline = <section className={cls.panel} aria-label={t('Activity timeline')}><h2>{t('Activity timeline')}</h2>
+    const timeline = <Panel aria-label={t('Activity timeline')}><h2>{t('Activity timeline')}</h2>
         <RequestState error={activity.error} loading={activity.loading && !activity.data} />
         <PersonActivity activity={activity.data?.data} />
-    </section>;
+    </Panel>;
     return <CrmLayout title={person.data ? personName(person.data) : 'Person'} back={{ to: listPath, label: 'Back to contacts' }}>
         <RequestState error={person.error} loading={person.loading && !person.data} />
         {person.data && <PersonBody person={person.data} can={can} activity={timeline} onSaved={refresh} onDeleted={() => navigate(listPath)} />}

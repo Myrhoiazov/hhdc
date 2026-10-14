@@ -6,7 +6,8 @@ import { Button } from '@/shared/ui/Button';
 import { Field } from '@/shared/ui/Field';
 import { RequestState } from '@/shared/ui/RequestState';
 import { StatusBadge } from '@/shared/ui/StatusBadge';
-import cls from './CrmPage.module.scss';
+import { Panel } from '@/shared/ui/Panel';
+import cls from '@/shared/ui/layout/layout.module.scss';
 
 export const REFUNDABLE = ['PAID', 'PARTIALLY_REFUNDED'];
 type RefundAction = 'approve' | 'reject' | 'process' | 'sync';
@@ -53,8 +54,8 @@ const RefundRow = memo(({ refund, refresh }: { refund: Refund; refresh: () => vo
 export const RefundsPanel = memo(({ refunds, refresh }: { refunds: Refund[]; refresh: () => void }) => {
     const { t } = useTranslation();
     if (!refunds.length) return null;
-    return <section className={cls.panel} aria-label={t('Refunds')}>
+    return <Panel aria-label={t('Refunds')}>
         <h2>{t('Refunds')}</h2>
         {refunds.map(item => <RefundRow key={item.id} refund={item} refresh={refresh} />)}
-    </section>;
+    </Panel>;
 });

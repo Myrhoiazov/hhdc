@@ -5,15 +5,16 @@ import { formatDateTime } from '@/shared/lib/format/date';
 import { useAction } from '@/shared/lib/useResource/useAction';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
+import { Panel } from '@/shared/ui/Panel';
 import { PROVIDER_FORMS, providerFormFor } from '../model/providerForms';
 import { AiSwitch } from './AiSwitch';
-import { CrmLayout } from './common';
+import { CrmLayout } from '@/widgets/Page';
 import { Field } from '@/shared/ui/Field';
 import { RequestState } from '@/shared/ui/RequestState';
 import { StatusBadge } from '@/shared/ui/StatusBadge';
 import { ProviderForm } from './ProviderForm';
 import { WeeztixConnect } from './WeeztixConnect';
-import cls from './CrmPage.module.scss';
+import cls from '@/shared/ui/layout/layout.module.scss';
 
 const GROUPS = ['EMAIL', 'AI', 'TICKETING', 'PAYMENT', 'STORAGE', 'MESSAGING', 'SIGNATURE'];
 const GROUP_TITLES: Record<string, string> = {
@@ -74,7 +75,7 @@ const ProviderCard = memo(({ provider, refresh }: { provider: ProviderConnection
     const definition = providerFormFor(provider.provider);
     const saved = useCallback(() => { setConfiguring(false); refresh(); }, [refresh]);
     const close = useCallback(() => setConfiguring(false), []);
-    return <article className={cls.panel} aria-label={provider.name}>
+    return <Panel as="article" aria-label={provider.name}>
         <div className={cls.row}>
             <strong>{provider.name}</strong>
             <span className={cls.muted}>{definition ? t(definition.label) : provider.provider}</span>
@@ -88,13 +89,13 @@ const ProviderCard = memo(({ provider, refresh }: { provider: ProviderConnection
         {actions.notice && <p role="status">{actions.notice}</p>}
         <RequestState error={actions.action.error} loading={false} />
         {configuring && definition && <ProviderForm definition={definition} provider={provider} onSaved={saved} onCancel={close} />}
-    </article>;
+    </Panel>;
 });
 
 const ProviderGroup = memo(({ type, providers, refresh }: { type: string; providers: ProviderConnection[]; refresh: () => void }) => {
     const { t } = useTranslation();
     if (!providers.length) return null;
-    return <section className={cls.CrmPage} aria-label={t(GROUP_TITLES[type] ?? type)}>
+    return <section className={cls.stack} aria-label={t(GROUP_TITLES[type] ?? type)}>
         <h2>{t(GROUP_TITLES[type] ?? type)}</h2>
         {type === 'AI' && <AiSwitch providers={providers} refresh={refresh} />}
         {providers.map((item) => <ProviderCard key={item.id} provider={item} refresh={refresh} />)}
@@ -105,7 +106,7 @@ const ConnectPanel = memo(({ onSaved }: { onSaved: () => void }) => {
     const { t } = useTranslation();
     const [selected, setSelected] = useState(PROVIDER_FORMS[0].provider);
     const definition = providerFormFor(selected) ?? PROVIDER_FORMS[0];
-    return <section className={cls.panel}>
+    return <Panel>
         <h2>{t('Connect a provider')}</h2>
         <Field label="Provider">
             <select value={selected} onChange={(event) => setSelected(event.target.value)}>
@@ -113,7 +114,7 @@ const ConnectPanel = memo(({ onSaved }: { onSaved: () => void }) => {
             </select>
         </Field>
         <ProviderForm key={definition.provider} definition={definition} onSaved={onSaved} />
-    </section>;
+    </Panel>;
 });
 
 export const ProvidersPage = memo(() => {

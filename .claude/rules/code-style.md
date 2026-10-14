@@ -36,6 +36,13 @@
   соседа (`Event` содержит `Person`), сосед объявляет это файлом `@x`: `entities/Person/@x/event.ts` реэкспортирует
   только нужные типы, а `Event` импортирует `@/entities/Person/@x/event`. Вне слоя `entities` такой импорт запрещён
   линтером.
+- Страница CRM собирается из готового: рамка — `CrmLayout` из `@/widgets/Page`; блок — `Panel` из
+  `shared/ui/Panel` (`as="form"`, когда блок сам является формой); пилюля статуса, роли или категории — `Badge`
+  (`tone="success" | "danger"`) или `StatusBadge`. Раскладка между ними — классы
+  `shared/ui/layout/layout.module.scss` (`stack`, `grid`, `row`, `wide`, `actions`, `muted`, `error`), таблицы и
+  фильтры списков — `listStyles` из `shared/ui/ListTable`.
+- Обращение к классу, которого нет в SCSS-модуле (`cls.panel` после переименования), TypeScript не ловит: элемент
+  молча остаётся без стиля. После переноса или переименования стилей сверяй страницу в браузере в обеих темах.
 - Общие блоки не пиши заново. Форма и списки: `shared/ui/Field`, `RequestState`, `StatusBadge`, `Pager`,
   `ConfirmDelete`. Хелперы: `shared/lib/format/date` (`formatDate`, `formatDateTime`, `formatLongDate`) вместо
   `toLocale*String`, `shared/lib/format/useNumbers` для денег и чисел, `shared/lib/form/formText` для текста поля

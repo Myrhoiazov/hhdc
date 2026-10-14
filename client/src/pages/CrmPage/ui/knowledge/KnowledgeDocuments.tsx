@@ -11,8 +11,10 @@ import { StatusBadge } from '@/shared/ui/StatusBadge';
 import { ConfirmDelete } from '@/shared/ui/ConfirmDelete';
 import { Pager } from '@/shared/ui/Pager';
 import { useListFilters } from '@/shared/lib/hooks/useListFilters/useListFilters';
-import { listStyles as table } from '../ListTable';
-import cls from '../CrmPage.module.scss';
+import { Badge } from '@/shared/ui/Badge';
+import { Panel } from '@/shared/ui/Panel';
+import { listStyles as table } from '@/shared/ui/ListTable';
+import cls from '@/shared/ui/layout/layout.module.scss';
 import { KnowledgeSyncPanel } from './KnowledgeSyncPanel';
 
 const SCOPES = ['GLOBAL', 'EVENT'];
@@ -58,7 +60,7 @@ const DocumentRow = memo(({ document, onOpen, onDeleted, onError }: RowProps) =>
     const { t } = useTranslation();
     return <tr>
         <td><button type="button" className={`${table.name} ${table.nameButton}`} onClick={() => onOpen(document)}>{document.title}</button></td>
-        <td><span className={cls.badge}>{t(`Knowledge scope: ${document.scope}`)}</span></td>
+        <td><Badge>{t(`Knowledge scope: ${document.scope}`)}</Badge></td>
         <td><StatusBadge status={document.status} /></td>
         <td className={`${table.secondary} ${table.optional}`}>{document.sourceType ? t(`Knowledge source: ${document.sourceType}`, { defaultValue: document.sourceType }) : '—'}</td>
         <td className={`${table.secondary} ${table.optional}`}>{document.updatedAt ? formatDate(document.updatedAt) : '—'}</td>
@@ -97,7 +99,7 @@ const KnowledgeForm = memo(({ document, onSaved, onCancel }: FormProps) => {
         finally { setBusy(false); }
     };
     const title = t(document ? 'Edit document' : 'Create knowledge document');
-    return <form className={cls.panel} onSubmit={event => void submit(event)} aria-label={title}><h2>{title}</h2>
+    return <Panel as="form" onSubmit={event => void submit(event)} aria-label={title}><h2>{title}</h2>
         <div className={cls.grid}>
             <Field label="Title"><input name="title" defaultValue={document?.title} required /></Field>
             <Field label="Scope"><select value={scope} onChange={event => setScope(event.target.value)}>{SCOPES.map(item => <option key={item} value={item}>{t(`Knowledge scope: ${item}`)}</option>)}</select></Field>
@@ -107,7 +109,7 @@ const KnowledgeForm = memo(({ document, onSaved, onCancel }: FormProps) => {
         <Field label="Content"><textarea name="content" rows={12} defaultValue={document?.content} required /></Field>
         <RequestState error={error} loading={false} />
         <div className={cls.actions}><Button type="submit" disabled={busy}>{t('Save')}</Button>{document && <Button disabled={busy} onClick={onCancel}>{t('Cancel')}</Button>}</div>
-    </form>;
+    </Panel>;
 });
 
 // The documents the assistant answers from: a filtered, paged list and the editor of one document.
@@ -122,7 +124,7 @@ export const KnowledgeDocuments = memo(() => {
     return <>
         <KnowledgeSyncPanel onSynced={refresh} />
         <KnowledgeFiltersBar filters={knowledge.filters} filtered={knowledge.filtered} onChange={knowledge.change} onReset={knowledge.reset} />
-        <section className={cls.panel} aria-label={t('Knowledge documents')}>
+        <Panel aria-label={t('Knowledge documents')}>
             <div className={table.summary}>
                 <h2>{t('Knowledge documents')}</h2>
                 {data && <span className={cls.muted}>{t('Documents found: {{count}}', { count: data.total })}</span>}
@@ -131,7 +133,7 @@ export const KnowledgeDocuments = memo(() => {
             {data && data.total > 0 && <DocumentsTable documents={data.data} onOpen={setSelected} onDeleted={refresh} onError={setError} />}
             {data?.total === 0 && <p className={cls.muted}>{t(knowledge.filtered ? 'No documents match the filters' : 'No knowledge documents yet')}</p>}
             {data && <Pager page={knowledge.page} total={data.total} onChange={knowledge.setPage} />}
-        </section>
+        </Panel>
         <KnowledgeForm key={selected?.id || 'new'} document={selected} onSaved={refresh} onCancel={() => setSelected(undefined)} />
     </>;
 });

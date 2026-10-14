@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { KnowledgeSyncSummary, syncKnowledgeV2 } from '@/entities/Knowledge';
 import { Button } from '@/shared/ui/Button';
 import { RequestState } from '@/shared/ui/RequestState';
-import cls from '../CrmPage.module.scss';
+import { Panel } from '@/shared/ui/Panel';
+import cls from '@/shared/ui/layout/layout.module.scss';
 
 const SyncResult = memo(({ summary }: { summary: KnowledgeSyncSummary }) => {
     const { t } = useTranslation();
@@ -25,7 +26,7 @@ export const KnowledgeSyncPanel = memo(({ onSynced }: { onSynced: () => void }) 
         catch (cause) { setError(cause instanceof Error ? cause.message : t('Request failed')); }
         finally { setBusy(false); }
     };
-    return <section className={cls.panel} aria-label={t('Ready-made knowledge base')}>
+    return <Panel aria-label={t('Ready-made knowledge base')}>
         <h2>{t('Ready-made knowledge base')}</h2>
         <p className={cls.muted}>{t('Loads the bundled rules, facts, FAQ and reply examples and prepares them for the email assistant.')}</p>
         <label className={cls.check}>
@@ -37,5 +38,5 @@ export const KnowledgeSyncPanel = memo(({ onSynced }: { onSynced: () => void }) 
         </div>
         <RequestState error={error} loading={false} />
         {summary && <SyncResult summary={summary} />}
-    </section>;
+    </Panel>;
 });

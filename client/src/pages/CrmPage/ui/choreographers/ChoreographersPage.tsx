@@ -6,12 +6,13 @@ import { listPeople } from '@/entities/Person';
 import { useCan } from '@/entities/User';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
-import { CrmLayout } from '../common';
+import { CrmLayout } from '@/widgets/Page';
 import { Field } from '@/shared/ui/Field';
 import { RequestState } from '@/shared/ui/RequestState';
 import { StatusBadge } from '@/shared/ui/StatusBadge';
+import { Panel } from '@/shared/ui/Panel';
 import { ChoreographerAvatar } from './ChoreographerAvatar';
-import cls from '../CrmPage.module.scss';
+import cls from '@/shared/ui/layout/layout.module.scss';
 import own from './Choreographers.module.scss';
 
 export const choreographerName = (item: { person: { displayName: string }; profile: { stageName: string | null } | null }) =>
@@ -53,7 +54,7 @@ const AddChoreographer = memo(() => {
         catch (cause) { setError(cause instanceof Error ? cause.message : t('Request failed')); }
         finally { setBusy(false); }
     };
-    return <section className={cls.panel} aria-label={t('Add choreographer')}>
+    return <Panel aria-label={t('Add choreographer')}>
         <h2>{t('Add choreographer')}</h2>
         <p className={cls.muted}>{t('Pick an existing contact. Create the contact under People first if it does not exist yet.')}</p>
         <div className={own.filters}>
@@ -65,7 +66,7 @@ const AddChoreographer = memo(() => {
         </div>
         <div className={cls.actions}><Button disabled={busy || !personId} onClick={() => void add()}>{t('Create choreographer profile')}</Button></div>
         <RequestState error={error} loading={false} />
-    </section>;
+    </Panel>;
 });
 
 const Pager = memo(({ page, total, onChange }: { page: number; total: number; onChange: (page: number) => void }) => {
@@ -96,11 +97,11 @@ export const ChoreographersPage = memo(() => {
             </select></Field>
         </div>
         <RequestState error={list.error} loading={list.loading} />
-        <section className={cls.panel} aria-label={t('Choreographers')}>
+        <Panel aria-label={t('Choreographers')}>
             {list.data?.data.map((item) => <ChoreographerRow key={item.person.id} item={item} />)}
             {list.data?.total === 0 && <p className={cls.muted}>{t('No choreographers found')}</p>}
             {list.data && <Pager page={page} total={list.data.total} onChange={setPage} />}
-        </section>
+        </Panel>
         {can('choreographers.create') && <AddChoreographer />}
     </CrmLayout>;
 });

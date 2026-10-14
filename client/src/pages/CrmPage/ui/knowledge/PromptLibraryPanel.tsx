@@ -5,7 +5,8 @@ import { Button } from '@/shared/ui/Button';
 import { Field } from '@/shared/ui/Field';
 import { RequestState } from '@/shared/ui/RequestState';
 import { StatusBadge } from '@/shared/ui/StatusBadge';
-import cls from '../CrmPage.module.scss';
+import { Panel } from '@/shared/ui/Panel';
+import cls from '@/shared/ui/layout/layout.module.scss';
 import own from './Knowledge.module.scss';
 
 const KEY_TITLES: Record<EmailPromptKey, string> = { email_classification: 'Classification prompt', email_draft_body: 'Reply prompt' };
@@ -47,7 +48,7 @@ const PromptSlot = memo(({ promptKey, versions, defaultContent, onChanged }: Pro
         const purpose = String(new FormData(event.currentTarget).get('purpose') ?? '');
         void run(() => createPromptVersion({ key: promptKey, purpose, systemPrompt: content }));
     };
-    return <section className={cls.panel} aria-label={t(KEY_TITLES[promptKey])}>
+    return <Panel aria-label={t(KEY_TITLES[promptKey])}>
         <h2>{t(KEY_TITLES[promptKey])}</h2>
         <p className={cls.muted}>{t(active ? 'A saved version is active.' : 'The built-in text is in use until a saved version is activated.')}</p>
         {PLACEHOLDERS[promptKey] && <p className={cls.muted}>{`${t('Placeholders filled in for every email')}: ${PLACEHOLDERS[promptKey]}`}</p>}
@@ -61,7 +62,7 @@ const PromptSlot = memo(({ promptKey, versions, defaultContent, onChanged }: Pro
             </div>
         </form>
         <RequestState error={error} loading={false} />
-    </section>;
+    </Panel>;
 });
 
 export const PromptLibraryPanel = memo(({ prompts, defaults, onChanged }: {

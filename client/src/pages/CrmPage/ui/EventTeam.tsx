@@ -13,8 +13,9 @@ import { RequestState } from '@/shared/ui/RequestState';
 import { useNumbers } from '@/shared/lib/format/useNumbers';
 import { ConfirmDelete } from '@/shared/ui/ConfirmDelete';
 import { useDelayed } from '@/shared/lib/hooks/useDelayed/useDelayed';
-import { listStyles as list } from './ListTable';
-import cls from './CrmPage.module.scss';
+import { Panel } from '@/shared/ui/Panel';
+import { listStyles as list } from '@/shared/ui/ListTable';
+import cls from '@/shared/ui/layout/layout.module.scss';
 import own from './EventTeam.module.scss';
 
 const MIN_SEARCH = 2;
@@ -207,7 +208,7 @@ export const EventTeam = memo(({ eventId, canEdit, seesMoney, version = 0, onCha
     const refresh = useCallback(() => { void team.refresh(); onChanged?.(); }, [team, onChanged]);
     const changes = useTeamChanges(eventId, refresh);
     const { data } = team;
-    return <section id="event-team" className={cls.panel} aria-label={t('Team')}>
+    return <Panel id="event-team" aria-label={t('Team')}>
         <h2>{t('Team')}</h2>
         <RoleHints />
         <RequestState error={team.error || changes.error} loading={team.loading && !data} />
@@ -215,5 +216,5 @@ export const EventTeam = memo(({ eventId, canEdit, seesMoney, version = 0, onCha
             onOpen={changes.setOpen} onDelete={changes.remove} onSave={changes.save} onPay={changes.pay} />}
         {data?.length === 0 && <p className={cls.muted}>{t('Nobody in the team of this event yet')}</p>}
         {canEdit && <AddMember eventId={eventId} seesMoney={seesMoney} onSaved={refresh} />}
-    </section>;
+    </Panel>;
 });

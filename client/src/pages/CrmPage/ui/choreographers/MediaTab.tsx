@@ -5,8 +5,9 @@ import { classNames } from '@/shared/lib/classNames/classNames';
 import { useResource } from '@/shared/lib/useResource/useResource';
 import { Button } from '@/shared/ui/Button';
 import { RequestState } from '@/shared/ui/RequestState';
+import { Panel } from '@/shared/ui/Panel';
 import { usePhotoUrl } from './usePhotoUrl';
-import cls from '../CrmPage.module.scss';
+import cls from '@/shared/ui/layout/layout.module.scss';
 import own from './Choreographers.module.scss';
 
 const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
@@ -109,7 +110,7 @@ export const MediaTab = memo(({ personId, canManage, onChanged }: { personId: st
         onRights: (id, rightsStatus) => void run(() => updateChoreographerPhoto(personId, id, { rightsStatus })),
         onRemove: (id) => { if (window.confirm(t('Remove this photo?'))) void run(() => removeChoreographerPhoto(personId, id)); },
     };
-    return <section className={cls.panel} aria-label={t('Photos')}>
+    return <Panel aria-label={t('Photos')}>
         <h2>{t('Photos')}</h2>
         <p className={cls.muted}>{`${list.length} / ${MAX_CHOREOGRAPHER_PHOTOS}`}</p>
         <RequestState error={error || photos.error} loading={photos.loading && !photos.data} />
@@ -117,5 +118,5 @@ export const MediaTab = memo(({ personId, canManage, onChanged }: { personId: st
         <ul className={own.photoGrid}>{list.map((photo, index) => <PhotoCard key={photo.id} personId={personId} photo={photo} index={index}
             total={list.length} canManage={canManage && !busy} actions={actions} />)}</ul>
         {photos.data?.length === 0 && <p className={cls.muted}>{t('No photos yet.')}</p>}
-    </section>;
+    </Panel>;
 });
