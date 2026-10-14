@@ -14,3 +14,5 @@ export type {
     LedgerSummary,
     LedgerFilters,
 } from './model/types';
+export { canRefund, paymentIdOf, nextRefundActions } from './model/refunds';
+export type { RefundAction } from './model/refunds';

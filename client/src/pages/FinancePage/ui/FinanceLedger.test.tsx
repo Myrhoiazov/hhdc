@@ -4,7 +4,9 @@ import { getLedgerSummary, LedgerEntry, LedgerSummary, listLedgerPage, requestRe
 import { listEvents } from '@/entities/Event';
 import { FinanceLedger } from './FinanceLedger';
 
+// The refund rules are the real ones of the entity; only the requests are replaced.
 jest.mock('@/entities/Finance', () => ({
+    ...jest.requireActual('@/entities/Finance'),
     listLedgerPage: jest.fn(), getLedgerSummary: jest.fn(), requestRefund: jest.fn(),
     actOnRefund: jest.fn(), LEDGER_CATEGORIES: ['TICKETS', 'REFUNDS', 'FEE', 'VENUE'],
 }));
