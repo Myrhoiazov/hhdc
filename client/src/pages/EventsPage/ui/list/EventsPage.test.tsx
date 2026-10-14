@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { Event, listEventsPage } from '@/entities/Event';
-import { EventsPage } from './EventsList';
+import { EventsPage } from './EventsPage';
 
 jest.mock('@/entities/Event', () => ({
     createEvent: jest.fn(), listEventsPage: jest.fn(),

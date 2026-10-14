@@ -15,3 +15,4 @@ export type {
 } from './model/types';
 export { useExpenseText } from './lib/useExpenseText';
 export { ExpenseTotals } from './ui/ExpenseTotals/ExpenseTotals';
+export { nextExpenseActions } from './model/statusActions';
