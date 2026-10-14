@@ -28,3 +28,4 @@ export type {
     WeeztixSalesResult,
     SyncRun,
 } from './model/types';
+export { activeAiProvider, generationCandidates } from './model/activeAi';
