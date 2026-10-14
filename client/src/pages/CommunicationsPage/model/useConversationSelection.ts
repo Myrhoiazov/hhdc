@@ -22,14 +22,25 @@ export const useConversationSelection = (conversations: Conversation[]): Convers
     const [chosen, setChosen] = useState(NOTHING);
     // Only loaded conversations count: one that left the list drops out of the selection by itself.
     const selectedIds = useMemo(
-        () => conversations.filter((conversation) => chosen.has(conversation.id)).map((conversation) => conversation.id),
-        [conversations, chosen],
+        () =>
+            conversations
+                .filter((conversation) => chosen.has(conversation.id))
+                .map((conversation) => conversation.id),
+        [conversations, chosen]
     );
     const allSelected = conversations.length > 0 && selectedIds.length === conversations.length;
-    const toggle = useCallback((id: string) => setChosen((previous) => withToggled(previous, id)), []);
+    const toggle = useCallback(
+        (id: string) => setChosen((previous) => withToggled(previous, id)),
+        []
+    );
     const toggleAll = useCallback(
-        () => setChosen(allSelected ? NOTHING : new Set(conversations.map((conversation) => conversation.id))),
-        [allSelected, conversations],
+        () =>
+            setChosen(
+                allSelected
+                    ? NOTHING
+                    : new Set(conversations.map((conversation) => conversation.id))
+            ),
+        [allSelected, conversations]
     );
     const clear = useCallback(() => setChosen(NOTHING), []);
     const keepOnly = useCallback((ids: string[]) => setChosen(new Set(ids)), []);

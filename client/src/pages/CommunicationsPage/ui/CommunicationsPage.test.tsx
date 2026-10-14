@@ -17,7 +17,11 @@ jest.mock('@/entities/Conversation', () => ({
     applyConversationDisposition: jest.fn(), markConversationRead: jest.fn(),
     composeEmail: jest.fn(), getUnreadByMailbox: jest.fn(),
 }));
-jest.mock('@/entities/Prompt', () => ({ listPrompts: jest.fn() }));
+// The request is replaced inside the entity, so its own choice of the reply prompts still runs.
+jest.mock('@/entities/Prompt/api/promptApi', () => ({
+    ...jest.requireActual('@/entities/Prompt/api/promptApi'),
+    listPrompts: jest.fn(),
+}));
 jest.mock('@/entities/Provider', () => ({ listProviders: jest.fn() }));
 
 const mailboxA = { id: 'mail-a', name: 'DDC NL', type: 'EMAIL', provider: 'IMAP', status: 'CONNECTED', settings: {} };

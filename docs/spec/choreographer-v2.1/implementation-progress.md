@@ -19,7 +19,7 @@ index on status, idempotent backfill of a profile for every person with the `CHO
 - Permissions `choreographers.read`, `choreographers.create`, `choreographers.update` added to the seed
 - Profile changes write `Activity` (field names) and `AuditLog` (before/after values)
 
-**Client** (`client/src/pages/CrmPage/ui/choreographers/`)
+**Client** (`client/src/pages/ChoreographersPage/`)
 - List at `/people/choreographers`, profile at `/people/choreographers/:id[/:tab]`, menu entry gated by `choreographers.read`
 - Header with summary chips; tabs Overview and Biography (edit form with the update permission, read-only otherwise)
 
@@ -53,7 +53,7 @@ biography version per language and kind).
 - `bio.service.ts`: immutable biography versions per language and kind (SHORT / FULL / PROMO), plain text only.
 - `content.routes.ts`; permissions `choreographers.contacts.read`, `choreographers.contacts.manage`, `choreographers.media.manage`.
 
-**Client** (`client/src/pages/CrmPage/ui/choreographers/`)
+**Client** (`client/src/pages/ChoreographersPage/`)
 - Tabs Photos (`MediaTab.tsx`), Contacts (`ContactsTab.tsx`) and biography variants (`BioVersions.tsx`); tabs are listed by permission.
 
 **Tests**: `storage.test.ts` (4), `content.test.ts` (7), `ChoreographerPages.test.tsx` (12).
