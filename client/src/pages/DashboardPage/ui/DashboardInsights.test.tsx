@@ -1,7 +1,7 @@
 import { render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { DashboardInsights, getDashboardInsights } from '@/entities/Dashboard';
-import { DashboardInsightsPanel } from './DashboardInsights';
+import { DashboardInsightsPanel } from './DashboardInsightsPanel';
 
 jest.mock('@/entities/Dashboard', () => ({ getDashboardInsights: jest.fn() }));
 

@@ -5,7 +5,7 @@ import { useResource } from '@/shared/lib/useResource/useResource';
 import { RequestState } from '@/shared/ui/RequestState';
 import { useNumbers } from '@/shared/lib/format/useNumbers';
 import { Panel } from '@/shared/ui/Panel';
-import { Bar, chartStyles as own, Tile } from './Charts';
+import { Bar, chartStyles as own, Tile } from '@/shared/ui/Chart';
 import cls from '@/shared/ui/layout/layout.module.scss';
 
 const useFormat = (currency: string) => {

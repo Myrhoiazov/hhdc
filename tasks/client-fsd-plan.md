@@ -1,7 +1,7 @@
 # План: приведение `client/` к Feature-Sliced Design
 
-Статус на 2026-10-14: этапы 1–3 и задача 4.0 слиты (PR #13–#17). Задача 4.1, часть 1 (страницы настроек) — в ветке
-`refactor/client-settings-pages`.
+Статус на 2026-10-14: этапы 1–3, задачи 4.0 и 4.1a слиты (PR #13–#18). Задача 4.1b (финансы и дашборд) — в ветке
+`refactor/client-finance-dashboard`.
 
 ## Состояние после этапов 1–3
 
@@ -304,7 +304,10 @@
 
 - **4.1a — настройки (сделано, ветка `refactor/client-settings-pages`):** `UsersPage`, `PlatformPage`,
   `NotificationsPage`, `AuditPage`, `ProvidersPage`.
-- **4.1b — финансы и дашборд:** `FinancePage`, `DashboardPage`.
+- **4.1b — финансы и дашборд (сделано, ветка `refactor/client-finance-dashboard`):** `FinancePage`, `DashboardPage`.
+  Графики (`Bar`, `Tile`, `chartStyles`) нужны финансам, дашборду и продажам события — переехали в `shared/ui/Chart`.
+  Правила возвратов (какой платёж можно вернуть, id платежа в операции, шаги возврата) — в `entities/Finance` с
+  тестами; свёртка списка стран — в `model` дашборда с тестом.
 - **4.1c — операционные:** `AutomationsPage`, `OperationsPage`, `AssistantPage`, `DuplicatesPage`, `CampaignsPage`.
 
 **Acceptance criteria:**
