@@ -49,8 +49,9 @@
 - [x] PR #20 (4.1c) слит в `develop`
 - [x] 4.2: хореографы — слайс страниц, виджеты `EventDocuments` и `PersonExpenses`, правила в сущностях
 - [ ] 4.2: разделить `ChoreographerPages.test.tsx` по вкладкам
-- [ ] PR 4.2 в `develop`
-- [ ] 4.3: база знаний
+- [x] PR #21 (4.2) слит в `develop`
+- [x] 4.3: база знаний
+- [ ] PR 4.3 в `develop`
 - [ ] 4.4: Events
 - [ ] 4.5: People
 - [ ] 4.6: Почта; `pages/CrmPage` удалён
