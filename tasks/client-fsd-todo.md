@@ -57,8 +57,9 @@
 - [x] 4.5: People — слайс страниц, виджет `ConversationThread`, `MailBadge`, правила имени и заказа в сущностях
 - [x] PR #24 (4.5) слит в `develop`
 - [x] 4.6: Почта; `pages/CrmPage` удалён
-- [ ] PR 4.6 в `develop`
+- [x] PR #25 (4.6) слит в `develop`
 
 ## Этап 5. Prettier как правило
 
-- [ ] `prettier/prettier` включён для всего `client/src`
+- [x] Клиент отформатирован Prettier, `prettier/prettier` — ошибка линтера
+- [ ] PR этапа 5 в `develop`
