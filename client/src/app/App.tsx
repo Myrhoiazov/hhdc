@@ -28,7 +28,10 @@ const App = () => {
         <div className={classNames('app', {}, [])}>
             <Navbar onMobileMenuToggle={() => setMobileMenuOpen((prev) => !prev)} />
             <div className="content-page">
-                <Sidebar mobileOpen={mobileMenuOpen} onMobileClose={() => setMobileMenuOpen(false)} />
+                <Sidebar
+                    mobileOpen={mobileMenuOpen}
+                    onMobileClose={() => setMobileMenuOpen(false)}
+                />
                 <AppRouter />
             </div>
             <ToastContainer

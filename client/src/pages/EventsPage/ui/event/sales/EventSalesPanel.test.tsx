@@ -4,11 +4,27 @@ import { EventSalesPanel } from './EventSalesPanel';
 
 jest.mock('@/entities/Event', () => ({ getEventSales: jest.fn() }));
 
-const empty = { currency: 'EUR', tickets: 0, withdrawn: 0, orders: 0, buyers: 0, revenue: '0.00', discount: '0.00', byType: [], byMonth: [], coupons: [] };
+const empty = {
+    currency: 'EUR',
+    tickets: 0,
+    withdrawn: 0,
+    orders: 0,
+    buyers: 0,
+    revenue: '0.00',
+    discount: '0.00',
+    byType: [],
+    byMonth: [],
+    coupons: [],
+};
 
 test('the panel shows totals, sales by ticket type and month, and the coupons used', async () => {
     jest.mocked(getEventSales).mockResolvedValue({
-        ...empty, tickets: 137, orders: 135, buyers: 130, revenue: '40480.00', discount: '6230.00',
+        ...empty,
+        tickets: 137,
+        orders: 135,
+        buyers: 130,
+        revenue: '40480.00',
+        discount: '6230.00',
         byType: [{ name: 'Early Bird | Full Pass', tickets: 25, revenue: '5850.00' }],
         byMonth: [{ name: '2026-05', tickets: 68, revenue: '20605.00' }],
         coupons: [{ name: '#HHDC2027 free', tickets: 12, discount: '4560.00' }],
@@ -21,7 +37,9 @@ test('the panel shows totals, sales by ticket type and month, and the coupons us
     const types = within(panel).getByRole('table', { name: 'By ticket type' });
     expect(within(types).getByText('Early Bird | Full Pass')).toBeInTheDocument();
     expect(within(types).getByText(/5,850\.00/)).toBeInTheDocument();
-    expect(within(within(panel).getByRole('table', { name: 'Coupons' })).getByText(/4,560\.00/)).toBeInTheDocument();
+    expect(
+        within(within(panel).getByRole('table', { name: 'Coupons' })).getByText(/4,560\.00/)
+    ).toBeInTheDocument();
     expect(within(panel).getByText(/May 2026/)).toBeInTheDocument();
     expect(within(panel).getByText('#HHDC2027 free')).toBeInTheDocument();
     expect(getEventSales).toHaveBeenCalledWith('e1');

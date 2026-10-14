@@ -16,20 +16,21 @@ interface StateViewProps {
 }
 
 export const StateView = memo((props: StateViewProps) => {
-    const {
-        className,
-        title,
-        text,
-        action,
-        icon,
-        variant = 'card',
-        tone = 'neutral',
-    } = props;
+    const { className, title, text, action, icon, variant = 'card', tone = 'neutral' } = props;
 
     return (
         <div className={classNames(cls.StateView, {}, [className, cls[variant], cls[tone]])}>
             <div className={cls.icon} aria-hidden="true">
-                {icon || (tone === 'loading' ? <span className={cls.dots}><i /><i /><i /></span> : '·')}
+                {icon ||
+                    (tone === 'loading' ? (
+                        <span className={cls.dots}>
+                            <i />
+                            <i />
+                            <i />
+                        </span>
+                    ) : (
+                        '·'
+                    ))}
             </div>
             <div className={cls.content}>
                 {title && <div className={cls.title}>{title}</div>}

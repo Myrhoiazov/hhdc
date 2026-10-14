@@ -7,17 +7,48 @@ import { ComposeEmailModal } from './ComposeEmailModal';
 jest.mock('@/entities/Conversation', () => ({ composeEmail: jest.fn() }));
 jest.mock('@/entities/Provider', () => ({ listProviders: jest.fn() }));
 
-const mailboxA = { id: 'mail-a', name: 'DDC NL', type: 'EMAIL', provider: 'IMAP', status: 'CONNECTED', settings: {} };
-const mailboxB = { id: 'mail-b', name: 'Camp EU', type: 'EMAIL', provider: 'GMAIL', status: 'CONNECTED', settings: {} };
-const disabled = { id: 'mail-c', name: 'Old box', type: 'EMAIL', provider: 'IMAP', status: 'DISABLED', settings: {} };
-const aiProvider = { id: 'ai-1', name: 'Ollama', type: 'AI', provider: 'OLLAMA', status: 'CONNECTED', settings: {} };
+const mailboxA = {
+    id: 'mail-a',
+    name: 'DDC NL',
+    type: 'EMAIL',
+    provider: 'IMAP',
+    status: 'CONNECTED',
+    settings: {},
+};
+const mailboxB = {
+    id: 'mail-b',
+    name: 'Camp EU',
+    type: 'EMAIL',
+    provider: 'GMAIL',
+    status: 'CONNECTED',
+    settings: {},
+};
+const disabled = {
+    id: 'mail-c',
+    name: 'Old box',
+    type: 'EMAIL',
+    provider: 'IMAP',
+    status: 'DISABLED',
+    settings: {},
+};
+const aiProvider = {
+    id: 'ai-1',
+    name: 'Ollama',
+    type: 'AI',
+    provider: 'OLLAMA',
+    status: 'CONNECTED',
+    settings: {},
+};
 
 const onClose = jest.fn();
 const renderModal = () => render(<ComposeEmailModal isOpen onClose={onClose} />);
 
 beforeEach(() => {
     onClose.mockReset();
-    jest.mocked(listProviders).mockResolvedValue({ data: [mailboxA, mailboxB, disabled, aiProvider], total: 4 } as never);
+    jest.mocked(listProviders).mockResolvedValue({
+        data: [mailboxA, mailboxB, disabled, aiProvider],
+        total: 4,
+    } as never);
     jest.mocked(composeEmail).mockReset();
     jest.mocked(composeEmail).mockResolvedValue(undefined);
 });
@@ -32,7 +63,10 @@ const fillLetter = async (recipient: string) => {
 test('only usable mailboxes are offered as the sender', async () => {
     renderModal();
     await screen.findByRole('option', { name: 'DDC NL' });
-    expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual(['DDC NL', 'Camp EU']);
+    expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual([
+        'DDC NL',
+        'Camp EU',
+    ]);
 });
 
 test('a new email is sent from the chosen mailbox, announced to listeners, and the modal closes', async () => {
@@ -44,9 +78,17 @@ test('a new email is sent from the chosen mailbox, announced to listeners, and t
     fireEvent.change(screen.getByLabelText('Send from'), { target: { value: 'mail-b' } });
     fireEvent.click(screen.getByRole('button', { name: 'Send' }));
 
-    await waitFor(() => expect(composeEmail).toHaveBeenCalledWith({
-        providerConnectionId: 'mail-b', recipient: 'anna@example.test', subject: 'Camp details', content: 'Hello Anna',
-    }, []));
+    await waitFor(() =>
+        expect(composeEmail).toHaveBeenCalledWith(
+            {
+                providerConnectionId: 'mail-b',
+                recipient: 'anna@example.test',
+                subject: 'Camp details',
+                content: 'Hello Anna',
+            },
+            []
+        )
+    );
     await waitFor(() => expect(onClose).toHaveBeenCalled());
     expect(listener).toHaveBeenCalledTimes(1);
     stop();
@@ -84,13 +126,20 @@ test('a new email carries the attached file, and a removed file is not sent', as
     fireEvent.click(await screen.findByRole('button', { name: 'Remove draft.docx' }));
     fireEvent.click(screen.getByRole('button', { name: 'Send' }));
 
-    await waitFor(() => expect(composeEmail).toHaveBeenCalledWith(expect.objectContaining({ recipient: 'anna@example.test' }), [price]));
+    await waitFor(() =>
+        expect(composeEmail).toHaveBeenCalledWith(
+            expect.objectContaining({ recipient: 'anna@example.test' }),
+            [price]
+        )
+    );
 });
 
 test('without a connected mailbox the form says so and cannot send', async () => {
     jest.mocked(listProviders).mockResolvedValue({ data: [aiProvider], total: 1 } as never);
     renderModal();
 
-    expect(await screen.findByText('Connect a mailbox in Settings to send email.')).toBeInTheDocument();
+    expect(
+        await screen.findByText('Connect a mailbox in Settings to send email.')
+    ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Send' })).toBeDisabled();
 });

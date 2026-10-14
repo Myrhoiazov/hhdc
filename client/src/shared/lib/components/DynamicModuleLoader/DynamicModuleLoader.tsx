@@ -1,9 +1,6 @@
 import { FC, useEffect } from 'react';
 import { useDispatch, useStore } from 'react-redux';
-import {
-    ReduxStoreWithManager,
-    StateSchemaKey,
-} from '@/shared/lib/store/StateSchema';
+import { ReduxStoreWithManager, StateSchemaKey } from '@/shared/lib/store/StateSchema';
 import { Reducer } from '@reduxjs/toolkit';
 
 export type ReducersList = {

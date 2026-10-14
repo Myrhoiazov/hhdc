@@ -2,8 +2,20 @@ import { canRefund, nextRefundActions, paymentIdOf } from './refunds';
 import { LedgerEntry } from './types';
 
 const entry = (change: Partial<LedgerEntry> = {}): LedgerEntry => ({
-    id: 'PAYMENT:p1', kind: 'PAYMENT', category: 'TICKETS', direction: 'IN', date: '2026-10-01', amount: '100.00', currency: 'EUR',
-    status: 'PAID', description: null, person: null, event: null, counted: true, paidAmount: null, ...change,
+    id: 'PAYMENT:p1',
+    kind: 'PAYMENT',
+    category: 'TICKETS',
+    direction: 'IN',
+    date: '2026-10-01',
+    amount: '100.00',
+    currency: 'EUR',
+    status: 'PAID',
+    description: null,
+    person: null,
+    event: null,
+    counted: true,
+    paidAmount: null,
+    ...change,
 });
 
 test('a paid payment can be refunded', () => {

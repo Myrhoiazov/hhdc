@@ -43,8 +43,8 @@ export const TwoFactorFormActions = ({
                 {isResending
                     ? t('Отправка...')
                     : secondsLeft > 0
-                        ? t('Отправить код повторно через {{seconds}} с', { seconds: secondsLeft })
-                        : t('Отправить код повторно')}
+                      ? t('Отправить код повторно через {{seconds}} с', { seconds: secondsLeft })
+                      : t('Отправить код повторно')}
             </Button>
 
             <Button type="button" theme={ButtonTheme.CLEAR} className={cls.back} onClick={onBack}>

@@ -10,5 +10,9 @@ type PanelProps<Tag extends PanelTag> = ComponentPropsWithoutRef<Tag> & {
 };
 
 // A block of a page: a bordered surface that stacks what is inside it.
-export const Panel = <Tag extends PanelTag = 'section'>({ as, className, ...rest }: PanelProps<Tag>) =>
+export const Panel = <Tag extends PanelTag = 'section'>({
+    as,
+    className,
+    ...rest
+}: PanelProps<Tag>) =>
     createElement(as ?? 'section', { ...rest, className: classNames(cls.Panel, {}, [className]) });

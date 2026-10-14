@@ -4,7 +4,11 @@ import { useTranslation } from 'react-i18next';
 export const useNumbers = (currency = 'EUR') => {
     const { i18n } = useTranslation();
     const exact = new Intl.NumberFormat(i18n.language, { style: 'currency', currency });
-    const whole = new Intl.NumberFormat(i18n.language, { style: 'currency', currency, maximumFractionDigits: 0 });
+    const whole = new Intl.NumberFormat(i18n.language, {
+        style: 'currency',
+        currency,
+        maximumFractionDigits: 0,
+    });
     const plain = new Intl.NumberFormat(i18n.language);
     return {
         money: (amount: string | number) => exact.format(Number(amount)),

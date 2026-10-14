@@ -20,9 +20,21 @@ export const Pager = memo(({ page, total, onChange, pageSize }: PagerProps) => {
     const place = t('Page {{page}} of {{pages}}', { page, pages });
     return (
         <nav className={cls.Pager} aria-label={place}>
-            <Button disabled={page <= 1} aria-label={t('Previous page')} onClick={() => onChange(page - 1)}>←</Button>
+            <Button
+                disabled={page <= 1}
+                aria-label={t('Previous page')}
+                onClick={() => onChange(page - 1)}
+            >
+                ←
+            </Button>
             <span className={cls.place}>{place}</span>
-            <Button disabled={page >= pages} aria-label={t('Next page')} onClick={() => onChange(page + 1)}>→</Button>
+            <Button
+                disabled={page >= pages}
+                aria-label={t('Next page')}
+                onClick={() => onChange(page + 1)}
+            >
+                →
+            </Button>
         </nav>
     );
 });

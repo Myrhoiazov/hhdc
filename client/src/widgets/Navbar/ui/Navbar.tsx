@@ -17,7 +17,12 @@ const ComposeEmailAction = memo(() => {
     const { t } = useTranslation();
     const [open, setOpen] = useState(false);
     const close = useCallback(() => setOpen(false), []);
-    return <><Button onClick={() => setOpen(true)}>{t('New email')}</Button><ComposeEmailModal isOpen={open} onClose={close} /></>;
+    return (
+        <>
+            <Button onClick={() => setOpen(true)}>{t('New email')}</Button>
+            <ComposeEmailModal isOpen={open} onClose={close} />
+        </>
+    );
 });
 
 const CreatePersonAction = memo(() => {
@@ -26,20 +31,57 @@ const CreatePersonAction = memo(() => {
     const [open, setOpen] = useState(false);
     const close = useCallback(() => setOpen(false), []);
     // The new person opens right away, so the result is visible from any page.
-    const created = useCallback((person: { id: string }) => { setOpen(false); navigate(`/people/${person.id}`); }, [navigate]);
-    return <><Button onClick={() => setOpen(true)}>{t('Add person')}</Button><CreatePersonModal isOpen={open} onClose={close} onCreated={created} /></>;
+    const created = useCallback(
+        (person: { id: string }) => {
+            setOpen(false);
+            navigate(`/people/${person.id}`);
+        },
+        [navigate]
+    );
+    return (
+        <>
+            <Button onClick={() => setOpen(true)}>{t('Add person')}</Button>
+            <CreatePersonModal isOpen={open} onClose={close} onCreated={created} />
+        </>
+    );
 });
 
-export const Navbar = memo(({ className, onMobileMenuToggle }: { className?: string; onMobileMenuToggle?: () => void }) => {
-    const user = useSelector(getUserAuthData);
-    const { t } = useTranslation();
-    if (!user) return null;
-    return <div className={classNames(cls.Navbar, {}, [className])}>
-        <div className={cls.left}><button className={cls.hamburger} onClick={onMobileMenuToggle} aria-label={t('Menu')}><span /><span /><span /></button><img className={cls.logo} src={logo} alt="" /><strong>{t('HHDC Event CRM')}</strong></div>
-        <div className={cls.actions}>
-            {hasPermission(user.permissions, 'communications.reply') && <ComposeEmailAction />}
-            {hasPermission(user.permissions, 'people.write') && <CreatePersonAction />}
-            <LangSwitcher className={cls.langSwitcher} /><ThemeSwitcher className={cls.themeSwitcher} /><AvatarDropdown />
-        </div>
-    </div>;
-});
+export const Navbar = memo(
+    ({
+        className,
+        onMobileMenuToggle,
+    }: {
+        className?: string;
+        onMobileMenuToggle?: () => void;
+    }) => {
+        const user = useSelector(getUserAuthData);
+        const { t } = useTranslation();
+        if (!user) return null;
+        return (
+            <div className={classNames(cls.Navbar, {}, [className])}>
+                <div className={cls.left}>
+                    <button
+                        className={cls.hamburger}
+                        onClick={onMobileMenuToggle}
+                        aria-label={t('Menu')}
+                    >
+                        <span />
+                        <span />
+                        <span />
+                    </button>
+                    <img className={cls.logo} src={logo} alt="" />
+                    <strong>{t('HHDC Event CRM')}</strong>
+                </div>
+                <div className={cls.actions}>
+                    {hasPermission(user.permissions, 'communications.reply') && (
+                        <ComposeEmailAction />
+                    )}
+                    {hasPermission(user.permissions, 'people.write') && <CreatePersonAction />}
+                    <LangSwitcher className={cls.langSwitcher} />
+                    <ThemeSwitcher className={cls.themeSwitcher} />
+                    <AvatarDropdown />
+                </div>
+            </div>
+        );
+    }
+);

@@ -18,5 +18,7 @@ const NEXT: Record<PayoutStatus, PayoutStatus[]> = {
 // to confirm; everything else needs the right to record payouts.
 export const payoutActions = (status: PayoutStatus, rights: PayoutRights): PayoutStatus[] => {
     if (!rights.canWrite) return [];
-    return NEXT[status].filter(target => rights.canConfirm || (target !== 'CONFIRMED' && status !== 'CONFIRMED'));
+    return NEXT[status].filter(
+        (target) => rights.canConfirm || (target !== 'CONFIRMED' && status !== 'CONFIRMED')
+    );
 };

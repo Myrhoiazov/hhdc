@@ -1,5 +1,8 @@
 import { memo } from 'react';
-import { DynamicModuleLoader, ReducersList } from '@/shared/lib/components/DynamicModuleLoader/DynamicModuleLoader';
+import {
+    DynamicModuleLoader,
+    ReducersList,
+} from '@/shared/lib/components/DynamicModuleLoader/DynamicModuleLoader';
 import { Card } from '@/shared/ui/Card/Card';
 import { VStack } from '@/shared/ui/Stack';
 import { TurnstileWidget } from '@/shared/ui/TurnstileWidget/TurnstileWidget';
@@ -13,16 +16,30 @@ import { LoginFormError } from './LoginFormError';
 import { LoginFormActions } from './LoginFormActions';
 import cls from './LoginForm.module.scss';
 
-export interface LoginFormProps { className?: string; onSuccess?: () => void }
+export interface LoginFormProps {
+    className?: string;
+    onSuccess?: () => void;
+}
 const reducers: ReducersList = { loginForm: loginReducer };
 
 type CredentialsViewProps = ReturnType<typeof useLoginForm> & { className?: string };
 
-const CaptchaChallenge = ({ captchaRequired, captchaSiteKey, captchaWidgetKey, onCaptchaVerify, onCaptchaReset }: CredentialsViewProps) => {
+const CaptchaChallenge = ({
+    captchaRequired,
+    captchaSiteKey,
+    captchaWidgetKey,
+    onCaptchaVerify,
+    onCaptchaReset,
+}: CredentialsViewProps) => {
     if (!captchaRequired || !captchaSiteKey) return null;
     return (
         <VStack align="center" className={cls.captcha}>
-            <TurnstileWidget key={captchaWidgetKey} siteKey={captchaSiteKey} onVerify={onCaptchaVerify} onReset={onCaptchaReset} />
+            <TurnstileWidget
+                key={captchaWidgetKey}
+                siteKey={captchaSiteKey}
+                onVerify={onCaptchaVerify}
+                onReset={onCaptchaReset}
+            />
         </VStack>
     );
 };
@@ -43,9 +60,20 @@ const CredentialsForm = memo(({ className, onSuccess }: LoginFormProps) => {
     const form = useLoginForm({ onSuccess });
 
     if (form.pendingMaskedEmail) {
-        return <TwoFactorForm className={className} maskedEmail={form.pendingMaskedEmail} onSuccess={onSuccess} onBack={form.onBackToCredentials} />;
+        return (
+            <TwoFactorForm
+                className={className}
+                maskedEmail={form.pendingMaskedEmail}
+                onSuccess={onSuccess}
+                onBack={form.onBackToCredentials}
+            />
+        );
     }
     return <CredentialsView className={className} {...form} />;
 });
-const LoginForm = memo((props: LoginFormProps) => <DynamicModuleLoader reducers={reducers}><CredentialsForm {...props} /></DynamicModuleLoader>);
+const LoginForm = memo((props: LoginFormProps) => (
+    <DynamicModuleLoader reducers={reducers}>
+        <CredentialsForm {...props} />
+    </DynamicModuleLoader>
+));
 export default LoginForm;

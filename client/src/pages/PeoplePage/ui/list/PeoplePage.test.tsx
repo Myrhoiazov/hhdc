@@ -5,7 +5,8 @@ import { PeoplePage } from './PeoplePage';
 
 jest.mock('@/entities/Person', () => ({
     ...jest.requireActual('@/entities/Person'),
-    listPeoplePage: jest.fn(), deletePerson: jest.fn(),
+    listPeoplePage: jest.fn(),
+    deletePerson: jest.fn(),
     PERSON_ROLES: ['CUSTOMER', 'PARTICIPANT', 'CHOREOGRAPHER', 'STAFF', 'PARTNER'],
     PERSON_SOURCES: ['WEEZTIX', 'EMAIL', 'MANUAL', 'IMPORT', 'SYSTEM'],
 }));
@@ -15,11 +16,24 @@ jest.mock('@/entities/User', () => ({
     getUserAuthData: jest.fn(),
     useCan: () => (permission: string) => mockPermissions.includes(permission),
 }));
-jest.mock('@/widgets/Page/Page', () => ({ Page: ({ children }: { children: React.ReactNode }) => <div>{children}</div> }));
+jest.mock('@/widgets/Page/Page', () => ({
+    Page: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+}));
 
 const person = (id: string, overrides: Partial<Person> = {}): Person => ({
-    id, firstName: 'Anna', lastName: 'Berg', displayName: 'Anna Berg', email: 'anna@example.test', phone: '+31600000001', status: 'ACTIVE', roles: [{ role: 'CUSTOMER' }],
-    country: 'Nederland', source: 'WEEZTIX', createdAt: '2026-10-08T15:44:00Z', _count: { orders: 3 }, ...overrides,
+    id,
+    firstName: 'Anna',
+    lastName: 'Berg',
+    displayName: 'Anna Berg',
+    email: 'anna@example.test',
+    phone: '+31600000001',
+    status: 'ACTIVE',
+    roles: [{ role: 'CUSTOMER' }],
+    country: 'Nederland',
+    source: 'WEEZTIX',
+    createdAt: '2026-10-08T15:44:00Z',
+    _count: { orders: 3 },
+    ...overrides,
 });
 
 const NO_FILTERS = { q: '', role: '', source: '', purchases: '' };
@@ -29,27 +43,57 @@ const Opened = () => {
     return <p>{`${pathname} from ${(state as { peopleList: string }).peopleList}`}</p>;
 };
 const Address = () => <output>{useLocation().search}</output>;
-const renderPage = (address = '/people') => render(<MemoryRouter initialEntries={[address]}><Routes>
-    <Route path="/people" element={<><PeoplePage /><Address /></>} />
-    <Route path="/people/:id" element={<Opened />} />
-</Routes></MemoryRouter>);
+const renderPage = (address = '/people') =>
+    render(
+        <MemoryRouter initialEntries={[address]}>
+            <Routes>
+                <Route
+                    path="/people"
+                    element={
+                        <>
+                            <PeoplePage />
+                            <Address />
+                        </>
+                    }
+                />
+                <Route path="/people/:id" element={<Opened />} />
+            </Routes>
+        </MemoryRouter>
+    );
 // The pager stands above the table and under it; the tests turn pages with the upper one.
 const pagerButton = (name: string) => screen.getAllByRole('button', { name })[0];
 
-beforeEach(() => { jest.mocked(listPeoplePage).mockReset(); jest.mocked(deletePerson).mockReset(); mockPermissions = ['people.write']; });
+beforeEach(() => {
+    jest.mocked(listPeoplePage).mockReset();
+    jest.mocked(deletePerson).mockReset();
+    mockPermissions = ['people.write'];
+});
 
 test('a contact is a table row: name linking to the person, email, phone, country, roles and purchases', async () => {
     jest.mocked(listPeoplePage).mockResolvedValue({ data: [person('p1')], total: 1 });
     renderPage();
 
-    const row = (await screen.findByRole('link', { name: 'Anna Berg' })).closest('tr') as HTMLElement;
+    const row = (await screen.findByRole('link', { name: 'Anna Berg' })).closest(
+        'tr'
+    ) as HTMLElement;
     expect(screen.getByRole('link', { name: 'Anna Berg' })).toHaveAttribute('href', '/people/p1');
-    for (const text of ['anna@example.test', '+31600000001', 'Nederland', 'CUSTOMER', '3']) expect(within(row).getByText(text)).toBeInTheDocument();
+    for (const text of ['anna@example.test', '+31600000001', 'Nederland', 'CUSTOMER', '3'])
+        expect(within(row).getByText(text)).toBeInTheDocument();
     expect(screen.queryByRole('navigation')).not.toBeInTheDocument();
 });
 
 test('a contact known only by its address shows the address once, as the name', async () => {
-    jest.mocked(listPeoplePage).mockResolvedValue({ data: [person('p1', { firstName: '', lastName: '', displayName: 'info@example.test', email: 'info@example.test' })], total: 1 });
+    jest.mocked(listPeoplePage).mockResolvedValue({
+        data: [
+            person('p1', {
+                firstName: '',
+                lastName: '',
+                displayName: 'info@example.test',
+                email: 'info@example.test',
+            }),
+        ],
+        total: 1,
+    });
     renderPage();
 
     await screen.findByRole('link', { name: 'info@example.test' });
@@ -66,7 +110,9 @@ test('pages are turned with the arrows and the current page is named', async () 
     await waitFor(() => expect(listPeoplePage).toHaveBeenLastCalledWith(NO_FILTERS, 2));
     fireEvent.click(screen.getAllByRole('button', { name: 'Next page' })[1]);
     await waitFor(() => expect(listPeoplePage).toHaveBeenLastCalledWith(NO_FILTERS, 3));
-    screen.getAllByRole('button', { name: 'Next page' }).forEach(button => expect(button).toBeDisabled());
+    screen
+        .getAllByRole('button', { name: 'Next page' })
+        .forEach((button) => expect(button).toBeDisabled());
 });
 
 test('the address keeps the page and the filters, and the list opens from them', async () => {
@@ -75,9 +121,13 @@ test('the address keeps the page and the filters, and the list opens from them',
 
     await screen.findAllByRole('navigation');
     expect(listPeoplePage).toHaveBeenLastCalledWith({ ...NO_FILTERS, source: 'EMAIL' }, 2);
-    await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('?source=EMAIL&page=2'));
+    await waitFor(() =>
+        expect(screen.getByRole('status')).toHaveTextContent('?source=EMAIL&page=2')
+    );
     fireEvent.click(pagerButton('Next page'));
-    await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('?source=EMAIL&page=3'));
+    await waitFor(() =>
+        expect(screen.getByRole('status')).toHaveTextContent('?source=EMAIL&page=3')
+    );
     fireEvent.click(screen.getByRole('button', { name: 'Reset filters' }));
     await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent(/^$/));
 });
@@ -98,9 +148,16 @@ test('a filter narrows the list and returns to the first page; reset clears ever
     await waitFor(() => expect(listPeoplePage).toHaveBeenLastCalledWith(NO_FILTERS, 2));
 
     fireEvent.change(screen.getByLabelText('Source'), { target: { value: 'EMAIL' } });
-    await waitFor(() => expect(listPeoplePage).toHaveBeenLastCalledWith({ ...NO_FILTERS, source: 'EMAIL' }, 1));
+    await waitFor(() =>
+        expect(listPeoplePage).toHaveBeenLastCalledWith({ ...NO_FILTERS, source: 'EMAIL' }, 1)
+    );
     fireEvent.change(screen.getByLabelText('Purchases filter'), { target: { value: 'no' } });
-    await waitFor(() => expect(listPeoplePage).toHaveBeenLastCalledWith({ ...NO_FILTERS, source: 'EMAIL', purchases: 'no' }, 1));
+    await waitFor(() =>
+        expect(listPeoplePage).toHaveBeenLastCalledWith(
+            { ...NO_FILTERS, source: 'EMAIL', purchases: 'no' },
+            1
+        )
+    );
 
     fireEvent.click(screen.getByRole('button', { name: 'Reset filters' }));
     await waitFor(() => expect(listPeoplePage).toHaveBeenLastCalledWith(NO_FILTERS, 1));
@@ -112,22 +169,40 @@ test('typing searches once the typing pauses, not on every key', async () => {
     try {
         jest.mocked(listPeoplePage).mockResolvedValue({ data: [], total: 0 });
         renderPage();
-        await act(async () => { await Promise.resolve(); });
+        await act(async () => {
+            await Promise.resolve();
+        });
         const calls = jest.mocked(listPeoplePage).mock.calls.length;
 
-        fireEvent.change(screen.getByLabelText('Search by name, email or phone'), { target: { value: 'an' } });
-        fireEvent.change(screen.getByLabelText('Search by name, email or phone'), { target: { value: 'anna' } });
+        fireEvent.change(screen.getByLabelText('Search by name, email or phone'), {
+            target: { value: 'an' },
+        });
+        fireEvent.change(screen.getByLabelText('Search by name, email or phone'), {
+            target: { value: 'anna' },
+        });
         expect(listPeoplePage).toHaveBeenCalledTimes(calls);
-        await act(async () => { jest.advanceTimersByTime(300); await Promise.resolve(); });
+        await act(async () => {
+            jest.advanceTimersByTime(300);
+            await Promise.resolve();
+        });
 
         expect(listPeoplePage).toHaveBeenCalledTimes(calls + 1);
         expect(listPeoplePage).toHaveBeenLastCalledWith({ ...NO_FILTERS, q: 'anna' }, 1);
         expect(await screen.findByText('No contacts match the filters')).toBeInTheDocument();
-    } finally { jest.useRealTimers(); }
+    } finally {
+        jest.useRealTimers();
+    }
 });
 
-const mailOnly = person('p1', { displayName: 'noreply@example.test', email: 'noreply@example.test', source: 'EMAIL', removal: { allowed: true, blockers: [] } });
-const fromWeeztix = person('p2', { removal: { allowed: false, blockers: ['WEEZTIX', 'PURCHASES'] } });
+const mailOnly = person('p1', {
+    displayName: 'noreply@example.test',
+    email: 'noreply@example.test',
+    source: 'EMAIL',
+    removal: { allowed: true, blockers: [] },
+});
+const fromWeeztix = person('p2', {
+    removal: { allowed: false, blockers: ['WEEZTIX', 'PURCHASES'] },
+});
 
 test('only a contact that a mailbox created can be deleted, and only after a second press', async () => {
     jest.mocked(listPeoplePage).mockResolvedValue({ data: [mailOnly, fromWeeztix], total: 2 });
@@ -144,7 +219,9 @@ test('only a contact that a mailbox created can be deleted, and only after a sec
 
 test('cancelling keeps the contact, and a refusal of the server is shown', async () => {
     jest.mocked(listPeoplePage).mockResolvedValue({ data: [mailOnly], total: 1 });
-    jest.mocked(deletePerson).mockRejectedValue(new Error('This contact cannot be deleted: it has purchases'));
+    jest.mocked(deletePerson).mockRejectedValue(
+        new Error('This contact cannot be deleted: it has purchases')
+    );
     renderPage();
 
     fireEvent.click(await screen.findByRole('button', { name: /^Delete contact/ }));

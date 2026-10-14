@@ -17,7 +17,11 @@ export const LangSwitcher = memo(({ className }: LangSwitcherProps) => {
     };
 
     return (
-        <div className={classNames(s.LangSwitcher, {}, [className])} role="group" aria-label={t('Выбор языка')}>
+        <div
+            className={classNames(s.LangSwitcher, {}, [className])}
+            role="group"
+            aria-label={t('Выбор языка')}
+        >
             {LANGUAGES.map((lang) => (
                 <button
                     key={lang}

@@ -18,13 +18,10 @@ const userSlice = createSlice({
         },
     },
     extraReducers: (builder) => {
-        builder.addCase(
-            initAuthData.fulfilled,
-            (state, { payload }: PayloadAction<User>) => {
-                state.authData = payload;
-                state._inited = true;
-            },
-        );
+        builder.addCase(initAuthData.fulfilled, (state, { payload }: PayloadAction<User>) => {
+            state.authData = payload;
+            state._inited = true;
+        });
         builder.addCase(initAuthData.rejected, (state) => {
             state._inited = true;
             state.authData = undefined;

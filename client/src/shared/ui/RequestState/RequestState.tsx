@@ -13,7 +13,11 @@ export const RequestState = memo(({ error, loading }: RequestStateProps) => {
     return (
         <>
             {loading && <p role="status">{t('Loading')}</p>}
-            {error && <p role="alert" className={cls.error}>{error}</p>}
+            {error && (
+                <p role="alert" className={cls.error}>
+                    {error}
+                </p>
+            )}
         </>
     );
 });

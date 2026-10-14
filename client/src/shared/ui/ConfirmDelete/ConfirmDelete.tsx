@@ -11,13 +11,19 @@ interface ConfirmDeleteProps {
 
 // The two steps of a deletion: asking, and deleting once the answer is yes. A refusal is handed
 // to `onError`, or kept here to be shown next to the buttons when nobody takes it.
-const useConfirmedDelete = ({ onDelete, onError }: Pick<ConfirmDeleteProps, 'onDelete' | 'onError'>) => {
+const useConfirmedDelete = ({
+    onDelete,
+    onError,
+}: Pick<ConfirmDeleteProps, 'onDelete' | 'onError'>) => {
     const { t } = useTranslation();
     const [asking, setAsking] = useState(false);
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState('');
     const fail = (message: string) => {
-        if (!onError) { setError(message); return; }
+        if (!onError) {
+            setError(message);
+            return;
+        }
         onError(message);
         setAsking(false);
     };
@@ -30,7 +36,10 @@ const useConfirmedDelete = ({ onDelete, onError }: Pick<ConfirmDeleteProps, 'onD
             setBusy(false);
         }
     };
-    const cancel = () => { setAsking(false); setError(''); };
+    const cancel = () => {
+        setAsking(false);
+        setError('');
+    };
     return { asking, busy, error, ask: () => setAsking(true), remove, cancel };
 };
 
@@ -39,15 +48,29 @@ export const ConfirmDelete = memo(({ label, onDelete, onError }: ConfirmDeletePr
     const { t } = useTranslation();
     const state = useConfirmedDelete({ onDelete, onError });
     if (!state.asking) {
-        return <Button theme={ButtonTheme.OUTLINE_RED} aria-label={label} onClick={state.ask}>{t('Delete')}</Button>;
+        return (
+            <Button theme={ButtonTheme.OUTLINE_RED} aria-label={label} onClick={state.ask}>
+                {t('Delete')}
+            </Button>
+        );
     }
     return (
         <span className={cls.ConfirmDelete}>
-            <Button theme={ButtonTheme.OUTLINE_RED} disabled={state.busy} onClick={() => void state.remove()}>
+            <Button
+                theme={ButtonTheme.OUTLINE_RED}
+                disabled={state.busy}
+                onClick={() => void state.remove()}
+            >
                 {t('Delete for good')}
             </Button>
-            <Button disabled={state.busy} onClick={state.cancel}>{t('Cancel')}</Button>
-            {state.error && <span role="alert" className={cls.error}>{state.error}</span>}
+            <Button disabled={state.busy} onClick={state.cancel}>
+                {t('Cancel')}
+            </Button>
+            {state.error && (
+                <span role="alert" className={cls.error}>
+                    {state.error}
+                </span>
+            )}
         </span>
     );
 });

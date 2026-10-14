@@ -19,7 +19,7 @@ describe('NotFoundPage', () => {
                 <MemoryRouter>
                     <NotFoundPage />
                 </MemoryRouter>
-            </Provider>,
+            </Provider>
         );
         expect(screen.getByText('Page not found')).toBeInTheDocument();
     });

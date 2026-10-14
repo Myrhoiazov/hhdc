@@ -10,12 +10,14 @@ export const initAuthData = createAsyncThunk<User, void, ThunkConfig<string>>(
         const { rejectWithValue, extra, dispatch } = thunkApi;
 
         try {
-            const { data } = await extra.apiPrivate.get<{ data: { user: User; csrfToken: string } }>('/auth/me');
+            const { data } = await extra.apiPrivate.get<{
+                data: { user: User; csrfToken: string };
+            }>('/auth/me');
             csrfActions.set(data.data.csrfToken);
             dispatch(userActions.setAuthData(data.data.user));
             return data.data.user;
         } catch (error: unknown) {
-            console.log("error: ", error);
+            console.log('error: ', error);
 
             return rejectWithValue('Unknown profile error');
         }

@@ -27,7 +27,15 @@ function renderItem(itemOverrides: Partial<SidebarItemType> = {}, options: Rende
         preloadedState: {
             user: {
                 _inited: true,
-                authData: authed ? { id: '1', name: 'denis', email: 'd@example.com', roles: ['ADMIN'], permissions } : undefined,
+                authData: authed
+                    ? {
+                          id: '1',
+                          name: 'denis',
+                          email: 'd@example.com',
+                          roles: ['ADMIN'],
+                          permissions,
+                      }
+                    : undefined,
             },
         },
     });
@@ -37,7 +45,7 @@ function renderItem(itemOverrides: Partial<SidebarItemType> = {}, options: Rende
             <MemoryRouter initialEntries={[route]}>
                 <SidebarItem item={{ ...item, ...itemOverrides }} collapsed={false} />
             </MemoryRouter>
-        </Provider>,
+        </Provider>
     );
 }
 
@@ -79,7 +87,10 @@ test('does not mark itself active for an unrelated path', () => {
 
 // /people/duplicates sits under /people too; only the Duplicates link may be highlighted there.
 test('does not mark itself active when another menu link matches the route more precisely', () => {
-    renderItem({ path: '/people', text: 'People' }, { route: '/people/duplicates', permissions: ['people.write'] });
+    renderItem(
+        { path: '/people', text: 'People' },
+        { route: '/people/duplicates', permissions: ['people.write'] }
+    );
     expect(screen.getByText('People').closest('a')).not.toHaveClass('active');
 });
 

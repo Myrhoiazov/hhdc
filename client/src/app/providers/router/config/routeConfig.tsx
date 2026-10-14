@@ -19,7 +19,11 @@ import { ProvidersPage } from '@/pages/ProvidersPage';
 import { UsersPage } from '@/pages/UsersPage';
 import { AppRoutes, AppRoutesProps, RoutePath } from '@/shared/config/routeConfig/routeConfig';
 
-const protectedRoute = (path: string, element: React.ReactNode): AppRoutesProps => ({ path, element, authOnly: true });
+const protectedRoute = (path: string, element: React.ReactNode): AppRoutesProps => ({
+    path,
+    element,
+    authOnly: true,
+});
 export const routeConfig: Record<AppRoutes, AppRoutesProps> = {
     login: { path: RoutePath.login, element: <LoginPage /> },
     main: protectedRoute(RoutePath.main, <DashboardPage />),

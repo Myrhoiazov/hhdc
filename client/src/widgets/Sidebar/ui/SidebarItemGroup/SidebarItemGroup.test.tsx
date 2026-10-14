@@ -18,7 +18,10 @@ const item: SidebarItemType = {
     ],
 };
 
-function renderGroup(props: Partial<React.ComponentProps<typeof SidebarItemGroup>> = {}, route = '/') {
+function renderGroup(
+    props: Partial<React.ComponentProps<typeof SidebarItemGroup>> = {},
+    route = '/'
+) {
     const store = configureStore({
         reducer: { user: userReducer },
         preloadedState: { user: { _inited: true, authData: undefined } },
@@ -27,9 +30,15 @@ function renderGroup(props: Partial<React.ComponentProps<typeof SidebarItemGroup
     return render(
         <Provider store={store}>
             <MemoryRouter initialEntries={[route]}>
-                <SidebarItemGroup item={item} collapsed={false} isOpen={false} onToggle={() => {}} {...props} />
+                <SidebarItemGroup
+                    item={item}
+                    collapsed={false}
+                    isOpen={false}
+                    onToggle={() => {}}
+                    {...props}
+                />
             </MemoryRouter>
-        </Provider>,
+        </Provider>
     );
 }
 

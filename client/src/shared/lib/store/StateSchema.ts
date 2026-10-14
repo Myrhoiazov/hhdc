@@ -1,4 +1,11 @@
-import { Action, EnhancedStore, Reducer, ReducersMapObject, ThunkDispatch, UnknownAction } from '@reduxjs/toolkit';
+import {
+    Action,
+    EnhancedStore,
+    Reducer,
+    ReducersMapObject,
+    ThunkDispatch,
+    UnknownAction,
+} from '@reduxjs/toolkit';
 import { AxiosInstance } from 'axios';
 
 // The state of the store. It is declared empty here, in the lowest layer, and every slice that owns

@@ -8,12 +8,22 @@ export type ActionRun = (work: () => Promise<unknown>) => Promise<boolean>;
 export const useAction = (onDone?: () => void) => {
     const [error, setError] = useState('');
     const [busy, setBusy] = useState(false);
-    const run = useCallback(async (action: () => Promise<unknown>) => {
-        setBusy(true);
-        setError('');
-        try { await action(); onDone?.(); return true; }
-        catch (cause) { setError(messageOf(cause)); return false; }
-        finally { setBusy(false); }
-    }, [onDone]);
+    const run = useCallback(
+        async (action: () => Promise<unknown>) => {
+            setBusy(true);
+            setError('');
+            try {
+                await action();
+                onDone?.();
+                return true;
+            } catch (cause) {
+                setError(messageOf(cause));
+                return false;
+            } finally {
+                setBusy(false);
+            }
+        },
+        [onDone]
+    );
     return { error, busy, run };
 };

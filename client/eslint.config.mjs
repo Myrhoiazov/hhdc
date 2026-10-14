@@ -16,10 +16,11 @@ const SLICED_LAYERS = ['entities', 'features', 'widgets', 'pages'];
 // One entity may name the types of another through `@/entities/<Slice>/@x/<consumer>`: the file
 // lists exactly what that consumer may know. Only entities import it; everybody else sees a deep import.
 const CROSS_IMPORT = '[^/]+/@x/[^/]+$';
-const publicApiPattern = layer => ({
-    regex: layer === 'entities'
-        ? `^@/(?:features|widgets|pages)/[^/]+/.+|^@/entities/(?!${CROSS_IMPORT})[^/]+/.+`
-        : `^@/(?:${SLICED_LAYERS.join('|')})/[^/]+/.+`,
+const publicApiPattern = (layer) => ({
+    regex:
+        layer === 'entities'
+            ? `^@/(?:features|widgets|pages)/[^/]+/.+|^@/entities/(?!${CROSS_IMPORT})[^/]+/.+`
+            : `^@/(?:${SLICED_LAYERS.join('|')})/[^/]+/.+`,
     message: 'Import a slice through its public API: @/<layer>/<slice>.',
 });
 const layerPattern = (layer, forbidden) => ({
@@ -28,18 +29,30 @@ const layerPattern = (layer, forbidden) => ({
 });
 // A slice never imports another slice of its own layer, so the layer itself is forbidden too;
 // inside a slice imports are relative. `shared` and `app` have segments instead of slices.
-const forbiddenFor = layer => LAYERS.slice(LAYERS.indexOf(layer) + (SLICED_LAYERS.includes(layer) ? 0 : 1));
-const layerRule = (layer, forbidden = forbiddenFor(layer)) => ['error', {
-    patterns: [publicApiPattern(layer), ...(forbidden.length ? [layerPattern(layer, forbidden)] : [])],
-}];
-const layerConfigs = LAYERS.map(layer => ({
+const forbiddenFor = (layer) =>
+    LAYERS.slice(LAYERS.indexOf(layer) + (SLICED_LAYERS.includes(layer) ? 0 : 1));
+const layerRule = (layer, forbidden = forbiddenFor(layer)) => [
+    'error',
+    {
+        patterns: [
+            publicApiPattern(layer),
+            ...(forbidden.length ? [layerPattern(layer, forbidden)] : []),
+        ],
+    },
+];
+const layerConfigs = LAYERS.map((layer) => ({
     files: [`src/${layer}/**/*.{ts,tsx}`],
     rules: { 'no-restricted-imports': layerRule(layer) },
 }));
 // Tests and stories render through the providers of the application; everything else still holds.
-const testLayerConfigs = LAYERS.filter(layer => layer !== 'app').map(layer => ({
+const testLayerConfigs = LAYERS.filter((layer) => layer !== 'app').map((layer) => ({
     files: [`src/${layer}/**/*.{test,stories}.{ts,tsx}`],
-    rules: { 'no-restricted-imports': layerRule(layer, forbiddenFor(layer).filter(name => name !== 'app')) },
+    rules: {
+        'no-restricted-imports': layerRule(
+            layer,
+            forbiddenFor(layer).filter((name) => name !== 'app')
+        ),
+    },
 }));
 
 export default defineConfig([
@@ -72,6 +85,8 @@ export default defineConfig([
         },
 
         rules: {
+            // Prettier lays the code out (`.prettierrc`); a difference from its layout is an error.
+            'prettier/prettier': 'error',
             'react/jsx-indent': [2, 4],
             'react/jsx-indent-props': [2, 4],
             // indent: [2, 4, { SwitchCase: 1 }],
@@ -107,6 +122,8 @@ export default defineConfig([
             // i18next runtime or participate in its Feature-Sliced Design import graph.
             'i18next/no-literal-string': 'off',
             'denys-fix-fsd-path-plugin/path-checker': 'off',
+            // Not reformatted with the SPA: Skylos would re-report its old innerHTML screens as new.
+            'prettier/prettier': 'off',
         },
     },
     {

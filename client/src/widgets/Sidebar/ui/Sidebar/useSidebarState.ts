@@ -23,11 +23,8 @@ export const useSidebarState = ({ onMobileClose }: UseSidebarStateOptions) => {
     const { openGroup, onGroupToggle } = useActiveSidebarGroup(sidebarItemsList, pathname);
 
     const [mainItems, crmItems] = useMemo(
-        () => [
-            (sidebarItemsList ?? []).slice(0, 1),
-            (sidebarItemsList ?? []).slice(1),
-        ],
-        [sidebarItemsList],
+        () => [(sidebarItemsList ?? []).slice(0, 1), (sidebarItemsList ?? []).slice(1)],
+        [sidebarItemsList]
     );
 
     return {

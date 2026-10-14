@@ -4,7 +4,13 @@ import { getUserPermissions } from './getUserPermissions';
 const stateOf = (user: DeepPartial<StateSchema['user']>) => ({ user }) as StateSchema;
 
 test('returns the permissions of the signed-in user', () => {
-    const authData = { id: '1', name: 'denis', email: 'denis@example.com', roles: ['ADMIN'], permissions: ['finance.read'] };
+    const authData = {
+        id: '1',
+        name: 'denis',
+        email: 'denis@example.com',
+        roles: ['ADMIN'],
+        permissions: ['finance.read'],
+    };
 
     expect(getUserPermissions(stateOf({ authData, _inited: true }))).toEqual(['finance.read']);
 });

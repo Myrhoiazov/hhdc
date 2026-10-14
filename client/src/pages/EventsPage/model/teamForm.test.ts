@@ -11,11 +11,35 @@ test('an amount written with a comma is read with a point', () => {
 });
 
 test('a member with pay carries the amount', () => {
-    expect(readMember(formOf({ personId: 'p1', roleTitle: ' Videographer ', duties: '', personRole: 'STAFF', amount: '300' }))).toEqual({
-        personId: 'p1', roleTitle: 'Videographer', duties: null, personRole: 'STAFF', amount: '300',
+    expect(
+        readMember(
+            formOf({
+                personId: 'p1',
+                roleTitle: ' Videographer ',
+                duties: '',
+                personRole: 'STAFF',
+                amount: '300',
+            })
+        )
+    ).toEqual({
+        personId: 'p1',
+        roleTitle: 'Videographer',
+        duties: null,
+        personRole: 'STAFF',
+        amount: '300',
     });
 });
 
 test('a member without pay has no amount at all', () => {
-    expect(readMember(formOf({ personId: 'p1', roleTitle: 'Host', duties: 'Desk', personRole: 'PARTNER', amount: '' }))).not.toHaveProperty('amount');
+    expect(
+        readMember(
+            formOf({
+                personId: 'p1',
+                roleTitle: 'Host',
+                duties: 'Desk',
+                personRole: 'PARTNER',
+                amount: '',
+            })
+        )
+    ).not.toHaveProperty('amount');
 });

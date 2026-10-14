@@ -12,7 +12,7 @@ interface ListStart<Filters> {
 // first page without filters: a page that keeps its place in the address gives it.
 export const useListFilters = <Filters extends { q: string }>(
     none: Filters,
-    start: ListStart<Filters> = { filters: none, page: 1 },
+    start: ListStart<Filters> = { filters: none, page: 1 }
 ) => {
     const [filters, setFilters] = useState(start.filters);
     const [page, setPage] = useState(start.page);
@@ -20,7 +20,7 @@ export const useListFilters = <Filters extends { q: string }>(
     const key = JSON.stringify({ ...filters, q });
     const applied = useMemo(() => JSON.parse(key) as Filters, [key]);
     const change = (patch: Partial<Filters>) => {
-        setFilters(current => ({ ...current, ...patch }));
+        setFilters((current) => ({ ...current, ...patch }));
         setPage(1);
     };
     return {

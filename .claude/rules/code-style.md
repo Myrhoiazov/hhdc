@@ -8,6 +8,8 @@
 
 - Одинарные кавычки, точка с запятой обязательна, trailing comma — `es5`.
 - Отступ 4 пробела (без табов). `printWidth` — 100.
+- Отличие от раскладки Prettier — ошибка ESLint (`prettier/prettier`): прогони `npx prettier --write` по
+  изменённым файлам до коммита.
 - В `client` есть ESLint (`npm run lint:ts`) и Stylelint (`npm run lint:scss`) — у обоих есть
   вариант `:fix`. Ни один сейчас не является жёстким гейтом в CI: много существующего SCSS не
   проходит `order/properties-order` (порядок свойств) — не нужно массово переформатировать чужие

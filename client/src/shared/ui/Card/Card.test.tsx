@@ -8,7 +8,11 @@ describe('Card', () => {
     });
 
     test('forwards native div attributes', () => {
-        render(<Card data-testid="card" onClick={() => {}}>content</Card>);
+        render(
+            <Card data-testid="card" onClick={() => {}}>
+                content
+            </Card>
+        );
         expect(screen.getByTestId('card')).toBeInTheDocument();
     });
 });

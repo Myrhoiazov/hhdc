@@ -11,23 +11,26 @@ interface SidebarItemGroupProps {
     onToggle: (key: string) => void;
 }
 
-export const SidebarItemGroup = memo(({ item, collapsed, isOpen, onToggle }: SidebarItemGroupProps) => {
-    const { pathname } = useLocation();
+export const SidebarItemGroup = memo(
+    ({ item, collapsed, isOpen, onToggle }: SidebarItemGroupProps) => {
+        const { pathname } = useLocation();
 
-    const isChildActive = item.children?.some(
-        (child) => pathname === child.path || pathname.startsWith(child.path + '/'),
-    ) ?? false;
+        const isChildActive =
+            item.children?.some(
+                (child) => pathname === child.path || pathname.startsWith(child.path + '/')
+            ) ?? false;
 
-    if (collapsed) {
-        return <SidebarItemGroupCollapsed item={item} isChildActive={isChildActive} />;
+        if (collapsed) {
+            return <SidebarItemGroupCollapsed item={item} isChildActive={isChildActive} />;
+        }
+
+        return (
+            <SidebarItemGroupExpanded
+                item={item}
+                isOpen={isOpen}
+                isChildActive={isChildActive}
+                onToggle={onToggle}
+            />
+        );
     }
-
-    return (
-        <SidebarItemGroupExpanded
-            item={item}
-            isOpen={isOpen}
-            isChildActive={isChildActive}
-            onToggle={onToggle}
-        />
-    );
-});
+);

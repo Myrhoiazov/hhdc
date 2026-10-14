@@ -2,7 +2,16 @@ import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Badge, BadgeTone } from '../Badge';
 
-const GOOD = ['ACTIVE', 'SUCCEEDED', 'COMPLETED', 'PAID', 'DONE', 'CONNECTED', 'EXECUTED', 'APPROVED'];
+const GOOD = [
+    'ACTIVE',
+    'SUCCEEDED',
+    'COMPLETED',
+    'PAID',
+    'DONE',
+    'CONNECTED',
+    'EXECUTED',
+    'APPROVED',
+];
 const BAD = ['FAILED', 'REJECTED', 'CANCELLED', 'ERROR', 'REVOKED', 'DISABLED'];
 
 const toneOf = (status: string): BadgeTone | undefined => {

@@ -18,7 +18,10 @@ export const SidebarItemGroupExpanded = memo((props: SidebarItemGroupExpandedPro
     return (
         <div className={cls.group}>
             <button
-                className={classNames(cls.trigger, { [cls.active]: isChildActive, [cls.open]: isOpen })}
+                className={classNames(cls.trigger, {
+                    [cls.active]: isChildActive,
+                    [cls.open]: isOpen,
+                })}
                 onClick={() => onToggle(item.text)}
                 type="button"
             >
@@ -26,7 +29,9 @@ export const SidebarItemGroupExpanded = memo((props: SidebarItemGroupExpandedPro
                     Svg={item.Icon}
                     width={20}
                     height={20}
-                    className={classNames(cls.icon, {}, [item.iconColor === 'stroke' ? cls.iconStroke : cls.iconFill])}
+                    className={classNames(cls.icon, {}, [
+                        item.iconColor === 'stroke' ? cls.iconStroke : cls.iconFill,
+                    ])}
                     color={item.iconColor ?? 'fill'}
                 />
                 <span className={cls.label}>{item.text}</span>
@@ -39,12 +44,7 @@ export const SidebarItemGroupExpanded = memo((props: SidebarItemGroupExpandedPro
             >
                 <div className={cls.children}>
                     {item.children?.map((child) => (
-                        <SidebarItem
-                            key={child.path}
-                            item={child}
-                            collapsed={false}
-                            nested
-                        />
+                        <SidebarItem key={child.path} item={child} collapsed={false} nested />
                     ))}
                 </div>
             </div>

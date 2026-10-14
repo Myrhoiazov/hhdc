@@ -13,7 +13,7 @@ function setup(removeAfterUnmount?: boolean) {
             <DynamicModuleLoader reducers={reducers} removeAfterUnmount={removeAfterUnmount}>
                 <div>content</div>
             </DynamicModuleLoader>
-        </Provider>,
+        </Provider>
     );
     return { store, ...utils };
 }

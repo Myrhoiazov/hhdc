@@ -9,4 +9,5 @@ export const formatDateTime = (value: DateValue) => new Date(value).toLocaleStri
 export const formatTime = (value: DateValue) => new Date(value).toLocaleTimeString();
 
 // A date written out with a short month name, e.g. "5 Mar 2026".
-export const formatLongDate = (value: DateValue) => formatDate(value, { day: 'numeric', month: 'short', year: 'numeric' });
+export const formatLongDate = (value: DateValue) =>
+    formatDate(value, { day: 'numeric', month: 'short', year: 'numeric' });
