@@ -111,5 +111,13 @@ export type { Person } from '../model/types';
 
 ## Генератор слайсов
 
-`npm run generate:slice` создаёт раскладку прошлой эпохи (Redux-слайс, схема, сторис в каждом слайсе). Собирай
-слайс вручную по анатомии выше; сгенерированный каркас приводи к ней до первого коммита.
+`npm run generate:slice <entities|features|widgets|pages> <Name>` из `client/` создаёт слайс по анатомии выше:
+
+- сущность — `model/types.ts`, `api/<name>Api.ts` с запросом-заготовкой через `readData`, `index.ts`;
+- фича и виджет — компонент в `ui/<Name>/` со своим SCSS-модулем и `index.ts`;
+- страница — `ui/<Name>Page.tsx` в `CrmLayout`, `ui/<Name>Page.async.tsx` и `index.ts` с ленивой версией.
+
+Генератор проверяет имя по слою (сущность, виджет, страница — PascalCase, фича — camelCase «действие + объект»;
+к странице дописывается `Page`) и не трогает существующий слайс. Созданные файлы проходят Prettier, ESLint и
+TypeScript без правок; дальше — шаги 2–8 из раздела «Новая сущность», а странице ещё нужен маршрут в
+`RoutePath` и `routeConfig`.
