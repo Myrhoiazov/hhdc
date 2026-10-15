@@ -45,7 +45,7 @@ The codebase is being migrated from an earlier DDC school-oriented product. Remo
 app -> pages -> widgets -> features -> entities -> shared
 ```
 
-Use public slice APIs, the `@/` alias, Redux `DynamicModuleLoader` for optional reducers, `$api` for unauthenticated calls, and `$apiPrivate` for cookie-session and CSRF-protected calls. UI text belongs in i18next. Use SCSS Modules and the `-redesigned` theme tokens described in [.claude/rules/code-style.md](.claude/rules/code-style.md).
+Where code belongs, the anatomy of a slice and the steps for a new entity are in [.claude/rules/fsd-architecture.md](.claude/rules/fsd-architecture.md). `$api` serves unauthenticated calls and `$apiPrivate` cookie-session and CSRF-protected calls. UI text belongs in i18next. Use SCSS Modules and the `-redesigned` theme tokens described in [.claude/rules/code-style.md](.claude/rules/code-style.md).
 
 ## Server architecture
 
