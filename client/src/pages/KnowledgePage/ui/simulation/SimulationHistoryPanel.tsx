@@ -15,40 +15,7 @@ import { SimulationResult } from './SimulationResult';
 import cls from '@/shared/ui/layout/layout.module.scss';
 import own from '../Knowledge.module.scss';
 import { HistoryTable } from './HistoryTable';
-
-const Pager = memo(
-    ({
-        page,
-        total,
-        onChange,
-    }: {
-        page: number;
-        total: number;
-        onChange: (page: number) => void;
-    }) => {
-        const { t } = useTranslation();
-        const pages = Math.max(1, Math.ceil(total / SIMULATION_PAGE_SIZE));
-        return (
-            <div className={cls.actions}>
-                <Button
-                    disabled={page <= 1}
-                    aria-label={t('Previous page')}
-                    onClick={() => onChange(page - 1)}
-                >
-                    ←
-                </Button>
-                <span className={cls.muted}>{`${page} / ${pages}`}</span>
-                <Button
-                    disabled={page >= pages}
-                    aria-label={t('Next page')}
-                    onClick={() => onChange(page + 1)}
-                >
-                    →
-                </Button>
-            </div>
-        );
-    }
-);
+import { Pager } from '@/shared/ui/Pager';
 
 const RunDetail = memo(({ run, onClose }: { run: SimulationRun; onClose: () => void }) => {
     const { t } = useTranslation();
@@ -93,7 +60,12 @@ export const SimulationHistoryPanel = memo(({ refreshKey }: { refreshKey: number
                 (history.data.total ? (
                     <>
                         <HistoryTable runs={history.data.data} onOpen={open} />
-                        <Pager page={page} total={history.data.total} onChange={setPage} />
+                        <Pager
+                            page={page}
+                            total={history.data.total}
+                            pageSize={SIMULATION_PAGE_SIZE}
+                            onChange={setPage}
+                        />
                     </>
                 ) : (
                     <p className={cls.muted}>{t('No simulations yet.')}</p>
