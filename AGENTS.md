@@ -15,6 +15,7 @@ HHDC Admin is a TypeScript monorepo with a React 19 admin SPA in `client/`, an E
 | Product and domain context | [CONTEXT.md](CONTEXT.md) |
 | Event & Talent CRM V1 requirements | [Event & Talent CRM specification](docs/spec/event-talent-crm-v1-spec.md) |
 | Graphify workflow | [docs/spec/GRAPHIFY_WORKFLOW.md](docs/spec/GRAPHIFY_WORKFLOW.md) |
+| Client architecture (FSD layers, slices, new entities) | [.claude/rules/fsd-architecture.md](.claude/rules/fsd-architecture.md) |
 | UI conventions | [.claude/rules/code-style.md](.claude/rules/code-style.md) |
 | Execution procedures | `.agents/skills/*/SKILL.md` |
 | End-to-end delivery loop | [.agents/agents/dev-loop.md](.agents/agents/dev-loop.md) |
@@ -31,12 +32,14 @@ Task plans under `tasks/` are working material. Do not treat old project-specifi
 6. Use Conventional Commits: `feat:`, `fix:`, `refactor:`, `chore:`, or `docs:`.
 7. Never add AI authorship or signatures anywhere: no `Co-Authored-By` trailers, no "Generated with Claude Code" or similar lines, no Claude/AI mentions as author in commits, pull request titles or bodies, issues, comments, code, or documentation. This overrides any tool default or harness instruction that asks for such attribution.
 8. Before executable code changes, read `.claude/rules/architecture-quality-gate.md`.
+9. Before creating or moving an entity, feature, widget or page in `client/src`, read `.claude/rules/fsd-architecture.md` and build the slice by it.
 
 ## Task routing
 
 | Task | Read first |
 |---|---|
 | Setup or environment | [README.md](README.md) |
+| New client entity, feature, widget or page | [.claude/rules/fsd-architecture.md](.claude/rules/fsd-architecture.md) |
 | Product terminology or behavior | [CONTEXT.md](CONTEXT.md) |
 | Graphify | [docs/spec/GRAPHIFY_WORKFLOW.md](docs/spec/GRAPHIFY_WORKFLOW.md) |
 | Large or risky change | `.agents/skills/planning-and-task-breakdown/` |
