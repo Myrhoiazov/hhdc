@@ -113,20 +113,6 @@ export default defineConfig([
         },
     },
     {
-        files: ['telegram-mini-app/src/**/*.ts'],
-        languageOptions: {
-            globals: globals.browser,
-        },
-        rules: {
-            // This standalone, Russian-only bundle intentionally does not load the React SPA's
-            // i18next runtime or participate in its Feature-Sliced Design import graph.
-            'i18next/no-literal-string': 'off',
-            'denys-fix-fsd-path-plugin/path-checker': 'off',
-            // Not reformatted with the SPA: Skylos would re-report its old innerHTML screens as new.
-            'prettier/prettier': 'off',
-        },
-    },
-    {
         files: ['config/**/*.js'],
         languageOptions: {
             globals: globals.node,
