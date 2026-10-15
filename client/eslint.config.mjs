@@ -46,7 +46,7 @@ const layerConfigs = LAYERS.map((layer) => ({
 }));
 // Tests and stories render through the providers of the application; everything else still holds.
 const testLayerConfigs = LAYERS.filter((layer) => layer !== 'app').map((layer) => ({
-    files: [`src/${layer}/**/*.{test,stories}.{ts,tsx}`],
+    files: [`src/${layer}/**/*.{test,stories,testHelpers}.{ts,tsx}`],
     rules: {
         'no-restricted-imports': layerRule(
             layer,
@@ -107,7 +107,7 @@ export default defineConfig([
     ...layerConfigs,
     ...testLayerConfigs,
     {
-        files: ['**/src/**/*.test.{js,ts,jsx,tsx}'],
+        files: ['**/src/**/*.{test,testHelpers}.{js,ts,jsx,tsx}'],
         rules: {
             'i18next/no-literal-string': 'off',
         },
