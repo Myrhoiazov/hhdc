@@ -1,5 +1,5 @@
 // npm run generate:slice <layer> <Name>
-// Creates a slice laid out by .claude/rules/fsd-architecture.md.
+// Creates a slice laid out by .agents/rules/fsd-architecture.md.
 const { LAYERS, namesFor } = require('./naming');
 const writeSlice = require('./writeSlice');
 

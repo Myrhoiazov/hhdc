@@ -184,7 +184,7 @@
 - [ ] `npm run lint:ts` — 0 ошибок.
 - [ ] Пробный импорт `@/app/...` из `shared` и `@/entities/User/model/...` из `features` даёт ошибку линтера
       (проверяется вручную и откатывается).
-- [ ] Правила описаны в `.claude/rules/code-style.md`.
+- [ ] Правила описаны в `.agents/rules/code-style.md`.
 
 **Verification:**
 - [ ] Client: `npm run lint:ts`; Root: `npm run ci`
@@ -192,7 +192,7 @@
 **Dependencies:** 1.1, 1.2, 1.3
 
 **Files likely touched:**
-- `client/eslint.config.mjs`, `.claude/rules/code-style.md`
+- `client/eslint.config.mjs`, `.agents/rules/code-style.md`
 
 **Estimated scope:** S
 

@@ -45,7 +45,7 @@ The codebase is being migrated from an earlier DDC school-oriented product. Remo
 app -> pages -> widgets -> features -> entities -> shared
 ```
 
-Where code belongs, the anatomy of a slice and the steps for a new entity are in [.claude/rules/fsd-architecture.md](.claude/rules/fsd-architecture.md). `$api` serves unauthenticated calls and `$apiPrivate` cookie-session and CSRF-protected calls. UI text belongs in i18next. Use SCSS Modules and the `-redesigned` theme tokens described in [.claude/rules/code-style.md](.claude/rules/code-style.md).
+Where code belongs, the anatomy of a slice and the steps for a new entity are in [.agents/rules/fsd-architecture.md](.agents/rules/fsd-architecture.md). `$api` serves unauthenticated calls and `$apiPrivate` cookie-session and CSRF-protected calls. UI text belongs in i18next. Use SCSS Modules and the `-redesigned` theme tokens described in [.agents/rules/code-style.md](.agents/rules/code-style.md).
 
 ## Server architecture
 
