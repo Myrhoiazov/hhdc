@@ -1,5 +1,5 @@
 // The names a slice is built from, checked against the conventions of its layer
-// (.claude/rules/fsd-architecture.md): entities, widgets and pages are PascalCase,
+// (.agents/rules/fsd-architecture.md): entities, widgets and pages are PascalCase,
 // a feature is a camelCase verb and noun, and a page slice always ends with "Page".
 const PASCAL = /^[A-Z][A-Za-z0-9]*$/;
 const CAMEL = /^[a-z][A-Za-z0-9]*$/;
