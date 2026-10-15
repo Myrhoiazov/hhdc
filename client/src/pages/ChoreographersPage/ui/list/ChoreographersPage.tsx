@@ -4,6 +4,7 @@ import {
     listChoreographers,
     RELATIONSHIP_STATUSES,
     RelationshipStatus,
+    CHOREOGRAPHER_PAGE_SIZE,
 } from '@/entities/Choreographer';
 import { useCan } from '@/entities/User';
 import { useResource } from '@/shared/lib/useResource/useResource';
@@ -15,7 +16,7 @@ import cls from '@/shared/ui/layout/layout.module.scss';
 import own from '../Choreographers.module.scss';
 import { ChoreographerRow } from './ChoreographerRow';
 import { AddChoreographer } from './AddChoreographer';
-import { Pager } from './ChoreographerPager';
+import { Pager } from '@/shared/ui/Pager';
 
 export const ChoreographersPage = memo(() => {
     const { t } = useTranslation();
@@ -65,7 +66,14 @@ export const ChoreographersPage = memo(() => {
                 {list.data?.total === 0 && (
                     <p className={cls.muted}>{t('No choreographers found')}</p>
                 )}
-                {list.data && <Pager page={page} total={list.data.total} onChange={setPage} />}
+                {list.data && (
+                    <Pager
+                        page={page}
+                        total={list.data.total}
+                        pageSize={CHOREOGRAPHER_PAGE_SIZE}
+                        onChange={setPage}
+                    />
+                )}
             </Panel>
             {can('choreographers.create') && <AddChoreographer />}
         </CrmLayout>
