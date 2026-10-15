@@ -30,7 +30,9 @@ export default (env: IBuildEnv) => {
         if (isDev) {
             apiUrl = 'http://localhost:8080';
         } else {
-            throw new Error('CLIENT_API_URL не задан — укажите его в корневом .env или через переменные окружения / Docker build arg.');
+            throw new Error(
+                'CLIENT_API_URL не задан — укажите его в корневом .env или через переменные окружения / Docker build arg.'
+            );
         }
     }
 

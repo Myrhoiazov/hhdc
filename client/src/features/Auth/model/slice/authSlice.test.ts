@@ -10,24 +10,43 @@ describe('loginSlice', () => {
     });
 
     test('setUseremail sets the email', () => {
-        const state = loginReducer({ isLoading: false, email: '', password: '' } as LoginSchema, loginActions.setUseremail('a@b.com'));
+        const state = loginReducer(
+            { isLoading: false, email: '', password: '' } as LoginSchema,
+            loginActions.setUseremail('a@b.com')
+        );
         expect(state.email).toBe('a@b.com');
     });
 
     test('setPassword sets the password', () => {
-        const state = loginReducer({ isLoading: false, email: '', password: '' } as LoginSchema, loginActions.setPassword('secret'));
+        const state = loginReducer(
+            { isLoading: false, email: '', password: '' } as LoginSchema,
+            loginActions.setPassword('secret')
+        );
         expect(state.password).toBe('secret');
     });
 
     test('cleanError clears the error', () => {
-        const initialState: LoginSchema = { isLoading: false, email: '', password: '', error: { status: 401 } };
+        const initialState: LoginSchema = {
+            isLoading: false,
+            email: '',
+            password: '',
+            error: { status: 401 },
+        };
         const state = loginReducer(initialState, loginActions.cleanError());
         expect(state.error).toBeUndefined();
     });
 
     test('sets isLoading and clears error on loginByUsername.pending', () => {
-        const initialState: LoginSchema = { isLoading: false, email: '', password: '', error: { status: 401 } };
-        const state = loginReducer(initialState, loginByUsername.pending('requestId', { email: '', password: '' }));
+        const initialState: LoginSchema = {
+            isLoading: false,
+            email: '',
+            password: '',
+            error: { status: 401 },
+        };
+        const state = loginReducer(
+            initialState,
+            loginByUsername.pending('requestId', { email: '', password: '' })
+        );
 
         expect(state.isLoading).toBe(true);
         expect(state.error).toBeUndefined();
@@ -37,7 +56,10 @@ describe('loginSlice', () => {
         const user = { id: '1', username: 'denis', email: 'a@b.com', role: 'admin' } as never;
         const initialState: LoginSchema = { isLoading: true, email: '', password: '' };
 
-        const state = loginReducer(initialState, loginByUsername.fulfilled(user, 'requestId', { email: '', password: '' }));
+        const state = loginReducer(
+            initialState,
+            loginByUsername.fulfilled(user, 'requestId', { email: '', password: '' })
+        );
 
         expect(state.isLoading).toBe(false);
     });
@@ -48,7 +70,12 @@ describe('loginSlice', () => {
 
         const state = loginReducer(
             initialState,
-            loginByUsername.rejected(new Error('fail'), 'requestId', { email: '', password: '' }, error),
+            loginByUsername.rejected(
+                new Error('fail'),
+                'requestId',
+                { email: '', password: '' },
+                error
+            )
         );
 
         expect(state.isLoading).toBe(false);

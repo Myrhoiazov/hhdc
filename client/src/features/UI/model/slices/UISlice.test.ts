@@ -9,7 +9,7 @@ describe('uiSlice', () => {
     test('setScrollPosition stores the position for the given path', () => {
         const state = uiReducer(
             { scroll: {} },
-            uiActions.setScrollPosition({ path: '/clients', position: 250 }),
+            uiActions.setScrollPosition({ path: '/clients', position: 250 })
         );
 
         expect(state.scroll['/clients']).toBe(250);
@@ -18,7 +18,7 @@ describe('uiSlice', () => {
     test('setScrollPosition overwrites an existing position for the same path', () => {
         const state = uiReducer(
             { scroll: { '/clients': 100 } },
-            uiActions.setScrollPosition({ path: '/clients', position: 250 }),
+            uiActions.setScrollPosition({ path: '/clients', position: 250 })
         );
 
         expect(state.scroll['/clients']).toBe(250);

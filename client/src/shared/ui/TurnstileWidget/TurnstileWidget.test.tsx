@@ -64,7 +64,9 @@ describe('TurnstileWidget', () => {
             remove: removeMock,
         };
 
-        const { unmount } = render(<TurnstileWidget siteKey="test-site-key" onVerify={jest.fn()} />);
+        const { unmount } = render(
+            <TurnstileWidget siteKey="test-site-key" onVerify={jest.fn()} />
+        );
         await waitFor(() => expect(window.turnstile?.render).toHaveBeenCalled());
 
         unmount();

@@ -20,12 +20,14 @@ let instances: MockImage[] = [];
 
 beforeEach(() => {
     instances = [];
-    global.Image = fromAny(class extends MockImage {
-        constructor() {
-            super();
-            instances.push(this);
+    global.Image = fromAny(
+        class extends MockImage {
+            constructor() {
+                super();
+                instances.push(this);
+            }
         }
-    });
+    );
 });
 
 describe('Avatar', () => {

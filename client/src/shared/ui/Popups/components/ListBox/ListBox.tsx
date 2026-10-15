@@ -69,11 +69,7 @@ export function ListBox<T extends string>(props: ListBoxProps<T>) {
 
 function ListBoxOptionItem<T extends string>({ item }: { item: ListBoxItem<T> }) {
     return (
-        <ListboxOption
-            value={item.value}
-            disabled={item.disabled}
-            as={Fragment}
-        >
+        <ListboxOption value={item.value} disabled={item.disabled} as={Fragment}>
             {({ active, selected }) => (
                 <li
                     className={classNames(cls.item, {

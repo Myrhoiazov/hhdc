@@ -9,7 +9,7 @@ import { User } from '@/entities/User';
 jest.mock('@/shared/api/api', () => ({
     $api: { get: jest.fn() },
     $apiPrivate: { post: jest.fn() },
-    injectStore: jest.fn(),
+    setUnauthorizedHandler: jest.fn(),
     csrfActions: { reset: jest.fn() },
 }));
 
@@ -25,7 +25,7 @@ function renderWithAuth(authData?: User) {
                 <MemoryRouter>
                     <AvatarDropdown />
                 </MemoryRouter>
-            </Provider>,
+            </Provider>
         ),
     };
 }
@@ -37,7 +37,13 @@ describe('AvatarDropdown', () => {
     });
 
     test('renders the menu with Settings, Profile, and Logout once authenticated', async () => {
-        renderWithAuth({ id: '1', name: 'denis', email: 'd@example.com', roles: ['ADMIN'], permissions: [] });
+        renderWithAuth({
+            id: '1',
+            name: 'denis',
+            email: 'd@example.com',
+            roles: ['ADMIN'],
+            permissions: [],
+        });
 
         fireEvent.click(screen.getByRole('button'));
 
@@ -46,7 +52,13 @@ describe('AvatarDropdown', () => {
     });
 
     test('dispatches logout when "Выйти" is clicked', async () => {
-        const { store } = renderWithAuth({ id: '1', name: 'denis', email: 'd@example.com', roles: ['ADMIN'], permissions: [] });
+        const { store } = renderWithAuth({
+            id: '1',
+            name: 'denis',
+            email: 'd@example.com',
+            roles: ['ADMIN'],
+            permissions: [],
+        });
 
         fireEvent.click(screen.getByRole('button'));
         fireEvent.click(await screen.findByText('Выйти'));

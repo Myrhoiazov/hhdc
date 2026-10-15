@@ -8,7 +8,7 @@ import { useLocation } from 'react-router-dom';
 import { useAppDispatch } from '@/shared/lib/hooks/useAppDispatch/useAppDispatch';
 import { useSelector } from 'react-redux';
 import { getUIScrollByPath, uiActions } from '@/features/UI';
-import { StateSchema } from '@/app/providers/StoreProvider';
+import { StateSchema } from '@/shared/lib/store/StateSchema';
 
 interface PageProps {
     className?: string;

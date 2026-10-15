@@ -1,0 +1,283 @@
+.inboxToolbar {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    gap: 16px;
+}
+
+.mailboxPills {
+    display: flex;
+    flex: 0 0 auto;
+    gap: 8px;
+
+    button {
+        min-height: 44px;
+        padding: 8px 16px;
+        font-weight: 600;
+        color: var(--sidebar-text-hover-redesigned);
+        background: var(--sidebar-bg-redesigned);
+        border: 1px solid var(--card-border-redesigned);
+        border-radius: var(--radius-sm-redesigned);
+        cursor: pointer;
+    }
+
+    .activeMailbox {
+        color: var(--primary-contrast-redesigned);
+        background: var(--primary-redesigned);
+        border-color: var(--primary-redesigned);
+    }
+}
+
+.mailboxCount {
+    display: inline-block;
+    min-width: 22px;
+    padding: 1px 7px;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--danger-text-redesigned);
+    text-align: center;
+    background: var(--danger-bg-redesigned);
+    border: 1px solid var(--danger-text-redesigned);
+    border-radius: var(--radius-pill-redesigned);
+    margin-left: 8px;
+}
+
+.searchBox {
+    display: flex;
+    align-items: center;
+    min-width: 180px;
+    min-height: 44px;
+    padding: 0 14px;
+    color: var(--sidebar-text-redesigned);
+    background: var(--sidebar-bg-redesigned);
+    border: 1px solid var(--card-border-redesigned);
+    border-radius: var(--radius-md-redesigned);
+    flex: 1 1 320px;
+    gap: 10px;
+
+    svg {
+        width: 18px;
+        height: 18px;
+        fill: currentcolor;
+        flex: 0 0 18px;
+    }
+
+    input {
+        width: 100%;
+        min-width: 0;
+        padding: 11px 0;
+        color: var(--sidebar-text-hover-redesigned);
+        background: transparent;
+        border: 0;
+        outline: 0;
+    }
+
+    &:focus-within {
+        border-color: var(--primary-redesigned);
+    }
+}
+
+.conversationList {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    border-right: 1px solid var(--card-border-redesigned);
+    overflow: hidden;
+}
+
+.listHeading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 58px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--card-border-redesigned);
+
+    span {
+        padding: 2px 9px;
+        color: var(--sidebar-text-redesigned);
+        background: var(--sidebar-hover-bg-redesigned);
+        border-radius: var(--radius-pill-redesigned);
+    }
+}
+
+.listScroll {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    overflow-y: auto;
+}
+
+.conversationItem {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 16px 18px;
+    color: var(--sidebar-text-hover-redesigned);
+    text-align: left;
+    background: transparent;
+    border: 0;
+    transition: background 160ms ease;
+    cursor: pointer;
+    gap: 6px;
+
+    &:hover,
+    &:focus-visible {
+        background: var(--sidebar-hover-bg-redesigned);
+        outline: none;
+    }
+}
+
+.conversationRow {
+    display: flex;
+    align-items: stretch;
+    border-bottom: 1px solid var(--card-border-redesigned);
+
+    .conversationItem {
+        min-width: 0;
+        flex: 1 1 auto;
+        padding-left: 10px;
+    }
+}
+
+.checkedConversation {
+    background: var(--primary-soft-bg-redesigned);
+}
+
+.rowCheckbox {
+    width: 18px;
+    height: 18px;
+    margin: 18px 0 0 18px;
+    accent-color: var(--primary-redesigned);
+    cursor: pointer;
+    flex: 0 0 auto;
+}
+
+.selectAll {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    gap: 10px;
+
+    .rowCheckbox {
+        margin: 0;
+    }
+}
+
+.loadMore {
+    min-height: 48px;
+    margin: 12px 18px;
+    color: var(--primary-redesigned);
+    background: var(--primary-soft-bg-redesigned);
+    border: 1px solid var(--primary-redesigned);
+    border-radius: var(--radius-sm-redesigned);
+    cursor: pointer;
+
+    &:disabled {
+        opacity: 0.65;
+        cursor: wait;
+    }
+}
+
+.selectedConversation {
+    background: var(--primary-soft-bg-redesigned);
+    box-shadow: inset 4px 0 0 var(--primary-redesigned);
+}
+
+.itemTop {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-width: 0;
+    gap: 12px;
+
+    strong {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    time {
+        font-size: 12px;
+        color: var(--sidebar-group-label-redesigned);
+        flex: 0 0 auto;
+    }
+}
+
+.itemSubject,
+.itemPreview {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.itemSubject {
+    font-weight: 600;
+}
+
+.itemPreview {
+    font-size: 13px;
+    color: var(--sidebar-text-redesigned);
+}
+
+.unreadText {
+    font-weight: 700;
+}
+
+.unreadDot {
+    width: 9px;
+    height: 9px;
+    background: var(--primary-redesigned);
+    border-radius: var(--radius-pill-redesigned);
+    flex: 0 0 auto;
+}
+
+.emptyList {
+    padding: 32px 18px;
+    color: var(--sidebar-text-redesigned);
+    text-align: center;
+}
+
+@media (width <= 980px) {
+    .inboxToolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .mailboxPills {
+        overflow-x: auto;
+    }
+
+    .searchBox {
+        flex-basis: auto;
+    }
+}
+
+@media (width <= 720px) {
+    .conversationList {
+        min-height: calc(100dvh - 210px);
+        border-right: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .conversationItem {
+        transition: none;
+    }
+}
+
+.itemBadges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 2px;
+}
+
+/* The brand colour is too light to read as text: it stays in the fill and the outline. */
+.openedConversation {
+    strong,
+    .itemSubject {
+        font-weight: 500;
+        color: var(--sidebar-text-redesigned);
+    }
+}

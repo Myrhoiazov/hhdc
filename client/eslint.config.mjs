@@ -8,12 +8,59 @@ import pluginReact from 'eslint-plugin-react';
 import i18next from 'eslint-plugin-i18next';
 import globals from 'globals';
 
+// Feature-Sliced Design: a layer imports only the layers below it, and a slice of another layer
+// only through its public API (`index.ts`). `path-checker` keeps imports inside a slice relative.
+const LAYERS = ['shared', 'entities', 'features', 'widgets', 'pages', 'app'];
+const SLICED_LAYERS = ['entities', 'features', 'widgets', 'pages'];
+
+// One entity may name the types of another through `@/entities/<Slice>/@x/<consumer>`: the file
+// lists exactly what that consumer may know. Only entities import it; everybody else sees a deep import.
+const CROSS_IMPORT = '[^/]+/@x/[^/]+$';
+const publicApiPattern = (layer) => ({
+    regex:
+        layer === 'entities'
+            ? `^@/(?:features|widgets|pages)/[^/]+/.+|^@/entities/(?!${CROSS_IMPORT})[^/]+/.+`
+            : `^@/(?:${SLICED_LAYERS.join('|')})/[^/]+/.+`,
+    message: 'Import a slice through its public API: @/<layer>/<slice>.',
+});
+const layerPattern = (layer, forbidden) => ({
+    regex: `^@/(?:${forbidden.join('|')})(?:/${layer === 'entities' ? `(?!${CROSS_IMPORT})` : ''}|$)`,
+    message: `The ${layer} layer imports only the layers below it (app → pages → widgets → features → entities → shared), never a neighbouring slice.`,
+});
+// A slice never imports another slice of its own layer, so the layer itself is forbidden too;
+// inside a slice imports are relative. `shared` and `app` have segments instead of slices.
+const forbiddenFor = (layer) =>
+    LAYERS.slice(LAYERS.indexOf(layer) + (SLICED_LAYERS.includes(layer) ? 0 : 1));
+const layerRule = (layer, forbidden = forbiddenFor(layer)) => [
+    'error',
+    {
+        patterns: [
+            publicApiPattern(layer),
+            ...(forbidden.length ? [layerPattern(layer, forbidden)] : []),
+        ],
+    },
+];
+const layerConfigs = LAYERS.map((layer) => ({
+    files: [`src/${layer}/**/*.{ts,tsx}`],
+    rules: { 'no-restricted-imports': layerRule(layer) },
+}));
+// Tests and stories render through the providers of the application; everything else still holds.
+const testLayerConfigs = LAYERS.filter((layer) => layer !== 'app').map((layer) => ({
+    files: [`src/${layer}/**/*.{test,stories,testHelpers}.{ts,tsx}`],
+    rules: {
+        'no-restricted-imports': layerRule(
+            layer,
+            forbiddenFor(layer).filter((name) => name !== 'app')
+        ),
+    },
+}));
+
 export default defineConfig([
     js.configs.recommended,
     tseslint.configs.recommended,
     pluginReact.configs.flat.recommended,
     i18next.configs['flat/recommended'],
-    { ignores: ['node_modules/', 'dist/', 'build/', 'scripts/'] },
+    { ignores: ['node_modules/', 'dist/', 'build/', 'scripts/', 'storybook-static/'] },
     {
         files: ['**/*.{js,mjs,cjs,ts,jsx,tsx}'],
         languageOptions: {
@@ -38,6 +85,8 @@ export default defineConfig([
         },
 
         rules: {
+            // Prettier lays the code out (`.prettierrc`); a difference from its layout is an error.
+            'prettier/prettier': 'error',
             'react/jsx-indent': [2, 4],
             'react/jsx-indent-props': [2, 4],
             // indent: [2, 4, { SwitchCase: 1 }],
@@ -55,22 +104,12 @@ export default defineConfig([
             indent: 'off',
         },
     },
+    ...layerConfigs,
+    ...testLayerConfigs,
     {
-        files: ['**/src/**/*.test.{js,ts,jsx,tsx}'],
+        files: ['**/src/**/*.{test,testHelpers}.{js,ts,jsx,tsx}'],
         rules: {
             'i18next/no-literal-string': 'off',
-        },
-    },
-    {
-        files: ['telegram-mini-app/src/**/*.ts'],
-        languageOptions: {
-            globals: globals.browser,
-        },
-        rules: {
-            // This standalone, Russian-only bundle intentionally does not load the React SPA's
-            // i18next runtime or participate in its Feature-Sliced Design import graph.
-            'i18next/no-literal-string': 'off',
-            'denys-fix-fsd-path-plugin/path-checker': 'off',
         },
     },
     {

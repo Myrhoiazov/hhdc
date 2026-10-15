@@ -1,5 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit';
-import { getUserAuthData } from '@/entities/User';
+import { getUserAuthData, hasPermission, Permission } from '@/entities/User';
 import { RoutePath } from '@/shared/config/routeConfig/routeConfig';
 import Main from '@/shared/assets/icons/main.svg';
 import People from '@/shared/assets/icons/clients.svg';
@@ -18,26 +18,92 @@ export const getSidebarItems = createSelector(getUserAuthData, (user) => {
         { path: RoutePath.people, Icon: People, text: 'People' },
         { path: RoutePath.events, Icon: Events, text: 'Events', iconColor: 'stroke' },
         { path: RoutePath.email, Icon: Mail, text: 'Communications' },
-        { path: RoutePath.knowledge_base, Icon: Knowledge, text: 'AI & Knowledge', iconColor: 'stroke' },
+        {
+            path: RoutePath.knowledge_base,
+            Icon: Knowledge,
+            text: 'AI & Knowledge',
+            iconColor: 'stroke',
+        },
     ];
     const permissions = user?.permissions || [];
     // V2 sections appear only for staff who hold the matching permission.
-    const gated: [string, SidebarItemType][] = [
-        ['choreographers.read', { path: RoutePath.choreographers, Icon: People, text: 'Choreographers' }],
+    const gated: [Permission, SidebarItemType][] = [
+        [
+            'choreographers.read',
+            { path: RoutePath.choreographers, Icon: People, text: 'Choreographers' },
+        ],
         ['people.write', { path: RoutePath.duplicates, Icon: People, text: 'Duplicates' }],
         ['campaigns.read', { path: RoutePath.campaigns, Icon: Mail, text: 'Campaigns' }],
-        ['automation.read', { path: RoutePath.automations, Icon: Settings, text: 'Automations', iconColor: 'stroke' }],
-        ['finance.read', { path: RoutePath.finance, Icon: Euro, text: 'Finance', iconColor: 'stroke' }],
-        ['ai.use', { path: RoutePath.assistant, Icon: Knowledge, text: 'AI Assistant', iconColor: 'stroke' }],
-        ['operations.read', { path: RoutePath.operations, Icon: Check, text: 'Operations', iconColor: 'stroke' }],
+        [
+            'automation.read',
+            {
+                path: RoutePath.automations,
+                Icon: Settings,
+                text: 'Automations',
+                iconColor: 'stroke',
+            },
+        ],
+        [
+            'finance.read',
+            { path: RoutePath.finance, Icon: Euro, text: 'Finance', iconColor: 'stroke' },
+        ],
+        [
+            'ai.use',
+            {
+                path: RoutePath.assistant,
+                Icon: Knowledge,
+                text: 'AI Assistant',
+                iconColor: 'stroke',
+            },
+        ],
+        [
+            'operations.read',
+            { path: RoutePath.operations, Icon: Check, text: 'Operations', iconColor: 'stroke' },
+        ],
     ];
-    items.push(...gated.filter(([permission]) => permissions.includes(permission)).map(([, item]) => item));
+    items.push(
+        ...gated
+            .filter(([permission]) => hasPermission(permissions, permission))
+            .map(([, item]) => item)
+    );
     const children: SidebarItemType[] = [];
-    if (permissions.includes('users.manage')) children.push({ path: RoutePath.settings, Icon: People, text: 'Users & Roles' });
-    if (permissions.includes('providers.read')) children.push({ path: RoutePath.providers, Icon: Settings, text: 'Providers', iconColor: 'stroke' });
-    if (permissions.includes('settings.manage')) children.push({ path: RoutePath.platform, Icon: Settings, text: 'Platform', iconColor: 'stroke' });
-    if (permissions.includes('settings.manage')) children.push({ path: RoutePath.notification_settings, Icon: Bell, text: 'Notifications', iconColor: 'stroke' });
-    if (permissions.includes('audit.read')) children.push({ path: RoutePath.audit, Icon: Settings, text: 'Audit log', iconColor: 'stroke' });
-    if (children.length) items.push({ path: '/settings', Icon: Settings, text: 'Settings', children, iconColor: 'stroke' });
+    if (hasPermission(permissions, 'users.manage'))
+        children.push({ path: RoutePath.settings, Icon: People, text: 'Users & Roles' });
+    if (hasPermission(permissions, 'providers.read'))
+        children.push({
+            path: RoutePath.providers,
+            Icon: Settings,
+            text: 'Providers',
+            iconColor: 'stroke',
+        });
+    if (hasPermission(permissions, 'settings.manage'))
+        children.push({
+            path: RoutePath.platform,
+            Icon: Settings,
+            text: 'Platform',
+            iconColor: 'stroke',
+        });
+    if (hasPermission(permissions, 'settings.manage'))
+        children.push({
+            path: RoutePath.notification_settings,
+            Icon: Bell,
+            text: 'Notifications',
+            iconColor: 'stroke',
+        });
+    if (hasPermission(permissions, 'audit.read'))
+        children.push({
+            path: RoutePath.audit,
+            Icon: Settings,
+            text: 'Audit log',
+            iconColor: 'stroke',
+        });
+    if (children.length)
+        items.push({
+            path: '/settings',
+            Icon: Settings,
+            text: 'Settings',
+            children,
+            iconColor: 'stroke',
+        });
     return items;
 });

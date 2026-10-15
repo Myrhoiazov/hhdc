@@ -2,7 +2,8 @@ import { fromPartial } from '@total-typescript/shoehorn';
 import { SidebarItemType } from '../types/sidebar';
 import { isSidebarPathActive } from './isSidebarPathActive';
 
-const link = (path: string, children?: SidebarItemType[]) => fromPartial<SidebarItemType>({ path, text: path, children });
+const link = (path: string, children?: SidebarItemType[]) =>
+    fromPartial<SidebarItemType>({ path, text: path, children });
 
 const items = [
     link('/'),

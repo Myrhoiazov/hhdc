@@ -22,7 +22,9 @@ export const useTwoFactorResend = (setError: (message?: string) => void) => {
             setResendAvailableAt(Date.now() + RESEND_COOLDOWN_SECONDS * 1000);
             setResendMessage(t('Код отправлен повторно'));
         } else {
-            const payload = result.payload as { message?: string; retryAfterSeconds?: number } | undefined;
+            const payload = result.payload as
+                | { message?: string; retryAfterSeconds?: number }
+                | undefined;
             if (payload?.retryAfterSeconds) {
                 setResendAvailableAt(Date.now() + payload.retryAfterSeconds * 1000);
             }

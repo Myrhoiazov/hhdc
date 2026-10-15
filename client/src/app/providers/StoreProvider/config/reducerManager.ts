@@ -1,16 +1,6 @@
-import {
-    Action,
-    combineReducers,
-    Reducer,
-    ReducersMapObject,
-} from '@reduxjs/toolkit';
-import {
-    ReducerManager,
-    StateSchema,
-    StateSchemaKey,
-} from './StateSchema';
+import { Action, combineReducers, Reducer, ReducersMapObject } from '@reduxjs/toolkit';
+import { ReducerManager, StateSchema, StateSchemaKey } from './StateSchema';
 import { UserSchema } from '@/entities/User';
-
 
 type ExpectedStateType = {
     user: UserSchema;
@@ -24,11 +14,11 @@ type ExpectedStateType = {
 };
 
 export function createReducerManager(
-    initialReducers: ReducersMapObject<StateSchema>,
+    initialReducers: ReducersMapObject<StateSchema>
 ): ReducerManager {
     const reducers = { ...initialReducers };
 
-    let combinedReducer = combineReducers(reducers)
+    let combinedReducer = combineReducers(reducers);
     let keysToRemove: Array<StateSchemaKey> = [];
 
     return {

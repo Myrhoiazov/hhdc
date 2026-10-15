@@ -8,7 +8,7 @@ import { Page } from './Page';
 jest.mock('@/shared/api/api', () => ({
     $api: { get: jest.fn() },
     $apiPrivate: { get: jest.fn() },
-    injectStore: jest.fn(),
+    setUnauthorizedHandler: jest.fn(),
     csrfActions: { reset: jest.fn() },
 }));
 
@@ -21,7 +21,7 @@ function renderPage(props: Partial<React.ComponentProps<typeof Page>> = {}, rout
                 <MemoryRouter initialEntries={[route]}>
                     <Page {...props}>content</Page>
                 </MemoryRouter>
-            </Provider>,
+            </Provider>
         ),
     };
 }
@@ -75,7 +75,7 @@ describe('Page', () => {
                 <MemoryRouter initialEntries={['/clients']}>
                     <Page>content</Page>
                 </MemoryRouter>
-            </Provider>,
+            </Provider>
         );
 
         act(() => {

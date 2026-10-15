@@ -12,3 +12,9 @@ export interface UserSchema {
 
     _inited: boolean;
 }
+
+declare module '@/shared/lib/store/StateSchema' {
+    interface StateSchema {
+        user: UserSchema;
+    }
+}

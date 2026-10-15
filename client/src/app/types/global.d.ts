@@ -1,5 +1,3 @@
-
-
 declare module '*.scss' {
     interface IClassNames {
         [className: string]: string;
@@ -23,15 +21,14 @@ declare const __PROJECT__: 'storybook' | 'frontend' | 'jest';
 declare const $CombinedState: unique symbol;
 
 interface EmptyObject {
-    readonly [$CombinedState]?: undefined
+    readonly [$CombinedState]?: undefined;
 }
 type CombinedState<S> = EmptyObject & S;
 
-
 type DeepPartial<T> = T extends object
     ? {
-        [P in keyof T]?: DeepPartial<T[P]>;
-    }
+          [P in keyof T]?: DeepPartial<T[P]>;
+      }
     : T;
 
 type OptionalRecord<K extends keyof any, T> = {

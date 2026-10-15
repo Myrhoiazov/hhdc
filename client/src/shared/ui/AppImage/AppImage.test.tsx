@@ -20,12 +20,14 @@ let instances: MockImage[] = [];
 
 beforeEach(() => {
     instances = [];
-    global.Image = fromAny(class extends MockImage {
-        constructor() {
-            super();
-            instances.push(this);
+    global.Image = fromAny(
+        class extends MockImage {
+            constructor() {
+                super();
+                instances.push(this);
+            }
         }
-    });
+    );
 });
 
 describe('AppImage', () => {
@@ -35,7 +37,13 @@ describe('AppImage', () => {
     });
 
     test('renders the img once loading succeeds', () => {
-        render(<AppImage src="/photo.png" alt="Photo" fallback={<div data-testid="fallback">loading</div>} />);
+        render(
+            <AppImage
+                src="/photo.png"
+                alt="Photo"
+                fallback={<div data-testid="fallback">loading</div>}
+            />
+        );
 
         act(() => {
             instances[0].onload?.();
@@ -50,7 +58,7 @@ describe('AppImage', () => {
             <AppImage
                 src="/broken.png"
                 errorFallback={<div data-testid="error-fallback">broken</div>}
-            />,
+            />
         );
 
         act(() => {

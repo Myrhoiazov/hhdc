@@ -1,0 +1,40 @@
+.MailBadge {
+    padding: 1px 9px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.6;
+    border: 1px solid currentcolor;
+    border-radius: var(--radius-pill-redesigned);
+}
+
+.incoming {
+    color: var(--style-1-text-redesigned);
+    background: var(--style-1-bg-redesigned);
+}
+
+.sent {
+    color: var(--sidebar-text-hover-redesigned);
+    background: var(--primary-soft-bg-redesigned);
+    border-color: var(--primary-redesigned);
+}
+
+.client {
+    color: var(--style-7-text-redesigned);
+    background: var(--style-7-bg-redesigned);
+}
+
+.new {
+    color: var(--success-text-redesigned);
+    background: var(--success-bg-redesigned);
+}
+
+.opened {
+    color: var(--sidebar-text-redesigned);
+    background: var(--sidebar-hover-bg-redesigned);
+    border-color: var(--card-border-redesigned);
+}
+
+.review {
+    color: var(--danger-text-redesigned);
+    background: var(--danger-bg-redesigned);
+}

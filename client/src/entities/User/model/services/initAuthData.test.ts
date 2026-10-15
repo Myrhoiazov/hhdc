@@ -12,7 +12,9 @@ beforeEach(() => {
 describe('initAuthData', () => {
     test('fetches the profile, dispatches setAuthData, and fulfills with the user', async () => {
         const user = { id: '1', username: 'denis', email: 'denis@example.com', role: 'admin' };
-        extra.apiPrivate.get.mockResolvedValue({ data: { data: { user, csrfToken: 'fake-token' } } });
+        extra.apiPrivate.get.mockResolvedValue({
+            data: { data: { user, csrfToken: 'fake-token' } },
+        });
 
         const result = await initAuthData()(dispatch, () => ({}) as never, extra as never);
 

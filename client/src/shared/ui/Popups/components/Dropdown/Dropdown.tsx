@@ -29,7 +29,9 @@ export function Dropdown(props: DropdownProps) {
 
     return (
         <Menu as="div" className={classNames(cls.Dropdown, {}, [className, popupCls.popup])}>
-            <MenuButton className={popupCls.trigger} aria-label={triggerAriaLabel}>{trigger}</MenuButton>
+            <MenuButton className={popupCls.trigger} aria-label={triggerAriaLabel}>
+                {trigger}
+            </MenuButton>
             <MenuItems transition className={classNames(cls.menu, {}, menuClasses)}>
                 {items.map((item, index) => {
                     const content = ({ active }: { active: boolean }) => (

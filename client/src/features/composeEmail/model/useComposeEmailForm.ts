@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import { composeEmail, ProviderConnection } from '@/entities/crm';
+import { composeEmail } from '@/entities/Conversation';
+import { ProviderConnection } from '@/entities/Provider';
 
 export interface ComposeFields {
     providerId: string;
@@ -21,27 +22,45 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // Returns the translation key of the first problem, or an empty string for a sendable letter.
 export const validateCompose = (fields: ComposeFields): string => {
     const required = [fields.providerId, fields.recipient, fields.subject, fields.content];
-    if (required.some((value) => !value.trim())) return 'Fill in the sender, recipient, subject and message';
+    if (required.some((value) => !value.trim()))
+        return 'Fill in the sender, recipient, subject and message';
     return EMAIL_PATTERN.test(fields.recipient.trim()) ? '' : 'Enter a valid email address';
 };
 
-const sendComposed = (fields: ComposeFields, files: File[]) => composeEmail({
-    providerConnectionId: fields.providerId,
-    recipient: fields.recipient.trim(),
-    subject: fields.subject.trim(),
-    content: fields.content.trim(),
-}, files);
+const sendComposed = (fields: ComposeFields, files: File[]) =>
+    composeEmail(
+        {
+            providerConnectionId: fields.providerId,
+            recipient: fields.recipient.trim(),
+            subject: fields.subject.trim(),
+            content: fields.content.trim(),
+        },
+        files
+    );
 
-export const useComposeEmailForm = ({ providers, preferredProviderId, recipient = '', onSent }: ComposeEmailFormParams) => {
+export const useComposeEmailForm = ({
+    providers,
+    preferredProviderId,
+    recipient = '',
+    onSent,
+}: ComposeEmailFormParams) => {
     const defaultProviderId = preferredProviderId || providers[0]?.id || '';
-    const [fields, setFields] = useState<ComposeFields>({ providerId: defaultProviderId, recipient, subject: '', content: '' });
+    const [fields, setFields] = useState<ComposeFields>({
+        providerId: defaultProviderId,
+        recipient,
+        subject: '',
+        content: '',
+    });
     const [files, setFiles] = useState<File[]>([]);
     const [error, setError] = useState('');
     const [busy, setBusy] = useState(false);
 
     // Mailboxes load after the page mounts, so the sender is chosen once they arrive.
     useEffect(() => {
-        if (defaultProviderId) setFields((previous) => (previous.providerId ? previous : { ...previous, providerId: defaultProviderId }));
+        if (defaultProviderId)
+            setFields((previous) =>
+                previous.providerId ? previous : { ...previous, providerId: defaultProviderId }
+            );
     }, [defaultProviderId]);
 
     const setField = useCallback((name: keyof ComposeFields, value: string) => {
@@ -50,8 +69,12 @@ export const useComposeEmailForm = ({ providers, preferredProviderId, recipient 
 
     const submit = useCallback(async () => {
         const problem = validateCompose(fields);
-        if (problem) { setError(problem); return; }
-        setBusy(true); setError('');
+        if (problem) {
+            setError(problem);
+            return;
+        }
+        setBusy(true);
+        setError('');
         try {
             await sendComposed(fields, files);
             setFiles([]);
@@ -59,7 +82,9 @@ export const useComposeEmailForm = ({ providers, preferredProviderId, recipient 
             onSent();
         } catch (cause) {
             setError(cause instanceof Error ? cause.message : 'Request failed');
-        } finally { setBusy(false); }
+        } finally {
+            setBusy(false);
+        }
     }, [fields, files, recipient, onSent]);
 
     return { fields, files, error, busy, setField, setFiles, submit };

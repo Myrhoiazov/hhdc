@@ -20,7 +20,11 @@ export const LoginFormActions = ({ isLoading }: LoginFormActionsProps) => {
                 fullWidth
             >
                 {isLoading ? t('Выполняется вход...') : t('Войти')}
-                {!isLoading && <span className={cls.arrow} aria-hidden="true">→</span>}
+                {!isLoading && (
+                    <span className={cls.arrow} aria-hidden="true">
+                        →
+                    </span>
+                )}
             </Button>
         </VStack>
     );

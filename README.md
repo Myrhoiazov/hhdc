@@ -110,7 +110,7 @@ The server uses feature modules:
 modules/<name>/<name>.routes.ts -> <name>.controller.ts -> <name>.service.ts
 ```
 
-Use [CONTEXT.md](CONTEXT.md) for product terminology, [AGENTS.md](AGENTS.md) for execution rules, and [.claude/rules/code-style.md](.claude/rules/code-style.md) for UI tokens and theme conventions.
+Use [CONTEXT.md](CONTEXT.md) for product terminology, [AGENTS.md](AGENTS.md) for execution rules, and [.agents/rules/code-style.md](.agents/rules/code-style.md) for UI tokens and theme conventions, and [.agents/rules/fsd-architecture.md](.agents/rules/fsd-architecture.md) for the client architecture.
 
 ## Environment
 

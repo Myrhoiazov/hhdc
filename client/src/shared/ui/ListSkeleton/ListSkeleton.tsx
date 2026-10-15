@@ -11,12 +11,7 @@ interface ListSkeletonProps {
 }
 
 export const ListSkeleton = memo((props: ListSkeletonProps) => {
-    const {
-        className,
-        rows = 4,
-        height = 68,
-        border = '14px',
-    } = props;
+    const { className, rows = 4, height = 68, border = '14px' } = props;
 
     return (
         <div className={classNames(cls.ListSkeleton, {}, [className])}>

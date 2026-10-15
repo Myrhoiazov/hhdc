@@ -1,0 +1,94 @@
+/* Layout helpers shared by the CRM pages: how blocks, form grids, rows and their texts are laid
+   out. Surfaces and pills are components (`Panel`, `Badge`); these are the classes between them. */
+
+/* Blocks under each other with the gap of a page. */
+.stack {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    color: var(--sidebar-text-hover-redesigned);
+    gap: 24px;
+}
+
+.grid {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.check {
+    display: flex;
+    align-items: center;
+    min-height: 40px;
+    align-self: end;
+    gap: 8px;
+}
+
+/* Spans the whole form grid: hints, action buttons and errors. */
+.wide { grid-column: 1 / -1; }
+
+.row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--card-border-redesigned);
+    gap: 12px;
+
+    /* The brand colour is a fill, not an ink: as text it vanishes on the light surface. */
+    a {
+        color: inherit;
+        text-decoration: underline;
+        text-decoration-color: var(--sidebar-group-label-redesigned);
+        text-underline-offset: 3px;
+    }
+}
+
+.error { color: var(--danger-text-redesigned); }
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.success {
+    color: var(--success-text-redesigned);
+    background: var(--success-bg-redesigned);
+    border: 1px solid var(--success-text-redesigned);
+}
+
+.danger {
+    color: var(--danger-text-redesigned);
+    background: var(--danger-bg-redesigned);
+    border: 1px solid var(--danger-text-redesigned);
+}
+
+.muted { color: var(--sidebar-text-redesigned); }
+
+.result {
+    padding: 16px;
+    border-radius: var(--radius-md-redesigned);
+}
+
+.secret {
+    padding: 12px;
+    background: var(--sidebar-hover-bg-redesigned);
+    border: 1px solid var(--card-border-redesigned);
+    border-radius: var(--radius-sm-redesigned);
+    font-family: monospace;
+    overflow-wrap: anywhere;
+}
+
+/* Read by screen readers, not shown: the label of a control that is clear from what surrounds it. */
+.srOnly {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    border: 0;
+    clip: rect(0, 0, 0, 0);
+    overflow: hidden;
+    white-space: nowrap;
+}

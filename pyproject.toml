@@ -13,7 +13,16 @@
 # resolver. Server imports are relative and stay covered, but the ignore list
 # cannot be scoped per-path in Skylos, so the rule is ignored repo-wide. See
 # docs/spec/SKYLOS_FINDINGS_CHECKLIST.md.
-ignore = ["SKY-L012", "SKY-D260", "SKY-D252", "SKY-D253", "SKY-D248", "SKY-D327", "SKY-D216", "SKY-D230", "SKY-S101", "SKY-T105", "SKY-L007", "SKY-Q402", "SKY-U001", "SKY-U003", "SKY-U004", "SKY-E003"]
+ignore = ["SKY-L012", "SKY-D260", "SKY-D252", "SKY-D253", "SKY-D248", "SKY-D327", "SKY-D216", "SKY-D230", "SKY-S101", "SKY-T105", "SKY-L007", "SKY-Q402", "SKY-U001", "SKY-U003", "SKY-U004", "SKY-E003", "SKY-Q804"]
+
+# SKY-Q804 (stable module depends on an unstable one) fires on the public API of
+# every FSD slice in `client/`: `index.ts` is imported by many modules (stable)
+# and re-exports the slice's own request file (unstable). That is what a public
+# API is, not a design fault, and the finding repeats for each new slice
+# (entities/Person, Event, Conversation, Provider, ...). The baseline already
+# accepted it for StoreProvider and ThemeProvider, but baseline fingerprints
+# hold absolute local paths and do not match in CI. Its sibling metrics
+# SKY-Q802/SKY-Q803 stay reported as advisory.
 
 # SKY-D260 (homoglyph) is handled by the injection scanner, which filters
 # findings ONLY via the global `ignore` list. The rule fires on natural Russian

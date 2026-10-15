@@ -24,7 +24,7 @@ const renderSidebar = () => {
             <MemoryRouter>
                 <Sidebar />
             </MemoryRouter>
-        </Provider>,
+        </Provider>
     );
 };
 

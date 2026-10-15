@@ -2,25 +2,57 @@ import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { addPersonRole, savePerson } from '@/entities/crm';
+import { addPersonRole, savePerson } from '@/entities/Person';
 import { userReducer } from '@/entities/User';
 import { Navbar } from './Navbar';
 
-jest.mock('@/entities/crm', () => ({ PERSON_ROLES: ['CUSTOMER', 'PARTICIPANT', 'CHOREOGRAPHER', 'STAFF', 'PARTNER'], savePerson: jest.fn(), addPersonRole: jest.fn(), listProviders: jest.fn().mockResolvedValue({ data: [], total: 0 }), composeEmail: jest.fn() }));
+jest.mock('@/entities/Person', () => ({
+    ...jest.requireActual('@/entities/Person'),
+    PERSON_ROLES: ['CUSTOMER', 'PARTICIPANT', 'CHOREOGRAPHER', 'STAFF', 'PARTNER'],
+    savePerson: jest.fn(),
+    addPersonRole: jest.fn(),
+}));
+jest.mock('@/entities/Conversation', () => ({ composeEmail: jest.fn() }));
+jest.mock('@/entities/Provider', () => ({
+    listProviders: jest.fn().mockResolvedValue({ data: [], total: 0 }),
+}));
 const mockNavigate = jest.fn();
-jest.mock('react-router-dom', () => ({ ...jest.requireActual('react-router-dom'), useNavigate: () => mockNavigate }));
+jest.mock('react-router-dom', () => ({
+    ...jest.requireActual('react-router-dom'),
+    useNavigate: () => mockNavigate,
+}));
 
 const renderNavbar = (permissions: string[]) => {
-    const store = configureStore({ reducer: { user: userReducer }, preloadedState: { user: { _inited: true, authData: { id: '1', name: 'Team', email: 'team@example.test', roles: ['VIEWER'], permissions } } } });
-    return render(<Provider store={store}><MemoryRouter><Navbar /></MemoryRouter></Provider>);
+    const store = configureStore({
+        reducer: { user: userReducer },
+        preloadedState: {
+            user: {
+                _inited: true,
+                authData: {
+                    id: '1',
+                    name: 'Team',
+                    email: 'team@example.test',
+                    roles: ['VIEWER'],
+                    permissions,
+                },
+            },
+        },
+    });
+    return render(
+        <Provider store={store}>
+            <MemoryRouter>
+                <Navbar />
+            </MemoryRouter>
+        </Provider>
+    );
 };
 test('viewer cannot see the create person action', () => {
     renderNavbar([]);
-    expect(screen.queryByRole('button', {name: 'Add person'})).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Add person' })).not.toBeInTheDocument();
 });
 test('people writers see the create person action', () => {
     renderNavbar(['people.write']);
-    expect(screen.getByRole('button', {name: 'Add person'})).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Add person' })).toBeInTheDocument();
 });
 
 test('the create person action opens a modal form, saves the person with roles and opens the new person', async () => {
@@ -37,7 +69,15 @@ test('the create person action opens a modal form, saves the person with roles a
     fireEvent.click(screen.getByLabelText('PARTICIPANT'));
     fireEvent.submit(form);
 
-    await waitFor(() => expect(savePerson).toHaveBeenCalledWith({ firstName: 'Anna', lastName: 'Smit', email: 'anna@example.test', phone: null, notes: '' }));
+    await waitFor(() =>
+        expect(savePerson).toHaveBeenCalledWith({
+            firstName: 'Anna',
+            lastName: 'Smit',
+            email: 'anna@example.test',
+            phone: null,
+            notes: '',
+        })
+    );
     expect(addPersonRole).toHaveBeenCalledWith('person-9', 'PARTICIPANT');
     await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('/people/person-9'));
 });

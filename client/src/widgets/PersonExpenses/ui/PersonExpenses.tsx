@@ -1,0 +1,80 @@
+import { memo, useCallback } from 'react';
+import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { ExpenseTotals, listPersonExpenses, useExpenseText } from '@/entities/EventExpense';
+import { formatDate } from '@/shared/lib/format/date';
+import { useResource } from '@/shared/lib/useResource/useResource';
+import { RequestState } from '@/shared/ui/RequestState';
+import { Badge } from '@/shared/ui/Badge';
+import { Panel } from '@/shared/ui/Panel';
+import { listStyles as own } from '@/shared/ui/ListTable';
+import cls from '@/shared/ui/layout/layout.module.scss';
+
+// What events planned for and paid to this person. The lines are entered on the event page;
+// here they are only read, so the person's page and the event never disagree.
+export const PersonExpenses = memo(({ personId }: { personId: string }) => {
+    const { t } = useTranslation();
+    const text = useExpenseText();
+    const load = useCallback(() => listPersonExpenses(personId), [personId]);
+    const expenses = useResource(load);
+    const { data } = expenses;
+    return (
+        <Panel aria-label={t('Payments and expenses from events')}>
+            <h2>{t('Payments and expenses from events')}</h2>
+            <RequestState error={expenses.error} loading={expenses.loading && !data} />
+            {data?.lines.length === 0 && (
+                <p className={cls.muted}>
+                    {t('Nothing has been planned for or paid to this person on events yet')}
+                </p>
+            )}
+            {data && data.lines.length > 0 && (
+                <>
+                    <ExpenseTotals totals={data.totals} />
+                    <div className={own.tableScroll}>
+                        <table className={own.table}>
+                            <thead>
+                                <tr>
+                                    <th>{t('Date')}</th>
+                                    <th>{t('Event')}</th>
+                                    <th>{t('Category')}</th>
+                                    <th className={own.optional}>{t('Description')}</th>
+                                    <th className={own.number}>{t('Amount')}</th>
+                                    <th>{t('Status')}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {data.lines.map((line) => (
+                                    <tr key={line.id}>
+                                        <td className={own.secondary}>
+                                            {line.date ? formatDate(line.date) : '—'}
+                                        </td>
+                                        <td>
+                                            {line.event ? (
+                                                <Link
+                                                    className={own.name}
+                                                    to={`/events/${line.event.id}`}
+                                                >
+                                                    {line.event.name}
+                                                </Link>
+                                            ) : (
+                                                '—'
+                                            )}
+                                        </td>
+                                        <td>{text.category(line.category)}</td>
+                                        <td className={`${own.secondary} ${own.optional}`}>
+                                            {line.description || '—'}
+                                        </td>
+                                        <td className={own.number}>{text.money(line.amount)}</td>
+                                        <td>
+                                            <Badge>{text.status(line.status)}</Badge>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </>
+            )}
+        </Panel>
+    );
+});

@@ -11,7 +11,7 @@ function renderDropdown(dropdownItems: DropdownItem[] = items) {
     return render(
         <MemoryRouter>
             <Dropdown trigger={<span>Open menu</span>} items={dropdownItems} />
-        </MemoryRouter>,
+        </MemoryRouter>
     );
 }
 

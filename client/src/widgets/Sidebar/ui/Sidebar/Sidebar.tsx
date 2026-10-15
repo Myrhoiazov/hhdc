@@ -15,7 +15,13 @@ interface SidebarProps {
     onMobileClose?: () => void;
 }
 
-const SidebarItemsSection = ({ title, items, collapsed, openGroup, onGroupToggle }: {
+const SidebarItemsSection = ({
+    title,
+    items,
+    collapsed,
+    openGroup,
+    onGroupToggle,
+}: {
     title?: string;
     items: SidebarItemType[];
     collapsed: boolean;
@@ -35,7 +41,7 @@ const SidebarItemsSection = ({ title, items, collapsed, openGroup, onGroupToggle
                 />
             ) : (
                 <SidebarItem item={item} key={item.text} collapsed={collapsed} />
-            ),
+            )
         )}
     </>
 );
@@ -49,13 +55,15 @@ export const Sidebar = memo(({ className, mobileOpen, onMobileClose }: SidebarPr
     return (
         <>
             {/* Mobile overlay backdrop */}
-            {mobileOpen && (
-                <div className={cls.backdrop} onClick={onMobileClose} />
-            )}
+            {mobileOpen && <div className={cls.backdrop} onClick={onMobileClose} />}
 
             <div
                 data-testid="sidebar"
-                className={classNames(cls.Sidebar, { [cls.collapsed]: collapsed, [cls.mobileOpen]: !!mobileOpen }, [className])}
+                className={classNames(
+                    cls.Sidebar,
+                    { [cls.collapsed]: collapsed, [cls.mobileOpen]: !!mobileOpen },
+                    [className]
+                )}
             >
                 {/* Mobile close button */}
                 <button className={cls.mobileClose} onClick={onMobileClose} aria-label="Закрыть">
@@ -63,20 +71,30 @@ export const Sidebar = memo(({ className, mobileOpen, onMobileClose }: SidebarPr
                 </button>
 
                 <Button
-                    data-testid="sidebar-toggle" onClick={onToggle} className={cls.collapseBtn}
-                    theme={ButtonTheme.BACKGROUND_INVERTED} size={ButtonSize.L} square
+                    data-testid="sidebar-toggle"
+                    onClick={onToggle}
+                    className={cls.collapseBtn}
+                    theme={ButtonTheme.BACKGROUND_INVERTED}
+                    size={ButtonSize.L}
+                    square
                 >
                     {collapsed ? '›' : '‹'}
                 </Button>
 
                 <div className={cls.items}>
                     <SidebarItemsSection
-                        title={t('Навигация')} items={mainItems} collapsed={collapsed}
-                        openGroup={openGroup} onGroupToggle={onGroupToggle}
+                        title={t('Навигация')}
+                        items={mainItems}
+                        collapsed={collapsed}
+                        openGroup={openGroup}
+                        onGroupToggle={onGroupToggle}
                     />
                     <SidebarItemsSection
-                        title={t('CRM разделы')} items={crmItems} collapsed={collapsed}
-                        openGroup={openGroup} onGroupToggle={onGroupToggle}
+                        title={t('CRM разделы')}
+                        items={crmItems}
+                        collapsed={collapsed}
+                        openGroup={openGroup}
+                        onGroupToggle={onGroupToggle}
                     />
                 </div>
 

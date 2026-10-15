@@ -14,13 +14,19 @@ test('picked files are added once', () => {
 });
 
 test('an oversized file is left out with a reason', () => {
-    const result = addAttachments([], [file('video.mov', MAX_ATTACHMENT_BYTES + 1), file('map.png')]);
+    const result = addAttachments(
+        [],
+        [file('video.mov', MAX_ATTACHMENT_BYTES + 1), file('map.png')]
+    );
     expect(result.files.map((item) => item.name)).toEqual(['map.png']);
     expect(result.error).toBe('A file larger than 10 MB cannot be attached');
 });
 
 test('only five files are kept', () => {
-    const result = addAttachments([], ['a', 'b', 'c', 'd', 'e', 'f'].map((name) => file(name)));
+    const result = addAttachments(
+        [],
+        ['a', 'b', 'c', 'd', 'e', 'f'].map((name) => file(name))
+    );
     expect(result.files).toHaveLength(5);
     expect(result.error).toBe('No more than 5 files can be attached');
 });
